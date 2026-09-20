@@ -6,6 +6,8 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.13","items":["작성 규칙을 최소한으로 정리 (별표 지문, 따옴표 금지, 한 문단으로 이어 쓰기, 끝맺음 자유)","지문 시제를 현재형/과거형 중에 고를 수 있음"]},
+  {"v":"1.12","items":["규칙 정리: 질문으로 끝내지 말기, 감정 설명 줄이기, 말줄임표 제한, 쉼표 끊기 금지, 'A, 아니 B' 금지 삭제"]},
   {"v":"1.11","items":["AI 설정에 '문단 정리' 추가: 대사만 떨어진 줄을 앞 지문 문단에 자동으로 붙임","정리된 문체로 저장돼서 다음 답변도 그 문체를 따라가게 함"]},
   {"v":"1.10","items":["대사만 따로 떨어진 문단이 많아지는 문제 수정: 대사를 지문 문단 안에 섞도록","응답 길이 조정 (보통 2~4문단, 길게 4~6문단)"]},
   {"v":"1.9","items":["캐릭터 설정에 '문체 예시' 칸 추가: 마음에 드는 답변을 넣으면 그 문체를 참고","지문에 캐릭터의 속내 녹이기, 대사 길이 다양하게"]},
@@ -225,6 +227,8 @@ textarea.tall{min-height:180px}
         <label for="fStyle">문체 예시 (선택)</label>
         <textarea id="fStyle" class="tall" placeholder="마음에 드는 답변을 그대로 붙여넣어 주세요. 문체와 호흡만 참고하고 내용은 따라 하지 않아요."></textarea>
         <div class="hint">별표 없이 붙여넣어도 괜찮아요.</div>
+        <label>지문 시제</label>
+        <div class="seg" id="fTense"><button data-v="present">현재형 (~한다)</button><button data-v="past">과거형 (~했다)</button></div>
         <label>응답 길이</label>
         <div class="seg" id="fLen"><button data-v="short">짧게</button><button data-v="mid">보통</button><button data-v="long">길게</button></div>
         <label>모델</label>
@@ -564,7 +568,7 @@ function renderHome() {
 let editing = null;
 function segSet(el, v) { el.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === v)); }
 function segGet(el) { return el.querySelector("button.on")?.dataset.v; }
-["#fLen", "#fTier"].forEach(s => $(s).onclick = e => { if (e.target.dataset.v) segSet($(s), e.target.dataset.v); });
+["#fLen", "#fTier", "#fTense"].forEach(s => $(s).onclick = e => { if (e.target.dataset.v) segSet($(s), e.target.dataset.v); });
 
 function openEditor(id) {
   editing = id ? store.chars.find(c => c.id === id) : null;
@@ -574,7 +578,7 @@ function openEditor(id) {
   $("#fChar").value = c.prompt || ""; $("#fGreet").value = c.greet || "";
   $("#fUName").value = c.uname || ""; $("#fUser").value = c.upersona || "";
   $("#fNote").value = c.note || ""; $("#fStyle").value = c.style || "";
-  segSet($("#fLen"), c.len || "mid"); segSet($("#fTier"), c.tier || "default");
+  segSet($("#fLen"), c.len || "mid"); segSet($("#fTense"), c.tense || "present"); segSet($("#fTier"), c.tier || "default");
   $("#delChar").hidden = !editing;
   show("editor");
 }
@@ -585,7 +589,7 @@ $("#saveChar").onclick = () => {
     emoji: $("#fEmoji").value.trim(), name: $("#fName").value.trim() || "이름 없음",
     prompt: $("#fChar").value, greet: $("#fGreet").value,
     uname: $("#fUName").value.trim(), upersona: $("#fUser").value,
-    note: $("#fNote").value, style: $("#fStyle").value, len: segGet($("#fLen")), tier: segGet($("#fTier"))
+    note: $("#fNote").value, style: $("#fStyle").value, len: segGet($("#fLen")), tense: segGet($("#fTense")), tier: segGet($("#fTier"))
   };
   let id;
   if (editing) { Object.assign(editing, data); id = editing.id; }
@@ -639,39 +643,29 @@ function editMsg(node, m) {
 }
 
 function buildRules(c) {
-  const lenMap = { short: "1~2문단, 짧고 호흡 빠르게", mid: "2~4문단", long: "4~6문단, 장면과 감정을 풍부하게. 문단을 쪼개지 말고 각 문단을 충실하게" };
+  const u = c.uname || "유저";
+  const lenMap = { short: "1~2문단, 짧고 호흡 빠르게", mid: "2~4문단", long: "4~6문단, 장면과 감정을 풍부하게" };
+  const tense = c.tense === "past"
+    ? "- 지문은 3인칭 과거형(~했다, ~였다)으로 쓴다."
+    : "- 지문은 3인칭 현재형(~한다, ~본다)으로 쓴다.";
   return `너는 지금부터 캐릭터 롤플레이 채팅의 '${c.name}' 역할을 맡는다. 이후 대화에서 너는 오직 ${c.name}으로서 응답한다.
 
 [캐릭터 설정]
 ${sub(c.prompt, c) || "(설정 없음)"}
 
-[유저 캐릭터: ${c.uname || "유저"}]
+[유저 캐릭터: ${u}]
 ${sub(c.upersona, c) || "(설정 없음)"}
 
 [작성 규칙]
 - 한국어로 쓴다. 행동·표정·분위기·속마음 등 지문은 *별표*로 감싸고, ${c.name}의 대사는 별표 없이 쓴다.
-- 지문은 3인칭 현재형(~한다, ~본다)으로 쓴다. 과거형 소설체(~했다, ~였다)로 쓰지 않는다.
-- 대사에 따옴표("")를 붙이지 않는다. 대사는 별표 밖에 그냥 쓴다.
-- 지문과 대사는 자연스럽게 섞되, 정해진 틀을 반복하지 않는다. 문단마다 "지문→대사→지문→대사" 같은 같은 구조가 되지 않게 한다.
-- 대사는 대부분 지문 문단 안에 섞어 넣는다. 대사만 따로 떨어진 한 줄짜리 문단은 만들지 않는다(응답 전체에서 많아야 1개).
-- 문단 수를 늘리지 않는다. 한 문단 안에서 행동, 속내, 대사가 이어지게 해서 덩어리감 있게 쓴다. 문단 길이는 자연스럽게 다르게, 지문만 있는 짧은 마무리 문단은 괜찮다.
-- 매 응답을 질문으로 끝내지 않는다. 행동, 혼잣말, 여운, 갑작스러운 전개 등 끝맺음도 다양하게 한다.
-- 모든 문장에 감정 설명을 붙이지 않는다. 말하지 않고 보여주는 장면도 둔다.
-- 긴 외모·배경 묘사보다 지금 하는 행동, 표정, 말투에 집중한다. 가볍고 생동감 있게.
-- 지문에 캐릭터의 속내나 태도를 자연스럽게 녹인다(예: 눈치는 빠르니까, 표정이 심상치 않으면 바로 발을 뺄 생각이다). 지문이 단순한 동작 나열이 되지 않게 한다.
-- 대사는 지문 문장 사이에 자연스럽게 끼워 넣는다. 짧은 대답, 말끝을 흐리는 말, 긴 능청 등 대사 길이도 다양하게.
-- 대사는 캐릭터의 말투와 성격을 살린다.
-- ${c.uname || "유저"}의 대사, 행동, 감정은 절대 대신 쓰지 않는다. ${c.uname || "유저"}의 반응을 기다리는 지점에서 멈춘다.
-- 이전 응답의 문장이나 전개를 반복하지 않는다. 장면을 앞으로 진행시킨다.
-- 말줄임표(...)는 정말 말끝을 흐리거나 머뭇거리는 순간에만 쓴다. 한 응답에 2~3번 이하. 습관처럼 문장마다 붙이지 않는다. 말줄임표를 줄이려고 쉼표로 대신 끊지 않는다.
-- 대사는 실제 한국 사람이 입으로 하는 말처럼 자연스럽게 쓴다. 번역투, 글말투, 어색한 조어를 쓰지 않는다.
-- "A, 아니 B" 식으로 말하다가 스스로 정정하는 패턴(예: "사람은, 아니 나는")을 쓰지 않는다.
-- 쉼표로 단어를 어색하게 끊지 않는다(예: "깜빡, 이 됐지" ✗ → "깜빡했지" ✓).
-- 같은 말버릇이나 문장 구조를 응답마다 반복하지 않는다.
-- 캐릭터에서 벗어나 설명하거나 AI라고 언급하지 않는다. 응답 앞뒤에 제목·메모·괄호 해설을 붙이지 않는다.
+- 대사에 따옴표("")를 붙이지 않는다.
+${tense}
+- 지문과 대사는 한 문단 안에서 이어 쓴다. 지문 다음에 줄을 바꿔 대사를 따로 떼어놓지 않는다. (*지문* 대사 *지문* 대사 처럼 한 줄로 이어진다)
+- 대사나 질문으로 끝내야 하는 건 아니다. 지문으로 끝나도 되고 대사로 끝나도 된다. 장면 흐름에 맞게 정한다.
+- ${u}의 대사, 행동, 감정은 대신 쓰지 않는다.
 - 분량: ${lenMap[c.len] || lenMap.mid}.
 ${c.note.trim() ? "\n[추가 지시]\n" + sub(c.note, c) : ""}
-${(c.style || "").trim() ? "\n[문체 참고]\n아래 글은 원하는 문체의 예시다. 문장의 호흡, 지문과 대사가 섞이는 방식, 톤, 묘사의 밀도만 참고한다. 문장, 표현, 전개, 문단 수와 구조는 절대 베끼지 않는다. 매 응답은 지금 장면에 맞게 새로 쓴다.\n---\n" + sub(c.style, c) + "\n---" : ""}
+${(c.style || "").trim() ? "\n[문체 참고]\n아래 글의 문체와 호흡을 참고한다. 문장과 내용을 그대로 베끼지 않는다.\n---\n" + sub(c.style, c) + "\n---" : ""}
 
 이제 롤플레이를 시작한다.`;
 }
