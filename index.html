@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.19","items":["입력창을 누르면 아이폰이 화면을 확대해 오른쪽이 잘리던 문제 수정 (입력 글씨 16px)"]},
   {"v":"1.18","items":["키보드가 올라올 때 화면이 잘리거나 입력창이 밀리는 문제 재수정 (보이는 영역에 맞춰 앱 높이·위치 조정)"]},
   {"v":"1.17","items":["입력창이 화면 위로 튀어 오르던 문제 수정 (1.15의 키보드 처리 되돌림)"]},
   {"v":"1.16","items":["장면 전환 규칙에서 대괄호·괄호 표기 제거 (지문만으로 인식)","'장면 전환' 버튼 제거","보통 길이를 살짝 줄임 (2~3문단)"]},
@@ -98,7 +99,7 @@ header.bar h2{font-size:16px;margin:0;flex:1;font-weight:700;overflow:hidden;tex
 fieldset{border:0;margin:0 0 22px;padding:0}
 legend{font-family:"Gowun Batang",serif;font-weight:700;font-size:17px;padding:0;margin-bottom:10px}
 label{display:block;font-size:13px;color:var(--soft);margin:12px 0 5px}
-input[type=text],textarea,select{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;resize:vertical}
+input[type=text],textarea,select{width:100%;font-size:16px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;resize:vertical}
 textarea{min-height:90px;line-height:1.55}
 textarea.tall{min-height:180px}
 .hint{font-size:12px;color:var(--soft);margin-top:4px}
@@ -128,12 +129,12 @@ textarea.tall{min-height:180px}
 @keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
 @media (prefers-reduced-motion:reduce){.thinking::after{animation:none;content:"..."}}
 .err{color:var(--danger);font-size:13px;margin:-8px 0 16px}
-.edit-area{width:100%;min-height:120px}
+.edit-area{width:100%;min-height:120px;font-size:16px}
 .composer{border-top:1px solid var(--line);padding:10px 12px;background:var(--bg)}
 .composer .quick{display:flex;gap:6px;margin-bottom:8px;overflow-x:auto}
 .composer .quick button{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 12px;font-size:13px;color:var(--soft);white-space:nowrap}
 .composer .in{display:flex;gap:8px;align-items:flex-end}
-.composer textarea{min-height:44px;max-height:160px;resize:none;border-radius:14px}
+.composer textarea{font-size:16px;min-height:44px;max-height:160px;resize:none;border-radius:14px}
 .composer .btn{padding:10px 14px;border-radius:14px;flex:none}
 .banner{margin:12px 16px 0;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:13px;color:var(--soft);background:var(--panel)}
 </style>
