@@ -6,6 +6,8 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.18","items":["키보드가 올라올 때 화면이 잘리거나 입력창이 밀리는 문제 재수정 (보이는 영역에 맞춰 앱 높이·위치 조정)"]},
+  {"v":"1.17","items":["입력창이 화면 위로 튀어 오르던 문제 수정 (1.15의 키보드 처리 되돌림)"]},
   {"v":"1.16","items":["장면 전환 규칙에서 대괄호·괄호 표기 제거 (지문만으로 인식)","'장면 전환' 버튼 제거","보통 길이를 살짝 줄임 (2~3문단)"]},
   {"v":"1.15","items":["메시지 입력할 때 화면이 밀리는 문제 수정 (모바일 키보드)","유저가 장면 전환·시간 경과를 지시하면 앞 내용을 잇지 않고 새 장면부터 쓰도록","'장면 전환' 버튼 추가"]},
   {"v":"1.14","items":["응답 길이에 '자동' 추가 (상한 없이 흐름에 맞게)","짧게·보통·길게도 장면에 따라 늘었다 줄었다 하도록 완화","이전 응답의 형식(문단 수, 지문·대사 순서와 비율)을 따라 하지 않도록 지시 추가"]},
@@ -47,11 +49,11 @@
 }
 *,*::before,*::after{box-sizing:inherit}
 html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;height:100%;position:fixed;inset:0;overflow:hidden;width:100%;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.6;-webkit-text-size-adjust:100%}
+body{margin:0;height:100%;height:100dvh;overflow:hidden;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.6;-webkit-text-size-adjust:100%}
 button,input,textarea,select{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.app{height:100%;overflow:hidden;display:flex;flex-direction:column;max-width:720px;margin:0 auto}
+.app{position:fixed;top:0;left:0;right:0;height:100%;height:100dvh;overflow:hidden;display:flex;flex-direction:column;max-width:720px;margin:0 auto}
 .screen{display:none;flex:1;min-height:0;flex-direction:column}
 .screen.on{display:flex}
 
@@ -785,20 +787,20 @@ $("#resetChat").onclick = () => {
   if (busy || !confirm("대화를 처음부터 다시 시작할까요?")) return;
   store.chats[cur] = []; save(); openChat(cur);
 };
-// 모바일 키보드에 맞춰 화면 높이 고정
-function fitViewport() {
-  const vv = window.visualViewport;
-  if (!vv) return;
-  document.querySelector(".app").style.height = Math.round(vv.height) + "px";
-  window.scrollTo(0, 0);
-}
-if (window.visualViewport) {
-  window.visualViewport.addEventListener("resize", fitViewport);
-  window.visualViewport.addEventListener("scroll", fitViewport);
-  fitViewport();
+// 모바일 키보드: 보이는 영역에 앱을 맞춤
+const vv = window.visualViewport;
+if (vv) {
+  const app = document.querySelector(".app");
+  const fit = () => {
+    app.style.height = Math.round(vv.height) + "px";
+    app.style.top = Math.round(vv.offsetTop) + "px";
+  };
+  vv.addEventListener("resize", fit);
+  vv.addEventListener("scroll", fit);
+  fit();
 }
 $("#input").addEventListener("focus", () => {
-  setTimeout(() => { fitViewport(); $("#log").scrollTop = $("#log").scrollHeight; }, 250);
+  setTimeout(() => { $("#log").scrollTop = $("#log").scrollHeight; }, 300);
 });
 
 const autoGrow = () => { const t = $("#input"); t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight, 160) + "px"; };
