@@ -6,6 +6,9 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.26","items":["AI 설정에 글씨체(고운돋움·고운바탕·기본 고딕)와 글씨 크기 선택 추가","눈누 웹폰트 우선 사용, 막히면 구글 폰트로 자동 대체"]},
+  {"v":"1.25","items":["대화 상단의 프로필 사진 제거","글씨체 변경: 고운돋움(본문·대사), 고운바탕(지문)"]},
+  {"v":"1.24","items":["캐릭터 프로필 사진 업로드 추가 (목록·대화 상단에 표시)"]},
   {"v":"1.23","items":["입력창이 아이폰 하단 홈 바에 겹치던 문제 수정"]},
   {"v":"1.22","items":["대본 형식의 지문을 괄호에서 *별표*로 변경"]},
   {"v":"1.21","items":["대본 형식 표기를 '이름 | 대사'로 변경"]},
@@ -34,12 +37,18 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
+@font-face{font-family:'GounBatang';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunBatang-Regular.woff') format('woff');font-weight:400;font-display:swap}
+@font-face{font-family:'GounBatang';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunBatang-Bold.woff') format('woff');font-weight:700;font-display:swap}
+@font-face{font-family:'GowoonDodum';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunDodum-Regular.woff') format('woff');font-weight:400;font-display:swap}
 :root{
   --bg:#f3eff6; --panel:#ffffff; --ink:#262033; --soft:#6f6780; --line:#ddd5e6;
   --accent:#8a4f7d; --accent-ink:#fff; --narr:#7a6f8c; --user-bg:#ebe2f2; --char-bg:#ffffff;
   --danger:#b04545;
+  --font-body:"GowoonDodum","Gowun Dodum","Noto Sans KR",system-ui,-apple-system,sans-serif;
+  --font-serif:"GounBatang","Gowun Batang",serif;
+  --font-size:15px;
   box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme:dark){
@@ -54,7 +63,7 @@
 }
 *,*::before,*::after{box-sizing:inherit}
 html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;height:100%;height:100dvh;overflow:hidden;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.6;-webkit-text-size-adjust:100%}
+body{margin:0;height:100%;height:100dvh;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:var(--font-size);line-height:1.6;-webkit-text-size-adjust:100%}
 button,input,textarea,select{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -63,7 +72,7 @@ button{cursor:pointer}
 .screen.on{display:flex}
 
 header.bar{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--bg)}
-header.bar h1{font-family:"Gowun Batang",serif;font-size:21px;margin:0;flex:1;font-weight:700;letter-spacing:-.01em}
+header.bar h1{font-family:var(--font-serif);font-size:21px;margin:0;flex:1;font-weight:700;letter-spacing:-.01em}
 header.bar h2{font-size:16px;margin:0;flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .icon{background:none;border:0;padding:6px 8px;border-radius:8px;color:var(--soft);font-size:15px}
 .icon:hover{background:var(--line);color:var(--ink)}
@@ -76,17 +85,22 @@ header.bar h2{font-size:16px;margin:0;flex:1;font-weight:700;overflow:hidden;tex
 .list{flex:1;overflow-y:auto;padding:8px 0}
 .row{display:flex;align-items:center;gap:14px;padding:12px 16px;border:0;background:none;width:100%;text-align:left}
 .row:hover{background:var(--panel)}
-.av{width:48px;height:48px;border-radius:50%;background:var(--user-bg);display:grid;place-items:center;font-size:22px;flex:none;font-family:"Gowun Batang",serif;font-weight:700;color:var(--accent)}
+.avrow{display:flex;align-items:center;gap:14px;margin-top:6px}
+.avbtns{display:flex;gap:8px;flex-wrap:wrap}
+.av-lg{width:72px;height:72px;font-size:30px}
+.av img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+.hav{width:30px;height:30px;font-size:15px;flex:none}
+.av{overflow:hidden;width:48px;height:48px;border-radius:50%;background:var(--user-bg);display:grid;place-items:center;font-size:22px;flex:none;font-family:var(--font-serif);font-weight:700;color:var(--accent)}
 .row .meta{flex:1;min-width:0}
 .row .nm{font-weight:700}
 .row .pv{color:var(--soft);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .empty{padding:48px 24px;text-align:center;color:var(--soft)}
-.empty p{font-family:"Gowun Batang",serif;font-size:18px;color:var(--ink);margin:0 0 6px}
+.empty p{font-family:var(--font-serif);font-size:18px;color:var(--ink);margin:0 0 6px}
 .fab{margin:4px 16px 16px;align-self:stretch}
 #verBtn{position:relative;font-size:13px}
 .dot{position:absolute;top:4px;right:2px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
 .ver-now{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:20px}
-.ver-now .big{font-family:"Gowun Batang",serif;font-size:22px;font-weight:700}
+.ver-now .big{font-family:var(--font-serif);font-size:22px;font-weight:700}
 .ver-now .st{color:var(--soft);font-size:14px;margin:4px 0 12px}
 .ver-now .st.new{color:var(--accent);font-weight:700}
 .ver-now .btns{display:flex;gap:8px}
@@ -101,7 +115,7 @@ header.bar h2{font-size:16px;margin:0;flex:1;font-weight:700;overflow:hidden;tex
 /* editor */
 .form{flex:1;overflow-y:auto;padding:16px 16px 32px}
 fieldset{border:0;margin:0 0 22px;padding:0}
-legend{font-family:"Gowun Batang",serif;font-weight:700;font-size:17px;padding:0;margin-bottom:10px}
+legend{font-family:var(--font-serif);font-weight:700;font-size:17px;padding:0;margin-bottom:10px}
 label{display:block;font-size:13px;color:var(--soft);margin:12px 0 5px}
 input[type=text],textarea,select{width:100%;font-size:16px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;resize:vertical}
 textarea{min-height:90px;line-height:1.55}
@@ -129,7 +143,7 @@ textarea.tall{min-height:180px}
 .fmt-novel .msg.char .body{line-height:1.85}
 .fmt-novel .body p,.fmt-script .body p{margin:0 0 .9em}
 .fmt-novel .narr,.fmt-script .narr{color:var(--soft)}
-.narr{font-family:"Gowun Batang",serif;color:var(--narr);line-height:1.8}
+.narr{font-family:var(--font-serif);color:var(--narr);line-height:1.8}
 .say{color:var(--ink)}
 .tools{display:flex;gap:2px;margin-top:4px}
 .msg.user .tools{justify-content:flex-end}
@@ -185,6 +199,13 @@ textarea.tall{min-height:180px}
         <div class="hint" id="sProvHint"></div>
       </fieldset>
       <fieldset>
+        <legend>화면</legend>
+        <label>글씨체</label>
+        <div class="seg" id="sFont"><button data-v="dodum">고운돋움</button><button data-v="batang">고운바탕</button><button data-v="sans">기본 고딕</button></div>
+        <label>글씨 크기</label>
+        <div class="seg" id="sSize"><button data-v="s">작게</button><button data-v="m">보통</button><button data-v="l">크게</button><button data-v="xl">아주 크게</button></div>
+      </fieldset>
+      <fieldset>
         <legend>문단 정리</legend>
         <label style="display:flex;gap:10px;align-items:center;color:var(--ink);font-size:15px;margin:0"><input type="checkbox" id="sMerge" style="width:20px;height:20px"> 대사만 있는 줄을 지문 문단에 붙이기</label>
         <div class="hint">모델이 대사를 따로 떼어 써도, 앞 지문 문단에 이어 붙여서 덩어리감 있게 보여줘요. 모든 AI에 적용돼요.</div>
@@ -219,6 +240,16 @@ textarea.tall{min-height:180px}
     <div class="form">
       <fieldset>
         <legend>캐릭터</legend>
+        <label>프로필 사진</label>
+        <div class="avrow">
+          <div class="av av-lg" id="avPreview"></div>
+          <div class="avbtns">
+            <button class="btn ghost" id="avPick" type="button">사진 선택</button>
+            <button class="btn ghost" id="avClear" type="button">삭제</button>
+            <input type="file" id="avFile" accept="image/*" hidden>
+          </div>
+        </div>
+        <div class="hint">사진이 없으면 아래 아이콘이나 이름 첫 글자가 보여요.</div>
         <div class="two">
           <div><label for="fEmoji">아이콘</label><input type="text" id="fEmoji" maxlength="2" placeholder="湊"></div>
           <div><label for="fName">이름</label><input type="text" id="fName" placeholder="이치조 미나토"></div>
@@ -295,6 +326,7 @@ let cur = null, busy = false, ctl = null;
 let db = null, uid = null, dbReady = false;
 const pages = {};
 const dirtyChats = new Set();
+const dirtyAvatars = new Set();
 let metaDirty = false, flushTimer = null;
 const col = () => db.collection("data/users/" + uid);
 const PAGE = 180000;
@@ -333,7 +365,13 @@ async function flush() {
       for (let i = parts.length; i < old; i++) await col().doc(`chat_${id}_${i}`).delete();
       if (exists) pages[id] = parts.length; else delete pages[id];
     }
-    if (doMeta || chats.length) await col().doc("meta").set({ chars: store.chars, theme: store.theme || null, pages });
+    for (const id of [...dirtyAvatars]) {
+      const c = store.chars.find(x => x.id === id);
+      if (c && c.avatar) await col().doc(`avatar_${id}`).set({ img: c.avatar });
+      else await col().doc(`avatar_${id}`).delete().catch(() => {});
+      dirtyAvatars.delete(id);
+    }
+    if (doMeta || chats.length) await col().doc("meta").set({ chars: store.chars.map(c => { const o = Object.assign({}, c); delete o.avatar; return o; }), theme: store.theme || null, pages });
     setSync("");
   } catch (e) {
     chats.forEach(id => dirtyChats.add(id)); metaDirty = true;
@@ -359,6 +397,7 @@ async function initDb() {
         const snaps = await Promise.all([...Array(n)].map((_, i) => col().doc(`chat_${c.id}_${i}`).get()));
         snaps.forEach(s => { if (s.exists) list.push(...(s.data().msgs || [])); });
         chats[c.id] = list;
+        try { const a = await col().doc(`avatar_${c.id}`).get(); if (a.exists) c.avatar = a.data().img; } catch (e) {}
       }));
       store = { chars: m.chars || [], chats, theme: m.theme || store.theme };
       try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e) {}
@@ -426,8 +465,20 @@ let sample = null;
 
 // ---- AI 설정 (이 기기에만 저장) ----
 const SKEY = "bamp_ai_v1";
-let ai = { prov: "builtin", url: "", key: "", model: "gpt-4.1", temp: 0.9, max: 0, merge: true };
+let ai = { prov: "builtin", url: "", key: "", model: "gpt-4.1", temp: 0.9, max: 0, merge: true, font: "dodum", size: "m" };
+const FONTS = {
+  dodum: '"GowoonDodum","Gowun Dodum","Noto Sans KR",system-ui,-apple-system,sans-serif',
+  batang: '"GounBatang","Gowun Batang",serif',
+  sans: '"Noto Sans KR",system-ui,-apple-system,sans-serif'
+};
+const SIZES = { s: "14px", m: "15px", l: "17px", xl: "19px" };
+function applyLook() {
+  const r = document.documentElement.style;
+  r.setProperty("--font-body", FONTS[ai.font] || FONTS.dodum);
+  r.setProperty("--font-size", SIZES[ai.size] || SIZES.m);
+}
 try { Object.assign(ai, JSON.parse(localStorage.getItem(SKEY) || "{}")); } catch(e) {}
+applyLook();
 if (ai.max === 1500) ai.max = 0;
 const inClaude = !!window.claude;
 if (!inClaude && ai.prov === "builtin" && !localStorage.getItem(SKEY)) ai.prov = "openai";
@@ -442,17 +493,24 @@ function syncProvUI() {
 }
 $("#sProv").onclick = e => { if (e.target.dataset.v) { segSet($("#sProv"), e.target.dataset.v); syncProvUI(); } };
 $("#sTemp").oninput = () => $("#sTempV").textContent = $("#sTemp").value;
+["#sFont", "#sSize"].forEach(sel => $(sel).onclick = e => {
+  if (!e.target.dataset.v) return;
+  segSet($(sel), e.target.dataset.v);
+  ai[sel === "#sFont" ? "font" : "size"] = e.target.dataset.v;
+  applyLook();
+});
 function readSettings() {
   return { prov: segGet($("#sProv")), url: $("#sUrl").value.trim().replace(/\/+$/, ""), key: $("#sKey").value.trim(),
-    model: $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 0, merge: $("#sMerge").checked };
+    model: $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 0, merge: $("#sMerge").checked, font: segGet($("#sFont")) || "dodum", size: segGet($("#sSize")) || "m" };
 }
 $("#setBtn").onclick = () => {
   segSet($("#sProv"), ai.prov); $("#sUrl").value = ai.url; $("#sKey").value = ai.key; $("#sModel").value = ai.model;
-  $("#sTemp").value = ai.temp; $("#sTempV").textContent = ai.temp; $("#sMax").value = ai.max || ""; $("#sMerge").checked = ai.merge !== false; $("#sTestOut").textContent = "";
+  $("#sTemp").value = ai.temp; $("#sTempV").textContent = ai.temp; $("#sMax").value = ai.max || ""; $("#sMerge").checked = ai.merge !== false; segSet($("#sFont"), ai.font || "dodum"); segSet($("#sSize"), ai.size || "m"); $("#sTestOut").textContent = "";
   syncProvUI(); show("settings");
 };
 $("#sSave").onclick = () => {
   ai = readSettings();
+  applyLook();
   try { localStorage.setItem(SKEY, JSON.stringify(ai)); } catch(e) {}
   updateBanner(); renderHome(); show("home");
 };
@@ -583,7 +641,7 @@ function renderHome() {
     const last = msgs[msgs.length - 1];
     const b = document.createElement("button");
     b.className = "row";
-    b.innerHTML = `<div class="av">${esc(c.emoji || (c.name||"?").slice(0,1))}</div><div class="meta"><div class="nm"></div><div class="pv"></div></div>`;
+    b.innerHTML = `${avHTML(c)}<div class="meta"><div class="nm"></div><div class="pv"></div></div>`;
     b.querySelector(".nm").textContent = c.name || "이름 없음";
     b.querySelector(".pv").textContent = last ? last.text.replace(/\*/g, "").slice(0, 60) : "대화를 시작해보세요";
     b.onclick = () => openChat(c.id);
@@ -592,7 +650,37 @@ function renderHome() {
 }
 
 // 편집
-let editing = null;
+let editing = null, editAvatar = "";
+function avHTML(c, cls) {
+  const inner = c.avatar ? `<img src="${c.avatar}" alt="">` : esc(c.emoji || (c.name || "?").slice(0, 1));
+  return `<div class="av ${cls || ""}">${inner}</div>`;
+}
+function setAvPreview() {
+  $("#avPreview").innerHTML = editAvatar ? `<img src="${editAvatar}" alt="">` : esc($("#fEmoji").value || ($("#fName").value || "?").slice(0, 1) || "?");
+}
+$("#avPick").onclick = () => $("#avFile").click();
+$("#avClear").onclick = () => { editAvatar = ""; setAvPreview(); };
+$("#fEmoji").addEventListener("input", setAvPreview);
+$("#fName").addEventListener("input", setAvPreview);
+$("#avFile").onchange = e => {
+  const f = e.target.files[0]; e.target.value = "";
+  if (!f) return;
+  const fr = new FileReader();
+  fr.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const S = 256, cv = document.createElement("canvas");
+      cv.width = S; cv.height = S;
+      const side = Math.min(img.width, img.height);
+      cv.getContext("2d").drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, S, S);
+      editAvatar = cv.toDataURL("image/jpeg", 0.8);
+      setAvPreview();
+    };
+    img.onerror = () => alert("이미지를 읽지 못했어요.");
+    img.src = fr.result;
+  };
+  fr.readAsDataURL(f);
+};
 function segSet(el, v) { el.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === v)); }
 function segGet(el) { return el.querySelector("button.on")?.dataset.v; }
 ["#fLen", "#fTier", "#fTense", "#fFormat"].forEach(s => $(s).onclick = e => { if (e.target.dataset.v) segSet($(s), e.target.dataset.v); });
@@ -602,6 +690,7 @@ function openEditor(id) {
   const c = editing || { len: "mid", tier: "default" };
   $("#edTitle").textContent = editing ? "캐릭터 설정" : "새 캐릭터";
   $("#fEmoji").value = c.emoji || ""; $("#fName").value = c.name || "";
+  editAvatar = c.avatar || ""; setAvPreview();
   $("#fChar").value = c.prompt || ""; $("#fGreet").value = c.greet || "";
   $("#fUName").value = c.uname || ""; $("#fUser").value = c.upersona || "";
   $("#fNote").value = c.note || ""; $("#fStyle").value = c.style || "";
@@ -613,7 +702,7 @@ $("#newChar").onclick = () => openEditor(null);
 $("#editFromChat").onclick = () => openEditor(cur);
 $("#saveChar").onclick = () => {
   const data = {
-    emoji: $("#fEmoji").value.trim(), name: $("#fName").value.trim() || "이름 없음",
+    emoji: $("#fEmoji").value.trim(), name: $("#fName").value.trim() || "이름 없음", avatar: editAvatar,
     prompt: $("#fChar").value, greet: $("#fGreet").value,
     uname: $("#fUName").value.trim(), upersona: $("#fUser").value,
     note: $("#fNote").value, style: $("#fStyle").value, len: segGet($("#fLen")), tense: segGet($("#fTense")), format: segGet($("#fFormat")), tier: segGet($("#fTier"))
@@ -621,6 +710,7 @@ $("#saveChar").onclick = () => {
   let id;
   if (editing) { Object.assign(editing, data); id = editing.id; }
   else { id = newId(); store.chars.unshift(Object.assign({ id }, data)); }
+  dirtyAvatars.add(id);
   save(); openChat(id);
 };
 $("#delChar").onclick = () => {
