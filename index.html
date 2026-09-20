@@ -141,7 +141,8 @@ textarea.tall{min-height:180px}
         <label for="sTemp">창의성 (temperature): <span id="sTempV"></span></label>
         <input type="range" id="sTemp" min="0" max="1.5" step="0.05" style="width:100%">
         <label for="sMax">최대 출력 토큰</label>
-        <input type="text" id="sMax" inputmode="numeric" placeholder="1500">
+        <input type="text" id="sMax" inputmode="numeric" placeholder="비워두기 (추천)">
+        <div class="hint">비워두면 한도 없이 모델 기본값을 써요. 생각하는 모델(제미나이 2.5 등)은 비워두는 게 좋아요.</div>
         <div style="margin-top:14px"><button class="btn ghost" id="sTest">연결 테스트</button> <span class="hint" id="sTestOut"></span></div>
       </fieldset>
     </div>
@@ -354,8 +355,9 @@ let sample = null;
 
 // ---- AI 설정 (이 기기에만 저장) ----
 const SKEY = "bamp_ai_v1";
-let ai = { prov: "builtin", url: "", key: "", model: "gpt-4.1", temp: 0.9, max: 1500 };
+let ai = { prov: "builtin", url: "", key: "", model: "gpt-4.1", temp: 0.9, max: 0 };
 try { Object.assign(ai, JSON.parse(localStorage.getItem(SKEY) || "{}")); } catch(e) {}
+if (ai.max === 1500) ai.max = 0;
 const inClaude = !!window.claude;
 if (!inClaude && ai.prov === "builtin" && !localStorage.getItem(SKEY)) ai.prov = "openai";
 function updateBanner() { $("#aiBanner").hidden = !(ai.prov === "builtin" && !sample); }
@@ -371,11 +373,11 @@ $("#sProv").onclick = e => { if (e.target.dataset.v) { segSet($("#sProv"), e.tar
 $("#sTemp").oninput = () => $("#sTempV").textContent = $("#sTemp").value;
 function readSettings() {
   return { prov: segGet($("#sProv")), url: $("#sUrl").value.trim().replace(/\/+$/, ""), key: $("#sKey").value.trim(),
-    model: $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 1500 };
+    model: $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 0 };
 }
 $("#setBtn").onclick = () => {
   segSet($("#sProv"), ai.prov); $("#sUrl").value = ai.url; $("#sKey").value = ai.key; $("#sModel").value = ai.model;
-  $("#sTemp").value = ai.temp; $("#sTempV").textContent = ai.temp; $("#sMax").value = ai.max; $("#sTestOut").textContent = "";
+  $("#sTemp").value = ai.temp; $("#sTempV").textContent = ai.temp; $("#sMax").value = ai.max || ""; $("#sTestOut").textContent = "";
   syncProvUI(); show("settings");
 };
 $("#sSave").onclick = () => {
@@ -387,7 +389,7 @@ $("#sTest").onclick = async () => {
   const cfg = readSettings(), out = $("#sTestOut");
   out.textContent = "연결 중...";
   try {
-    const t = await callApi(cfg, [{ role: "user", content: "한 단어로만 대답해: 안녕" }], null, null, 20);
+    const t = await callApi(cfg, [{ role: "user", content: "한 단어로만 대답해: 안녕" }], null, null);
     out.textContent = "연결됨: " + t.slice(0, 30);
   } catch (e) { out.textContent = e.message || "연결 실패"; }
 };
@@ -398,9 +400,9 @@ async function callApi(cfg, messages, onText, signal, maxOverride) {
   if (cfg.prov === "custom" && !cfg.url) throw new Error("API 주소를 입력해주세요.");
   if (!cfg.model) throw new Error("모델 이름을 입력해주세요.");
   const body = { model: cfg.model, messages, stream: true, temperature: cfg.temp };
-  const mt = maxOverride || cfg.max;
-  if (cfg.prov === "openai" && /^(o\d|gpt-5)/.test(cfg.model)) { body.max_completion_tokens = mt; delete body.temperature; }
-  else body.max_tokens = mt;
+  const mt = cfg.max || 0;
+  if (cfg.prov === "openai" && /^(o\d|gpt-5)/.test(cfg.model)) { delete body.temperature; if (mt) body.max_completion_tokens = mt; }
+  else if (mt) body.max_tokens = mt;
   let res;
   try {
     res = await fetch(apiBase(cfg) + "/chat/completions", {
