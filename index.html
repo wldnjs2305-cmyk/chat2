@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.11","items":["AI 설정에 '문단 정리' 추가: 대사만 떨어진 줄을 앞 지문 문단에 자동으로 붙임","정리된 문체로 저장돼서 다음 답변도 그 문체를 따라가게 함"]},
   {"v":"1.10","items":["대사만 따로 떨어진 문단이 많아지는 문제 수정: 대사를 지문 문단 안에 섞도록","응답 길이 조정 (보통 2~4문단, 길게 4~6문단)"]},
   {"v":"1.9","items":["캐릭터 설정에 '문체 예시' 칸 추가: 마음에 드는 답변을 넣으면 그 문체를 참고","지문에 캐릭터의 속내 녹이기, 대사 길이 다양하게"]},
   {"v":"1.8","items":["응답 구조가 매번 똑같이 반복되는 문제 수정","문단 길이·끝맺음을 다양하게, 형식 예시 제거"]},
@@ -164,6 +165,11 @@ textarea.tall{min-height:180px}
         <legend>AI 제공자</legend>
         <div class="seg" id="sProv"><button data-v="builtin">내장 Claude</button><button data-v="openai">OpenAI</button><button data-v="custom">직접 입력</button></div>
         <div class="hint" id="sProvHint"></div>
+      </fieldset>
+      <fieldset>
+        <legend>문단 정리</legend>
+        <label style="display:flex;gap:10px;align-items:center;color:var(--ink);font-size:15px;margin:0"><input type="checkbox" id="sMerge" style="width:20px;height:20px"> 대사만 있는 줄을 지문 문단에 붙이기</label>
+        <div class="hint">모델이 대사를 따로 떼어 써도, 앞 지문 문단에 이어 붙여서 덩어리감 있게 보여줘요. 모든 AI에 적용돼요.</div>
       </fieldset>
       <fieldset id="sApi">
         <legend>연결 정보</legend>
@@ -398,7 +404,7 @@ let sample = null;
 
 // ---- AI 설정 (이 기기에만 저장) ----
 const SKEY = "bamp_ai_v1";
-let ai = { prov: "builtin", url: "", key: "", model: "gpt-4.1", temp: 0.9, max: 0 };
+let ai = { prov: "builtin", url: "", key: "", model: "gpt-4.1", temp: 0.9, max: 0, merge: true };
 try { Object.assign(ai, JSON.parse(localStorage.getItem(SKEY) || "{}")); } catch(e) {}
 if (ai.max === 1500) ai.max = 0;
 const inClaude = !!window.claude;
@@ -416,11 +422,11 @@ $("#sProv").onclick = e => { if (e.target.dataset.v) { segSet($("#sProv"), e.tar
 $("#sTemp").oninput = () => $("#sTempV").textContent = $("#sTemp").value;
 function readSettings() {
   return { prov: segGet($("#sProv")), url: $("#sUrl").value.trim().replace(/\/+$/, ""), key: $("#sKey").value.trim(),
-    model: $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 0 };
+    model: $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 0, merge: $("#sMerge").checked };
 }
 $("#setBtn").onclick = () => {
   segSet($("#sProv"), ai.prov); $("#sUrl").value = ai.url; $("#sKey").value = ai.key; $("#sModel").value = ai.model;
-  $("#sTemp").value = ai.temp; $("#sTempV").textContent = ai.temp; $("#sMax").value = ai.max || ""; $("#sTestOut").textContent = "";
+  $("#sTemp").value = ai.temp; $("#sTempV").textContent = ai.temp; $("#sMax").value = ai.max || ""; $("#sMerge").checked = ai.merge !== false; $("#sTestOut").textContent = "";
   syncProvUI(); show("settings");
 };
 $("#sSave").onclick = () => {
@@ -510,6 +516,27 @@ function renderText(text) {
     }).join("");
     return `<p>${html}</p>`;
   }).join("");
+}
+
+// 대사만 있는 문단을 앞 지문 문단에 붙이기
+function mergeDialogue(text) {
+  const paras = text.replace(/\r/g, "").split(/\n+/).map(p => p.trim()).filter(Boolean);
+  const isNarr = p => /\*[^*]+\*/.test(p);
+  if (!paras.some(isNarr) || !paras.some(p => !isNarr(p))) return text;
+  const out = [];
+  let pending = "";
+  paras.forEach(p => {
+    if (!isNarr(p)) {
+      if (out.length && out[out.length - 1].length + p.length < 600) out[out.length - 1] += " " + p;
+      else if (out.length) out.push(p);
+      else pending += (pending ? " " : "") + p;
+    } else {
+      out.push(pending ? pending + " " + p : p);
+      pending = "";
+    }
+  });
+  if (pending) out.push(pending);
+  return out.join("\n\n");
 }
 
 // 홈
@@ -710,6 +737,7 @@ async function generate(extraUser) {
     else { finalText = e.text || ""; if (e.code !== "cancelled") errMsg = errCopy(e.code); }
   }
   finalText = finalText.trim();
+  if (finalText && ai.merge !== false) finalText = mergeDialogue(finalText);
   if (finalText) {
     if (extraUser === CONT && msgs().length && msgs()[msgs().length - 1].role === "assistant") {
       msgs()[msgs().length - 1].text += "\n\n" + finalText;
