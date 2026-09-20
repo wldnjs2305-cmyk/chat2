@@ -6,6 +6,15 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.41","items":["캐릭터가 없을 때 뜨던 안내 문구 제거"]},
+  {"v":"1.40","items":["홈 상단 버튼 정렬·크기 정리"]},
+  {"v":"1.39","items":["홈 제목을 '밤편지'로, 가운데 정렬 고정"]},
+  {"v":"1.38","items":["홈 상단을 + / 캐릭터(인원수) / 검색 / 설정 구조로 변경"]},
+  {"v":"1.37","items":["설정에서 내 프로필 사진 표시를 켜고 끌 수 있음"]},
+  {"v":"1.36","items":["캐릭터 설정 개편: 대화 설정 카드 / 세계관 및 상황 / 유저 / 인트로","문체 예시와 인트로를 여러 개 저장 (시작할 때 인트로 랜덤)","유저 프로필 사진 추가, 아이콘·모델·추가 지시 칸 제거","메시지를 길게 누르면 수정·삭제·다시 생성 메뉴","초기화를 도구줄로 이동, 뒤로 버튼 모양 변경, 안내 문구 정리"]},
+  {"v":"1.35","items":["편지·일기 필체 15종 추가 (캐릭터마다 선택)"]},
+  {"v":"1.34","items":["글꼴을 고운돋움·고운바탕 둘로 정리","명령어를 친 메시지는 /편지 그대로 표시","카드·소설·대본에서는 프로필 사진과 이름 숨김 (대본은 이름 | 만)","편지·일기 카드 줄 간격 정렬"]},
+  {"v":"1.33","items":["설정 화면 개편: 테마 7종, 글꼴 17종, 글자 크기 슬라이더","홈 상단에 설정·검색·새 캐릭터 버튼, 테마 버튼과 버전 칩 제거","업데이트 확인은 설정 안으로 이동"]},
   {"v":"1.32","items":["명령어 기능 추가: /ooc /편지 /일기 /플리 /관계 /상태 /소문 /커뮤 /인스타 /전환 /모브 /쇼핑 /결제","편지·일기는 손글씨 카드로, 나머지는 카드 형태로 표시"]},
   {"v":"1.31","items":["나레이션 기능 추가 (없음/가끔/자주) - 장면 전환과 새 상황을 만들어주는 서술","나레이션은 말풍선 밖 기울임체로 표시"]},
   {"v":"1.30","items":["캐릭터 이름을 프로필 사진 오른쪽 위로 정렬"]},
@@ -43,8 +52,23 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Nanum+Pen+Script&family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
+@font-face{font-family:"HandPol";font-display:swap;src:url("https://cdn.jsdelivr.net/gh/projectnoonnu/2601-6@1.0/Griun_PolHumanrights-Rg.woff2") format("woff2")}
+@font-face{font-family:"HandMyo";font-display:swap;src:url("https://cdn.jsdelivr.net/gh/projectnoonnu/2601-1@1.0/Griun_MyoeunHeullim-Rg.woff2") format("woff2")}
+@font-face{font-family:"HandOks";font-display:swap;src:url("https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161334@griun-oksooni-rg/griun-oksooni-rg/Griun_Oksooni-Rg.woff2") format("woff2")}
+@font-face{font-family:"HandJel";font-display:swap;src:url("https://cdn.jsdelivr.net/gh/projectnoonnu/2601-1@1.0/Griun_Gellyroll-Rg.woff2") format("woff2")}
+@font-face{font-family:"HandKcc";font-display:swap;src:url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2202@1.0/KCCImkwontaek.woff") format("woff")}
+@font-face{font-family:"HandTng";font-display:swap;src:url("https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161330@griun-noltotaenggu-rg/griun-noltotaenggu-rg/Griun_NoltoTAENGGU-Rg.woff2") format("woff2")}
+@font-face{font-family:"HandJng";font-display:swap;src:url("https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161334@x-2/x/GriunXHangeul_Jeong-Rg.woff2") format("woff2")}
+@font-face{font-family:"HandSng";font-display:swap;src:url("https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161334@x-3/x/GriunXHangeul_SongleSongeulHeullim-Rg.woff2") format("woff2")}
+@font-face{font-family:"HandYun";font-display:swap;src:url("https://cdn.jsdelivr.net/gh/projectnoonnu/2408-1@1.0/JNE-Yuna-TTF-Regular.woff2") format("woff2")}
+@font-face{font-family:"HandNrm";font-display:swap;src:url("https://cdn.jsdelivr.net/gh/Project-Noonnu/2607151654@griun-naram-rg/griun-naram-rg/Griun_Naram-Rg.woff2") format("woff2")}
+@font-face{font-family:"HandSim";font-display:swap;src:url("https://cdn.jsdelivr.net/gh/projectnoonnu/2511-1@1.0/Griun_Simsimche-Rg.woff2") format("woff2")}
+@font-face{font-family:"HandSnw";font-display:swap;src:url("https://cdn.jsdelivr.net/gh/projectnoonnu/2508-2@1.0/PermanentSnow.woff2") format("woff2")}
+@font-face{font-family:"HandSeh";font-display:swap;src:url("https://gcore.jsdelivr.net/gh/projectnoonnu/noonfonts_five@.2.0/UhBeeSe_hyun.woff") format("woff")}
+@font-face{font-family:"HandRam";font-display:swap;src:url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_five@.2.0/UhBeeRami.woff") format("woff")}
+@font-face{font-family:"HandDng";font-display:swap;src:url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_five@.2.0/UhBeeDongKyung.woff") format("woff")}
 @font-face{font-family:'GounBatang';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunBatang-Regular.woff') format('woff');font-weight:400;font-display:swap}
 @font-face{font-family:'GounBatang';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunBatang-Bold.woff') format('woff');font-weight:700;font-display:swap}
 @font-face{font-family:'GowoonDodum';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunDodum-Regular.woff') format('woff');font-weight:400;font-display:swap}
@@ -63,7 +87,12 @@
     --accent:#d99bc6; --accent-ink:#21172a; --narr:#c0b5d2;--faint:#8b8399; --user-bg:#342b44; --char-bg:#252131; --danger:#e08a8a;
   }
 }
-:root[data-theme="dark"]{
+:root[data-theme="ocean"]{--bg:#eef6ff;--panel:#fff;--ink:#16324d;--soft:#5d7fa3;--line:#cfe0f2;--accent:#2f6fb5;--accent-ink:#fff;--narr:#42607d;--faint:#8aa6c2;--user-bg:#dbeafe;--char-bg:#fff;--danger:#b04545}
+:root[data-theme="green"]{--bg:#ffffff;--panel:#f5faf5;--ink:#1e3324;--soft:#5f7d68;--line:#d4e6d7;--accent:#2f7d4f;--accent-ink:#fff;--narr:#44634f;--faint:#8fae99;--user-bg:#dff3e4;--char-bg:#f5faf5;--danger:#b04545}
+:root[data-theme="berry"]{--bg:#fff8fa;--panel:#fff;--ink:#3d2030;--soft:#8d6478;--line:#f2d9e3;--accent:#c2497e;--accent-ink:#fff;--narr:#6b4557;--faint:#b995a5;--user-bg:#fce0ec;--char-bg:#fff;--danger:#b04545}
+:root[data-theme="lcd"]{--bg:#adbfd3;--panel:#bccbdc;--ink:#16243a;--soft:#45596f;--line:#93a7bd;--accent:#27456a;--accent-ink:#e6eef7;--narr:#2f4560;--faint:#5f7794;--user-bg:#c8d5e3;--char-bg:#bccbdc;--danger:#8f3a3a}
+:root[data-theme="flip"]{--bg:#d9e5f3;--panel:#eaf1fa;--ink:#17283d;--soft:#4f6a8c;--line:#b9cbe2;--accent:#2657a0;--accent-ink:#fff;--narr:#36506e;--faint:#7c92ae;--user-bg:#c9d9ee;--char-bg:#eaf1fa;--danger:#9c3b3b}
+:root[data-theme="night"],:root[data-theme="dark"]{
   --bg:#1b1824; --panel:#252131; --ink:#ece7f3; --soft:#a79fb6; --line:#3a3448;
   --accent:#d99bc6; --accent-ink:#21172a; --narr:#c0b5d2;--faint:#8b8399; --user-bg:#342b44; --char-bg:#252131; --danger:#e08a8a;
 }
@@ -77,8 +106,18 @@ button{cursor:pointer}
 .screen{display:none;flex:1;min-height:0;flex-direction:column}
 .screen.on{display:flex}
 
-header.bar{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--bg)}
-header.bar h1{font-family:var(--font-serif);font-size:21px;margin:0;flex:1;font-weight:700;letter-spacing:-.01em}
+header.bar{display:flex;align-items:center;gap:6px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--bg)}
+header.bar h1{font-size:18px;margin:0;font-weight:700;letter-spacing:-.01em}
+.homebar{gap:6px;position:relative;padding:10px 14px}
+.homebar>.icon{height:38px;min-width:38px;padding:0 10px;border-radius:12px;color:var(--soft);font-size:14px;font-weight:500}
+.homebar>.icon:hover{background:var(--panel);color:var(--ink)}
+.homebar>.icon svg{display:block}
+.homebar .ttl{position:absolute;left:0;right:0;text-align:center;pointer-events:none}
+.homebar .ttl h1{font-size:19px}
+.homebar>.icon,.homebar>.plus{position:relative;z-index:1}
+.homebar .spacer{flex:1}
+.plus{width:38px;height:38px;flex:none;border:0;border-radius:12px;background:var(--user-bg);color:var(--accent);font-size:22px;line-height:1;display:grid;place-items:center}
+.homebar .icon{display:grid;place-items:center}
 header.bar h2{font-size:16px;margin:0;flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .icon{background:none;border:0;padding:6px 8px;border-radius:8px;color:var(--soft);font-size:15px}
 .icon:hover{background:var(--line);color:var(--ink)}
@@ -91,6 +130,14 @@ header.bar h2{font-size:16px;margin:0;flex:1;font-weight:700;overflow:hidden;tex
 .list{flex:1;overflow-y:auto;padding:8px 0}
 .row{display:flex;align-items:center;gap:14px;padding:12px 16px;border:0;background:none;width:100%;text-align:left}
 .row:hover{background:var(--panel)}
+.optcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin:0 0 22px}
+.optcard label:first-child{margin-top:0}
+.icon.back{font-size:26px;line-height:1;padding:0 4px 4px}
+header.bar .icon.back+h2,header.bar .icon.back+h1{margin-left:-2px}
+.msgmenu{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:50}
+.msgmenu .sheet{background:var(--panel);border:1px solid var(--line);border-radius:16px;min-width:180px;overflow:hidden}
+.msgmenu button{display:block;width:100%;border:0;background:none;padding:14px 18px;text-align:left;border-bottom:1px solid var(--line);color:var(--ink)}
+.msgmenu button:last-child{border-bottom:0}
 .avrow{display:flex;align-items:center;gap:14px;margin-top:6px}
 .avbtns{display:flex;gap:8px;flex-wrap:wrap}
 .av-lg{width:72px;height:72px;font-size:30px}
@@ -103,8 +150,6 @@ header.bar h2{font-size:16px;margin:0;flex:1;font-weight:700;overflow:hidden;tex
 .empty{padding:48px 24px;text-align:center;color:var(--soft)}
 .empty p{font-family:var(--font-serif);font-size:18px;color:var(--ink);margin:0 0 6px}
 .fab{margin:4px 16px 16px;align-self:stretch}
-#verBtn{position:relative;font-size:13px}
-.dot{position:absolute;top:4px;right:2px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
 .ver-now{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:20px}
 .ver-now .big{font-family:var(--font-serif);font-size:22px;font-weight:700}
 .ver-now .st{color:var(--soft);font-size:14px;margin:4px 0 12px}
@@ -115,6 +160,9 @@ header.bar h2{font-size:16px;margin:0;flex:1;font-weight:700;overflow:hidden;tex
 .cl h3{font-size:15px;margin:0 0 4px;display:flex;align-items:center;gap:8px}
 .cl h3 .tag{font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--user-bg);color:var(--accent)}
 .cl ul{margin:0;padding-left:20px;color:var(--soft);font-size:14px}
+.searchwrap{padding:0 16px 10px}
+.searchwrap input{width:100%}
+select{width:100%}
 .backup{display:flex;justify-content:center;gap:8px;padding-top:8px}
 .backup .icon{font-size:13px}
 
@@ -155,7 +203,8 @@ textarea.tall{min-height:180px}
 .crow{margin:0 0 6px;line-height:1.65}
 .crow:last-child{margin-bottom:0}
 .clab{color:var(--soft);font-size:.88em;margin-right:8px}
-.card.hand{font-family:"Nanum Pen Script",var(--font-serif);font-size:1.35em;line-height:1.55;background:repeating-linear-gradient(var(--panel),var(--panel) 30px,var(--line) 31px)}
+.card.hand{font-family:"Nanum Pen Script",var(--font-serif);font-size:1.3em;line-height:32px;padding:14px 16px 18px;background-image:repeating-linear-gradient(transparent,transparent 31px,var(--line) 31px,var(--line) 32px);background-position:0 40px;background-repeat:repeat}
+.card.hand .crow{margin-bottom:0}
 .card.hand .clab{font-size:.7em}
 .ooc{border:1px dashed var(--line);border-radius:12px;padding:10px 13px;color:var(--soft);font-size:.96em;white-space:pre-wrap;margin:0 0 10px}
 .nline{color:var(--soft);font-style:italic;font-family:var(--font-serif);margin:4px 2px 12px;line-height:1.75;font-size:.96em}
@@ -167,7 +216,10 @@ textarea.tall{min-height:180px}
 .fmt-novel .narr,.fmt-script .narr{color:var(--soft)}
 .narr{font-family:var(--font-serif);color:var(--narr);line-height:1.8}
 .say{color:var(--ink)}
-.tools{display:flex;gap:2px;margin-top:4px}
+.tools{display:none}
+.multi{margin:0 0 12px}
+.mhead{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--soft);margin-bottom:4px}
+.urow .mcol{display:flex;flex-direction:column;align-items:flex-end}
 .msg.user .tools{justify-content:flex-end}
 .tools .icon{font-size:12px;padding:3px 7px}
 .thinking{color:var(--soft);font-size:14px}
@@ -180,7 +232,7 @@ textarea.tall{min-height:180px}
 .composer .quick{display:flex;gap:6px;margin-bottom:8px;overflow-x:auto}
 .composer .quick button{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 12px;font-size:13px;color:var(--soft);white-space:nowrap}
 .composer .in{display:flex;gap:8px;align-items:flex-end}
-.composer textarea{font-size:16px;min-height:44px;max-height:160px;resize:none;border-radius:14px}
+.composer textarea{font-size:max(var(--font-size),16px);min-height:44px;max-height:160px;resize:none;border-radius:14px}
 .composer .btn{padding:10px 14px;border-radius:14px;flex:none}
 .banner{margin:12px 16px 0;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:13px;color:var(--soft);background:var(--panel)}
 </style>
@@ -190,17 +242,23 @@ textarea.tall{min-height:180px}
 
   <!-- 홈 -->
   <section class="screen on" id="home">
-    <header class="bar"><h1>밤편지</h1><button class="icon" id="verBtn"><span id="verLabel"></span><span class="dot" id="verDot" hidden></span></button><button class="icon" id="setBtn">AI 설정</button><button class="icon" id="themeBtn" aria-label="테마 바꾸기">◐</button></header>
-    <div class="banner" id="aiBanner" hidden>내장 Claude를 쓸 수 없는 곳이에요. AI 설정에서 OpenAI나 직접 입력을 골라 API 키를 넣어주세요.</div>
+    <header class="bar homebar">
+      <button class="plus" id="newChar" aria-label="새 캐릭터">+</button>
+      <div class="ttl"><h1>밤편지</h1></div>
+      <div class="spacer"></div>
+      <button class="icon" id="searchBtn" aria-label="검색"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg></button>
+      <button class="icon" id="setBtn">설정</button>
+    </header>
+    <div class="searchwrap" id="searchWrap" hidden><input type="text" id="searchIn" placeholder="캐릭터 검색"></div>
+    <div class="banner" id="aiBanner" hidden>내장 Claude를 쓸 수 없는 곳이에요.</div>
     <div class="banner" id="syncBanner" hidden></div>
     <div class="list" id="charList"></div>
     <div class="backup"><button class="icon" id="exportBtn">백업 내보내기</button><button class="icon" id="importBtn">백업 불러오기</button><input type="file" id="importFile" accept=".json,application/json" hidden></div>
-    <button class="btn fab" id="newChar">새 캐릭터 만들기</button>
   </section>
 
   <!-- 업데이트 내역 -->
   <section class="screen" id="updates">
-    <header class="bar"><button class="icon" data-back aria-label="뒤로">←</button><h2>업데이트 내역</h2></header>
+    <header class="bar"><button class="icon back" data-back aria-label="뒤로">‹</button><h2>업데이트 내역</h2></header>
     <div class="form">
       <div class="ver-now">
         <div class="big">지금 버전 v<span id="vNow"></span></div>
@@ -213,38 +271,39 @@ textarea.tall{min-height:180px}
 
   <!-- AI 설정 -->
   <section class="screen" id="settings">
-    <header class="bar"><button class="icon" data-back aria-label="뒤로">←</button><h2>AI 설정</h2></header>
+    <header class="bar"><button class="icon back" data-back aria-label="뒤로">‹</button><h2>설정</h2></header>
     <div class="form">
-      <fieldset>
+      <fieldset hidden>
         <legend>AI 제공자</legend>
         <div class="seg" id="sProv"><button data-v="builtin">내장 Claude</button><button data-v="openai">OpenAI</button><button data-v="custom">직접 입력</button></div>
         <div class="hint" id="sProvHint"></div>
       </fieldset>
       <fieldset>
         <legend>화면</legend>
-        <label>글씨체</label>
-        <div class="seg" id="sFont"><button data-v="dodum">고운돋움</button><button data-v="batang">고운바탕</button><button data-v="sans">기본 고딕</button></div>
+        <label for="sTheme">테마</label>
+        <select id="sTheme"></select>
+        <label for="sFontSel">글꼴</label>
+        <select id="sFontSel"></select>
+        <label for="sFs" id="sFsLabel">글자 크기</label>
+        <input type="range" id="sFs" min="12" max="22" step="0.5" style="width:100%;padding:0">
+        <label>프로필 사진</label>
+        <label style="display:flex;gap:10px;align-items:center;color:var(--ink);font-size:15px;margin:6px 0"><input type="checkbox" id="sUav" style="width:20px;height:20px"> 내 프로필 사진 보기</label>
         <label>대사 번역·발음</label>
         <label style="display:flex;gap:10px;align-items:center;color:var(--ink);font-size:15px;margin:6px 0"><input type="checkbox" id="sTrans" style="width:20px;height:20px"> 번역 보기</label>
         <label style="display:flex;gap:10px;align-items:center;color:var(--ink);font-size:15px;margin:0 0 6px"><input type="checkbox" id="sPron" style="width:20px;height:20px"> 발음 보기</label>
-        <label>글씨 크기</label>
-        <div class="seg" id="sSize"><button data-v="s">작게</button><button data-v="m">보통</button><button data-v="l">크게</button><button data-v="xl">아주 크게</button></div>
       </fieldset>
       <fieldset>
         <legend>문단 정리</legend>
         <label style="display:flex;gap:10px;align-items:center;color:var(--ink);font-size:15px;margin:0"><input type="checkbox" id="sMerge" style="width:20px;height:20px"> 대사만 있는 줄을 지문 문단에 붙이기</label>
-        <div class="hint">모델이 대사를 따로 떼어 써도, 앞 지문 문단에 이어 붙여서 덩어리감 있게 보여줘요. 모든 AI에 적용돼요.</div>
       </fieldset>
-      <fieldset id="sApi">
+      <fieldset id="sApi" hidden>
         <legend>연결 정보</legend>
         <div id="sUrlWrap">
           <label for="sUrl">API 주소 (OpenAI 호환)</label>
           <input type="text" id="sUrl" placeholder="https://openrouter.ai/api/v1" autocomplete="off" spellcheck="false">
-          <div class="hint">/chat/completions 앞까지 적어주세요. OpenRouter, 제미나이(OpenAI 호환 주소), 로컬 서버 등.</div>
         </div>
         <label for="sKey">API 키</label>
         <input type="text" id="sKey" placeholder="sk-..." autocomplete="off" spellcheck="false" style="-webkit-text-security:disc">
-        <div class="hint">키는 이 기기의 브라우저에만 저장되고 계정 저장소나 백업 파일에는 들어가지 않아요.</div>
         <label for="sModel">모델 이름</label>
         <input type="text" id="sModel" list="modelList" placeholder="gpt-4.1" autocomplete="off" spellcheck="false">
         <datalist id="modelList"><option value="gpt-4.1"><option value="gpt-4.1-mini"><option value="gpt-4o"><option value="gpt-4o-mini"></datalist>
@@ -252,8 +311,13 @@ textarea.tall{min-height:180px}
         <input type="range" id="sTemp" min="0" max="1.5" step="0.05" style="width:100%">
         <label for="sMax">최대 출력 토큰</label>
         <input type="text" id="sMax" inputmode="numeric" placeholder="비워두기 (추천)">
-        <div class="hint">비워두면 한도 없이 모델 기본값을 써요. 생각하는 모델(제미나이 2.5 등)은 비워두는 게 좋아요.</div>
         <div style="margin-top:14px"><button class="btn ghost" id="sTest">연결 테스트</button> <span class="hint" id="sTestOut"></span></div>
+      </fieldset>
+      <fieldset>
+        <legend>앱</legend>
+        <div class="hint" id="sVer"></div>
+        <button class="btn ghost" id="sUpd" type="button">업데이트 확인</button>
+        <div class="hint" id="sUpdOut"></div>
       </fieldset>
     </div>
     <div class="actions"><button class="btn" id="sSave">저장</button></div>
@@ -261,59 +325,64 @@ textarea.tall{min-height:180px}
 
   <!-- 편집 -->
   <section class="screen" id="editor">
-    <header class="bar"><button class="icon" data-back aria-label="뒤로">←</button><h2 id="edTitle">새 캐릭터</h2></header>
+    <header class="bar"><button class="icon back" data-back aria-label="뒤로">‹</button><h2 id="edTitle">새 캐릭터</h2></header>
     <div class="form">
+      <div class="optcard">
+        <label>대화 형식</label>
+        <div class="seg" id="fFormat"><button data-v="bubble">말풍선</button><button data-v="novel">소설</button><button data-v="script">대본</button></div>
+        <label>길이</label>
+        <div class="seg" id="fLen"><button data-v="auto">자동</button><button data-v="short">짧게</button><button data-v="mid">보통</button><button data-v="long">길게</button></div>
+        <label>대사 언어</label>
+        <div class="seg" id="fLang"><button data-v="ko">한국어</button><button data-v="ja">일본어</button><button data-v="en">영어</button><button data-v="zh">중국어</button></div>
+        <label>시제</label>
+        <div class="seg" id="fTense"><button data-v="past">과거</button><button data-v="present">현재</button></div>
+        <label>나레이션</label>
+        <div class="seg" id="fNarr"><button data-v="off">끔</button><button data-v="some">가끔</button><button data-v="many">자주</button></div>
+        <label for="fHand">편지·일기 필체</label>
+        <select id="fHand"></select>
+      </div>
+
       <fieldset>
-        <legend>캐릭터</legend>
+        <legend>세계관 및 상황</legend>
         <label>프로필 사진</label>
         <div class="avrow">
           <div class="av av-lg" id="avPreview"></div>
           <div class="avbtns">
-            <button class="btn ghost" id="avPick" type="button">사진 선택</button>
+            <button class="btn ghost" id="avPick" type="button">사진 고르기</button>
             <button class="btn ghost" id="avClear" type="button">삭제</button>
             <input type="file" id="avFile" accept="image/*" hidden>
           </div>
         </div>
-        <div class="hint">사진이 없으면 아래 아이콘이나 이름 첫 글자가 보여요.</div>
-        <div class="two">
-          <div><label for="fEmoji">아이콘</label><input type="text" id="fEmoji" maxlength="2" placeholder="湊"></div>
-          <div><label for="fName">이름</label><input type="text" id="fName" placeholder="이치조 미나토"></div>
-        </div>
+        <label for="fName">이름</label>
+        <input type="text" id="fName">
         <label for="fChar">캐릭터 프롬프트</label>
-        <textarea id="fChar" class="tall" placeholder="외모, 성격, 말투, 배경, 관계, 세계관 등을 자유롭게 적어주세요."></textarea>
-        <label for="fGreet">첫 메시지</label>
-        <textarea id="fGreet" class="tall" placeholder="*밤 11시. 저택은 고요했다.* 어서 와요, {{user}}."></textarea>
-        <div class="hint">*별표* 안은 지문, 밖은 대사로 보여요. {{user}}, {{char}}는 이름으로 바뀌어요.</div>
+        <textarea id="fChar" class="tall"></textarea>
+        <label>문체 예시</label>
+        <div id="styleList"></div>
+        <button class="btn ghost" id="styleAdd" type="button">+ 문체 예시 추가</button>
       </fieldset>
+
       <fieldset>
         <legend>유저</legend>
-        <label for="fUName">내 이름</label>
-        <input type="text" id="fUName" placeholder="히나">
-        <label for="fUser">유저 프롬프트</label>
-        <textarea id="fUser" placeholder="내 캐릭터의 나이, 외모, 성격, 캐릭터와의 관계"></textarea>
+        <label>프로필 사진</label>
+        <div class="avrow">
+          <div class="av av-lg" id="uavPreview"></div>
+          <div class="avbtns">
+            <button class="btn ghost" id="uavPick" type="button">사진 고르기</button>
+            <button class="btn ghost" id="uavClear" type="button">삭제</button>
+            <input type="file" id="uavFile" accept="image/*" hidden>
+          </div>
+        </div>
+        <label for="fUName">이름</label>
+        <input type="text" id="fUName">
+        <label for="fUser">프롬프트</label>
+        <textarea id="fUser" class="tall"></textarea>
       </fieldset>
+
       <fieldset>
-        <legend>응답 설정</legend>
-        <label for="fNote">추가 지시</label>
-        <textarea id="fNote" placeholder="예: 3인칭 소설체. 감정 묘사를 세밀하게. 유저의 행동은 쓰지 말 것."></textarea>
-        <label for="fStyle">문체 예시 (선택)</label>
-        <textarea id="fStyle" class="tall" placeholder="마음에 드는 답변을 그대로 붙여넣어 주세요. 문체와 호흡만 참고하고 내용은 따라 하지 않아요."></textarea>
-        <div class="hint">별표 없이 붙여넣어도 괜찮아요.</div>
-        <label>나레이션</label>
-        <div class="seg" id="fNarr"><button data-v="off">없음</button><button data-v="some">가끔</button><button data-v="many">자주</button></div>
-        <div class="hint">장면 전환이나 새 상황을 만들어주는 서술이에요. 말풍선 밖에 기울임체로 보여요.</div>
-        <label>대사 언어</label>
-        <div class="seg" id="fLang"><button data-v="ko">한국어</button><button data-v="ja">일본어</button><button data-v="en">영어</button><button data-v="zh">중국어</button></div>
-        <div class="hint">지문은 한국어로 나오고, 대사만 그 언어로 나와요. 번역·발음 표시는 AI 설정에서 켜고 끌 수 있어요.</div>
-        <label>출력 형식</label>
-        <div class="seg" id="fFormat"><button data-v="bubble">말풍선</button><button data-v="novel">소설</button><button data-v="script">대본</button></div>
-        <label>지문 시제</label>
-        <div class="seg" id="fTense"><button data-v="present">현재형 (~한다)</button><button data-v="past">과거형 (~했다)</button></div>
-        <label>응답 길이</label>
-        <div class="seg" id="fLen"><button data-v="short">짧게</button><button data-v="mid">보통</button><button data-v="long">길게</button><button data-v="auto">자동</button></div>
-        <label>모델</label>
-        <div class="seg" id="fTier"><button data-v="quick">빠름</button><button data-v="default">기본</button><button data-v="complex">고급</button></div>
-        <div class="hint">내장 Claude를 쓸 때만 적용돼요. API를 쓰면 AI 설정의 모델을 따라가요.</div>
+        <legend>인트로</legend>
+        <div id="introList"></div>
+        <button class="btn ghost" id="introAdd" type="button">+ 인트로 추가</button>
       </fieldset>
     </div>
     <div class="actions">
@@ -325,16 +394,15 @@ textarea.tall{min-height:180px}
   <!-- 채팅 -->
   <section class="screen" id="chat">
     <header class="bar">
-      <button class="icon" data-back aria-label="뒤로">←</button>
+      <button class="icon back" data-back aria-label="뒤로">‹</button>
       <h2 id="chName"></h2>
       <button class="icon" id="editFromChat" aria-label="설정">설정</button>
-      <button class="icon" id="resetChat" aria-label="대화 초기화">초기화</button>
     </header>
     <div class="log" id="log" aria-live="polite"></div>
     <div class="composer">
       <div class="quick">
         <button id="qNarr">*지문*</button>
-        <button id="qCmd">명령어</button><button id="qCont">이어쓰기</button>
+        <button id="qCmd">명령어</button><button id="resetChat">초기화</button><button id="qCont">이어쓰기</button>
         <button id="qRegen">다시 생성</button>
       </div>
       <div class="in">
@@ -482,11 +550,7 @@ $("#importFile").onchange = async e => {
 };
 
 if (store.theme) document.documentElement.dataset.theme = store.theme;
-$("#themeBtn").onclick = () => {
-  const cur = document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  store.theme = cur === "dark" ? "light" : "dark";
-  document.documentElement.dataset.theme = store.theme; save();
-};
+
 
 let sample = null;
 (async () => {
@@ -496,17 +560,29 @@ let sample = null;
 
 // ---- AI 설정 (이 기기에만 저장) ----
 const SKEY = "bamp_ai_v1";
-let ai = { prov: "builtin", url: "", key: "", model: "gpt-4.1", temp: 0.9, max: 0, merge: true, font: "dodum", size: "m", trans: true, pron: false };
+let ai = { prov: "builtin", url: "", key: "", model: "gpt-4.1", temp: 0.9, max: 0, merge: true, font: "고운돋움", fs: 15, theme: "light", trans: true, pron: false, uav: true };
 const FONTS = {
-  dodum: '"GowoonDodum","Gowun Dodum","Noto Sans KR",system-ui,-apple-system,sans-serif',
-  batang: '"GounBatang","Gowun Batang",serif',
-  sans: '"Noto Sans KR",system-ui,-apple-system,sans-serif'
+  "고운돋움": '"GowoonDodum","Gowun Dodum","Noto Sans KR",sans-serif',
+  "고운바탕": '"GounBatang","Gowun Batang",serif'
 };
-const SIZES = { s: "14px", m: "15px", l: "17px", xl: "19px" };
+const HANDS = {
+  "단정": "'HandPol','Nanum Pen Script',cursive", "모범": "'HandMyo','Nanum Pen Script',cursive",
+  "어른": "'HandOks','Nanum Pen Script',cursive", "야무": "'HandJel','Nanum Pen Script',cursive",
+  "선생": "'HandKcc','Nanum Pen Script',cursive", "장난": "'HandTng','Nanum Pen Script',cursive",
+  "또박": "'HandJng','Nanum Pen Script',cursive", "다정": "'HandSng','Nanum Pen Script',cursive",
+  "무난": "'HandYun','Nanum Pen Script',cursive", "멋냄": "'HandNrm','Nanum Pen Script',cursive",
+  "삐딱": "'HandSim','Nanum Pen Script',cursive", "차분": "'HandSnw','Nanum Pen Script',cursive",
+  "깜찍": "'HandSeh','Nanum Pen Script',cursive", "서툰": "'HandRam','Nanum Pen Script',cursive",
+  "수수": "'HandDng','Nanum Pen Script',cursive"
+};
+const THEMES = [["light", "밝게"], ["ocean", "스카이"], ["green", "그린"], ["berry", "핑크"], ["lcd", "새벽 액정"], ["flip", "파란 폴더폰"], ["night", "밤"]];
 function applyLook() {
   const r = document.documentElement.style;
-  r.setProperty("--font-body", FONTS[ai.font] || FONTS.dodum);
-  r.setProperty("--font-size", SIZES[ai.size] || SIZES.m);
+  const fam = FONTS[ai.font] || FONTS["고운돋움"];
+  r.setProperty("--font-body", fam);
+  r.setProperty("--font-serif", fam);
+  r.setProperty("--font-size", (ai.fs || 15) + "px");
+  document.documentElement.dataset.theme = ai.theme || store.theme || "light";
 }
 try { Object.assign(ai, JSON.parse(localStorage.getItem(SKEY) || "{}")); } catch(e) {}
 applyLook();
@@ -524,19 +600,22 @@ function syncProvUI() {
 }
 $("#sProv").onclick = e => { if (e.target.dataset.v) { segSet($("#sProv"), e.target.dataset.v); syncProvUI(); } };
 $("#sTemp").oninput = () => $("#sTempV").textContent = $("#sTemp").value;
-["#sFont", "#sSize"].forEach(sel => $(sel).onclick = e => {
-  if (!e.target.dataset.v) return;
-  segSet($(sel), e.target.dataset.v);
-  ai[sel === "#sFont" ? "font" : "size"] = e.target.dataset.v;
-  applyLook();
-});
+$("#sTheme").innerHTML = THEMES.map(t => `<option value="${t[0]}">${t[1]}</option>`).join("");
+$("#sFontSel").innerHTML = Object.keys(FONTS).map(n => `<option>${n}</option>`).join("");
+$("#sTheme").onchange = () => { ai.theme = $("#sTheme").value; applyLook(); };
+$("#sFontSel").onchange = () => { ai.font = $("#sFontSel").value; applyLook(); };
+$("#sFs").oninput = () => { ai.fs = parseFloat($("#sFs").value); $("#sFsLabel").textContent = "글자 크기 · " + ai.fs + "px"; applyLook(); };
 function readSettings() {
   return { prov: segGet($("#sProv")), url: $("#sUrl").value.trim().replace(/\/+$/, ""), key: $("#sKey").value.trim(),
-    model: $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 0, merge: $("#sMerge").checked, trans: $("#sTrans").checked, pron: $("#sPron").checked, font: segGet($("#sFont")) || "dodum", size: segGet($("#sSize")) || "m" };
+    model: $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 0, merge: $("#sMerge").checked, uav: $("#sUav").checked, trans: $("#sTrans").checked, pron: $("#sPron").checked, font: $("#sFontSel").value, fs: parseFloat($("#sFs").value) || 15, theme: $("#sTheme").value };
 }
 $("#setBtn").onclick = () => {
   segSet($("#sProv"), ai.prov); $("#sUrl").value = ai.url; $("#sKey").value = ai.key; $("#sModel").value = ai.model;
-  $("#sTemp").value = ai.temp; $("#sTempV").textContent = ai.temp; $("#sMax").value = ai.max || ""; $("#sMerge").checked = ai.merge !== false; $("#sTrans").checked = ai.trans !== false; $("#sPron").checked = !!ai.pron; segSet($("#sFont"), ai.font || "dodum"); segSet($("#sSize"), ai.size || "m"); $("#sTestOut").textContent = "";
+  $("#sTemp").value = ai.temp; $("#sTempV").textContent = ai.temp; $("#sMax").value = ai.max || ""; $("#sMerge").checked = ai.merge !== false; $("#sUav").checked = ai.uav !== false; $("#sTrans").checked = ai.trans !== false; $("#sPron").checked = !!ai.pron;
+  $("#sTheme").value = ai.theme || "light";
+  $("#sFontSel").value = FONTS[ai.font] ? ai.font : "고운돋움";
+  $("#sFs").value = ai.fs || 15; $("#sFsLabel").textContent = "글자 크기 · " + (ai.fs || 15) + "px";
+  $("#sVer").textContent = "지금 버전 v" + APP_VERSION; $("#sUpdOut").textContent = ""; $("#sTestOut").textContent = "";
   syncProvUI(); show("settings");
 };
 $("#sSave").onclick = () => {
@@ -651,18 +730,18 @@ function parseCmd(text) {
   return { key, rest: m[2].trim() };
 }
 const CARD_TITLES = { "편지": "편지", "일기": "일기", "플리": "플레이리스트", "관계": "관계", "상태": "상태", "소문": "소문", "커뮤": "커뮤니티", "인스타": "인스타그램", "주문": "주문 내역", "결제": "결제 내역" };
-function renderCards(text) {
+function renderCards(text, hand) {
   const re = /\[(편지|일기|플리|관계|상태|소문|커뮤|인스타|주문|결제)\]([\s\S]*?)\[\/\1\]/g;
   let out = "", last = 0, m;
   while ((m = re.exec(text))) {
     out += renderPlainChunk(text.slice(last, m.index));
-    const kind = m[1], hand = kind === "편지" || kind === "일기";
+    const kind = m[1], isHand = kind === "편지" || kind === "일기";
     const rows = m[2].split(/\n/).map(l => l.trim()).filter(Boolean).map(l => {
       const lb = l.match(/^([^:|]{1,8}):\s*([\s\S]*)$/);
       if (lb) return `<div class="crow"><span class="clab">${esc(lb[1])}</span><span>${esc(lb[2])}</span></div>`;
       return `<div class="crow"><span>${esc(l)}</span></div>`;
     }).join("");
-    out += `<div class="card${hand ? " hand" : ""}"><div class="ctitle">${esc(CARD_TITLES[kind] || kind)}</div>${rows}</div>`;
+    out += `<div class="card${isHand ? " hand" : ""}"${isHand && hand ? ` style="font-family:${hand}"` : ""}><div class="ctitle">${esc(CARD_TITLES[kind] || kind)}</div>${rows}</div>`;
     last = re.lastIndex;
   }
   if (!out) return null;
@@ -734,12 +813,14 @@ function mergeDialogue(text) {
 // 홈
 function renderHome() {
   const L = $("#charList");
+  const q = ($("#searchIn").value || "").trim().toLowerCase();
+  const list = q ? store.chars.filter(c => ((c.name || "") + " " + (c.prompt || "")).toLowerCase().includes(q)) : store.chars;
   if (!store.chars.length) {
-    L.innerHTML = `<div class="empty"><p>아직 캐릭터가 없어요</p>아래 버튼으로 첫 캐릭터를 만들어보세요.</div>`;
+    L.innerHTML = "";
     return;
   }
   L.innerHTML = "";
-  store.chars.forEach(c => {
+  list.forEach(c => {
     const msgs = store.chats[c.id] || [];
     const last = msgs[msgs.length - 1];
     const b = document.createElement("button");
@@ -753,20 +834,16 @@ function renderHome() {
 }
 
 // 편집
-let editing = null, editAvatar = "";
+let editing = null, editAvatar = "", editUAvatar = "", editStyles = [], editIntros = [];
 function avHTML(c, cls) {
   const inner = c.avatar ? `<img src="${c.avatar}" alt="">` : esc(c.emoji || (c.name || "?").slice(0, 1));
   return `<div class="av ${cls || ""}">${inner}</div>`;
 }
 function setAvPreview() {
-  $("#avPreview").innerHTML = editAvatar ? `<img src="${editAvatar}" alt="">` : esc($("#fEmoji").value || ($("#fName").value || "?").slice(0, 1) || "?");
+  $("#avPreview").innerHTML = editAvatar ? `<img src="${editAvatar}" alt="">` : esc(($("#fName").value || "?").slice(0, 1) || "?");
+  $("#uavPreview").innerHTML = editUAvatar ? `<img src="${editUAvatar}" alt="">` : esc(($("#fUName").value || "나").slice(0, 1));
 }
-$("#avPick").onclick = () => $("#avFile").click();
-$("#avClear").onclick = () => { editAvatar = ""; setAvPreview(); };
-$("#fEmoji").addEventListener("input", setAvPreview);
-$("#fName").addEventListener("input", setAvPreview);
-$("#avFile").onchange = e => {
-  const f = e.target.files[0]; e.target.value = "";
+function pickImage(f, done) {
   if (!f) return;
   const fr = new FileReader();
   fr.onload = () => {
@@ -776,39 +853,72 @@ $("#avFile").onchange = e => {
       cv.width = S; cv.height = S;
       const side = Math.min(img.width, img.height);
       cv.getContext("2d").drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, S, S);
-      editAvatar = cv.toDataURL("image/jpeg", 0.8);
-      setAvPreview();
+      done(cv.toDataURL("image/jpeg", 0.8));
     };
     img.onerror = () => alert("이미지를 읽지 못했어요.");
     img.src = fr.result;
   };
   fr.readAsDataURL(f);
-};
+}
+$("#avPick").onclick = () => $("#avFile").click();
+$("#avClear").onclick = () => { editAvatar = ""; setAvPreview(); };
+$("#uavPick").onclick = () => $("#uavFile").click();
+$("#uavClear").onclick = () => { editUAvatar = ""; setAvPreview(); };
+$("#fName").addEventListener("input", setAvPreview);
+$("#fUName").addEventListener("input", setAvPreview);
+$("#avFile").onchange = e => { const f = e.target.files[0]; e.target.value = ""; pickImage(f, d => { editAvatar = d; setAvPreview(); }); };
+$("#uavFile").onchange = e => { const f = e.target.files[0]; e.target.value = ""; pickImage(f, d => { editUAvatar = d; setAvPreview(); }); };
+
+function renderStyleList() {
+  $("#styleList").innerHTML = editStyles.map((t, i) => `<div class="multi"><div class="mhead"><span>문체 예시 ${i + 1}</span><button type="button" class="icon" data-sdel="${i}">삭제</button></div><textarea class="tall" data-sidx="${i}">${esc(t)}</textarea></div>`).join("");
+  $("#styleList").querySelectorAll("[data-sdel]").forEach(b => b.onclick = () => { editStyles.splice(+b.dataset.sdel, 1); if (!editStyles.length) editStyles = [""]; renderStyleList(); });
+  $("#styleList").querySelectorAll("[data-sidx]").forEach(t => t.oninput = () => { editStyles[+t.dataset.sidx] = t.value; });
+}
+function renderIntroList() {
+  $("#introList").innerHTML = editIntros.map((t, i) => `<div class="multi"><div class="mhead"><span>인트로 ${i + 1}</span><button type="button" class="icon" data-idel="${i}">삭제</button></div><textarea class="tall" data-iidx="${i}">${esc(t)}</textarea></div>`).join("");
+  $("#introList").querySelectorAll("[data-idel]").forEach(b => b.onclick = () => { editIntros.splice(+b.dataset.idel, 1); if (!editIntros.length) editIntros = [""]; renderIntroList(); });
+  $("#introList").querySelectorAll("[data-iidx]").forEach(t => t.oninput = () => { editIntros[+t.dataset.iidx] = t.value; });
+}
+$("#styleAdd").onclick = () => { editStyles.push(""); renderStyleList(); };
+$("#introAdd").onclick = () => { editIntros.push(""); renderIntroList(); };
 function segSet(el, v) { el.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === v)); }
 function segGet(el) { return el.querySelector("button.on")?.dataset.v; }
-["#fLen", "#fTier", "#fTense", "#fFormat", "#fLang", "#fNarr"].forEach(s => $(s).onclick = e => { if (e.target.dataset.v) segSet($(s), e.target.dataset.v); });
+["#fLen", "#fTense", "#fFormat", "#fLang", "#fNarr"].forEach(s => $(s).onclick = e => { if (e.target.dataset.v) segSet($(s), e.target.dataset.v); });
 
 function openEditor(id) {
   editing = id ? store.chars.find(c => c.id === id) : null;
   const c = editing || { len: "mid", tier: "default" };
   $("#edTitle").textContent = editing ? "캐릭터 설정" : "새 캐릭터";
-  $("#fEmoji").value = c.emoji || ""; $("#fName").value = c.name || "";
-  editAvatar = c.avatar || ""; setAvPreview();
-  $("#fChar").value = c.prompt || ""; $("#fGreet").value = c.greet || "";
+  $("#fName").value = c.name || "";
+  editAvatar = c.avatar || ""; editUAvatar = c.uavatar || "";
+  editStyles = (c.styles && c.styles.length ? c.styles.slice() : (c.style ? [c.style] : []));
+  editIntros = (c.intros && c.intros.length ? c.intros.slice() : (c.greet ? [c.greet] : []));
+  if (!editStyles.length) editStyles = [""];
+  if (!editIntros.length) editIntros = [""];
+  renderStyleList(); renderIntroList(); setAvPreview();
+  $("#fChar").value = c.prompt || "";
   $("#fUName").value = c.uname || ""; $("#fUser").value = c.upersona || "";
-  $("#fNote").value = c.note || ""; $("#fStyle").value = c.style || "";
-  segSet($("#fLen"), c.len || "mid"); segSet($("#fTense"), c.tense || "present"); segSet($("#fFormat"), c.format || "bubble"); segSet($("#fLang"), c.lang || "ko"); segSet($("#fNarr"), c.narr || "off"); segSet($("#fTier"), c.tier || "default");
+  segSet($("#fLen"), c.len || "mid"); segSet($("#fTense"), c.tense || "present"); segSet($("#fFormat"), c.format || "bubble"); segSet($("#fLang"), c.lang || "ko"); segSet($("#fNarr"), c.narr || "off");
+  if (!$("#fHand").options.length) $("#fHand").innerHTML = Object.keys(HANDS).map(n => `<option>${n}</option>`).join("");
+  $("#fHand").value = HANDS[c.hand] ? c.hand : "단정";
   $("#delChar").hidden = !editing;
   show("editor");
 }
 $("#newChar").onclick = () => openEditor(null);
+$("#searchBtn").onclick = () => {
+  const w = $("#searchWrap");
+  w.hidden = !w.hidden;
+  if (!w.hidden) $("#searchIn").focus(); else { $("#searchIn").value = ""; renderHome(); }
+};
+$("#searchIn").addEventListener("input", renderHome);
 $("#editFromChat").onclick = () => openEditor(cur);
 $("#saveChar").onclick = () => {
   const data = {
-    emoji: $("#fEmoji").value.trim(), name: $("#fName").value.trim() || "이름 없음", avatar: editAvatar,
-    prompt: $("#fChar").value, greet: $("#fGreet").value,
+    name: $("#fName").value.trim() || "이름 없음", avatar: editAvatar, uavatar: editUAvatar,
+    prompt: $("#fChar").value,
+    styles: editStyles.filter(t => t.trim()), intros: editIntros.filter(t => t.trim()),
     uname: $("#fUName").value.trim(), upersona: $("#fUser").value,
-    note: $("#fNote").value, style: $("#fStyle").value, len: segGet($("#fLen")), tense: segGet($("#fTense")), format: segGet($("#fFormat")), lang: segGet($("#fLang")), narr: segGet($("#fNarr")), tier: segGet($("#fTier"))
+    len: segGet($("#fLen")), tense: segGet($("#fTense")), format: segGet($("#fFormat")), lang: segGet($("#fLang")), narr: segGet($("#fNarr")), hand: $("#fHand").value
   };
   let id;
   if (editing) { Object.assign(editing, data); id = editing.id; }
@@ -828,7 +938,11 @@ const msgs = () => store.chats[cur] || (store.chats[cur] = []);
 
 function openChat(id) {
   cur = id; const c = char();
-  if (!msgs().length && c.greet.trim()) { msgs().push({ id: newId(), role: "assistant", text: sub(c.greet, c) }); save(); }
+  const intros = (c.intros && c.intros.length ? c.intros : (c.greet ? [c.greet] : [])).filter(t => t && t.trim());
+  if (!msgs().length && intros.length) {
+    const pick = intros[Math.floor(Math.random() * intros.length)];
+    msgs().push({ id: newId(), role: "assistant", text: sub(pick, c) }); save();
+  }
   $("#chName").textContent = c.name;
   renderLog(); show("chat");
   setTimeout(() => { $("#log").scrollTop = $("#log").scrollHeight; }, 0);
@@ -842,23 +956,44 @@ function renderLog(errText) {
   list.forEach((m, i) => {
     const d = document.createElement("div");
     d.className = "msg " + (m.role === "user" ? "user" : "char");
-    let content;
+    let content, bare = false;
     if (m.role === "user") content = `<div class="body">${renderText(m.text, fmt)}</div>`;
-    else if (m.ooc) content = `<div class="ooc">${esc(m.text)}</div>`;
-    else content = renderCards(m.text) || renderBlocks(m.text, fmt);
-    const inner = `<div class="who"></div>${content}<div class="tools"></div>`;
-    d.innerHTML = m.role === "user" ? inner : `<div class="mrow">${avHTML(c, "mav")}<div class="mcol">${inner}</div></div>`;
-    d.querySelector(".who").textContent = m.role === "user" ? (c.uname || "나") : c.name;
-    const T = d.querySelector(".tools");
-    const add = (label, fn) => { const b = document.createElement("button"); b.className = "icon"; b.textContent = label; b.onclick = fn; T.appendChild(b); };
-    add("수정", () => editMsg(d, m));
-    add("삭제", () => { if (busy) return; list.splice(i, 1); save(); renderLog(); });
-    if (i === list.length - 1 && m.role === "assistant" && i > 0) add("다시 생성", regen);
+    else if (m.ooc) { content = `<div class="ooc">${esc(m.text)}</div>`; bare = true; }
+    else {
+      const cards = renderCards(m.text, HANDS[c.hand] || HANDS["단정"]);
+      if (cards) { content = cards; bare = true; }
+      else { content = renderBlocks(m.text, fmt); bare = fmt !== "bubble"; }
+    }
+    const inner = `${bare ? "" : `<div class="who"></div>`}${content}<div class="tools"></div>`;
+    if (m.role === "user") d.innerHTML = ai.uav === false
+      ? `<div class="mrow urow"><div class="mcol">${inner}</div></div>`
+      : `<div class="mrow urow"><div class="mcol">${inner}</div>${avHTML({ avatar: c.uavatar, name: c.uname || "나" }, "mav")}</div>`;
+    else d.innerHTML = bare ? inner : `<div class="mrow">${avHTML(c, "mav")}<div class="mcol">${inner}</div></div>`;
+    if (m.role !== "user" && !bare) d.querySelector(".who").textContent = c.name;
+    const whoEl = d.querySelector(".who");
+    if (whoEl && m.role === "user") whoEl.textContent = c.uname || "나";
+    const acts = [["수정", () => editMsg(d, m)], ["삭제", () => { if (busy) return; list.splice(i, 1); save(); renderLog(); }]];
+    if (i === list.length - 1 && m.role === "assistant" && i > 0) acts.push(["다시 생성", regen]);
+    let timer = null;
+    d.addEventListener("contextmenu", e => { e.preventDefault(); showMsgMenu(acts); });
+    d.addEventListener("touchstart", () => { timer = setTimeout(() => { timer = null; showMsgMenu(acts); }, 450); }, { passive: true });
+    ["touchend", "touchmove", "touchcancel"].forEach(ev => d.addEventListener(ev, () => { if (timer) { clearTimeout(timer); timer = null; } }, { passive: true }));
     L.appendChild(d);
   });
   if (errText) { const e = document.createElement("div"); e.className = "err"; e.textContent = errText; L.appendChild(e); }
 }
 
+function showMsgMenu(acts) {
+  const w = document.createElement("div");
+  w.className = "msgmenu";
+  w.innerHTML = `<div class="sheet">${acts.map((a, i) => `<button data-i="${i}">${esc(a[0])}</button>`).join("")}<button data-i="close">닫기</button></div>`;
+  w.onclick = e => {
+    const b = e.target.closest("button");
+    w.remove();
+    if (b && b.dataset.i !== "close") acts[+b.dataset.i][1]();
+  };
+  document.body.appendChild(w);
+}
 function editMsg(node, m) {
   if (busy) return;
   const body = node.querySelector(".body");
@@ -909,6 +1044,10 @@ function buildRules(c, cmd) {
 - ${c.name}의 대사는 ${LANGS[c.lang]}로 쓴다. 지문과 나머지는 한국어로 쓴다.
 ${glossRule}
 - [[ ]] 안에는 발음과 번역만 넣고, 괄호나 따옴표를 추가로 쓰지 않는다.` : "";
+  const styleTexts = (c.styles && c.styles.length ? c.styles : (c.style ? [c.style] : [])).filter(t => t && t.trim());
+  const styleBlock = styleTexts.length
+    ? "\n[문체 참고]\n아래 글은 원하는 문체의 예시다. 문장의 호흡, 지문과 대사가 섞이는 방식, 톤, 묘사의 밀도만 참고한다. 문장, 표현, 전개, 구조는 베끼지 않는다.\n" + styleTexts.map(t => "---\n" + sub(t, c) + "\n---").join("\n")
+    : "";
   const tense = c.tense === "past"
     ? "- 지문은 3인칭 과거형(~했다, ~였다)으로 쓴다."
     : "- 지문은 3인칭 현재형(~한다, ~본다)으로 쓴다.";
@@ -929,8 +1068,8 @@ ${fmtRules}${langRule}${narrRule}
 - ${u}의 대사, 행동, 감정은 대신 쓰지 않는다.
 - ${u}가 결과나 시간 경과, 장면 전환을 뜻하는 지문을 쓰면(예: *결국 그날 밤 같이 잔다*, *다음 날 아침*), 그것은 이미 그렇게 되었다는 설정이다. 그 내용을 설명하거나 앞 장면을 이어 받지 말고, 곧바로 그 시점의 새 장면부터 쓴다. 앞 장면의 대화를 요약하거나 반응하지 않는다.
 - 분량: ${lenMap[c.len] || lenMap.mid}.
-${c.note.trim() ? "\n[추가 지시]\n" + sub(c.note, c) : ""}
-${(c.style || "").trim() ? "\n[문체 참고]\n아래 글의 문체와 호흡을 참고한다. 문장과 내용을 그대로 베끼지 않는다.\n---\n" + sub(c.style, c) + "\n---" : ""}
+${(c.note || "").trim() ? "\n[추가 지시]\n" + sub(c.note, c) : ""}
+${styleBlock}
 
 ${cmd ? "\n[이번 턴 지시 — 위 형식 규칙보다 우선한다]\n" + CMDS[cmd] : ""}
 이제 롤플레이를 시작한다.`;
@@ -972,8 +1111,11 @@ async function generate(extraUser) {
   renderLog();
   const d = document.createElement("div");
   d.className = "msg char";
-  d.innerHTML = `<div class="mrow">${avHTML(c, "mav")}<div class="mcol"><div class="who"></div><div class="body"><span class="thinking">${esc(c.name)}이(가) 생각 중</span></div></div></div>`;
-  d.querySelector(".who").textContent = c.name;
+  d.innerHTML = fmtOf(c) === "bubble" && !cmd
+    ? `<div class="mrow">${avHTML(c, "mav")}<div class="mcol"><div class="who"></div><div class="body"><span class="thinking">${esc(c.name)}이(가) 생각 중</span></div></div></div>`
+    : `<div class="body"><span class="thinking">${esc(c.name)}이(가) 생각 중</span></div>`;
+  const wq = d.querySelector(".who");
+  if (wq) wq.textContent = c.name;
   $("#log").appendChild(d); $("#log").scrollTop = $("#log").scrollHeight;
   const body = d.querySelector(".body");
   ctl = new AbortController();
@@ -1022,7 +1164,7 @@ function send() {
   const v = $("#input").value.trim();
   if (!v) return;
   const pc = parseCmd(v);
-  const um = { id: newId(), role: "user", text: pc ? (CMD_SAY[pc.key] + (pc.rest ? " " + pc.rest : "")) : v };
+  const um = { id: newId(), role: "user", text: v };
   if (pc) um.cmd = pc.key;
   msgs().push(um); save();
   $("#input").value = ""; autoGrow();
@@ -1081,7 +1223,6 @@ $("#input").addEventListener("keydown", e => {
 const CHANGELOG = JSON.parse(document.getElementById("changelog").textContent);
 const APP_VERSION = CHANGELOG[0].v;
 let latest = null;
-$("#verLabel").textContent = "v" + APP_VERSION;
 $("#vNow").textContent = APP_VERSION;
 const vnum = v => v.split(".").map(Number);
 const newer = (a, b) => { const x = vnum(a), y = vnum(b); for (let i = 0; i < Math.max(x.length, y.length); i++) { if ((x[i]||0) !== (y[i]||0)) return (x[i]||0) > (y[i]||0); } return false; };
@@ -1106,17 +1247,17 @@ async function checkUpdate() {
     const lv = latest[0].v;
     if (newer(lv, APP_VERSION)) {
       st.className = "st new"; st.textContent = `새 버전 v${lv}이 있어요! 새로고침을 눌러주세요.`;
-      $("#verDot").hidden = false;
+
     } else {
       st.textContent = "최신 버전이에요.";
-      $("#verDot").hidden = true;
+
     }
   } catch (e) {
     st.textContent = "새 버전을 확인하지 못했어요. 새로고침하면 최신 버전을 불러와요.";
   }
   renderChangelog();
 }
-$("#verBtn").onclick = () => { renderChangelog(); show("updates"); checkUpdate(); };
+$("#sUpd").onclick = () => { renderChangelog(); show("updates"); checkUpdate(); };
 $("#vCheck").onclick = checkUpdate;
 $("#vReload").onclick = () => {
   if (busy) return;
@@ -1124,7 +1265,7 @@ $("#vReload").onclick = () => {
   if (window.claude) { location.reload(); return; }
   location.replace(location.pathname + "?v=" + Date.now());
 };
-if (!window.claude) checkUpdate();
+
 
 renderHome();
 })();
