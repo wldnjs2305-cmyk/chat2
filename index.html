@@ -6,6 +6,11 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.31","items":["나레이션 기능 추가 (없음/가끔/자주) - 장면 전환과 새 상황을 만들어주는 서술","나레이션은 말풍선 밖 기울임체로 표시"]},
+  {"v":"1.30","items":["캐릭터 이름을 프로필 사진 오른쪽 위로 정렬"]},
+  {"v":"1.29","items":["번역·발음을 설정에 켜둔 것만 생성하도록 변경 (토큰 절약)","지문 색을 더 진하게, 번역·발음은 연한 회색으로"]},
+  {"v":"1.28","items":["대사 언어 선택 추가 (한국어/일본어/영어/중국어)","대사 옆에 번역과 한글 발음 표시, AI 설정에서 각각 켜고 끄기"]},
+  {"v":"1.27","items":["캐릭터 말풍선 옆에 프로필 사진 표시"]},
   {"v":"1.26","items":["AI 설정에 글씨체(고운돋움·고운바탕·기본 고딕)와 글씨 크기 선택 추가","눈누 웹폰트 우선 사용, 막히면 구글 폰트로 자동 대체"]},
   {"v":"1.25","items":["대화 상단의 프로필 사진 제거","글씨체 변경: 고운돋움(본문·대사), 고운바탕(지문)"]},
   {"v":"1.24","items":["캐릭터 프로필 사진 업로드 추가 (목록·대화 상단에 표시)"]},
@@ -44,7 +49,7 @@
 @font-face{font-family:'GowoonDodum';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunDodum-Regular.woff') format('woff');font-weight:400;font-display:swap}
 :root{
   --bg:#f3eff6; --panel:#ffffff; --ink:#262033; --soft:#6f6780; --line:#ddd5e6;
-  --accent:#8a4f7d; --accent-ink:#fff; --narr:#7a6f8c; --user-bg:#ebe2f2; --char-bg:#ffffff;
+  --accent:#8a4f7d; --accent-ink:#fff; --narr:#5c5370;--faint:#9d96a9; --user-bg:#ebe2f2; --char-bg:#ffffff;
   --danger:#b04545;
   --font-body:"GowoonDodum","Gowun Dodum","Noto Sans KR",system-ui,-apple-system,sans-serif;
   --font-serif:"GounBatang","Gowun Batang",serif;
@@ -54,12 +59,12 @@
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
     --bg:#1b1824; --panel:#252131; --ink:#ece7f3; --soft:#a79fb6; --line:#3a3448;
-    --accent:#d99bc6; --accent-ink:#21172a; --narr:#a99dbd; --user-bg:#342b44; --char-bg:#252131; --danger:#e08a8a;
+    --accent:#d99bc6; --accent-ink:#21172a; --narr:#c0b5d2;--faint:#8b8399; --user-bg:#342b44; --char-bg:#252131; --danger:#e08a8a;
   }
 }
 :root[data-theme="dark"]{
   --bg:#1b1824; --panel:#252131; --ink:#ece7f3; --soft:#a79fb6; --line:#3a3448;
-  --accent:#d99bc6; --accent-ink:#21172a; --narr:#a99dbd; --user-bg:#342b44; --char-bg:#252131; --danger:#e08a8a;
+  --accent:#d99bc6; --accent-ink:#21172a; --narr:#c0b5d2;--faint:#8b8399; --user-bg:#342b44; --char-bg:#252131; --danger:#e08a8a;
 }
 *,*::before,*::after{box-sizing:inherit}
 html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
@@ -131,12 +136,20 @@ textarea.tall{min-height:180px}
 /* chat */
 .log{flex:1;overflow-y:auto;padding:18px 16px 8px}
 .msg{margin:0 0 18px}
+.mrow{display:flex;gap:10px;align-items:flex-start}
+.mcol{flex:1;min-width:0}
+.mav{width:38px;height:38px;font-size:17px}
 .msg.char .body{background:var(--char-bg);border:1px solid var(--line);border-radius:4px 16px 16px 16px;padding:14px 16px}
 .msg.user{display:flex;flex-direction:column;align-items:flex-end}
 .msg.user .body{background:var(--user-bg);border-radius:16px 4px 16px 16px;padding:10px 14px;max-width:88%}
-.who{font-size:12px;color:var(--soft);margin:0 0 4px 2px;font-weight:500}
+.who{font-size:13px;color:var(--soft);margin:6px 0 6px 2px;font-weight:500}
 .body p{margin:0 0 .7em}
 .body p:last-child{margin-bottom:0}
+.gloss{color:var(--faint);font-size:.92em}
+.log:not(.pron-on) .pron,.log:not(.pron-on) .glc{display:none}
+.log:not(.trans-on) .trans,.log:not(.trans-on) .glc{display:none}
+.log:not(.pron-on):not(.trans-on) .gloss{display:none}
+.nline{color:var(--soft);font-style:italic;font-family:var(--font-serif);margin:4px 2px 12px;line-height:1.75;font-size:.96em}
 .spk{font-weight:700;color:var(--accent)}
 .bar{color:var(--soft);margin:0 8px}
 .fmt-novel .msg.char .body,.fmt-script .msg.char .body{background:none;border:0;padding:0 2px}
@@ -202,6 +215,9 @@ textarea.tall{min-height:180px}
         <legend>화면</legend>
         <label>글씨체</label>
         <div class="seg" id="sFont"><button data-v="dodum">고운돋움</button><button data-v="batang">고운바탕</button><button data-v="sans">기본 고딕</button></div>
+        <label>대사 번역·발음</label>
+        <label style="display:flex;gap:10px;align-items:center;color:var(--ink);font-size:15px;margin:6px 0"><input type="checkbox" id="sTrans" style="width:20px;height:20px"> 번역 보기</label>
+        <label style="display:flex;gap:10px;align-items:center;color:var(--ink);font-size:15px;margin:0 0 6px"><input type="checkbox" id="sPron" style="width:20px;height:20px"> 발음 보기</label>
         <label>글씨 크기</label>
         <div class="seg" id="sSize"><button data-v="s">작게</button><button data-v="m">보통</button><button data-v="l">크게</button><button data-v="xl">아주 크게</button></div>
       </fieldset>
@@ -274,6 +290,12 @@ textarea.tall{min-height:180px}
         <label for="fStyle">문체 예시 (선택)</label>
         <textarea id="fStyle" class="tall" placeholder="마음에 드는 답변을 그대로 붙여넣어 주세요. 문체와 호흡만 참고하고 내용은 따라 하지 않아요."></textarea>
         <div class="hint">별표 없이 붙여넣어도 괜찮아요.</div>
+        <label>나레이션</label>
+        <div class="seg" id="fNarr"><button data-v="off">없음</button><button data-v="some">가끔</button><button data-v="many">자주</button></div>
+        <div class="hint">장면 전환이나 새 상황을 만들어주는 서술이에요. 말풍선 밖에 기울임체로 보여요.</div>
+        <label>대사 언어</label>
+        <div class="seg" id="fLang"><button data-v="ko">한국어</button><button data-v="ja">일본어</button><button data-v="en">영어</button><button data-v="zh">중국어</button></div>
+        <div class="hint">지문은 한국어로 나오고, 대사만 그 언어로 나와요. 번역·발음 표시는 AI 설정에서 켜고 끌 수 있어요.</div>
         <label>출력 형식</label>
         <div class="seg" id="fFormat"><button data-v="bubble">말풍선</button><button data-v="novel">소설</button><button data-v="script">대본</button></div>
         <label>지문 시제</label>
@@ -465,7 +487,7 @@ let sample = null;
 
 // ---- AI 설정 (이 기기에만 저장) ----
 const SKEY = "bamp_ai_v1";
-let ai = { prov: "builtin", url: "", key: "", model: "gpt-4.1", temp: 0.9, max: 0, merge: true, font: "dodum", size: "m" };
+let ai = { prov: "builtin", url: "", key: "", model: "gpt-4.1", temp: 0.9, max: 0, merge: true, font: "dodum", size: "m", trans: true, pron: false };
 const FONTS = {
   dodum: '"GowoonDodum","Gowun Dodum","Noto Sans KR",system-ui,-apple-system,sans-serif',
   batang: '"GounBatang","Gowun Batang",serif',
@@ -501,16 +523,17 @@ $("#sTemp").oninput = () => $("#sTempV").textContent = $("#sTemp").value;
 });
 function readSettings() {
   return { prov: segGet($("#sProv")), url: $("#sUrl").value.trim().replace(/\/+$/, ""), key: $("#sKey").value.trim(),
-    model: $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 0, merge: $("#sMerge").checked, font: segGet($("#sFont")) || "dodum", size: segGet($("#sSize")) || "m" };
+    model: $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 0, merge: $("#sMerge").checked, trans: $("#sTrans").checked, pron: $("#sPron").checked, font: segGet($("#sFont")) || "dodum", size: segGet($("#sSize")) || "m" };
 }
 $("#setBtn").onclick = () => {
   segSet($("#sProv"), ai.prov); $("#sUrl").value = ai.url; $("#sKey").value = ai.key; $("#sModel").value = ai.model;
-  $("#sTemp").value = ai.temp; $("#sTempV").textContent = ai.temp; $("#sMax").value = ai.max || ""; $("#sMerge").checked = ai.merge !== false; segSet($("#sFont"), ai.font || "dodum"); segSet($("#sSize"), ai.size || "m"); $("#sTestOut").textContent = "";
+  $("#sTemp").value = ai.temp; $("#sTempV").textContent = ai.temp; $("#sMax").value = ai.max || ""; $("#sMerge").checked = ai.merge !== false; $("#sTrans").checked = ai.trans !== false; $("#sPron").checked = !!ai.pron; segSet($("#sFont"), ai.font || "dodum"); segSet($("#sSize"), ai.size || "m"); $("#sTestOut").textContent = "";
   syncProvUI(); show("settings");
 };
 $("#sSave").onclick = () => {
   ai = readSettings();
   applyLook();
+  if (cur) renderLog();
   try { localStorage.setItem(SKEY, JSON.stringify(ai)); } catch(e) {}
   updateBanner(); renderHome(); show("home");
 };
@@ -586,6 +609,18 @@ const sub = (t, c) => (t || "").replace(/\{\{\s*user\s*\}\}/gi, c.uname || "유�
 
 // *지문* / 대사 렌더링
 function fmtOf(c) { return c && (c.format === "novel" || c.format === "script") ? c.format : "bubble"; }
+function renderBlocks(text, fmt) {
+  const lines = text.replace(/\r/g, "").split(/\n/).map(l => l.trim()).filter(Boolean);
+  let html = "", buf = [];
+  const flush = () => { if (buf.length) { html += `<div class="body">${renderText(buf.join("\n"), fmt)}</div>`; buf = []; } };
+  lines.forEach(l => {
+    const m = l.match(/^(?:>>|》)\s*(.*)$/);
+    if (m) { flush(); html += `<div class="nline">${esc(m[1].replace(/\*/g, ""))}</div>`; }
+    else buf.push(l);
+  });
+  flush();
+  return html || `<div class="body"></div>`;
+}
 function renderText(text, fmt) {
   fmt = fmt || "bubble";
   const narrDefault = fmt !== "bubble";
@@ -594,8 +629,15 @@ function renderText(text, fmt) {
     const name = l.match(/^([^\s:|*"“(]{1,14})\s*[:|]\s*(.*)$/);
     let prefix = "";
     if (fmt === "script" && name) { prefix = `<span class="spk">${esc(name[1])}</span><span class="bar">|</span>`; l = name[2]; }
-    const parts = l.split(/(\*[^*]+\*|\([^)]*\)|"[^"]*"|“[^”]*”)/g).filter(x => x && x.length);
+    const parts = l.split(/(\[\[[^\]]*\]\]|\*[^*]+\*|\([^)]*\)|"[^"]*"|“[^”]*”)/g).filter(x => x && x.length);
     const html = parts.map(x => {
+      const gl = x.match(/^\[\[([^\]]*)\]\]$/);
+      if (gl) {
+        const seg = gl[1].split("|");
+        const pron = seg.length > 1 ? seg[0].trim() : "";
+        const tr = (seg.length > 1 ? seg.slice(1).join("|") : seg[0]).trim();
+        return `<span class="gloss">(${pron ? `<span class="pron">${esc(pron)}</span>` : ""}${pron && tr ? `<span class="glc">, </span>` : ""}${tr ? `<span class="trans">${esc(tr)}</span>` : ""})</span>`;
+      }
       if (/^\*[^*]+\*$/.test(x)) return `<span class="narr">${esc(x.slice(1, -1))}</span>`;
       if (/^\(.*\)$/.test(x)) return `<span class="narr">${esc(x)}</span>`;
       if (/^["“].*["”]$/.test(x)) return `<span class="say">${esc(x)}</span>`;
@@ -683,7 +725,7 @@ $("#avFile").onchange = e => {
 };
 function segSet(el, v) { el.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === v)); }
 function segGet(el) { return el.querySelector("button.on")?.dataset.v; }
-["#fLen", "#fTier", "#fTense", "#fFormat"].forEach(s => $(s).onclick = e => { if (e.target.dataset.v) segSet($(s), e.target.dataset.v); });
+["#fLen", "#fTier", "#fTense", "#fFormat", "#fLang", "#fNarr"].forEach(s => $(s).onclick = e => { if (e.target.dataset.v) segSet($(s), e.target.dataset.v); });
 
 function openEditor(id) {
   editing = id ? store.chars.find(c => c.id === id) : null;
@@ -694,7 +736,7 @@ function openEditor(id) {
   $("#fChar").value = c.prompt || ""; $("#fGreet").value = c.greet || "";
   $("#fUName").value = c.uname || ""; $("#fUser").value = c.upersona || "";
   $("#fNote").value = c.note || ""; $("#fStyle").value = c.style || "";
-  segSet($("#fLen"), c.len || "mid"); segSet($("#fTense"), c.tense || "present"); segSet($("#fFormat"), c.format || "bubble"); segSet($("#fTier"), c.tier || "default");
+  segSet($("#fLen"), c.len || "mid"); segSet($("#fTense"), c.tense || "present"); segSet($("#fFormat"), c.format || "bubble"); segSet($("#fLang"), c.lang || "ko"); segSet($("#fNarr"), c.narr || "off"); segSet($("#fTier"), c.tier || "default");
   $("#delChar").hidden = !editing;
   show("editor");
 }
@@ -705,7 +747,7 @@ $("#saveChar").onclick = () => {
     emoji: $("#fEmoji").value.trim(), name: $("#fName").value.trim() || "이름 없음", avatar: editAvatar,
     prompt: $("#fChar").value, greet: $("#fGreet").value,
     uname: $("#fUName").value.trim(), upersona: $("#fUser").value,
-    note: $("#fNote").value, style: $("#fStyle").value, len: segGet($("#fLen")), tense: segGet($("#fTense")), format: segGet($("#fFormat")), tier: segGet($("#fTier"))
+    note: $("#fNote").value, style: $("#fStyle").value, len: segGet($("#fLen")), tense: segGet($("#fTense")), format: segGet($("#fFormat")), lang: segGet($("#fLang")), narr: segGet($("#fNarr")), tier: segGet($("#fTier"))
   };
   let id;
   if (editing) { Object.assign(editing, data); id = editing.id; }
@@ -733,13 +775,14 @@ function openChat(id) {
 
 function renderLog(errText) {
   const c = char(), L = $("#log"), fmt = fmtOf(c);
-  L.className = "log fmt-" + fmt;
+  L.className = "log fmt-" + fmt + (ai.pron ? " pron-on" : "") + (ai.trans !== false ? " trans-on" : "");
   L.innerHTML = "";
   const list = msgs();
   list.forEach((m, i) => {
     const d = document.createElement("div");
     d.className = "msg " + (m.role === "user" ? "user" : "char");
-    d.innerHTML = `<div class="who"></div><div class="body">${renderText(m.text, fmt)}</div><div class="tools"></div>`;
+    const inner = `<div class="who"></div>${m.role === "user" ? `<div class="body">${renderText(m.text, fmt)}</div>` : renderBlocks(m.text, fmt)}<div class="tools"></div>`;
+    d.innerHTML = m.role === "user" ? inner : `<div class="mrow">${avHTML(c, "mav")}<div class="mcol">${inner}</div></div>`;
     d.querySelector(".who").textContent = m.role === "user" ? (c.uname || "나") : c.name;
     const T = d.querySelector(".tools");
     const add = (label, fn) => { const b = document.createElement("button"); b.className = "icon"; b.textContent = label; b.onclick = fn; T.appendChild(b); };
@@ -780,6 +823,27 @@ function buildRules(c) {
     : `- 행동·표정·분위기·속마음 등 지문은 *별표*로 감싸고, ${c.name}의 대사는 별표 없이 쓴다.
 - 대사에 따옴표("")를 붙이지 않는다.
 - 지문과 대사는 한 문단 안에서 이어 쓴다. 지문 다음에 줄을 바꿔 대사를 따로 떼어놓지 않는다. (*지문* 대사 *지문* 대사 처럼 한 줄로 이어진다)`;
+  const narrRule = c.narr === "some" || c.narr === "many" ? `
+- 나레이션을 쓸 수 있다. 나레이션은 ${c.name}의 말이나 행동이 아니라, 장면 밖에서 상황을 서술하는 목소리다. 시간·장소가 바뀌거나, 전화·인기척·날씨 같은 새 상황이 생기거나, 분위기를 짚어줄 때 쓴다.
+- 나레이션 줄은 >> 로 시작해 한 줄로 쓰고, 별표를 쓰지 않는다. 예: >> 30초 후. 복도에서 발소리가 들렸다.
+- 나레이션에서 ${c.uname || "유저"}의 말이나 속마음을 대신 쓰지 않는다. 상황만 던지고 반응은 맡긴다.
+- 빈도: ${c.narr === "many" ? "응답마다 한 번 정도" : "서너 번에 한 번 정도, 필요할 때만"}.` : "";
+  const LANGS = { ja: "일본어", en: "영어", zh: "중국어(간체)" };
+  const wantP = !!ai.pron, wantT = ai.trans !== false;
+  const glossRule = !wantP && !wantT
+    ? "- 대사 뒤에 번역이나 발음을 붙이지 않는다."
+    : wantP && wantT
+    ? `- 대사마다 바로 뒤에 [[발음|번역]]을 붙인다. 발음은 한글로 적은 읽는 소리, 번역은 ${c.name}의 말투를 살린 자연스러운 한국어 의역이다(직역하지 않는다).
+- 예: あんたのこと、本当に嫌い。[[안타노 코토, 혼토니 키라이|너 진짜 싫어.]]`
+    : wantT
+    ? `- 대사마다 바로 뒤에 [[번역]]을 붙인다. 번역은 ${c.name}의 말투를 살린 자연스러운 한국어 의역이다(직역하지 않는다). 발음은 쓰지 않는다.
+- 예: あんたのこと、本当に嫌い。[[너 진짜 싫어.]]`
+    : `- 대사마다 바로 뒤에 [[발음|]]을 붙인다. 발음은 한글로 적은 읽는 소리다. 번역은 쓰지 않는다.
+- 예: あんたのこと、本当に嫌い。[[안타노 코토, 혼토니 키라이|]]`;
+  const langRule = LANGS[c.lang] ? `
+- ${c.name}의 대사는 ${LANGS[c.lang]}로 쓴다. 지문과 나머지는 한국어로 쓴다.
+${glossRule}
+- [[ ]] 안에는 발음과 번역만 넣고, 괄호나 따옴표를 추가로 쓰지 않는다.` : "";
   const tense = c.tense === "past"
     ? "- 지문은 3인칭 과거형(~했다, ~였다)으로 쓴다."
     : "- 지문은 3인칭 현재형(~한다, ~본다)으로 쓴다.";
@@ -794,7 +858,7 @@ ${sub(c.upersona, c) || "(설정 없음)"}
 [작성 규칙]
 - 한국어로 쓴다.
 ${tense}
-${fmtRules}
+${fmtRules}${langRule}${narrRule}
 - 대사나 질문으로 끝내야 하는 건 아니다. 지문으로 끝나도 되고 대사로 끝나도 된다. 장면 흐름에 맞게 정한다.
 - 이전 응답의 형식을 그대로 따라 하지 않는다. 문단 수, 지문과 대사의 순서·비율·길이는 매번 새로 정한다. 지문으로 시작해도 되고 대사로 시작해도 된다. 어떤 응답은 지문이 많고 어떤 응답은 대사가 많아도 된다. 앞의 답과 모양이 비슷해지는 것을 경계한다.
 - ${u}의 대사, 행동, 감정은 대신 쓰지 않는다.
@@ -840,7 +904,7 @@ async function generate(extraUser) {
   renderLog();
   const d = document.createElement("div");
   d.className = "msg char";
-  d.innerHTML = `<div class="who"></div><div class="body"><span class="thinking">${esc(c.name)}이(가) 생각 중</span></div>`;
+  d.innerHTML = `<div class="mrow">${avHTML(c, "mav")}<div class="mcol"><div class="who"></div><div class="body"><span class="thinking">${esc(c.name)}이(가) 생각 중</span></div></div></div>`;
   d.querySelector(".who").textContent = c.name;
   $("#log").appendChild(d); $("#log").scrollTop = $("#log").scrollHeight;
   const body = d.querySelector(".body");
