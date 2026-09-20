@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.23","items":["입력창이 아이폰 하단 홈 바에 겹치던 문제 수정"]},
   {"v":"1.22","items":["대본 형식의 지문을 괄호에서 *별표*로 변경"]},
   {"v":"1.21","items":["대본 형식 표기를 '이름 | 대사'로 변경"]},
   {"v":"1.20","items":["출력 형식 추가: 말풍선 / 소설 / 대본","소설·대본은 큰따옴표 대사와 문단 나눔, 화면도 형식에 맞게 표시"]},
@@ -139,7 +140,7 @@ textarea.tall{min-height:180px}
 @media (prefers-reduced-motion:reduce){.thinking::after{animation:none;content:"..."}}
 .err{color:var(--danger);font-size:13px;margin:-8px 0 16px}
 .edit-area{width:100%;min-height:120px;font-size:16px}
-.composer{border-top:1px solid var(--line);padding:10px 12px;background:var(--bg)}
+.composer{border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:var(--bg)}
 .composer .quick{display:flex;gap:6px;margin-bottom:8px;overflow-x:auto}
 .composer .quick button{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 12px;font-size:13px;color:var(--soft);white-space:nowrap}
 .composer .in{display:flex;gap:8px;align-items:flex-end}
