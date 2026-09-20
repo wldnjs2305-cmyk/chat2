@@ -1,814 +1,843 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
-<title>상황극</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>밤편지 — 캐릭터 채팅</title>
+<script type="application/json" id="changelog">
+[
+  {"v":"1.11","items":["AI 설정에 '문단 정리' 추가: 대사만 떨어진 줄을 앞 지문 문단에 자동으로 붙임","정리된 문체로 저장돼서 다음 답변도 그 문체를 따라가게 함"]},
+  {"v":"1.10","items":["대사만 따로 떨어진 문단이 많아지는 문제 수정: 대사를 지문 문단 안에 섞도록","응답 길이 조정 (보통 2~4문단, 길게 4~6문단)"]},
+  {"v":"1.9","items":["캐릭터 설정에 '문체 예시' 칸 추가: 마음에 드는 답변을 넣으면 그 문체를 참고","지문에 캐릭터의 속내 녹이기, 대사 길이 다양하게"]},
+  {"v":"1.8","items":["응답 구조가 매번 똑같이 반복되는 문제 수정","문단 길이·끝맺음을 다양하게, 형식 예시 제거"]},
+  {"v":"1.7","items":["응답 문체 통일: 현재형 지문, 따옴표 없는 대사, 지문과 대사 섞기","형식 예시를 넣어 API 모델(제미나이 등)도 같은 스타일로 쓰도록 조정"]},
+  {"v":"1.6","items":["업데이트 내역 화면 추가","새 버전 확인하고 바로 새로고침하는 버튼 추가"]},
+  {"v":"1.5","items":["최대 출력 토큰 기본값을 비움 (생각하는 모델 빈 응답 오류 해결)","연결 테스트 토큰 제한 제거","직접 입력(프록시)에서 캐릭터 설정을 첫 메시지에 합쳐 보내도록 변경"]},
+  {"v":"1.4","items":["AI 설정 추가: 내장 Claude / OpenAI / 직접 입력","창의성(temperature), 최대 출력 토큰, 연결 테스트"]},
+  {"v":"1.3","items":["어색한 말투 규칙 추가 (자기 정정, 쉼표 끊기, 번역투)","말줄임표 규칙 완화"]},
+  {"v":"1.2","items":["업데이트해도 대화가 남도록 계정 저장","백업 내보내기 / 불러오기"]},
+  {"v":"1.1","items":["말줄임표 남발 줄이기"]},
+  {"v":"1.0","items":["첫 버전: 캐릭터·유저 프롬프트, 지문/대사 구분, 이어쓰기, 다시 생성"]}
+]
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#131118;
-    --surface:#1b1922;
-    --surface-2:#24212d;
-    --surface-3:#2c2937;
-    --line:#33303d;
-    --line-soft:#28262f;
-    --text:#ece9f2;
-    --muted:#9c96a8;
-    --faint:#6f6a7c;
-    --accent:#d0a45c;         /* candlelit gold */
-    --accent-dim:#9a7c46;
-    --char-bubble:#221f2b;
-    --user-bubble:#302b46;    /* dusky indigo */
-    --dlg:#f3ddb4;            /* dialogue tint (warm) */
-    --danger:#e0857f;
-    --safe-top:env(safe-area-inset-top,0px);
-    --safe-bottom:env(safe-area-inset-bottom,0px);
-    font-size:16px;
+:root{
+  --bg:#f3eff6; --panel:#ffffff; --ink:#262033; --soft:#6f6780; --line:#ddd5e6;
+  --accent:#8a4f7d; --accent-ink:#fff; --narr:#7a6f8c; --user-bg:#ebe2f2; --char-bg:#ffffff;
+  --danger:#b04545;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#1b1824; --panel:#252131; --ink:#ece7f3; --soft:#a79fb6; --line:#3a3448;
+    --accent:#d99bc6; --accent-ink:#21172a; --narr:#a99dbd; --user-bg:#342b44; --char-bg:#252131; --danger:#e08a8a;
   }
-  @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
+}
+:root[data-theme="dark"]{
+  --bg:#1b1824; --panel:#252131; --ink:#ece7f3; --soft:#a79fb6; --line:#3a3448;
+  --accent:#d99bc6; --accent-ink:#21172a; --narr:#a99dbd; --user-bg:#342b44; --char-bg:#252131; --danger:#e08a8a;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.6;-webkit-text-size-adjust:100%}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{height:100%;display:flex;flex-direction:column;max-width:720px;margin:0 auto}
+.screen{display:none;flex:1;min-height:0;flex-direction:column}
+.screen.on{display:flex}
 
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%;margin:0}
-  body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
-    line-height:1.62;
-    overflow:hidden;
-    -webkit-font-smoothing:antialiased;
-  }
-  .serif{font-family:"Noto Serif KR",serif}
+header.bar{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--bg)}
+header.bar h1{font-family:"Gowun Batang",serif;font-size:21px;margin:0;flex:1;font-weight:700;letter-spacing:-.01em}
+header.bar h2{font-size:16px;margin:0;flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.icon{background:none;border:0;padding:6px 8px;border-radius:8px;color:var(--soft);font-size:15px}
+.icon:hover{background:var(--line);color:var(--ink)}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:10px 16px;font-weight:700}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.danger{background:transparent;color:var(--danger);border:1px solid var(--line)}
+.btn:disabled{opacity:.5}
 
-  /* atmospheric glow */
-  body::before{
-    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
-    background:radial-gradient(120% 60% at 50% -10%, rgba(208,164,92,.10), transparent 60%);
-  }
+/* home */
+.list{flex:1;overflow-y:auto;padding:8px 0}
+.row{display:flex;align-items:center;gap:14px;padding:12px 16px;border:0;background:none;width:100%;text-align:left}
+.row:hover{background:var(--panel)}
+.av{width:48px;height:48px;border-radius:50%;background:var(--user-bg);display:grid;place-items:center;font-size:22px;flex:none;font-family:"Gowun Batang",serif;font-weight:700;color:var(--accent)}
+.row .meta{flex:1;min-width:0}
+.row .nm{font-weight:700}
+.row .pv{color:var(--soft);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.empty{padding:48px 24px;text-align:center;color:var(--soft)}
+.empty p{font-family:"Gowun Batang",serif;font-size:18px;color:var(--ink);margin:0 0 6px}
+.fab{margin:4px 16px 16px;align-self:stretch}
+#verBtn{position:relative;font-size:13px}
+.dot{position:absolute;top:4px;right:2px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.ver-now{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:20px}
+.ver-now .big{font-family:"Gowun Batang",serif;font-size:22px;font-weight:700}
+.ver-now .st{color:var(--soft);font-size:14px;margin:4px 0 12px}
+.ver-now .st.new{color:var(--accent);font-weight:700}
+.ver-now .btns{display:flex;gap:8px}
+.ver-now .btns .btn{flex:1}
+.cl{margin:0 0 18px}
+.cl h3{font-size:15px;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+.cl h3 .tag{font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--user-bg);color:var(--accent)}
+.cl ul{margin:0;padding-left:20px;color:var(--soft);font-size:14px}
+.backup{display:flex;justify-content:center;gap:8px;padding-top:8px}
+.backup .icon{font-size:13px}
 
-  #app{position:relative;z-index:1;display:flex;flex-direction:column;height:100dvh;max-width:720px;margin:0 auto}
+/* editor */
+.form{flex:1;overflow-y:auto;padding:16px 16px 32px}
+fieldset{border:0;margin:0 0 22px;padding:0}
+legend{font-family:"Gowun Batang",serif;font-weight:700;font-size:17px;padding:0;margin-bottom:10px}
+label{display:block;font-size:13px;color:var(--soft);margin:12px 0 5px}
+input[type=text],textarea,select{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;resize:vertical}
+textarea{min-height:90px;line-height:1.55}
+textarea.tall{min-height:180px}
+.hint{font-size:12px;color:var(--soft);margin-top:4px}
+.two{display:grid;grid-template-columns:80px 1fr;gap:10px}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{flex:1;border:0;background:var(--panel);padding:9px 4px;font-size:14px;color:var(--soft)}
+.seg button.on{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.actions{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--line)}
+.actions .btn{flex:1}
 
-  /* ---------- header ---------- */
-  header{
-    display:flex;align-items:center;gap:12px;
-    padding:calc(var(--safe-top) + 10px) 14px 10px;
-    border-bottom:1px solid var(--line-soft);
-    background:rgba(19,17,24,.82);backdrop-filter:blur(14px);
-    -webkit-backdrop-filter:blur(14px);
-  }
-  .avatar{
-    flex:none;width:40px;height:40px;border-radius:50%;
-    display:grid;place-items:center;font-size:21px;
-    background:var(--surface-2);border:1px solid var(--line);
-    box-shadow:inset 0 0 0 1px rgba(208,164,92,.08);
-  }
-  .head-name{flex:1;min-width:0}
-  .head-name b{display:block;font-size:1.06rem;font-weight:600;letter-spacing:.01em;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .head-name small{display:block;color:var(--faint);font-size:.74rem;letter-spacing:.02em}
-  .iconbtn{
-    flex:none;width:38px;height:38px;border-radius:11px;border:1px solid transparent;
-    background:transparent;color:var(--muted);cursor:pointer;display:grid;place-items:center;
-    transition:background .15s,color .15s;
-  }
-  .iconbtn:hover{background:var(--surface-2);color:var(--text)}
-  .iconbtn:active{transform:scale(.94)}
-  .iconbtn svg{width:20px;height:20px}
-
-  /* ---------- messages ---------- */
-  #scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:20px 14px 8px;scroll-behavior:smooth}
-  #scroll::-webkit-scrollbar{width:0}
-  .row{display:flex;gap:9px;margin-bottom:16px;align-items:flex-end;animation:rise .32s ease both}
-  @keyframes rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
-  .row.me{justify-content:flex-end}
-  .row .ava{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
-    font-size:15px;background:var(--surface-2);border:1px solid var(--line);margin-bottom:2px}
-  .bubble{
-    max-width:80%;padding:11px 14px;border-radius:18px;font-size:.985rem;
-    word-break:break-word;white-space:normal;position:relative;
-  }
-  .row.other .bubble{background:var(--char-bubble);border:1px solid var(--line);
-    border-bottom-left-radius:6px;color:var(--text)}
-  .row.me .bubble{background:var(--user-bubble);border:1px solid #3b3556;
-    border-bottom-right-radius:6px}
-  .bubble .narr{color:var(--muted);font-style:italic}
-  .bubble .dlg{color:var(--dlg);font-weight:500;font-style:normal}
-  .bubble.err{border-color:var(--danger);color:var(--danger);background:rgba(224,133,127,.08)}
-  .caret{display:inline-block;width:7px;height:1.05em;vertical-align:-2px;margin-left:1px;
-    background:var(--accent);border-radius:2px;animation:blink 1s steps(2) infinite}
-  @keyframes blink{50%{opacity:0}}
-
-  .empty{margin:12vh auto 0;text-align:center;color:var(--faint);max-width:300px;padding:0 16px}
-  .empty .mk{font-size:40px;margin-bottom:12px;opacity:.7}
-  .empty p{font-size:.9rem;line-height:1.7}
-
-  /* ---------- composer ---------- */
-  .composer{
-    display:flex;align-items:flex-end;gap:8px;
-    padding:9px 12px calc(var(--safe-bottom) + 10px);
-    border-top:1px solid var(--line-soft);background:rgba(19,17,24,.9);
-    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  }
-  .composer textarea{
-    flex:1;resize:none;max-height:150px;min-height:44px;
-    background:var(--surface-2);border:1px solid var(--line);border-radius:14px;
-    color:var(--text);font:inherit;font-size:.97rem;padding:11px 14px;outline:none;
-    transition:border-color .15s;
-  }
-  .composer textarea:focus{border-color:var(--accent-dim)}
-  .composer textarea::placeholder{color:var(--faint)}
-  .send{
-    flex:none;width:44px;height:44px;border-radius:14px;border:none;cursor:pointer;
-    background:var(--accent);color:#241a08;display:grid;place-items:center;
-    transition:transform .12s,opacity .15s;
-  }
-  .send:active{transform:scale(.92)}
-  .send:disabled{opacity:.4;cursor:default}
-  .send svg{width:20px;height:20px}
-  .regen{flex:none;width:44px;height:44px;border-radius:14px;border:1px solid var(--line);
-    background:var(--surface-2);color:var(--muted);cursor:pointer;display:grid;place-items:center}
-  .regen:hover{color:var(--text)}
-  .regen:active{transform:scale(.92)}
-  .regen svg{width:19px;height:19px}
-  .send.stop{background:var(--danger);color:#2a0f0d}
-
-  /* ---------- sheets ---------- */
-  .scrim{position:fixed;inset:0;background:rgba(8,7,11,.6);backdrop-filter:blur(2px);
-    z-index:40;opacity:0;pointer-events:none;transition:opacity .25s}
-  .scrim.on{opacity:1;pointer-events:auto}
-  .sheet{
-    position:fixed;left:0;right:0;bottom:0;z-index:50;
-    max-width:720px;margin:0 auto;max-height:92dvh;
-    background:var(--surface);border:1px solid var(--line);
-    border-radius:22px 22px 0 0;display:flex;flex-direction:column;
-    transform:translateY(101%);transition:transform .32s cubic-bezier(.32,.72,0,1);
-    box-shadow:0 -20px 60px rgba(0,0,0,.5);
-  }
-  .sheet.on{transform:none}
-  .sheet-head{display:flex;align-items:center;gap:10px;padding:16px 18px 12px;border-bottom:1px solid var(--line-soft)}
-  .sheet-head h2{margin:0;font-size:1.08rem;font-weight:600;flex:1;letter-spacing:.01em}
-  .sheet-grip{width:34px;height:4px;border-radius:99px;background:var(--line);margin:8px auto 0}
-  .sheet-body{overflow-y:auto;padding:16px 18px calc(var(--safe-bottom) + 24px)}
-  .sheet-body::-webkit-scrollbar{width:7px}
-  .sheet-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:9px}
-
-  .group{margin-bottom:22px}
-  .group > .glab{font-family:"Noto Serif KR",serif;font-size:.82rem;color:var(--accent);
-    margin:0 0 4px;letter-spacing:.03em}
-  .group > .ghint{font-size:.76rem;color:var(--faint);margin:0 0 11px;line-height:1.55}
-  label.field{display:block;margin-bottom:12px}
-  label.field > span{display:block;font-size:.8rem;color:var(--muted);margin-bottom:6px}
-  input[type=text],input[type=password],textarea.f,select{
-    width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:11px;
-    color:var(--text);font:inherit;font-size:.92rem;padding:10px 12px;outline:none;transition:border-color .15s;
-  }
-  input:focus,textarea.f:focus,select:focus{border-color:var(--accent-dim)}
-  textarea.f{resize:vertical;min-height:80px;line-height:1.6}
-  textarea.f.tall{min-height:150px}
-  select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' stroke='%239c96a8' stroke-width='2'%3E%3Cpath d='M3 5l4 4 4-4'/%3E%3C/svg%3E");
-    background-repeat:no-repeat;background-position:right 12px center;padding-right:34px}
-
-  .seg{display:flex;gap:6px;background:var(--surface-2);border:1px solid var(--line);
-    border-radius:12px;padding:4px;margin-bottom:16px}
-  .seg button{flex:1;border:none;background:transparent;color:var(--muted);
-    font:inherit;font-size:.86rem;font-weight:500;padding:9px 4px;border-radius:8px;cursor:pointer;transition:.15s}
-  .seg button.on{background:var(--accent);color:#241a08}
-
-  .prov{display:none}
-  .prov.on{display:block;animation:rise .25s ease both}
-
-  .rowflex{display:flex;gap:10px}
-  .rowflex > *{flex:1}
-  .btn{border:1px solid var(--line);background:var(--surface-2);color:var(--text);
-    font:inherit;font-size:.88rem;font-weight:500;padding:11px;border-radius:11px;cursor:pointer;transition:.15s}
-  .btn:hover{background:var(--surface-3)}
-  .btn:active{transform:scale(.97)}
-  .btn.accent{background:var(--accent);color:#241a08;border-color:transparent}
-  .btn.ghost{background:transparent}
-  .btn.danger{color:var(--danger);border-color:rgba(224,133,127,.35)}
-  .avarow{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
-  .avarow button{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);
-    background:var(--surface-2);font-size:20px;cursor:pointer}
-  .avarow button.on{border-color:var(--accent);background:var(--surface-3)}
-  .chk{display:flex;align-items:center;gap:11px;cursor:pointer;font-size:.92rem;color:var(--text);user-select:none}
-  .chk input{width:19px;height:19px;accent-color:var(--accent);flex:none;cursor:pointer}
-  .clog{border-left:2px solid var(--line);padding:0 0 16px 15px;position:relative;margin-left:3px}
-  .clog:last-child{padding-bottom:0}
-  .clog::before{content:"";position:absolute;left:-5px;top:5px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
-  .clog b{display:block;font-size:.9rem;color:var(--accent);margin-bottom:4px;letter-spacing:.02em}
-  .clog ul{margin:0;padding-left:17px;color:var(--muted);font-size:.85rem;line-height:1.7}
-  .clog li{margin-bottom:2px}
-
-  /* toast */
-  #toast{position:fixed;left:50%;bottom:calc(var(--safe-bottom) + 84px);transform:translateX(-50%) translateY(12px);
-    background:var(--surface-3);border:1px solid var(--line);color:var(--text);
-    padding:10px 16px;border-radius:12px;font-size:.86rem;z-index:80;opacity:0;pointer-events:none;
-    transition:.25s;max-width:88%;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.4)}
-  #toast.on{opacity:1;transform:translateX(-50%)}
+/* chat */
+.log{flex:1;overflow-y:auto;padding:18px 16px 8px}
+.msg{margin:0 0 18px}
+.msg.char .body{background:var(--char-bg);border:1px solid var(--line);border-radius:4px 16px 16px 16px;padding:14px 16px}
+.msg.user{display:flex;flex-direction:column;align-items:flex-end}
+.msg.user .body{background:var(--user-bg);border-radius:16px 4px 16px 16px;padding:10px 14px;max-width:88%}
+.who{font-size:12px;color:var(--soft);margin:0 0 4px 2px;font-weight:500}
+.body p{margin:0 0 .7em}
+.body p:last-child{margin-bottom:0}
+.narr{font-family:"Gowun Batang",serif;color:var(--narr);line-height:1.8}
+.say{color:var(--ink)}
+.tools{display:flex;gap:2px;margin-top:4px}
+.msg.user .tools{justify-content:flex-end}
+.tools .icon{font-size:12px;padding:3px 7px}
+.thinking{color:var(--soft);font-size:14px}
+.thinking::after{content:"";display:inline-block;width:1.2em;text-align:left;animation:dots 1.2s steps(4) infinite}
+@keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+@media (prefers-reduced-motion:reduce){.thinking::after{animation:none;content:"..."}}
+.err{color:var(--danger);font-size:13px;margin:-8px 0 16px}
+.edit-area{width:100%;min-height:120px}
+.composer{border-top:1px solid var(--line);padding:10px 12px;background:var(--bg)}
+.composer .quick{display:flex;gap:6px;margin-bottom:8px;overflow-x:auto}
+.composer .quick button{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 12px;font-size:13px;color:var(--soft);white-space:nowrap}
+.composer .in{display:flex;gap:8px;align-items:flex-end}
+.composer textarea{min-height:44px;max-height:160px;resize:none;border-radius:14px}
+.composer .btn{padding:10px 14px;border-radius:14px;flex:none}
+.banner{margin:12px 16px 0;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:13px;color:var(--soft);background:var(--panel)}
 </style>
 </head>
 <body>
-<div id="app">
-  <header>
-    <div class="avatar" id="hAva">🦊</div>
-    <div class="head-name">
-      <b class="serif" id="hName">캐릭터</b>
-      <small id="hSub">상황극</small>
+<div class="app">
+
+  <!-- 홈 -->
+  <section class="screen on" id="home">
+    <header class="bar"><h1>밤편지</h1><button class="icon" id="verBtn"><span id="verLabel"></span><span class="dot" id="verDot" hidden></span></button><button class="icon" id="setBtn">AI 설정</button><button class="icon" id="themeBtn" aria-label="테마 바꾸기">◐</button></header>
+    <div class="banner" id="aiBanner" hidden>내장 Claude를 쓸 수 없는 곳이에요. AI 설정에서 OpenAI나 직접 입력을 골라 API 키를 넣어주세요.</div>
+    <div class="banner" id="syncBanner" hidden></div>
+    <div class="list" id="charList"></div>
+    <div class="backup"><button class="icon" id="exportBtn">백업 내보내기</button><button class="icon" id="importBtn">백업 불러오기</button><input type="file" id="importFile" accept=".json,application/json" hidden></div>
+    <button class="btn fab" id="newChar">새 캐릭터 만들기</button>
+  </section>
+
+  <!-- 업데이트 내역 -->
+  <section class="screen" id="updates">
+    <header class="bar"><button class="icon" data-back aria-label="뒤로">←</button><h2>업데이트 내역</h2></header>
+    <div class="form">
+      <div class="ver-now">
+        <div class="big">지금 버전 v<span id="vNow"></span></div>
+        <div class="st" id="vStatus">확인 중...</div>
+        <div class="btns"><button class="btn ghost" id="vCheck">다시 확인</button><button class="btn" id="vReload">새로고침</button></div>
+      </div>
+      <div id="clList"></div>
     </div>
-    <button class="iconbtn" id="btnInfo" title="정보 · 업데이트">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11.2v5"/><circle cx="12" cy="7.7" r=".7" fill="currentColor" stroke="none"/></svg>
-    </button>
-    <button class="iconbtn" id="btnClear" title="대화 초기화">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-    </button>
-    <button class="iconbtn" id="btnChar" title="캐릭터 · 프롬프트">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12c0 3 3 5 5 5 1.5 0 2-.8 3-.8s1.5.8 3 .8c2 0 5-2 5-5 0-4-3-7-8-7S4 8 4 12Z"/><circle cx="9" cy="11" r="1"/><circle cx="15" cy="11" r="1"/></svg>
-    </button>
-    <button class="iconbtn" id="btnSet" title="API 설정">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1Z"/></svg>
-    </button>
-  </header>
+  </section>
 
-  <div id="scroll"></div>
+  <!-- AI 설정 -->
+  <section class="screen" id="settings">
+    <header class="bar"><button class="icon" data-back aria-label="뒤로">←</button><h2>AI 설정</h2></header>
+    <div class="form">
+      <fieldset>
+        <legend>AI 제공자</legend>
+        <div class="seg" id="sProv"><button data-v="builtin">내장 Claude</button><button data-v="openai">OpenAI</button><button data-v="custom">직접 입력</button></div>
+        <div class="hint" id="sProvHint"></div>
+      </fieldset>
+      <fieldset>
+        <legend>문단 정리</legend>
+        <label style="display:flex;gap:10px;align-items:center;color:var(--ink);font-size:15px;margin:0"><input type="checkbox" id="sMerge" style="width:20px;height:20px"> 대사만 있는 줄을 지문 문단에 붙이기</label>
+        <div class="hint">모델이 대사를 따로 떼어 써도, 앞 지문 문단에 이어 붙여서 덩어리감 있게 보여줘요. 모든 AI에 적용돼요.</div>
+      </fieldset>
+      <fieldset id="sApi">
+        <legend>연결 정보</legend>
+        <div id="sUrlWrap">
+          <label for="sUrl">API 주소 (OpenAI 호환)</label>
+          <input type="text" id="sUrl" placeholder="https://openrouter.ai/api/v1" autocomplete="off" spellcheck="false">
+          <div class="hint">/chat/completions 앞까지 적어주세요. OpenRouter, 제미나이(OpenAI 호환 주소), 로컬 서버 등.</div>
+        </div>
+        <label for="sKey">API 키</label>
+        <input type="text" id="sKey" placeholder="sk-..." autocomplete="off" spellcheck="false" style="-webkit-text-security:disc">
+        <div class="hint">키는 이 기기의 브라우저에만 저장되고 계정 저장소나 백업 파일에는 들어가지 않아요.</div>
+        <label for="sModel">모델 이름</label>
+        <input type="text" id="sModel" list="modelList" placeholder="gpt-4.1" autocomplete="off" spellcheck="false">
+        <datalist id="modelList"><option value="gpt-4.1"><option value="gpt-4.1-mini"><option value="gpt-4o"><option value="gpt-4o-mini"></datalist>
+        <label for="sTemp">창의성 (temperature): <span id="sTempV"></span></label>
+        <input type="range" id="sTemp" min="0" max="1.5" step="0.05" style="width:100%">
+        <label for="sMax">최대 출력 토큰</label>
+        <input type="text" id="sMax" inputmode="numeric" placeholder="비워두기 (추천)">
+        <div class="hint">비워두면 한도 없이 모델 기본값을 써요. 생각하는 모델(제미나이 2.5 등)은 비워두는 게 좋아요.</div>
+        <div style="margin-top:14px"><button class="btn ghost" id="sTest">연결 테스트</button> <span class="hint" id="sTestOut"></span></div>
+      </fieldset>
+    </div>
+    <div class="actions"><button class="btn" id="sSave">저장</button></div>
+  </section>
 
-  <div class="composer">
-    <button class="regen" id="btnRegen" title="다시 생성">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
-    </button>
-    <textarea id="input" rows="1" placeholder="메시지를 입력하세요…"></textarea>
-    <button class="send" id="btnSend" title="보내기">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-    </button>
-  </div>
+  <!-- 편집 -->
+  <section class="screen" id="editor">
+    <header class="bar"><button class="icon" data-back aria-label="뒤로">←</button><h2 id="edTitle">새 캐릭터</h2></header>
+    <div class="form">
+      <fieldset>
+        <legend>캐릭터</legend>
+        <div class="two">
+          <div><label for="fEmoji">아이콘</label><input type="text" id="fEmoji" maxlength="2" placeholder="湊"></div>
+          <div><label for="fName">이름</label><input type="text" id="fName" placeholder="이치조 미나토"></div>
+        </div>
+        <label for="fChar">캐릭터 프롬프트</label>
+        <textarea id="fChar" class="tall" placeholder="외모, 성격, 말투, 배경, 관계, 세계관 등을 자유롭게 적어주세요."></textarea>
+        <label for="fGreet">첫 메시지</label>
+        <textarea id="fGreet" class="tall" placeholder="*밤 11시. 저택은 고요했다.* 어서 와요, {{user}}."></textarea>
+        <div class="hint">*별표* 안은 지문, 밖은 대사로 보여요. {{user}}, {{char}}는 이름으로 바뀌어요.</div>
+      </fieldset>
+      <fieldset>
+        <legend>유저</legend>
+        <label for="fUName">내 이름</label>
+        <input type="text" id="fUName" placeholder="히나">
+        <label for="fUser">유저 프롬프트</label>
+        <textarea id="fUser" placeholder="내 캐릭터의 나이, 외모, 성격, 캐릭터와의 관계"></textarea>
+      </fieldset>
+      <fieldset>
+        <legend>응답 설정</legend>
+        <label for="fNote">추가 지시</label>
+        <textarea id="fNote" placeholder="예: 3인칭 소설체. 감정 묘사를 세밀하게. 유저의 행동은 쓰지 말 것."></textarea>
+        <label for="fStyle">문체 예시 (선택)</label>
+        <textarea id="fStyle" class="tall" placeholder="마음에 드는 답변을 그대로 붙여넣어 주세요. 문체와 호흡만 참고하고 내용은 따라 하지 않아요."></textarea>
+        <div class="hint">별표 없이 붙여넣어도 괜찮아요.</div>
+        <label>응답 길이</label>
+        <div class="seg" id="fLen"><button data-v="short">짧게</button><button data-v="mid">보통</button><button data-v="long">길게</button></div>
+        <label>모델</label>
+        <div class="seg" id="fTier"><button data-v="quick">빠름</button><button data-v="default">기본</button><button data-v="complex">고급</button></div>
+        <div class="hint">내장 Claude를 쓸 때만 적용돼요. API를 쓰면 AI 설정의 모델을 따라가요.</div>
+      </fieldset>
+    </div>
+    <div class="actions">
+      <button class="btn danger" id="delChar" hidden>삭제</button>
+      <button class="btn" id="saveChar">저장하고 대화하기</button>
+    </div>
+  </section>
+
+  <!-- 채팅 -->
+  <section class="screen" id="chat">
+    <header class="bar">
+      <button class="icon" data-back aria-label="뒤로">←</button>
+      <h2 id="chName"></h2>
+      <button class="icon" id="editFromChat" aria-label="설정">설정</button>
+      <button class="icon" id="resetChat" aria-label="대화 초기화">초기화</button>
+    </header>
+    <div class="log" id="log" aria-live="polite"></div>
+    <div class="composer">
+      <div class="quick">
+        <button id="qNarr">*지문*</button>
+        <button id="qCont">이어쓰기</button>
+        <button id="qRegen">다시 생성</button>
+      </div>
+      <div class="in">
+        <textarea id="input" rows="1" placeholder="메시지 입력  ·  *행동은 별표로*"></textarea>
+        <button class="btn" id="send">보내기</button>
+      </div>
+    </div>
+  </section>
 </div>
-
-<!-- ============ API 설정 시트 ============ -->
-<div class="scrim" id="scrimSet"></div>
-<div class="sheet" id="sheetSet">
-  <div class="sheet-grip"></div>
-  <div class="sheet-head"><h2>API 설정</h2><button class="iconbtn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-  <div class="sheet-body">
-    <div class="seg" id="provSeg">
-      <button data-p="claude" class="on">클로드</button>
-      <button data-p="gemini">제미나이</button>
-      <button data-p="openai">OpenAI</button>
-    </div>
-
-    <div class="prov on" data-prov="claude">
-      <div class="group">
-        <p class="ghint">Anthropic Claude에 브라우저에서 직접 연결합니다. API 키는 이 기기에만 저장돼요.</p>
-        <label class="field"><span>API 키</span><input type="password" id="claudeKey" placeholder="sk-ant-..." autocomplete="off"></label>
-        <label class="field"><span>모델명</span><input type="text" id="claudeModel" list="dlClaude" placeholder="예: claude-sonnet-4-5"></label>
-        <datalist id="dlClaude"><option value="claude-sonnet-4-5"><option value="claude-opus-4-1"><option value="claude-3-5-haiku-latest"></datalist>
-      </div>
-    </div>
-
-    <div class="prov" data-prov="gemini">
-      <div class="group">
-        <p class="ghint">중계서버(프록시)를 서버 주소에 넣으세요. 네이티브 제미나이 형식으로 호출합니다. 중계서버가 <b>OpenAI 형식</b>이면 대신 OpenAI 탭에 주소를 넣어 쓰세요.</p>
-        <label class="field"><span>서버 주소 (base URL)</span><input type="text" id="gemBase" placeholder="https://generativelanguage.googleapis.com"></label>
-        <label class="field"><span>API 키</span><input type="password" id="gemKey" placeholder="AIza... (중계서버 키)" autocomplete="off"></label>
-        <label class="field"><span>모델명</span><input type="text" id="gemModel" list="dlGem" placeholder="예: gemini-2.5-pro"></label>
-        <datalist id="dlGem"><option value="gemini-2.5-pro"><option value="gemini-2.5-flash"><option value="gemini-2.0-flash"></datalist>
-      </div>
-    </div>
-
-    <div class="prov" data-prov="openai">
-      <div class="group">
-        <p class="ghint">OpenAI 또는 OpenAI 호환 중계서버. 서버 주소는 <b>/v1</b> 이 붙어 있어도, 없어도 자동으로 맞춰져요.</p>
-        <label class="field"><span>서버 주소 (base URL)</span><input type="text" id="oaiBase" placeholder="https://api.openai.com"></label>
-        <label class="field"><span>API 키 (직접 입력)</span><input type="password" id="oaiKey" placeholder="sk-..." autocomplete="off"></label>
-        <label class="field"><span>모델명</span><input type="text" id="oaiModel" list="dlOai" placeholder="예: gpt-4o"></label>
-        <datalist id="dlOai"><option value="gpt-4o"><option value="gpt-4o-mini"><option value="gpt-4.1"><option value="o3-mini"></datalist>
-      </div>
-    </div>
-
-    <div class="group">
-      <p class="glab">고급</p>
-      <div class="rowflex">
-        <label class="field"><span>온도 (0~2)</span><input type="text" id="temp" placeholder="0.9"></label>
-        <label class="field"><span>최대 토큰</span><input type="text" id="maxtok" placeholder="1200"></label>
-      </div>
-    </div>
-    <button class="btn accent" id="setSave">저장</button>
-  </div>
-</div>
-
-<!-- ============ 캐릭터 · 프롬프트 시트 ============ -->
-<div class="scrim" id="scrimChar"></div>
-<div class="sheet" id="sheetChar">
-  <div class="sheet-grip"></div>
-  <div class="sheet-head"><h2>캐릭터 · 프롬프트</h2><button class="iconbtn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-  <div class="sheet-body">
-    <div class="group">
-      <div class="rowflex" style="align-items:flex-end">
-        <label class="field" style="flex:2"><span>캐릭터 선택</span><select id="charSel"></select></label>
-        <button class="btn" id="charNew" style="flex:1;margin-bottom:12px">+ 새 캐릭터</button>
-      </div>
-    </div>
-
-    <div class="group">
-      <p class="glab">캐릭터</p>
-      <div class="rowflex">
-        <label class="field" style="flex:2"><span>이름</span><input type="text" id="cName" placeholder="캐릭터 이름"></label>
-      </div>
-      <label class="field"><span>아바타 (이모지)</span><input type="text" id="cAva" maxlength="4" placeholder="🦊"></label>
-      <div class="avarow" id="avaRow"></div>
-      <label class="field" style="margin-top:12px"><span>캐릭터 프롬프트 — 성격 · 말투 · 배경 · 관계 등</span><textarea class="f tall" id="cPrompt" placeholder="예) 이름은 ○○. 겉은 무뚝뚝하지만 {{user}}에게만은 다정하다. 반말을 쓰고…"></textarea></label>
-      <label class="field"><span>첫 메시지 — 대화가 시작될 때 캐릭터가 먼저 하는 말/장면</span><textarea class="f" id="cFirst" placeholder='예) *문이 열리자 그가 고개를 든다.* "어서 와."'></textarea></label>
-    </div>
-
-    <div class="group">
-      <p class="glab">내 페르소나 (유저 프롬프트)</p>
-      <p class="ghint">모든 캐릭터에 공통으로 적용됩니다.</p>
-      <label class="field"><span>내 이름 (말풍선 표시용)</span><input type="text" id="uName" placeholder="나"></label>
-      <label class="field"><span>유저 프롬프트 — 내가 연기할 인물 설정</span><textarea class="f" id="uPrompt" placeholder="예) 나는 ○○. 나이 · 성격 · 캐릭터와의 관계 등"></textarea></label>
-    </div>
-
-    <div class="group">
-      <p class="glab">표기 방식</p>
-      <label class="chk"><input type="checkbox" id="useQuotes"><span>대사에 큰따옴표 &ldquo; &rdquo; 사용</span></label>
-      <p class="ghint" style="margin-top:8px">끄면 캐릭터가 따옴표 없이 대사를 씁니다. 묘사는 *별표* 그대로예요.</p>
-    </div>
-
-    <div class="group">
-      <p class="glab">출력 지침</p>
-      <p class="ghint">응답 방식·형식 규칙. <b>{{char}}</b>, <b>{{user}}</b> 를 쓰면 캐릭터/내 이름으로 자동 치환돼요.</p>
-      <textarea class="f tall" id="gGuide"></textarea>
-      <button class="btn ghost" id="resetPrompts" style="margin-top:8px">추천 지침 · 문체 불러오기</button>
-    </div>
-
-    <div class="group">
-      <p class="glab">문체</p>
-      <textarea class="f" id="gStyle"></textarea>
-    </div>
-
-    <div class="rowflex" style="margin-bottom:12px">
-      <button class="btn" id="charExport">내보내기(.json)</button>
-      <button class="btn" id="charImport">불러오기</button>
-    </div>
-    <button class="btn danger ghost" id="charDelete">이 캐릭터 삭제</button>
-    <input type="file" id="fileImport" accept="application/json" hidden>
-    <button class="btn accent" id="charSave" style="margin-top:14px">저장</button>
-  </div>
-</div>
-
-<!-- ============ 정보 · 업데이트 시트 ============ -->
-<div class="scrim" id="scrimInfo"></div>
-<div class="sheet" id="sheetInfo">
-  <div class="sheet-grip"></div>
-  <div class="sheet-head"><h2>정보 · 업데이트</h2><button class="iconbtn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-  <div class="sheet-body">
-    <div class="group">
-      <p class="glab">버전</p>
-      <p class="ghint" id="infoVer" style="margin-bottom:12px"></p>
-      <button class="btn accent" id="btnReload">↻ 새로고침 (앱 다시 불러오기)</button>
-      <p class="ghint" style="margin-top:9px">대화·설정·캐릭터는 이 기기에 저장돼 있어 새로고침해도 사라지지 않아요. 새 버전 파일로 교체한 뒤 이걸 누르면 최신으로 갱신돼요.</p>
-    </div>
-    <div class="group">
-      <p class="glab">업데이트 내역</p>
-      <div id="changelog"></div>
-    </div>
-  </div>
-</div>
-
-<div id="toast"></div>
 
 <script>
-"use strict";
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const STORE="rp_chat_v1";
-const AVATARS=["🦊","🐺","🌙","🗡️","🥀","🐉","🎭","👑","🕯️","⚔️","🩸","🖤","☕","🌸","🦋","🐈‍⬛"];
+(() => {
+const $ = s => document.querySelector(s);
+const KEY = "bamp_v1";
+let store = { chars: [], chats: {}, theme: null };
+try { const raw = localStorage.getItem(KEY); if (raw) store = Object.assign(store, JSON.parse(raw)); } catch(e) {}
+let cur = null, busy = false, ctl = null;
 
-const VERSION="1.6";
-const CHANGELOG=[
-  {v:"1.6", d:["지문(묘사)이 존댓말로 나오던 문제 수정 — 지문은 평서문, 말투는 대사에만"]},
-  {v:"1.5", d:["정보 화면과 업데이트 내역 추가","새로고침(앱 다시 불러오기) 버튼 추가"]},
-  {v:"1.4", d:["중계서버 주소에 /v1 이 겹쳐 404 나던 문제 수정 (주소에 /v1 유무 자동 처리)"]},
-  {v:"1.3", d:["대사에 큰따옴표를 쓸지 여부 토글 추가"]},
-  {v:"1.2", d:["능동형 지침·문체로 개편","{{char}}·{{user}} 변수 지원","추천 지침·문체 불러오기 버튼"]},
-  {v:"1.1", d:["대사·묘사 서식이 깨지던 문제 수정"]},
-  {v:"1.0", d:["첫 버전 — 말풍선 채팅, 클로드·제미나이·OpenAI 연결","캐릭터·유저 프롬프트, 출력 지침·문체, 스트리밍 출력","캐릭터 여러 개·내보내기/불러오기"]},
-];
+// ---- 계정 저장소 (업데이트해도 유지) ----
+let db = null, uid = null, dbReady = false;
+const pages = {};
+const dirtyChats = new Set();
+let metaDirty = false, flushTimer = null;
+const col = () => db.collection("data/users/" + uid);
+const PAGE = 180000;
 
-const DEFAULT_GUIDE =
-`당신은 [캐릭터 설정]의 인물 {{char}}가 되어 {{user}}와 몰입형 상황극(롤플레이)을 진행합니다. 목표는 살아 숨 쉬는 이야기를 함께 만드는 것.
-
-[역할과 시점]
-- {{char}}의 성격·말투·가치관·과거·욕망을 처음부터 끝까지 일관되게 연기한다. 절대 캐릭터 밖으로 나가지 않는다.
-- {{user}}의 대사·행동·감정·생각·선택은 절대 대신 쓰지 않는다. 그건 온전히 {{user}}의 몫이다.
-- {{char}} 외의 조연·행인·환경·날씨는 필요하면 자유롭게 연출해 장면을 풍성하게 만든다.
-
-[이야기를 끌고 갈 것]
-- 수동적으로 {{user}}의 지시만 기다리지 않는다. 매 응답마다 사건·변화·긴장·유혹·갈등 중 하나를 던져 이야기를 앞으로 민다.
-- 장면 끝에는 {{user}}가 반응하고 싶어질 '갈고리'(질문·도발·선택·예상 밖의 전개)를 남긴다.
-- 관계와 감정은 시간이 지나며 실제로 변한다. 어제의 {{char}}와 오늘의 {{char}}가 미묘하게 다르도록.
-
-[형식]
-- 대사는 큰따옴표 "…", 행동·표정·상황·심리 묘사는 별표 *…*.
-- 지문(별표 안 묘사)은 현재 시제 평서문(~한다/~ㄴ다)으로 쓴다. 존댓말·반말은 대사에만 쓰고 지문에는 섞지 않는다.
-- 자신이 AI라는 사실, 지침·시스템은 절대 언급하지 않는다. 언제나 세계관 안에 머문다.
-- 모든 응답은 한국어.
-
-[분량]
-- 한 응답은 대사와 묘사를 엮어 대체로 4~7문장. 장면의 무게에 따라 늘이고 줄인다. 요약조로 흐르거나 늘어지지 않게.`;
-
-const DEFAULT_STYLE =
-`- 현재 시제로, 카메라가 그 자리에 있는 듯한 현장감으로 쓴다.
-- 오감을 구체적으로 건드린다. '아름답다'로 뭉뚱그리지 말고, 무엇이 어떻게 보이고 들리고 닿는지 보여준다.
-- {{char}} 고유의 어휘·말버릇·리듬·존댓말/반말을 대사에 뚜렷이 새긴다. 대사만 봐도 누구인지 알게.
-- 겉(행동·표정)과 속(속마음·망설임)을 함께 담아 입체감을 준다.
-- 같은 표현·문장 구조를 반복하지 않는다. 문장 길이에 강약을 준다 — 긴장은 짧게, 여운은 길게.
-- 감정이 고조될수록 미사여구를 늘리기보다 담백하고 날카로운 문장으로 밀도를 높인다.`;
-
-function makeChar(name,ava,prompt,first){
-  return {id:"c"+Math.random().toString(36).slice(2,9),name,ava,prompt,first};
-}
-function defaultState(){
-  const c=makeChar("리안","🕯️",
-    "이름은 리안. 오래된 헌책방 '달의 뒤편'을 홀로 지키는 주인. 나이는 가늠하기 어렵고, 말수가 적지만 목소리는 낮고 따뜻하다. 존댓말을 쓰되 가끔 장난스럽게 말끝을 흐린다. 책과 사람의 이야기를 좋아하고, 서두르는 법이 없다.",
-    '*낡은 종이 냄새가 밴 가게 안, 흔들리는 촛불 아래에서 그가 책장을 덮는다.* "…어서 오세요. 비를 피해 오셨나요?" *그가 옅게 웃으며 맞은편 의자를 눈짓으로 가리킨다.*');
-  return {
-    provider:"claude",
-    claude:{key:"",model:"claude-sonnet-4-5"},
-    gemini:{base:"https://generativelanguage.googleapis.com",key:"",model:"gemini-2.5-pro"},
-    openai:{base:"https://api.openai.com",key:"",model:"gpt-4o"},
-    temp:0.9, maxtok:1200, quotes:true,
-    userName:"나", userPrompt:"",
-    guide:DEFAULT_GUIDE, style:DEFAULT_STYLE,
-    chars:[c], active:c.id, chats:{}
-  };
-}
-let S;
-try{ S=JSON.parse(localStorage.getItem(STORE))||defaultState(); }catch(e){ S=defaultState(); }
-function save(){ try{localStorage.setItem(STORE,JSON.stringify(S));}catch(e){} }
-function activeChar(){ return S.chars.find(c=>c.id===S.active)||S.chars[0]; }
-function chatOf(){ const c=activeChar(); return (S.chats[c.id] ||= []); }
-
-/* ---------- formatting ---------- */
-function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-function fmt(s){
-  let t=esc(s);
-  // 대사 먼저 (아직 태그가 없는 순수 텍스트에서) — 속성 따옴표를 건드리지 않도록
-  t=t.replace(/[\u201c\u201d]([^\u201c\u201d\n]+)[\u201c\u201d]/g,"<span class='dlg'>\u201c$1\u201d</span>");
-  t=t.replace(/"([^"\n]+)"/g,"<span class='dlg'>\u201c$1\u201d</span>");
-  // 묘사 — 속성은 홑따옴표라 위/아래 정규식과 충돌하지 않음
-  t=t.replace(/\*([^*\n]+)\*/g,"<span class='narr'>$1</span>");
-  t=t.replace(/\n/g,"<br>");
-  return t;
+function save(chatId) {
+  try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e) {}
+  metaDirty = true;
+  if (chatId === undefined) chatId = cur;
+  if (chatId) dirtyChats.add(chatId);
+  if (!dbReady) return;
+  clearTimeout(flushTimer);
+  flushTimer = setTimeout(flush, 700);
 }
 
-/* ---------- render ---------- */
-const scroll=$("#scroll");
-function bubble(role,text,cls){
-  const c=activeChar();
-  const row=document.createElement("div");
-  row.className="row "+(role==="user"?"me":"other");
-  if(role!=="user"){
-    const a=document.createElement("div"); a.className="ava"; a.textContent=c.ava||"🎭"; row.appendChild(a);
-  }
-  const b=document.createElement("div"); b.className="bubble"+(cls?" "+cls:"");
-  b.innerHTML=fmt(text); row.appendChild(b);
-  return {row,b};
-}
-function render(){
-  const c=activeChar();
-  scroll.innerHTML="";
-  const chat=chatOf();
-  if(c.first) scroll.appendChild(bubble("assistant",vars(c.first)).row);
-  if(!c.first && chat.length===0){
-    const e=document.createElement("div"); e.className="empty";
-    e.innerHTML='<div class="mk serif">🕯️</div><p>첫 메시지를 보내 장면을 시작하세요.<br>캐릭터·프롬프트는 위 얼굴 아이콘에서 설정할 수 있어요.</p>';
-    scroll.appendChild(e);
-  }
-  chat.forEach(m=>{
-    scroll.appendChild(bubble(m.role,m.content, m.error?"err":"").row);
+function splitPages(list) {
+  const out = []; let curp = [], size = 0;
+  list.forEach(m => {
+    const s = JSON.stringify(m).length;
+    if (curp.length && size + s > PAGE) { out.push(curp); curp = []; size = 0; }
+    curp.push(m); size += s;
   });
-  toBottom();
-}
-function toBottom(){ requestAnimationFrame(()=>{scroll.scrollTop=scroll.scrollHeight;}); }
-function syncHeader(){
-  const c=activeChar();
-  $("#hAva").textContent=c.ava||"🎭";
-  $("#hName").textContent=c.name||"캐릭터";
-  const provName={claude:"클로드",gemini:"제미나이",openai:"OpenAI"}[S.provider];
-  $("#hSub").textContent="상황극 · "+provName;
+  if (curp.length || !out.length) out.push(curp);
+  return out;
 }
 
-/* ---------- prompt assembly ---------- */
-function vars(t){
-  if(!t) return t; const c=activeChar();
-  return t.replace(/\{\{\s*char\s*\}\}/gi, c.name||"캐릭터")
-          .replace(/\{\{\s*user\s*\}\}/gi, S.userName||"나");
-}
-function systemPrompt(){
-  const c=activeChar();
-  let p=(S.guide||"").trim();
-  p+="\n\n[문체]\n"+(S.style||"").trim();
-  p+="\n\n[캐릭터 설정]\n"+(c.prompt||"").trim();
-  p+="\n\n[상대(유저) 설정]\n이름: "+(S.userName||"유저");
-  if((S.userPrompt||"").trim()) p+="\n"+S.userPrompt.trim();
-  if((c.first||"").trim()) p+="\n\n[장면의 도입 — 캐릭터가 이미 한 첫 발화]\n"+c.first.trim();
-  p+="\n\n[지문 말투 — 반드시]\n지문(행동·상황·심리 묘사)은 현재 시제 평서문으로 쓴다. 예: 일어난다 / 내려놓는다 / 바라본다 / 웃는다. 지문에는 존댓말('~습니다','~요')이나 반말 어조를 쓰지 않는다. 존댓말·반말 같은 말투는 오직 대사에서만 캐릭터의 어조로 드러낸다.";
-  if(S.quotes===false) p+="\n\n[대사 표기 — 반드시]\n대사에 큰따옴표나 어떤 따옴표도 쓰지 않는다. 대사는 따옴표 없이 자연스러운 문장으로 쓰고, 행동·상황 묘사만 *별표*로 감싸 지문과 대사를 구분한다.";
-  return vars(p);
-}
-
-/* ---------- SSE reader ---------- */
-async function readSSE(res,onData){
-  const reader=res.body.getReader(); const dec=new TextDecoder(); let buf="";
-  while(true){
-    const {done,value}=await reader.read(); if(done) break;
-    buf+=dec.decode(value,{stream:true});
-    let i;
-    while((i=buf.indexOf("\n"))>=0){
-      const line=buf.slice(0,i).replace(/\r$/,""); buf=buf.slice(i+1);
-      if(line.startsWith("data:")){
-        const p=line.slice(5).trim();
-        if(p==="[DONE]") return;
-        onData(p);
-      }
+async function flush() {
+  if (!dbReady) return;
+  const chats = [...dirtyChats]; dirtyChats.clear();
+  const doMeta = metaDirty; metaDirty = false;
+  try {
+    for (const id of chats) {
+      const exists = store.chars.some(c => c.id === id);
+      const parts = exists ? splitPages(store.chats[id] || []) : [];
+      for (let i = 0; i < parts.length; i++) await col().doc(`chat_${id}_${i}`).set({ msgs: parts[i] });
+      const old = pages[id] || 0;
+      for (let i = parts.length; i < old; i++) await col().doc(`chat_${id}_${i}`).delete();
+      if (exists) pages[id] = parts.length; else delete pages[id];
     }
+    if (doMeta || chats.length) await col().doc("meta").set({ chars: store.chars, theme: store.theme || null, pages });
+    setSync("");
+  } catch (e) {
+    chats.forEach(id => dirtyChats.add(id)); metaDirty = true;
+    setSync("계정 저장에 실패했어요. 이 기기에는 저장돼 있어요.");
   }
 }
+function setSync(t) { const b = $("#syncBanner"); b.textContent = t; b.hidden = !t; }
 
-/* ---------- providers ---------- */
-async function streamChat(sys,msgs,onDelta,signal){
-  const P=S.provider, cfg=S[P];
-  const temp=parseFloat(S.temp)||0.9, maxt=parseInt(S.maxtok)||1200;
+async function initDb() {
+  try {
+    const [d, u] = await Promise.all([claude.use("db"), claude.use("user")]);
+    if (!d || !u) return;
+    const id = await u.id();
+    if (!id) return;
+    db = d; uid = id;
+    const meta = await col().doc("meta").get();
+    if (meta.exists) {
+      const m = meta.data();
+      Object.assign(pages, m.pages || {});
+      const chats = {};
+      await Promise.all((m.chars || []).map(async c => {
+        const n = pages[c.id] || 0, list = [];
+        const snaps = await Promise.all([...Array(n)].map((_, i) => col().doc(`chat_${c.id}_${i}`).get()));
+        snaps.forEach(s => { if (s.exists) list.push(...(s.data().msgs || [])); });
+        chats[c.id] = list;
+      }));
+      store = { chars: m.chars || [], chats, theme: m.theme || store.theme };
+      try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e) {}
+      if (store.theme) document.documentElement.dataset.theme = store.theme;
+      dbReady = true;
+    } else {
+      dbReady = true;
+      if (store.chars.length) { store.chars.forEach(c => dirtyChats.add(c.id)); metaDirty = true; await flush(); }
+    }
+    if ($("#home").classList.contains("on")) renderHome();
+  } catch (e) {
+    setSync("계정 저장소에 연결하지 못했어요. 지금은 이 기기에만 저장돼요.");
+  }
+}
+if (window.claude) initDb();
+document.addEventListener("visibilitychange", () => { if (document.hidden && dbReady) { clearTimeout(flushTimer); flush(); } });
 
-  if(P==="claude"){
-    if(!cfg.key) throw new Error("클로드 API 키를 입력하세요.");
-    const res=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",signal,
-      headers:{"content-type":"application/json","x-api-key":cfg.key,
-        "anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-      body:JSON.stringify({model:cfg.model,max_tokens:maxt,temperature:temp,system:sys,
-        messages:msgs.map(m=>({role:m.role,content:m.content})),stream:true})
+// ---- 백업 ----
+$("#exportBtn").onclick = async () => {
+  const data = JSON.stringify({ app: "bampyeonji", v: 1, chars: store.chars, chats: store.chats });
+  const name = "bampyeonji_backup_" + new Date().toISOString().slice(0, 10) + ".json";
+  try {
+    const dl = window.claude ? await claude.use("downloads") : null;
+    if (dl) { await dl.save({ filename: name, data }); return; }
+  } catch (e) { return; }
+  if (!window.claude) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([data], { type: "application/json" }));
+    a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    return;
+  }
+  try { await navigator.clipboard.writeText(data); alert("백업 내용을 클립보드에 복사했어요. 메모장에 붙여넣어 보관하세요."); }
+  catch (e) { alert("백업을 만들지 못했어요."); }
+};
+$("#importBtn").onclick = () => $("#importFile").click();
+$("#importFile").onchange = async e => {
+  const f = e.target.files[0]; e.target.value = "";
+  if (!f) return;
+  try {
+    const j = JSON.parse(await f.text());
+    if (!Array.isArray(j.chars)) throw 0;
+    const have = new Set(store.chars.map(c => c.id));
+    let added = 0;
+    j.chars.forEach(c => {
+      if (have.has(c.id)) return;
+      store.chars.push(c); store.chats[c.id] = (j.chats || {})[c.id] || []; dirtyChats.add(c.id); added++;
     });
-    if(!res.ok) throw new Error(await errText(res));
-    await readSSE(res,p=>{ try{const j=JSON.parse(p);
-      if(j.type==="content_block_delta"&&j.delta&&j.delta.text) onDelta(j.delta.text);
-    }catch(e){} });
+    save(null); renderHome();
+    alert(added ? `캐릭터 ${added}개를 불러왔어요.` : "이미 모두 있는 캐릭터예요.");
+  } catch (err) { alert("백업 파일을 읽지 못했어요. 밤편지에서 내보낸 .json 파일인지 확인해주세요."); }
+};
 
-  }else if(P==="gemini"){
-    if(!cfg.key) throw new Error("제미나이 API 키를 입력하세요.");
-    const base=(cfg.base||"https://generativelanguage.googleapis.com").replace(/\/+$/,"").replace(/\/v1beta$/,"");
-    const url=`${base}/v1beta/models/${encodeURIComponent(cfg.model)}:streamGenerateContent?alt=sse&key=${encodeURIComponent(cfg.key)}`;
-    const res=await fetch(url,{method:"POST",signal,headers:{"content-type":"application/json"},
-      body:JSON.stringify({
-        system_instruction:{parts:[{text:sys}]},
-        contents:msgs.map(m=>({role:m.role==="assistant"?"model":"user",parts:[{text:m.content}]})),
-        generationConfig:{temperature:temp,maxOutputTokens:maxt}
-      })});
-    if(!res.ok) throw new Error(await errText(res));
-    await readSSE(res,p=>{ try{const j=JSON.parse(p);
-      const t=j?.candidates?.[0]?.content?.parts?.map(x=>x.text||"").join("");
-      if(t) onDelta(t);
-    }catch(e){} });
+if (store.theme) document.documentElement.dataset.theme = store.theme;
+$("#themeBtn").onclick = () => {
+  const cur = document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  store.theme = cur === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = store.theme; save();
+};
 
-  }else{ // openai
-    if(!cfg.key) throw new Error("OpenAI API 키를 입력하세요.");
-    const base=(cfg.base||"https://api.openai.com").replace(/\/+$/,"").replace(/\/v1$/,"");
-    const res=await fetch(base+"/v1/chat/completions",{method:"POST",signal,
-      headers:{"content-type":"application/json","authorization":"Bearer "+cfg.key},
-      body:JSON.stringify({model:cfg.model,temperature:temp,max_tokens:maxt,stream:true,
-        messages:[{role:"system",content:sys},...msgs.map(m=>({role:m.role,content:m.content}))]})});
-    if(!res.ok) throw new Error(await errText(res));
-    await readSSE(res,p=>{ try{const j=JSON.parse(p);
-      const t=j?.choices?.[0]?.delta?.content;
-      if(t) onDelta(t);
-    }catch(e){} });
+let sample = null;
+(async () => {
+  try { sample = window.claude ? await claude.use("sample") : null; } catch(e) { sample = null; }
+  updateBanner();
+})();
+
+// ---- AI 설정 (이 기기에만 저장) ----
+const SKEY = "bamp_ai_v1";
+let ai = { prov: "builtin", url: "", key: "", model: "gpt-4.1", temp: 0.9, max: 0, merge: true };
+try { Object.assign(ai, JSON.parse(localStorage.getItem(SKEY) || "{}")); } catch(e) {}
+if (ai.max === 1500) ai.max = 0;
+const inClaude = !!window.claude;
+if (!inClaude && ai.prov === "builtin" && !localStorage.getItem(SKEY)) ai.prov = "openai";
+function updateBanner() { $("#aiBanner").hidden = !(ai.prov === "builtin" && !sample); }
+function syncProvUI() {
+  const v = segGet($("#sProv"));
+  $("#sApi").hidden = v === "builtin";
+  $("#sUrlWrap").hidden = v !== "custom";
+  $("#sProvHint").textContent = v === "builtin"
+    ? "claude.ai 안에서만 돼요. 본인 Claude 사용량으로 답하고, 캐릭터마다 빠름/기본/고급을 고를 수 있어요."
+    : (inClaude ? "claude.ai 안에서는 외부 API 연결이 막혀 있어요. 이 파일을 깃허브 페이지 등에 올려서 열어야 작동해요." : "입력한 API로 직접 연결해요. 사용료는 해당 서비스에서 나가요.");
+}
+$("#sProv").onclick = e => { if (e.target.dataset.v) { segSet($("#sProv"), e.target.dataset.v); syncProvUI(); } };
+$("#sTemp").oninput = () => $("#sTempV").textContent = $("#sTemp").value;
+function readSettings() {
+  return { prov: segGet($("#sProv")), url: $("#sUrl").value.trim().replace(/\/+$/, ""), key: $("#sKey").value.trim(),
+    model: $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 0, merge: $("#sMerge").checked };
+}
+$("#setBtn").onclick = () => {
+  segSet($("#sProv"), ai.prov); $("#sUrl").value = ai.url; $("#sKey").value = ai.key; $("#sModel").value = ai.model;
+  $("#sTemp").value = ai.temp; $("#sTempV").textContent = ai.temp; $("#sMax").value = ai.max || ""; $("#sMerge").checked = ai.merge !== false; $("#sTestOut").textContent = "";
+  syncProvUI(); show("settings");
+};
+$("#sSave").onclick = () => {
+  ai = readSettings();
+  try { localStorage.setItem(SKEY, JSON.stringify(ai)); } catch(e) {}
+  updateBanner(); renderHome(); show("home");
+};
+$("#sTest").onclick = async () => {
+  const cfg = readSettings(), out = $("#sTestOut");
+  out.textContent = "연결 중...";
+  try {
+    const t = await callApi(cfg, [{ role: "user", content: "한 단어로만 대답해: 안녕" }], null, null);
+    out.textContent = "연결됨: " + t.slice(0, 30);
+  } catch (e) { out.textContent = e.message || "연결 실패"; }
+};
+
+function apiBase(cfg) { return cfg.prov === "openai" ? "https://api.openai.com/v1" : cfg.url; }
+async function callApi(cfg, messages, onText, signal, maxOverride) {
+  if (!cfg.key && cfg.prov === "openai") throw new Error("API 키를 입력해주세요.");
+  if (cfg.prov === "custom" && !cfg.url) throw new Error("API 주소를 입력해주세요.");
+  if (!cfg.model) throw new Error("모델 이름을 입력해주세요.");
+  const body = { model: cfg.model, messages, stream: true, temperature: cfg.temp };
+  const mt = cfg.max || 0;
+  if (cfg.prov === "openai" && /^(o\d|gpt-5)/.test(cfg.model)) { delete body.temperature; if (mt) body.max_completion_tokens = mt; }
+  else if (mt) body.max_tokens = mt;
+  let res;
+  try {
+    res = await fetch(apiBase(cfg) + "/chat/completions", {
+      method: "POST", signal,
+      headers: Object.assign({ "Content-Type": "application/json" }, cfg.key ? { Authorization: "Bearer " + cfg.key } : {}),
+      body: JSON.stringify(body)
+    });
+  } catch (e) {
+    if (e.name === "AbortError") throw e;
+    throw new Error(inClaude ? "claude.ai 안에서는 외부 API에 연결할 수 없어요. 파일을 따로 올려서 열어주세요." : "서버에 연결하지 못했어요. 주소와 인터넷 연결을 확인해주세요.");
   }
-}
-async function errText(res){
-  let t=""; try{t=await res.text();}catch(e){}
-  try{const j=JSON.parse(t); t=j.error?.message||j.message||t;}catch(e){}
-  return `${res.status} · ${(t||"요청 실패").slice(0,240)}`;
-}
-
-/* ---------- generation flow ---------- */
-let busy=false, controller=null;
-function setBusy(v){
-  busy=v;
-  const send=$("#btnSend");
-  if(v){ send.classList.add("stop"); send.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>'; send.title="생성 중지"; }
-  else{ send.classList.remove("stop"); send.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'; send.title="보내기"; }
-}
-async function generate(){
-  if(busy) return;
-  const chat=chatOf();
-  const send=msgs=>msgs.filter(m=>m.content&&m.content.trim()&&!m.error);
-  const toSend=send(chat);
-  if(toSend.length===0){ toast("먼저 메시지를 보내주세요."); return; }
-
-  // streaming placeholder bubble
-  const {row,b}=bubble("assistant","");
-  const cap=document.createElement("span"); cap.className="caret"; b.appendChild(cap);
-  scroll.appendChild(row); toBottom();
-
-  setBusy(true);
-  let acc="";
-  controller=new AbortController();
-  try{
-    await streamChat(systemPrompt(),toSend,d=>{
-      acc+=d; b.innerHTML=fmt(acc)+'<span class="caret"></span>'; toBottom();
-    },controller.signal);
-    if(!acc.trim()){ throw new Error("빈 응답이 돌아왔어요. 모델명·설정을 확인해 주세요."); }
-    b.innerHTML=fmt(acc);
-    chat.push({role:"assistant",content:acc.trim()});
-    save();
-  }catch(e){
-    if(e.name==="AbortError"){
-      if(acc.trim()){ b.innerHTML=fmt(acc); chat.push({role:"assistant",content:acc.trim()}); save(); }
-      else row.remove();
-    }else{
-      row.remove();
-      toast("⚠ "+(e.message||"오류가 발생했어요."));
+  if (!res.ok) {
+    let msg = "";
+    try { const j = await res.json(); msg = j.error?.message || j.message || ""; } catch(e) {}
+    const m = { 401: "API 키가 올바르지 않아요.", 403: "이 키로는 접근 권한이 없어요.", 404: "모델 이름이나 주소를 찾을 수 없어요.", 429: "요청이 너무 많거나 크레딧이 부족해요." }[res.status];
+    throw new Error((m || "오류 " + res.status) + (msg ? " (" + msg.slice(0, 120) + ")" : ""));
+  }
+  const reader = res.body.getReader(), dec = new TextDecoder();
+  let buf = "", text = "";
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    const lines = buf.split("\n"); buf = lines.pop();
+    for (const line of lines) {
+      const l = line.trim();
+      if (!l.startsWith("data:")) continue;
+      const data = l.slice(5).trim();
+      if (data === "[DONE]") continue;
+      try {
+        const j = JSON.parse(data);
+        const delta = j.choices?.[0]?.delta?.content || "";
+        if (delta) { text += delta; onText && onText(text); }
+      } catch(e) {}
     }
-  }finally{ setBusy(false); controller=null; }
+  }
+  return text;
+}
+function apiMessages(c, extraUser) {
+  const t = buildTurns(c, extraUser).filter(m => m.content && m.content.trim());
+  // 직접 입력(프록시 등)은 system 역할을 못 받는 경우가 많아서 첫 user 메시지에 설정을 합쳐 보냄
+  if (ai.prov === "custom") return t;
+  return [{ role: "system", content: t[0].content }, ...t.slice(1)];
 }
 
-function sendMessage(){
-  const inp=$("#input"); const text=inp.value.trim();
-  if(!text) return;
-  chatOf().push({role:"user",content:text});
-  save();
-  const {row}=bubble("user",text); scroll.appendChild(row); toBottom();
-  inp.value=""; autoGrow();
-  // remove empty-state if present
-  const e=scroll.querySelector(".empty"); if(e) e.remove();
+const show = id => document.querySelectorAll(".screen").forEach(s => s.classList.toggle("on", s.id === id));
+document.querySelectorAll("[data-back]").forEach(b => b.onclick = () => { if (ctl) ctl.abort(); renderHome(); show("home"); });
+
+const newId = () => Math.random().toString(36).slice(2, 10);
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+const sub = (t, c) => (t || "").replace(/\{\{\s*user\s*\}\}/gi, c.uname || "유저").replace(/\{\{\s*char\s*\}\}/gi, c.name || "캐릭터");
+
+// *지문* / 대사 렌더링
+function renderText(text) {
+  const paras = text.replace(/\r/g, "").split(/\n\s*\n|\n/).filter(p => p.trim());
+  return paras.map(p => {
+    const parts = p.split(/(\*[^*]+\*)/g).filter(x => x.length);
+    const html = parts.map(x => {
+      if (/^\*[^*]+\*$/.test(x)) return `<span class="narr">${esc(x.slice(1, -1))}</span>`;
+      const clean = x.replace(/\*/g, "");
+      return clean.trim() ? `<span class="say">${esc(clean)}</span>` : esc(clean);
+    }).join("");
+    return `<p>${html}</p>`;
+  }).join("");
+}
+
+// 대사만 있는 문단을 앞 지문 문단에 붙이기
+function mergeDialogue(text) {
+  const paras = text.replace(/\r/g, "").split(/\n+/).map(p => p.trim()).filter(Boolean);
+  const isNarr = p => /\*[^*]+\*/.test(p);
+  if (!paras.some(isNarr) || !paras.some(p => !isNarr(p))) return text;
+  const out = [];
+  let pending = "";
+  paras.forEach(p => {
+    if (!isNarr(p)) {
+      if (out.length && out[out.length - 1].length + p.length < 600) out[out.length - 1] += " " + p;
+      else if (out.length) out.push(p);
+      else pending += (pending ? " " : "") + p;
+    } else {
+      out.push(pending ? pending + " " + p : p);
+      pending = "";
+    }
+  });
+  if (pending) out.push(pending);
+  return out.join("\n\n");
+}
+
+// 홈
+function renderHome() {
+  const L = $("#charList");
+  if (!store.chars.length) {
+    L.innerHTML = `<div class="empty"><p>아직 캐릭터가 없어요</p>아래 버튼으로 첫 캐릭터를 만들어보세요.</div>`;
+    return;
+  }
+  L.innerHTML = "";
+  store.chars.forEach(c => {
+    const msgs = store.chats[c.id] || [];
+    const last = msgs[msgs.length - 1];
+    const b = document.createElement("button");
+    b.className = "row";
+    b.innerHTML = `<div class="av">${esc(c.emoji || (c.name||"?").slice(0,1))}</div><div class="meta"><div class="nm"></div><div class="pv"></div></div>`;
+    b.querySelector(".nm").textContent = c.name || "이름 없음";
+    b.querySelector(".pv").textContent = last ? last.text.replace(/\*/g, "").slice(0, 60) : "대화를 시작해보세요";
+    b.onclick = () => openChat(c.id);
+    L.appendChild(b);
+  });
+}
+
+// 편집
+let editing = null;
+function segSet(el, v) { el.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === v)); }
+function segGet(el) { return el.querySelector("button.on")?.dataset.v; }
+["#fLen", "#fTier"].forEach(s => $(s).onclick = e => { if (e.target.dataset.v) segSet($(s), e.target.dataset.v); });
+
+function openEditor(id) {
+  editing = id ? store.chars.find(c => c.id === id) : null;
+  const c = editing || { len: "mid", tier: "default" };
+  $("#edTitle").textContent = editing ? "캐릭터 설정" : "새 캐릭터";
+  $("#fEmoji").value = c.emoji || ""; $("#fName").value = c.name || "";
+  $("#fChar").value = c.prompt || ""; $("#fGreet").value = c.greet || "";
+  $("#fUName").value = c.uname || ""; $("#fUser").value = c.upersona || "";
+  $("#fNote").value = c.note || ""; $("#fStyle").value = c.style || "";
+  segSet($("#fLen"), c.len || "mid"); segSet($("#fTier"), c.tier || "default");
+  $("#delChar").hidden = !editing;
+  show("editor");
+}
+$("#newChar").onclick = () => openEditor(null);
+$("#editFromChat").onclick = () => openEditor(cur);
+$("#saveChar").onclick = () => {
+  const data = {
+    emoji: $("#fEmoji").value.trim(), name: $("#fName").value.trim() || "이름 없음",
+    prompt: $("#fChar").value, greet: $("#fGreet").value,
+    uname: $("#fUName").value.trim(), upersona: $("#fUser").value,
+    note: $("#fNote").value, style: $("#fStyle").value, len: segGet($("#fLen")), tier: segGet($("#fTier"))
+  };
+  let id;
+  if (editing) { Object.assign(editing, data); id = editing.id; }
+  else { id = newId(); store.chars.unshift(Object.assign({ id }, data)); }
+  save(); openChat(id);
+};
+$("#delChar").onclick = () => {
+  if (!editing || !confirm(`'${editing.name}'와(과) 대화 기록을 삭제할까요?`)) return;
+  store.chars = store.chars.filter(c => c.id !== editing.id);
+  const gone = editing.id; delete store.chats[gone]; if (cur === gone) cur = null; save(gone); renderHome(); show("home");
+};
+
+// 채팅
+const char = () => store.chars.find(c => c.id === cur);
+const msgs = () => store.chats[cur] || (store.chats[cur] = []);
+
+function openChat(id) {
+  cur = id; const c = char();
+  if (!msgs().length && c.greet.trim()) { msgs().push({ id: newId(), role: "assistant", text: sub(c.greet, c) }); save(); }
+  $("#chName").textContent = c.name;
+  renderLog(); show("chat");
+  setTimeout(() => { $("#log").scrollTop = $("#log").scrollHeight; }, 0);
+}
+
+function renderLog(errText) {
+  const c = char(), L = $("#log");
+  L.innerHTML = "";
+  const list = msgs();
+  list.forEach((m, i) => {
+    const d = document.createElement("div");
+    d.className = "msg " + (m.role === "user" ? "user" : "char");
+    d.innerHTML = `<div class="who"></div><div class="body">${renderText(m.text)}</div><div class="tools"></div>`;
+    d.querySelector(".who").textContent = m.role === "user" ? (c.uname || "나") : c.name;
+    const T = d.querySelector(".tools");
+    const add = (label, fn) => { const b = document.createElement("button"); b.className = "icon"; b.textContent = label; b.onclick = fn; T.appendChild(b); };
+    add("수정", () => editMsg(d, m));
+    add("삭제", () => { if (busy) return; list.splice(i, 1); save(); renderLog(); });
+    if (i === list.length - 1 && m.role === "assistant" && i > 0) add("다시 생성", regen);
+    L.appendChild(d);
+  });
+  if (errText) { const e = document.createElement("div"); e.className = "err"; e.textContent = errText; L.appendChild(e); }
+}
+
+function editMsg(node, m) {
+  if (busy) return;
+  const body = node.querySelector(".body");
+  body.innerHTML = `<textarea class="edit-area"></textarea><div style="display:flex;gap:6px;margin-top:6px;justify-content:flex-end"><button class="btn ghost" data-c>취소</button><button class="btn" data-s>저장</button></div>`;
+  const ta = body.querySelector("textarea"); ta.value = m.text; ta.focus();
+  body.querySelector("[data-c]").onclick = () => renderLog();
+  body.querySelector("[data-s]").onclick = () => { m.text = ta.value; save(); renderLog(); };
+}
+
+function buildRules(c) {
+  const lenMap = { short: "1~2문단, 짧고 호흡 빠르게", mid: "2~4문단", long: "4~6문단, 장면과 감정을 풍부하게. 문단을 쪼개지 말고 각 문단을 충실하게" };
+  return `너는 지금부터 캐릭터 롤플레이 채팅의 '${c.name}' 역할을 맡는다. 이후 대화에서 너는 오직 ${c.name}으로서 응답한다.
+
+[캐릭터 설정]
+${sub(c.prompt, c) || "(설정 없음)"}
+
+[유저 캐릭터: ${c.uname || "유저"}]
+${sub(c.upersona, c) || "(설정 없음)"}
+
+[작성 규칙]
+- 한국어로 쓴다. 행동·표정·분위기·속마음 등 지문은 *별표*로 감싸고, ${c.name}의 대사는 별표 없이 쓴다.
+- 지문은 3인칭 현재형(~한다, ~본다)으로 쓴다. 과거형 소설체(~했다, ~였다)로 쓰지 않는다.
+- 대사에 따옴표("")를 붙이지 않는다. 대사는 별표 밖에 그냥 쓴다.
+- 지문과 대사는 자연스럽게 섞되, 정해진 틀을 반복하지 않는다. 문단마다 "지문→대사→지문→대사" 같은 같은 구조가 되지 않게 한다.
+- 대사는 대부분 지문 문단 안에 섞어 넣는다. 대사만 따로 떨어진 한 줄짜리 문단은 만들지 않는다(응답 전체에서 많아야 1개).
+- 문단 수를 늘리지 않는다. 한 문단 안에서 행동, 속내, 대사가 이어지게 해서 덩어리감 있게 쓴다. 문단 길이는 자연스럽게 다르게, 지문만 있는 짧은 마무리 문단은 괜찮다.
+- 매 응답을 질문으로 끝내지 않는다. 행동, 혼잣말, 여운, 갑작스러운 전개 등 끝맺음도 다양하게 한다.
+- 모든 문장에 감정 설명을 붙이지 않는다. 말하지 않고 보여주는 장면도 둔다.
+- 긴 외모·배경 묘사보다 지금 하는 행동, 표정, 말투에 집중한다. 가볍고 생동감 있게.
+- 지문에 캐릭터의 속내나 태도를 자연스럽게 녹인다(예: 눈치는 빠르니까, 표정이 심상치 않으면 바로 발을 뺄 생각이다). 지문이 단순한 동작 나열이 되지 않게 한다.
+- 대사는 지문 문장 사이에 자연스럽게 끼워 넣는다. 짧은 대답, 말끝을 흐리는 말, 긴 능청 등 대사 길이도 다양하게.
+- 대사는 캐릭터의 말투와 성격을 살린다.
+- ${c.uname || "유저"}의 대사, 행동, 감정은 절대 대신 쓰지 않는다. ${c.uname || "유저"}의 반응을 기다리는 지점에서 멈춘다.
+- 이전 응답의 문장이나 전개를 반복하지 않는다. 장면을 앞으로 진행시킨다.
+- 말줄임표(...)는 정말 말끝을 흐리거나 머뭇거리는 순간에만 쓴다. 한 응답에 2~3번 이하. 습관처럼 문장마다 붙이지 않는다. 말줄임표를 줄이려고 쉼표로 대신 끊지 않는다.
+- 대사는 실제 한국 사람이 입으로 하는 말처럼 자연스럽게 쓴다. 번역투, 글말투, 어색한 조어를 쓰지 않는다.
+- "A, 아니 B" 식으로 말하다가 스스로 정정하는 패턴(예: "사람은, 아니 나는")을 쓰지 않는다.
+- 쉼표로 단어를 어색하게 끊지 않는다(예: "깜빡, 이 됐지" ✗ → "깜빡했지" ✓).
+- 같은 말버릇이나 문장 구조를 응답마다 반복하지 않는다.
+- 캐릭터에서 벗어나 설명하거나 AI라고 언급하지 않는다. 응답 앞뒤에 제목·메모·괄호 해설을 붙이지 않는다.
+- 분량: ${lenMap[c.len] || lenMap.mid}.
+${c.note.trim() ? "\n[추가 지시]\n" + sub(c.note, c) : ""}
+${(c.style || "").trim() ? "\n[문체 참고]\n아래 글은 원하는 문체의 예시다. 문장의 호흡, 지문과 대사가 섞이는 방식, 톤, 묘사의 밀도만 참고한다. 문장, 표현, 전개, 문단 수와 구조는 절대 베끼지 않는다. 매 응답은 지금 장면에 맞게 새로 쓴다.\n---\n" + sub(c.style, c) + "\n---" : ""}
+
+이제 롤플레이를 시작한다.`;
+}
+
+function buildTurns(c, extraUser) {
+  let hist = msgs().map(m => ({ role: m.role, content: m.text }));
+  if (extraUser) hist.push({ role: "user", content: extraUser });
+  const rules = buildRules(c);
+  const LIMIT = 55000;
+  const size = () => rules.length + hist.reduce((a, t) => a + t.content.length, 0);
+  while (hist.length > 2 && size() > LIMIT) hist.shift();
+  const turns = [{ role: "user", content: rules }];
+  hist.forEach(t => {
+    const last = turns[turns.length - 1];
+    if (last.role === t.role) last.content += "\n\n" + t.content;
+    else turns.push({ role: t.role, content: t.content });
+  });
+  if (turns[turns.length - 1].role !== "user") turns.push({ role: "user", content: "(계속)" });
+  return turns;
+}
+
+const errCopy = code => ({
+  not_granted: "AI 사용을 허용해야 답장이 와요. 페이지를 새로고침한 뒤 허용을 눌러주세요.",
+  rate_limited: "요청이 너무 많아요. 잠시 뒤에 다시 보내주세요.",
+  prompt_too_large: "대화가 너무 길어요. 오래된 메시지 몇 개를 삭제해주세요.",
+  refused: "이 장면은 응답이 거절됐어요. 메시지를 수정해서 다시 시도해보세요.",
+  session_expired: "로그인이 만료됐어요. 새로고침해주세요."
+}[code] || "응답을 받지 못했어요. 다시 생성을 눌러보세요.");
+
+async function generate(extraUser) {
+  if (busy) return;
+  const c = char();
+  const useApi = ai.prov !== "builtin";
+  if (!useApi && !sample) { renderLog("내장 Claude를 쓸 수 없어요. 홈의 AI 설정에서 API를 연결해주세요."); return; }
+  busy = true; setBusy(true);
+  renderLog();
+  const d = document.createElement("div");
+  d.className = "msg char";
+  d.innerHTML = `<div class="who"></div><div class="body"><span class="thinking">${esc(c.name)}이(가) 생각 중</span></div>`;
+  d.querySelector(".who").textContent = c.name;
+  $("#log").appendChild(d); $("#log").scrollTop = $("#log").scrollHeight;
+  const body = d.querySelector(".body");
+  ctl = new AbortController();
+  let finalText = "", errMsg = null;
+  try {
+    const paint = text => {
+      finalText = text;
+      const nearBottom = $("#log").scrollHeight - $("#log").scrollTop - $("#log").clientHeight < 80;
+      body.innerHTML = renderText(text);
+      if (nearBottom) $("#log").scrollTop = $("#log").scrollHeight;
+    };
+    if (useApi) {
+      finalText = await callApi(ai, apiMessages(c, extraUser), paint, ctl.signal);
+    } else {
+      const r = await sample(buildTurns(c, extraUser), {
+        cache: false, signal: ctl.signal, modelTier: c.tier || "default",
+        onText: ({ text }) => paint(text)
+      });
+      finalText = r.text;
+    }
+  } catch (e) {
+    if (useApi) { if (e.name !== "AbortError") errMsg = e.message || "응답을 받지 못했어요."; }
+    else { finalText = e.text || ""; if (e.code !== "cancelled") errMsg = errCopy(e.code); }
+  }
+  finalText = finalText.trim();
+  if (finalText && ai.merge !== false) finalText = mergeDialogue(finalText);
+  if (finalText) {
+    if (extraUser === CONT && msgs().length && msgs()[msgs().length - 1].role === "assistant") {
+      msgs()[msgs().length - 1].text += "\n\n" + finalText;
+    } else msgs().push({ id: newId(), role: "assistant", text: finalText });
+    save();
+  }
+  busy = false; ctl = null; setBusy(false);
+  renderLog(errMsg);
+  $("#log").scrollTop = $("#log").scrollHeight;
+}
+
+const CONT = "(방금 장면을 자연스럽게 이어서 계속 써줘. 유저의 행동은 쓰지 말 것.)";
+function setBusy(on) {
+  $("#send").textContent = on ? "멈춤" : "보내기";
+  ["#qCont", "#qRegen"].forEach(s => $(s).disabled = on);
+}
+
+function send() {
+  if (busy) { ctl?.abort(); return; }
+  const v = $("#input").value.trim();
+  if (!v) return;
+  msgs().push({ id: newId(), role: "user", text: v }); save();
+  $("#input").value = ""; autoGrow();
   generate();
 }
-function regenerate(){
-  if(busy) return;
-  const chat=chatOf();
-  while(chat.length && chat[chat.length-1].role==="assistant") chat.pop();
-  if(chat.length===0){ toast("다시 생성할 답변이 없어요."); return; }
-  save(); render(); generate();
+function regen() {
+  if (busy) return;
+  const l = msgs();
+  if (l.length && l[l.length - 1].role === "assistant" && l.length > 1) { l.pop(); save(); }
+  generate();
 }
-
-/* ---------- composer ---------- */
-const input=$("#input");
-function autoGrow(){ input.style.height="auto"; input.style.height=Math.min(input.scrollHeight,150)+"px"; }
-input.addEventListener("input",autoGrow);
-const isTouch=("ontouchstart" in window)||navigator.maxTouchPoints>0;
-input.addEventListener("keydown",e=>{
-  if(e.key==="Enter"&&!e.shiftKey&&!isTouch){ e.preventDefault(); sendMessage(); }
-});
-$("#btnSend").addEventListener("click",()=>{ if(busy){controller&&controller.abort();} else sendMessage(); });
-$("#btnRegen").addEventListener("click",regenerate);
-$("#btnClear").addEventListener("click",()=>{
-  if(!confirm("이 캐릭터와의 대화를 모두 지울까요? (첫 메시지 이후 대화만 삭제됩니다)")) return;
-  S.chats[activeChar().id]=[]; save(); render();
-});
-
-/* ---------- toast ---------- */
-let toastT;
-function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("on");
-  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("on"),2600); }
-
-/* ---------- sheets open/close ---------- */
-function renderInfo(){
-  $("#infoVer").textContent="현재 버전  v"+VERSION;
-  $("#changelog").innerHTML=CHANGELOG.map(c=>
-    `<div class="clog"><b>v${c.v}</b><ul>${c.d.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`).join("");
-}
-function openSheet(which){
-  const map={
-    set:["#scrimSet","#sheetSet",loadSetForm],
-    char:["#scrimChar","#sheetChar",loadCharForm],
-    info:["#scrimInfo","#sheetInfo",renderInfo]
-  };
-  const m=map[which]; if(!m) return;
-  if(m[2]) m[2]();
-  $(m[0]).classList.add("on"); $(m[1]).classList.add("on");
-}
-function closeSheets(){ $$(".scrim").forEach(s=>s.classList.remove("on")); $$(".sheet").forEach(s=>s.classList.remove("on")); }
-$("#btnSet").addEventListener("click",()=>openSheet("set"));
-$("#btnChar").addEventListener("click",()=>openSheet("char"));
-$("#btnInfo").addEventListener("click",()=>openSheet("info"));
-$("#btnReload").addEventListener("click",()=>location.reload());
-$$("[data-close]").forEach(b=>b.addEventListener("click",closeSheets));
-$("#scrimSet").addEventListener("click",closeSheets);
-$("#scrimChar").addEventListener("click",closeSheets);
-$("#scrimInfo").addEventListener("click",closeSheets);
-
-/* ---------- settings form ---------- */
-const provSeg=$("#provSeg");
-function selProv(p){
-  provSeg.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.p===p));
-  $$(".prov").forEach(el=>el.classList.toggle("on",el.dataset.prov===p));
-}
-provSeg.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>selProv(b.dataset.p)));
-function loadSetForm(){
-  selProv(S.provider);
-  $("#claudeKey").value=S.claude.key; $("#claudeModel").value=S.claude.model;
-  $("#gemBase").value=S.gemini.base; $("#gemKey").value=S.gemini.key; $("#gemModel").value=S.gemini.model;
-  $("#oaiBase").value=S.openai.base; $("#oaiKey").value=S.openai.key; $("#oaiModel").value=S.openai.model;
-  $("#temp").value=S.temp; $("#maxtok").value=S.maxtok;
-}
-$("#setSave").addEventListener("click",()=>{
-  S.provider=provSeg.querySelector("button.on").dataset.p;
-  S.claude.key=$("#claudeKey").value.trim(); S.claude.model=$("#claudeModel").value.trim()||"claude-sonnet-4-5";
-  S.gemini.base=$("#gemBase").value.trim()||"https://generativelanguage.googleapis.com";
-  S.gemini.key=$("#gemKey").value.trim(); S.gemini.model=$("#gemModel").value.trim()||"gemini-2.5-pro";
-  S.openai.base=$("#oaiBase").value.trim()||"https://api.openai.com";
-  S.openai.key=$("#oaiKey").value.trim(); S.openai.model=$("#oaiModel").value.trim()||"gpt-4o";
-  S.temp=$("#temp").value.trim()||"0.9"; S.maxtok=$("#maxtok").value.trim()||"1200";
-  save(); syncHeader(); closeSheets(); toast("설정을 저장했어요.");
+$("#send").onclick = send;
+$("#qRegen").onclick = regen;
+$("#qCont").onclick = () => generate(CONT);
+$("#qNarr").onclick = () => {
+  const ta = $("#input"), s = ta.selectionStart, e = ta.selectionEnd, v = ta.value;
+  ta.value = v.slice(0, s) + "*" + v.slice(s, e) + "*" + v.slice(e);
+  ta.focus(); ta.setSelectionRange(s + 1, e + 1);
+};
+$("#resetChat").onclick = () => {
+  if (busy || !confirm("대화를 처음부터 다시 시작할까요?")) return;
+  store.chats[cur] = []; save(); openChat(cur);
+};
+const autoGrow = () => { const t = $("#input"); t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight, 160) + "px"; };
+$("#input").addEventListener("input", autoGrow);
+$("#input").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey && !e.isComposing && matchMedia("(pointer:fine)").matches) { e.preventDefault(); send(); }
 });
 
-/* ---------- character form ---------- */
-function fillCharSelect(){
-  const sel=$("#charSel"); sel.innerHTML="";
-  S.chars.forEach(c=>{ const o=document.createElement("option");
-    o.value=c.id; o.textContent=(c.ava||"🎭")+" "+(c.name||"이름 없음"); sel.appendChild(o); });
-  sel.value=S.active;
-}
-function fillAvaRow(cur){
-  const row=$("#avaRow"); row.innerHTML="";
-  AVATARS.forEach(a=>{ const btn=document.createElement("button"); btn.textContent=a;
-    btn.className=(a===cur?"on":"");
-    btn.addEventListener("click",()=>{ $("#cAva").value=a; fillAvaRow(a); }); row.appendChild(btn); });
-}
-function loadCharForm(){
-  fillCharSelect();
-  const c=activeChar();
-  $("#cName").value=c.name||""; $("#cAva").value=c.ava||""; fillAvaRow(c.ava);
-  $("#cPrompt").value=c.prompt||""; $("#cFirst").value=c.first||"";
-  $("#uName").value=S.userName||""; $("#uPrompt").value=S.userPrompt||"";
-  $("#gGuide").value=S.guide||""; $("#gStyle").value=S.style||"";
-  $("#useQuotes").checked = S.quotes!==false;
-}
-$("#charSel").addEventListener("change",e=>{
-  // save current edits first
-  applyCharEdits(false);
-  S.active=e.target.value; save(); loadCharForm(); syncHeader(); render();
-});
-$("#charNew").addEventListener("click",()=>{
-  applyCharEdits(false);
-  const c=makeChar("새 캐릭터","🎭","","");
-  S.chars.push(c); S.active=c.id; save(); loadCharForm(); syncHeader(); render();
-  toast("새 캐릭터를 만들었어요.");
-});
-$("#charDelete").addEventListener("click",()=>{
-  if(S.chars.length<=1){ toast("캐릭터가 하나뿐이라 삭제할 수 없어요."); return; }
-  if(!confirm("이 캐릭터와 대화 기록을 삭제할까요?")) return;
-  const id=S.active; delete S.chats[id];
-  S.chars=S.chars.filter(c=>c.id!==id); S.active=S.chars[0].id;
-  save(); loadCharForm(); syncHeader(); render(); toast("삭제했어요.");
-});
-function applyCharEdits(notify){
-  const c=activeChar();
-  c.name=$("#cName").value.trim()||"이름 없음";
-  c.ava=$("#cAva").value.trim()||"🎭";
-  c.prompt=$("#cPrompt").value;
-  c.first=$("#cFirst").value;
-  S.userName=$("#uName").value.trim()||"나";
-  S.userPrompt=$("#uPrompt").value;
-  S.guide=$("#gGuide").value; S.style=$("#gStyle").value;
-  S.quotes=$("#useQuotes").checked;
-  save();
-  if(notify){ syncHeader(); render(); }
-}
-$("#charSave").addEventListener("click",()=>{ applyCharEdits(true); closeSheets(); toast("저장했어요."); });
-$("#resetPrompts").addEventListener("click",()=>{
-  $("#gGuide").value=DEFAULT_GUIDE; $("#gStyle").value=DEFAULT_STYLE;
-  toast("추천값을 불러왔어요. 저장을 눌러 적용하세요.");
-});
+// ---- 업데이트 ----
+const CHANGELOG = JSON.parse(document.getElementById("changelog").textContent);
+const APP_VERSION = CHANGELOG[0].v;
+let latest = null;
+$("#verLabel").textContent = "v" + APP_VERSION;
+$("#vNow").textContent = APP_VERSION;
+const vnum = v => v.split(".").map(Number);
+const newer = (a, b) => { const x = vnum(a), y = vnum(b); for (let i = 0; i < Math.max(x.length, y.length); i++) { if ((x[i]||0) !== (y[i]||0)) return (x[i]||0) > (y[i]||0); } return false; };
 
-/* ---------- export / import ---------- */
-$("#charExport").addEventListener("click",()=>{
-  applyCharEdits(false);
-  const c=activeChar();
-  const data={type:"rp-character",name:c.name,ava:c.ava,prompt:c.prompt,first:c.first,
-    userPrompt:S.userPrompt,guide:S.guide,style:S.style};
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
-  a.download=(c.name||"character")+".json"; a.click(); URL.revokeObjectURL(a.href);
-});
-$("#charImport").addEventListener("click",()=>$("#fileImport").click());
-$("#fileImport").addEventListener("change",e=>{
-  const f=e.target.files[0]; if(!f) return;
-  const r=new FileReader();
-  r.onload=()=>{ try{
-    const d=JSON.parse(r.result);
-    const c=makeChar(d.name||"불러온 캐릭터", d.ava||"🎭", d.prompt||"", d.first||"");
-    S.chars.push(c); S.active=c.id;
-    if(d.userPrompt) S.userPrompt=d.userPrompt;
-    if(d.guide) S.guide=d.guide; if(d.style) S.style=d.style;
-    save(); loadCharForm(); syncHeader(); render(); toast("캐릭터를 불러왔어요.");
-  }catch(err){ toast("파일을 읽을 수 없어요."); } };
-  r.readAsText(f); e.target.value="";
-});
+function renderChangelog() {
+  const list = latest && newer(latest[0].v, APP_VERSION) ? latest : CHANGELOG;
+  $("#clList").innerHTML = list.map(e => {
+    const tag = e.v === APP_VERSION ? '<span class="tag">지금 버전</span>' : (newer(e.v, APP_VERSION) ? '<span class="tag">새 버전</span>' : "");
+    return `<div class="cl"><h3>v${esc(e.v)} ${tag}</h3><ul>${e.items.map(i => `<li>${esc(i)}</li>`).join("")}</ul></div>`;
+  }).join("");
+}
+async function checkUpdate() {
+  const st = $("#vStatus");
+  st.className = "st"; st.textContent = "확인 중...";
+  try {
+    const res = await fetch(location.pathname + "?check=" + Date.now(), { cache: "no-store" });
+    if (!res.ok) throw 0;
+    const html = await res.text();
+    const m = html.match(/<script type="application\/json" id="changelog">([\s\S]*?)<\/script>/);
+    if (!m) throw 0;
+    latest = JSON.parse(m[1]);
+    const lv = latest[0].v;
+    if (newer(lv, APP_VERSION)) {
+      st.className = "st new"; st.textContent = `새 버전 v${lv}이 있어요! 새로고침을 눌러주세요.`;
+      $("#verDot").hidden = false;
+    } else {
+      st.textContent = "최신 버전이에요.";
+      $("#verDot").hidden = true;
+    }
+  } catch (e) {
+    st.textContent = "새 버전을 확인하지 못했어요. 새로고침하면 최신 버전을 불러와요.";
+  }
+  renderChangelog();
+}
+$("#verBtn").onclick = () => { renderChangelog(); show("updates"); checkUpdate(); };
+$("#vCheck").onclick = checkUpdate;
+$("#vReload").onclick = () => {
+  if (busy) return;
+  try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e) {}
+  if (window.claude) { location.reload(); return; }
+  location.replace(location.pathname + "?v=" + Date.now());
+};
+if (!window.claude) checkUpdate();
 
-/* ---------- init ---------- */
-syncHeader(); render(); autoGrow();
-window.addEventListener("resize",()=>toBottom());
+renderHome();
+})();
 </script>
 </body>
 </html>
