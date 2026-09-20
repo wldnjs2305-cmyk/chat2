@@ -6,6 +6,9 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.22","items":["대본 형식의 지문을 괄호에서 *별표*로 변경"]},
+  {"v":"1.21","items":["대본 형식 표기를 '이름 | 대사'로 변경"]},
+  {"v":"1.20","items":["출력 형식 추가: 말풍선 / 소설 / 대본","소설·대본은 큰따옴표 대사와 문단 나눔, 화면도 형식에 맞게 표시"]},
   {"v":"1.19","items":["입력창을 누르면 아이폰이 화면을 확대해 오른쪽이 잘리던 문제 수정 (입력 글씨 16px)"]},
   {"v":"1.18","items":["키보드가 올라올 때 화면이 잘리거나 입력창이 밀리는 문제 재수정 (보이는 영역에 맞춰 앱 높이·위치 조정)"]},
   {"v":"1.17","items":["입력창이 화면 위로 튀어 오르던 문제 수정 (1.15의 키보드 처리 되돌림)"]},
@@ -119,6 +122,12 @@ textarea.tall{min-height:180px}
 .who{font-size:12px;color:var(--soft);margin:0 0 4px 2px;font-weight:500}
 .body p{margin:0 0 .7em}
 .body p:last-child{margin-bottom:0}
+.spk{font-weight:700;color:var(--accent)}
+.bar{color:var(--soft);margin:0 8px}
+.fmt-novel .msg.char .body,.fmt-script .msg.char .body{background:none;border:0;padding:0 2px}
+.fmt-novel .msg.char .body{line-height:1.85}
+.fmt-novel .body p,.fmt-script .body p{margin:0 0 .9em}
+.fmt-novel .narr,.fmt-script .narr{color:var(--soft)}
 .narr{font-family:"Gowun Batang",serif;color:var(--narr);line-height:1.8}
 .say{color:var(--ink)}
 .tools{display:flex;gap:2px;margin-top:4px}
@@ -233,6 +242,8 @@ textarea.tall{min-height:180px}
         <label for="fStyle">문체 예시 (선택)</label>
         <textarea id="fStyle" class="tall" placeholder="마음에 드는 답변을 그대로 붙여넣어 주세요. 문체와 호흡만 참고하고 내용은 따라 하지 않아요."></textarea>
         <div class="hint">별표 없이 붙여넣어도 괜찮아요.</div>
+        <label>출력 형식</label>
+        <div class="seg" id="fFormat"><button data-v="bubble">말풍선</button><button data-v="novel">소설</button><button data-v="script">대본</button></div>
         <label>지문 시제</label>
         <div class="seg" id="fTense"><button data-v="present">현재형 (~한다)</button><button data-v="past">과거형 (~했다)</button></div>
         <label>응답 길이</label>
@@ -515,16 +526,25 @@ const esc = s => s.replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",
 const sub = (t, c) => (t || "").replace(/\{\{\s*user\s*\}\}/gi, c.uname || "유저").replace(/\{\{\s*char\s*\}\}/gi, c.name || "캐릭터");
 
 // *지문* / 대사 렌더링
-function renderText(text) {
-  const paras = text.replace(/\r/g, "").split(/\n\s*\n|\n/).filter(p => p.trim());
-  return paras.map(p => {
-    const parts = p.split(/(\*[^*]+\*)/g).filter(x => x.length);
+function fmtOf(c) { return c && (c.format === "novel" || c.format === "script") ? c.format : "bubble"; }
+function renderText(text, fmt) {
+  fmt = fmt || "bubble";
+  const narrDefault = fmt !== "bubble";
+  const lines = text.replace(/\r/g, "").split(/\n/).map(l => l.trim()).filter(Boolean);
+  return lines.map(l => {
+    const name = l.match(/^([^\s:|*"“(]{1,14})\s*[:|]\s*(.*)$/);
+    let prefix = "";
+    if (fmt === "script" && name) { prefix = `<span class="spk">${esc(name[1])}</span><span class="bar">|</span>`; l = name[2]; }
+    const parts = l.split(/(\*[^*]+\*|\([^)]*\)|"[^"]*"|“[^”]*”)/g).filter(x => x && x.length);
     const html = parts.map(x => {
       if (/^\*[^*]+\*$/.test(x)) return `<span class="narr">${esc(x.slice(1, -1))}</span>`;
+      if (/^\(.*\)$/.test(x)) return `<span class="narr">${esc(x)}</span>`;
+      if (/^["“].*["”]$/.test(x)) return `<span class="say">${esc(x)}</span>`;
       const clean = x.replace(/\*/g, "");
-      return clean.trim() ? `<span class="say">${esc(clean)}</span>` : esc(clean);
+      if (!clean.trim()) return esc(clean);
+      return `<span class="${narrDefault ? "narr" : "say"}">${esc(clean)}</span>`;
     }).join("");
-    return `<p>${html}</p>`;
+    return `<p>${prefix}${html}</p>`;
   }).join("");
 }
 
@@ -574,7 +594,7 @@ function renderHome() {
 let editing = null;
 function segSet(el, v) { el.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === v)); }
 function segGet(el) { return el.querySelector("button.on")?.dataset.v; }
-["#fLen", "#fTier", "#fTense"].forEach(s => $(s).onclick = e => { if (e.target.dataset.v) segSet($(s), e.target.dataset.v); });
+["#fLen", "#fTier", "#fTense", "#fFormat"].forEach(s => $(s).onclick = e => { if (e.target.dataset.v) segSet($(s), e.target.dataset.v); });
 
 function openEditor(id) {
   editing = id ? store.chars.find(c => c.id === id) : null;
@@ -584,7 +604,7 @@ function openEditor(id) {
   $("#fChar").value = c.prompt || ""; $("#fGreet").value = c.greet || "";
   $("#fUName").value = c.uname || ""; $("#fUser").value = c.upersona || "";
   $("#fNote").value = c.note || ""; $("#fStyle").value = c.style || "";
-  segSet($("#fLen"), c.len || "mid"); segSet($("#fTense"), c.tense || "present"); segSet($("#fTier"), c.tier || "default");
+  segSet($("#fLen"), c.len || "mid"); segSet($("#fTense"), c.tense || "present"); segSet($("#fFormat"), c.format || "bubble"); segSet($("#fTier"), c.tier || "default");
   $("#delChar").hidden = !editing;
   show("editor");
 }
@@ -595,7 +615,7 @@ $("#saveChar").onclick = () => {
     emoji: $("#fEmoji").value.trim(), name: $("#fName").value.trim() || "이름 없음",
     prompt: $("#fChar").value, greet: $("#fGreet").value,
     uname: $("#fUName").value.trim(), upersona: $("#fUser").value,
-    note: $("#fNote").value, style: $("#fStyle").value, len: segGet($("#fLen")), tense: segGet($("#fTense")), tier: segGet($("#fTier"))
+    note: $("#fNote").value, style: $("#fStyle").value, len: segGet($("#fLen")), tense: segGet($("#fTense")), format: segGet($("#fFormat")), tier: segGet($("#fTier"))
   };
   let id;
   if (editing) { Object.assign(editing, data); id = editing.id; }
@@ -621,13 +641,14 @@ function openChat(id) {
 }
 
 function renderLog(errText) {
-  const c = char(), L = $("#log");
+  const c = char(), L = $("#log"), fmt = fmtOf(c);
+  L.className = "log fmt-" + fmt;
   L.innerHTML = "";
   const list = msgs();
   list.forEach((m, i) => {
     const d = document.createElement("div");
     d.className = "msg " + (m.role === "user" ? "user" : "char");
-    d.innerHTML = `<div class="who"></div><div class="body">${renderText(m.text)}</div><div class="tools"></div>`;
+    d.innerHTML = `<div class="who"></div><div class="body">${renderText(m.text, fmt)}</div><div class="tools"></div>`;
     d.querySelector(".who").textContent = m.role === "user" ? (c.uname || "나") : c.name;
     const T = d.querySelector(".tools");
     const add = (label, fn) => { const b = document.createElement("button"); b.className = "icon"; b.textContent = label; b.onclick = fn; T.appendChild(b); };
@@ -656,6 +677,18 @@ function buildRules(c) {
     long: "4~6문단 정도로 길게. 장면에 따라 조금 더 길거나 짧아도 된다.",
     auto: "정해진 분량 없음. 장면 흐름에 맞게 알아서 정한다. 한 줄로 끝내도 되고 길게 써도 된다."
   };
+  const fmt = c.format === "novel" || c.format === "script" ? c.format : "bubble";
+  const fmtRules = fmt === "novel"
+    ? `- 소설 형식으로 쓴다. 지문은 별표 없이 그냥 쓰고, 대사만 큰따옴표("")로 감싼다.
+- 지문 묶음과 대사를 문단으로 나눈다. 문단 사이는 빈 줄로 띄운다. 한 문단이 지나치게 길어지지 않게 한다.
+- 대사는 한 줄에 하나씩 쓰고, 필요하면 대사 뒤에 짧은 서술을 붙여도 된다.`
+    : fmt === "script"
+    ? `- 대본 형식으로 쓴다. 대사는 \`${c.name} | "대사"\` 처럼 이름과 세로선(|)을 앞에 붙이고 큰따옴표로 감싼다.
+- 행동이나 표정 같은 지문은 *별표*로 감싸 한 줄로 짧게 쓴다.
+- 대사와 지문은 각각 한 줄씩 쓰고, 줄 사이는 빈 줄로 띄운다.`
+    : `- 행동·표정·분위기·속마음 등 지문은 *별표*로 감싸고, ${c.name}의 대사는 별표 없이 쓴다.
+- 대사에 따옴표("")를 붙이지 않는다.
+- 지문과 대사는 한 문단 안에서 이어 쓴다. 지문 다음에 줄을 바꿔 대사를 따로 떼어놓지 않는다. (*지문* 대사 *지문* 대사 처럼 한 줄로 이어진다)`;
   const tense = c.tense === "past"
     ? "- 지문은 3인칭 과거형(~했다, ~였다)으로 쓴다."
     : "- 지문은 3인칭 현재형(~한다, ~본다)으로 쓴다.";
@@ -668,10 +701,9 @@ ${sub(c.prompt, c) || "(설정 없음)"}
 ${sub(c.upersona, c) || "(설정 없음)"}
 
 [작성 규칙]
-- 한국어로 쓴다. 행동·표정·분위기·속마음 등 지문은 *별표*로 감싸고, ${c.name}의 대사는 별표 없이 쓴다.
-- 대사에 따옴표("")를 붙이지 않는다.
+- 한국어로 쓴다.
 ${tense}
-- 지문과 대사는 한 문단 안에서 이어 쓴다. 지문 다음에 줄을 바꿔 대사를 따로 떼어놓지 않는다. (*지문* 대사 *지문* 대사 처럼 한 줄로 이어진다)
+${fmtRules}
 - 대사나 질문으로 끝내야 하는 건 아니다. 지문으로 끝나도 되고 대사로 끝나도 된다. 장면 흐름에 맞게 정한다.
 - 이전 응답의 형식을 그대로 따라 하지 않는다. 문단 수, 지문과 대사의 순서·비율·길이는 매번 새로 정한다. 지문으로 시작해도 되고 대사로 시작해도 된다. 어떤 응답은 지문이 많고 어떤 응답은 대사가 많아도 된다. 앞의 답과 모양이 비슷해지는 것을 경계한다.
 - ${u}의 대사, 행동, 감정은 대신 쓰지 않는다.
@@ -727,7 +759,7 @@ async function generate(extraUser) {
     const paint = text => {
       finalText = text;
       const nearBottom = $("#log").scrollHeight - $("#log").scrollTop - $("#log").clientHeight < 80;
-      body.innerHTML = renderText(text);
+      body.innerHTML = renderText(text, fmtOf(c));
       if (nearBottom) $("#log").scrollTop = $("#log").scrollHeight;
     };
     if (useApi) {
@@ -744,7 +776,7 @@ async function generate(extraUser) {
     else { finalText = e.text || ""; if (e.code !== "cancelled") errMsg = errCopy(e.code); }
   }
   finalText = finalText.trim();
-  if (finalText && ai.merge !== false) finalText = mergeDialogue(finalText);
+  if (finalText && ai.merge !== false && fmtOf(c) === "bubble") finalText = mergeDialogue(finalText);
   if (finalText) {
     if (extraUser === CONT && msgs().length && msgs()[msgs().length - 1].role === "assistant") {
       msgs()[msgs().length - 1].text += "\n\n" + finalText;
