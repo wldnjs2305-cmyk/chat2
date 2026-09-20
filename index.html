@@ -1,9 +1,20 @@
-<!doctype html>
+ <!doctype html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>밤편지 — 캐릭터 채팅</title>
+<script type="application/json" id="changelog">
+[
+  {"v":"1.6","items":["업데이트 내역 화면 추가","새 버전 확인하고 바로 새로고침하는 버튼 추가"]},
+  {"v":"1.5","items":["최대 출력 토큰 기본값을 비움 (생각하는 모델 빈 응답 오류 해결)","연결 테스트 토큰 제한 제거","직접 입력(프록시)에서 캐릭터 설정을 첫 메시지에 합쳐 보내도록 변경"]},
+  {"v":"1.4","items":["AI 설정 추가: 내장 Claude / OpenAI / 직접 입력","창의성(temperature), 최대 출력 토큰, 연결 테스트"]},
+  {"v":"1.3","items":["어색한 말투 규칙 추가 (자기 정정, 쉼표 끊기, 번역투)","말줄임표 규칙 완화"]},
+  {"v":"1.2","items":["업데이트해도 대화가 남도록 계정 저장","백업 내보내기 / 불러오기"]},
+  {"v":"1.1","items":["말줄임표 남발 줄이기"]},
+  {"v":"1.0","items":["첫 버전: 캐릭터·유저 프롬프트, 지문/대사 구분, 이어쓰기, 다시 생성"]}
+]
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
@@ -55,6 +66,18 @@ header.bar h2{font-size:16px;margin:0;flex:1;font-weight:700;overflow:hidden;tex
 .empty{padding:48px 24px;text-align:center;color:var(--soft)}
 .empty p{font-family:"Gowun Batang",serif;font-size:18px;color:var(--ink);margin:0 0 6px}
 .fab{margin:4px 16px 16px;align-self:stretch}
+#verBtn{position:relative;font-size:13px}
+.dot{position:absolute;top:4px;right:2px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.ver-now{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:20px}
+.ver-now .big{font-family:"Gowun Batang",serif;font-size:22px;font-weight:700}
+.ver-now .st{color:var(--soft);font-size:14px;margin:4px 0 12px}
+.ver-now .st.new{color:var(--accent);font-weight:700}
+.ver-now .btns{display:flex;gap:8px}
+.ver-now .btns .btn{flex:1}
+.cl{margin:0 0 18px}
+.cl h3{font-size:15px;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+.cl h3 .tag{font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--user-bg);color:var(--accent)}
+.cl ul{margin:0;padding-left:20px;color:var(--soft);font-size:14px}
 .backup{display:flex;justify-content:center;gap:8px;padding-top:8px}
 .backup .icon{font-size:13px}
 
@@ -108,12 +131,25 @@ textarea.tall{min-height:180px}
 
   <!-- 홈 -->
   <section class="screen on" id="home">
-    <header class="bar"><h1>밤편지</h1><button class="icon" id="setBtn">AI 설정</button><button class="icon" id="themeBtn" aria-label="테마 바꾸기">◐</button></header>
+    <header class="bar"><h1>밤편지</h1><button class="icon" id="verBtn"><span id="verLabel"></span><span class="dot" id="verDot" hidden></span></button><button class="icon" id="setBtn">AI 설정</button><button class="icon" id="themeBtn" aria-label="테마 바꾸기">◐</button></header>
     <div class="banner" id="aiBanner" hidden>내장 Claude를 쓸 수 없는 곳이에요. AI 설정에서 OpenAI나 직접 입력을 골라 API 키를 넣어주세요.</div>
     <div class="banner" id="syncBanner" hidden></div>
     <div class="list" id="charList"></div>
     <div class="backup"><button class="icon" id="exportBtn">백업 내보내기</button><button class="icon" id="importBtn">백업 불러오기</button><input type="file" id="importFile" accept=".json,application/json" hidden></div>
     <button class="btn fab" id="newChar">새 캐릭터 만들기</button>
+  </section>
+
+  <!-- 업데이트 내역 -->
+  <section class="screen" id="updates">
+    <header class="bar"><button class="icon" data-back aria-label="뒤로">←</button><h2>업데이트 내역</h2></header>
+    <div class="form">
+      <div class="ver-now">
+        <div class="big">지금 버전 v<span id="vNow"></span></div>
+        <div class="st" id="vStatus">확인 중...</div>
+        <div class="btns"><button class="btn ghost" id="vCheck">다시 확인</button><button class="btn" id="vReload">새로고침</button></div>
+      </div>
+      <div id="clList"></div>
+    </div>
   </section>
 
   <!-- AI 설정 -->
@@ -442,7 +478,9 @@ async function callApi(cfg, messages, onText, signal, maxOverride) {
   return text;
 }
 function apiMessages(c, extraUser) {
-  const t = buildTurns(c, extraUser);
+  const t = buildTurns(c, extraUser).filter(m => m.content && m.content.trim());
+  // 직접 입력(프록시 등)은 system 역할을 못 받는 경우가 많아서 첫 user 메시지에 설정을 합쳐 보냄
+  if (ai.prov === "custom") return t;
   return [{ role: "system", content: t[0].content }, ...t.slice(1)];
 }
 
@@ -703,6 +741,55 @@ $("#input").addEventListener("input", autoGrow);
 $("#input").addEventListener("keydown", e => {
   if (e.key === "Enter" && !e.shiftKey && !e.isComposing && matchMedia("(pointer:fine)").matches) { e.preventDefault(); send(); }
 });
+
+// ---- 업데이트 ----
+const CHANGELOG = JSON.parse(document.getElementById("changelog").textContent);
+const APP_VERSION = CHANGELOG[0].v;
+let latest = null;
+$("#verLabel").textContent = "v" + APP_VERSION;
+$("#vNow").textContent = APP_VERSION;
+const vnum = v => v.split(".").map(Number);
+const newer = (a, b) => { const x = vnum(a), y = vnum(b); for (let i = 0; i < Math.max(x.length, y.length); i++) { if ((x[i]||0) !== (y[i]||0)) return (x[i]||0) > (y[i]||0); } return false; };
+
+function renderChangelog() {
+  const list = latest && newer(latest[0].v, APP_VERSION) ? latest : CHANGELOG;
+  $("#clList").innerHTML = list.map(e => {
+    const tag = e.v === APP_VERSION ? '<span class="tag">지금 버전</span>' : (newer(e.v, APP_VERSION) ? '<span class="tag">새 버전</span>' : "");
+    return `<div class="cl"><h3>v${esc(e.v)} ${tag}</h3><ul>${e.items.map(i => `<li>${esc(i)}</li>`).join("")}</ul></div>`;
+  }).join("");
+}
+async function checkUpdate() {
+  const st = $("#vStatus");
+  st.className = "st"; st.textContent = "확인 중...";
+  try {
+    const res = await fetch(location.pathname + "?check=" + Date.now(), { cache: "no-store" });
+    if (!res.ok) throw 0;
+    const html = await res.text();
+    const m = html.match(/<script type="application\/json" id="changelog">([\s\S]*?)<\/script>/);
+    if (!m) throw 0;
+    latest = JSON.parse(m[1]);
+    const lv = latest[0].v;
+    if (newer(lv, APP_VERSION)) {
+      st.className = "st new"; st.textContent = `새 버전 v${lv}이 있어요! 새로고침을 눌러주세요.`;
+      $("#verDot").hidden = false;
+    } else {
+      st.textContent = "최신 버전이에요.";
+      $("#verDot").hidden = true;
+    }
+  } catch (e) {
+    st.textContent = "새 버전을 확인하지 못했어요. 새로고침하면 최신 버전을 불러와요.";
+  }
+  renderChangelog();
+}
+$("#verBtn").onclick = () => { renderChangelog(); show("updates"); checkUpdate(); };
+$("#vCheck").onclick = checkUpdate;
+$("#vReload").onclick = () => {
+  if (busy) return;
+  try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e) {}
+  if (window.claude) { location.reload(); return; }
+  location.replace(location.pathname + "?v=" + Date.now());
+};
+if (!window.claude) checkUpdate();
 
 renderHome();
 })();
