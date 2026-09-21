@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.74","items":["쇼핑·결제 원본 방식으로: 전용 지시문(형식·화폐·이전 기록 유지·결제 범위) 추가, 결제 지시문 원본으로 교체","금액·화폐 단위 정리해서 표시, 같은 상품·날짜는 이전 금액 유지"]},
   {"v":"1.73","items":["/커뮤 사이트 규칙에서 디시·에타 예시와 닉네임·추천수 규칙 제거","/인스타 카드가 안 나오던 문제 수정 (좋아요 숫자 처리 오류)"]},
   {"v":"1.72","items":["명령어 카드를 예전 앱(v46g) 모양·글씨체 그대로 옮김 (편지·일기·속마음·플리·관계·상태·소문·비밀·커뮤·인스타·쇼핑·결제·시청기록·통화기록·리뷰·메모)","/메모 나 [내용] 치면 입력창에 내 메모 틀 채워주기, 내 메모도 카드로","/관계도·/비밀·/시청기록·/통화기록·/리뷰·/메모·/이벤트 명령어 추가","*[내용]* 문자 지침 추가"]},
   {"v":"1.71","items":["버튼을 빠르게 두 번 누르면 화면이 확대되던 문제 수정, 메시지 입력 칸의 안내 문구 없앰, 말풍선 모드에서 이름을 프로필 사진 위쪽에 붙이고, 말풍선이 이름 바로 아래(프로필 옆)에서 시작하도록 위치 조정"]},
@@ -1541,6 +1542,64 @@ function ocCard(kind, body, c, hand) {
   if (!h) return renderPlainChunk(body);
   return kind === "삭제내역" ? h : `<div class="oc">${h}</div>`;
 }
+
+/* ---- 쇼핑·결제 (원본 방식) ---- */
+function moneyCode(v) {
+  const s = String(v || "").trim();
+  const codes = { "원": "KRW", "₩": "KRW", "엔": "JPY", "円": "JPY", "달러": "USD", "유로": "EUR", "€": "EUR", "파운드": "GBP", "£": "GBP", "위안": "CNY" };
+  if (codes[s]) return codes[s];
+  if (/^[A-Za-z]{3}$/.test(s)) return s.toUpperCase();
+  return s && s.length <= 24 && !/[\[\]<>|\n\r]/.test(s) ? s : "";
+}
+function moneyLabel(code) { return { KRW: "원", JPY: "円", USD: "USD", EUR: "EUR", GBP: "GBP", CNY: "CNY" }[code] || code; }
+function moneyText(amount, code) {
+  const label = moneyLabel(code), num = Number(amount).toLocaleString("en-US", { maximumFractionDigits: 2 });
+  return num + (/^[원円元]$/.test(label) ? "" : " ") + label;
+}
+function commerceKind(cmd) { return /^\/(쇼핑|주문|주문내역)$/.test(cmd || "") ? "주문" : /^\/(결제|결제내역)$/.test(cmd || "") ? "결제" : null; }
+function commercePrompt(c, kind) {
+  const code = moneyCode(c.currency) || "";
+  const tag = kind === "결제" ? "결제" : "주문";
+  const past = msgs().filter(m => m.role === "assistant" && new RegExp("\\[" + tag + "\\]").test(m.text || "")).slice(-6).map(m => m.text).join("\n");
+  const scopeLine = kind === "결제"
+    ? "이번 턴은 결제 내역이다. 이 인물이 자기 돈으로 낸 것만 적는다. 돈이 나간 기록이므로 구독·정기결제·공과금·교통·식비·서비스 이용료가 중심이고, 물건 값은 최대 2건까지만 섞는다. 주문 내역을 그대로 복사하지 않는다.\n"
+    : "이번 턴은 주문 내역이다. 배송·수령이 있는 물건 거래만 넣고 서비스 결제는 넣지 않는다.\n";
+  return "\n# 구매 기록의 출력 구조\n[주문] 또는 [결제] 안에는 다음 JSON 객체 하나만 넣는다. 파이프 표는 사용하지 않는다. "
+    + '{"currency":"JPY","items":[{"name":"상품명","amount":1200,"place":"판매처","date":"장면 속 날짜","status":"결제완료","cycle":"단건"}]}' + "\n"
+    + "예시의 엔화·금액·품목을 복사하지 않는다. currency는 현대 화폐면 ISO 코드, 가상 화폐면 세계관에서 쓰는 단위 이름이다. amount는 기호 없는 실제 금액 숫자다. 모든 항목은 동일 화폐로 책정한다. items에는 최근 구매·결제 기록을 정확히 6개 넣는다. 먼저 기존 기록을 유지하고 부족하면 조회 기간을 넓혀 이 세계관과 인물의 생활에 맞는 서로 다른 일상 구매를 구성한다. 특정 상품 종류를 6개 채우라는 뜻이 아니다. "
+    + (code ? "이 방에서 사용할 화폐는 " + code + "로 고정되어 있다. 외국어 대사를 쓰더라도 화폐를 바꾸지 않는다. 다른 화폐의 숫자에 이 단위만 덧씌우지 말고 현지 가격으로 책정한다." : "장소·시대·세계관에서 화폐를 정한다. 캐릭터 국적이나 대사 언어만으로 정하지 않는다. 이전 기록이 서로 모순되면 현재 배경을 우선한다. 배경도 불명확하면 최근 명확한 거래의 화폐를 따른다. 그래도 근거가 없으면 currency를 빈 문자열로 두고 items도 비운다.")
+    + "\n" + scopeLine + "이미 나온 같은 상품·같은 날짜의 구매와 결제는 동일한 금액이다. 새로 조회했다는 이유로 새 구매나 날짜를 만들지 않는다.\n같은 종류의 이전 기록:\n" + (past || "아직 없음");
+}
+function commerceResponse(text, c, cmd) {
+  const kind = commerceKind(cmd);
+  if (!kind) return text;
+  const match = String(text).match(new RegExp("\\[" + kind + "\\]([\\s\\S]*?)\\[/" + kind + "\\]"));
+  if (!match) return text;
+  let value;
+  try { value = JSON.parse(match[1].trim().replace(/^```(?:json)?\s*|\s*```$/g, "")); } catch (e) { throw new Error("구매 기록의 금액 형식을 확인하지 못했어요. 다시 생성해주세요."); }
+  const expected = moneyCode(c.currency) || "";
+  let code = moneyCode(value.currency);
+  if (!code && !expected) throw new Error("세계관의 화폐를 정할 단서가 부족해요. 상황 및 세계관에 배경(나라·시대)을 적어주세요.");
+  code = code || expected;
+  if (!Array.isArray(value.items) || value.items.length !== 6) throw new Error("구매 내역이 6개로 오지 않았어요. 다시 생성해주세요.");
+  const known = {};
+  msgs().forEach(m => {
+    if (m.role !== "assistant") return;
+    const re = /\[(?:주문|결제)\]([\s\S]*?)\[\/(?:주문|결제)\]/g; let mm;
+    while ((mm = re.exec(m.text || ""))) mm[1].split("\n").forEach(line => {
+      const f = line.split(/\s*\|\s*/); if (f.length < 5) return;
+      const price = f[1].match(/^([\d,]+(?:\.\d+)?)\s*(.+)$/);
+      if (price && moneyCode(price[2]) === code) known[f[0].trim() + "\u0000" + f[3].trim()] = Number(price[1].replace(/,/g, ""));
+    });
+  });
+  const cell = v => String(v == null ? "" : v).replace(/[|\r\n\[\]]/g, " ").trim();
+  const rows = value.items.map(x => {
+    if (!x || typeof x.amount !== "number" || !isFinite(x.amount) || x.amount < 0 || !cell(x.name) || !cell(x.date)) throw new Error("구매 항목의 이름·날짜·금액이 불완전해요. 다시 생성해주세요.");
+    const key = cell(x.name) + "\u0000" + cell(x.date), amount = Object.prototype.hasOwnProperty.call(known, key) ? known[key] : x.amount;
+    return [cell(x.name), moneyText(amount, code), cell(kind === "주문" ? x.place : x.cycle) || (kind === "주문" ? "—" : "단건"), cell(x.date), cell(x.status) || "결제완료"].join(" | ");
+  });
+  return "[" + kind + "]\n" + (rows.join("\n") || "내역 없음 | — | — | — | —") + "\n[/" + kind + "]";
+}
 function renderCards(text, hand) {
   const c = char();
   const K = OC_KINDS.join("|");
@@ -2305,7 +2364,7 @@ ${fmtRules}${langRule}${narrRule}
 ${(c.note || "").trim() ? "\n[추가 지시]\n" + sub(c.note, c) : ""}
 ${styleBlock}
 
-${cmd ? "\n[이번 턴 지시 — 위 형식 규칙보다 우선한다]\n" + cmdText(c, cmd) : ""}
+${cmd ? "\n[이번 턴 지시 — 위 형식 규칙보다 우선한다]\n" + cmdText(c, cmd) + (commerceKind(cmd) ? commercePrompt(c, commerceKind(cmd)) : "") : ""}
 이제 롤플레이를 시작한다.`;
 }
 
@@ -2376,6 +2435,7 @@ async function generate(extraUser) {
   }
   finalText = finalText.trim();
   if (finalText && ai.merge !== false && fmtOf(c) === "bubble" && !cmd) finalText = mergeDialogue(finalText);
+  if (finalText && cmd && commerceKind(cmd)) { try { finalText = commerceResponse(finalText, c, cmd); } catch (e) { errMsg = e.message; finalText = ""; } }
   if (finalText && cmd) finalText = ocFinish(finalText, c, cmd);
   if (finalText) {
     if (extraUser === CONT && msgs().length && msgs()[msgs().length - 1].role === "assistant") {
