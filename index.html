@@ -6,6 +6,8 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.67","items":["소설·대본 형식의 속마음은 이름·프로필·말풍선 없이 본문처럼 표시"]},
+  {"v":"1.66","items":["말풍선 형식에서 AI가 나눈 문단을 화면에서만 한 덩어리로 합쳐서 표시 (내용·길이는 그대로)"]},
   {"v":"1.65","items":["속마음을 캐릭터 본인의 1인칭 목소리로, 문단 없이 한 덩어리로"]},
   {"v":"1.64","items":["내 말풍선 여백·모서리·줄 간격을 원본과 같게"]},
   {"v":"1.63","items":["소설·대본 형식에서 내 글을 말풍선 대신 위아래 선 사이에 표시 (원본 방식)","내 대사는 자동으로 따옴표, 별표 지문은 회색, 명령어는 그대로 흐리게"]},
@@ -333,6 +335,7 @@ textarea.tall{min-height:180px}
 .card.hand{font-family:"Nanum Pen Script",var(--font-serif);font-size:1.3em;line-height:32px;padding:14px 16px 18px;background-image:repeating-linear-gradient(transparent,transparent 31px,var(--line) 31px,var(--line) 32px);background-position:0 40px;background-repeat:repeat}
 .card.hand .crow{margin-bottom:0}
 .card.hand .clab{font-size:.7em}
+.fmt-novel .body.inner,.fmt-script .body.inner{background:none !important;border:0 !important;box-shadow:none !important;padding:0 2px !important;max-width:100%}
 .body.inner{font-style:italic;color:var(--narr);white-space:pre-wrap;line-height:1.75}
 .ooc{border:1px dashed var(--line);border-radius:12px;padding:10px 13px;color:var(--soft);font-size:.96em;white-space:pre-wrap;margin:0 0 10px}
 .nline{color:var(--soft);font-style:italic;font-family:var(--font-serif);margin:4px 2px 12px;line-height:1.75;font-size:.96em}
@@ -1078,7 +1081,7 @@ function renderPlainChunk(t) { return t && t.trim() ? renderBlocks(t, "bubble") 
 function renderBlocks(text, fmt) {
   const lines = text.replace(/\r/g, "").split(/\n/).map(l => l.trim()).filter(Boolean);
   let html = "", buf = [];
-  const flush = () => { if (buf.length) { html += `<div class="body">${renderText(buf.join("\n"), fmt)}</div>`; buf = []; } };
+  const flush = () => { if (buf.length) { html += `<div class="body">${renderText(buf.join(fmt === "bubble" ? " " : "\n"), fmt)}</div>`; buf = []; } };
   lines.forEach(l => {
     const m = l.match(/^(?:>>|》)\s*(.*)$/);
     if (m) { flush(); html += `<div class="nline">${esc(m[1].replace(/\*/g, ""))}</div>`; }
@@ -1542,7 +1545,7 @@ function renderLog(errText) {
     if (unov) content = `<div class="unovb">${userNovelHTML(m.text)}</div>`;
     else if (m.role === "user") content = `<div class="body">${renderText(m.text, fmt)}</div>`;
     else if (m.ooc) { content = `<div class="ooc">${esc(m.text)}</div>`; bare = true; }
-    else if (m.inner) { content = `<div class="body inner">${esc(m.text)}</div>`; }
+    else if (m.inner) { content = `<div class="body inner">${esc(m.text)}</div>`; bare = fmt !== "bubble"; }
     else {
       const cards = renderCards(m.text, HANDS[c.hand] || HANDS["단정"]);
       if (cards) { content = cards; bare = true; }
