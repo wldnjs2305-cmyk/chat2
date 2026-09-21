@@ -6,6 +6,20 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.62","items":["소설 배경 사진을 원본 방식으로: 사진 위 어두운 막 + 밝은 글씨, 상단바·입력창 어둡게","소설·대본 형식 모두 적용, 배경 있을 때 대사 색 설정"]},
+  {"v":"1.61","items":["소설 배경 사진 위 반투명 판 제거","핑크 테마 번역 글자색을 원본 색으로"]},
+  {"v":"1.60","items":["핑크·새벽 액정 테마를 원본 디자인 그대로 적용 (새벽 액정은 폰 상태바·픽셀 글꼴 포함)","소설 형식일 때 대화 배경 사진 설정 추가"]},
+  {"v":"1.59","items":["로어북 기능 추가 (원본과 동일): 여러 권, 항목별 제목·키워드·내용·항상 켜기, 한꺼번에 넣기","최근 대화에 키워드가 나오거나 '항상'인 항목을 최대 5개까지 AI에 전달"]},
+  {"v":"1.58","items":["캐릭터 설정에 '상황 및 세계관' 칸 추가","문체 예시·인트로 편집 화면의 말풍선 모양 정리"]},
+  {"v":"1.57","items":["OOC는 /ooc 로만 인식","OOC에서 정한 분량은 그 턴에만, 다음 답부터는 원래 응답 길이로","/삭제내역 명령어 추가: 휴지통 복구 카드(통화·메시지)"]},
+  {"v":"1.56","items":["'OOC:'나 '(OOC'로 시작하는 메시지도 OOC로 인식","내 메시지 속 {{char}}·{{user}}를 이름으로 바꿔서 전달","OOC 장면 지시는 이번 턴에만, 말투·설정 지시는 계속 유지"]},
+  {"v":"1.55","items":["/ooc로 요청하면 '알겠어요' 없이 바로 반영해서 이어 쓰기, 이후에도 유지","대화·OOC로 한 분량 요청이 응답 길이 설정보다 우선","명령어를 쓸 때는 분량 제한 없이 흐름에 맞게"]},
+  {"v":"1.54","items":["속마음 지시문을 한 줄로 단순화"]},
+  {"v":"1.53","items":["속마음이 늘 무겁게만 나오지 않도록, 장면 분위기와 캐릭터 성격을 따르게 조정"]},
+  {"v":"1.52","items":["#속마음 (또는 /속마음) 명령어 추가: 인물의 1인칭 독백을 말풍선 안에 기울임체로 표시"]},
+  {"v":"1.51","items":["키보드와 입력창 사이 빈 공간 제거 (원본의 키보드 처리 방식 적용)","키보드가 열리고 닫힐 때 읽던 위치 유지"]},
+  {"v":"1.50","items":["유저 규칙을 '새 대사·행동·동의를 대신 정하지 않는다'로 교체"]},
+  {"v":"1.49","items":["내 프로필 사진을 켜면 이름도 함께 표시, 끄면 둘 다 숨김"]},
   {"v":"1.48","items":["일본어·중국어 대사가 다음 줄로 떨어져 나오던 문제 수정"]},
   {"v":"1.47","items":["짧은 내 말풍선이 글자 단위로 꺾이던 문제 다시 수정"]},
   {"v":"1.46","items":["도구줄 스크롤바 숨김","내 말풍선 위 이름 제거"]},
@@ -96,8 +110,6 @@
 }
 :root[data-theme="ocean"]{--bg:#eef6ff;--panel:#fff;--ink:#16324d;--soft:#5d7fa3;--line:#cfe0f2;--accent:#2f6fb5;--accent-ink:#fff;--narr:#42607d;--faint:#8aa6c2;--user-bg:#dbeafe;--char-bg:#fff;--danger:#b04545}
 :root[data-theme="green"]{--bg:#ffffff;--panel:#f5faf5;--ink:#1e3324;--soft:#5f7d68;--line:#d4e6d7;--accent:#2f7d4f;--accent-ink:#fff;--narr:#44634f;--faint:#8fae99;--user-bg:#dff3e4;--char-bg:#f5faf5;--danger:#b04545}
-:root[data-theme="berry"]{--bg:#fff8fa;--panel:#fff;--ink:#3d2030;--soft:#8d6478;--line:#f2d9e3;--accent:#c2497e;--accent-ink:#fff;--narr:#6b4557;--faint:#b995a5;--user-bg:#fce0ec;--char-bg:#fff;--danger:#b04545}
-:root[data-theme="lcd"]{--bg:#adbfd3;--panel:#bccbdc;--ink:#16243a;--soft:#45596f;--line:#93a7bd;--accent:#27456a;--accent-ink:#e6eef7;--narr:#2f4560;--faint:#5f7794;--user-bg:#c8d5e3;--char-bg:#bccbdc;--danger:#8f3a3a}
 :root[data-theme="flip"]{--bg:#d9e5f3;--panel:#eaf1fa;--ink:#17283d;--soft:#4f6a8c;--line:#b9cbe2;--accent:#2657a0;--accent-ink:#fff;--narr:#36506e;--faint:#7c92ae;--user-bg:#c9d9ee;--char-bg:#eaf1fa;--danger:#9c3b3b}
 :root[data-theme="night"],:root[data-theme="dark"]{
   --bg:#1b1824; --panel:#252131; --ink:#ece7f3; --soft:#a79fb6; --line:#3a3448;
@@ -167,6 +179,93 @@ header.bar .icon.back+h2,header.bar .icon.back+h1{margin-left:-2px}
 .cl h3{font-size:15px;margin:0 0 4px;display:flex;align-items:center;gap:8px}
 .cl h3 .tag{font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--user-bg);color:var(--accent)}
 .cl ul{margin:0;padding-left:20px;color:var(--soft);font-size:14px}
+
+@font-face{font-family:NeoDunggeunmo;src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.3/NeoDunggeunmo.woff') format('woff');font-weight:400;font-display:swap}
+/* ---- 핑크 (원본 딸기토끼) ---- */
+:root[data-theme="berry"]{--bg:#fff8fa;--panel:#fffdfe;--ink:#5c3346;--soft:#c78aa2;--line:#ffcfe0;--accent:#ff5c7f;--accent-ink:#fff;--narr:#7E7986;--faint:#7a747f;--user-bg:#fdf0f6;--char-bg:#fffbfd;--danger:#d9486a}
+:root[data-theme="berry"] body{background:linear-gradient(135deg,#fff8fa 0%,#ffeaf1 40%,#ffd6e4 75%,#ffb8d1 100%);background-attachment:fixed}
+:root[data-theme="berry"] header.bar,:root[data-theme="berry"] .composer{background:rgba(255,244,248,.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+:root[data-theme="berry"] .screen,:root[data-theme="berry"] .log{background:transparent}
+:root[data-theme="berry"] .msg.char .body,:root[data-theme="berry"] .sbub{border:0;border-radius:17px;background:#fffbfd;box-shadow:0 4px 14px rgba(255,140,180,.13)}
+:root[data-theme="berry"] .msg.user .body{background:#fdf0f6;color:#4a2836;box-shadow:0 4px 14px rgba(255,140,180,.10)}
+:root[data-theme="berry"] .msg .who{color:#3a2b33;font-weight:700;font-size:13.5px}
+:root[data-theme="berry"] .av{border:2px solid #fff;box-shadow:0 3px 9px rgba(255,120,160,.30)}
+:root[data-theme="berry"] :is(.card,.paper,.optcard,.sumbox,.lore-entry,.ooc){border-radius:20px;border:1px solid var(--line);box-shadow:0 4px 16px rgba(255,140,180,.14)}
+:root[data-theme="berry"] .btn,:root[data-theme="berry"] .seg{border-radius:14px}
+:root[data-theme="berry"] .composer textarea{border-radius:22px;border:1px solid #ffd6e4}
+:root[data-theme="berry"] #send{background:linear-gradient(135deg,#ff9ab8,#ff5c7f);color:#fff;box-shadow:0 4px 10px rgba(255,92,127,.38)}
+:root[data-theme="berry"] legend,:root[data-theme="berry"] .sublabel{color:#ff5c7f}
+
+/* ---- 새벽 액정 (원본) ---- */
+.phone-status{display:none}
+:root[data-theme="lcd"]{--bg:#B3C5D8;--panel:#C0CDDB;--ink:#233B59;--soft:#4D6480;--line:#778EA9;--accent:#243E63;--accent-ink:#E8EEF4;--narr:#465D79;--faint:#3D5775;--user-bg:#A0B8D0;--char-bg:#C5D3E0;--danger:#8f3a3a;
+  --field:#CCDAE7;--phone-ui:"NeoDunggeunmo",monospace;--phone-frame:#6B809B;--phone-header:linear-gradient(180deg,#BDD0E3,#A1B8D1);--phone-title:#263D60;--phone-button:linear-gradient(180deg,#DCE4E9,#B3C4D5);--phone-button-text:#273F5D;--phone-grid:rgba(36,60,88,.065)}
+:root[data-theme="lcd"] .app{box-shadow:inset 3px 0 0 #FFFFFF70,inset -3px 0 0 #35486228;border-inline:2px solid var(--phone-frame);background:var(--bg)}
+:root[data-theme="lcd"] header.bar{position:relative;padding-top:30px;padding-bottom:10px;background:var(--phone-header);border-bottom:2px solid var(--phone-frame);box-shadow:inset 0 2px 0 #FFFFFF80,0 2px 0 #FFFFFF50;z-index:1;font-family:var(--phone-ui)}
+:root[data-theme="lcd"] header.bar :is(h1,h2,.hsub,.icon,.plus){color:var(--phone-title);font-family:var(--phone-ui);font-weight:400}
+:root[data-theme="lcd"] header.bar h1{letter-spacing:.04em;text-shadow:1px 1px #00000018}
+:root[data-theme="lcd"] .phone-status{display:flex;align-items:center;gap:10px;position:absolute;left:16px;right:16px;top:9px;height:12px;color:var(--phone-title);pointer-events:none}
+.phone-signal{height:11px;display:flex;align-items:flex-end;gap:2px;margin-right:auto}
+.phone-signal i{width:3px;background:currentColor;height:3px}
+.phone-signal i:nth-child(2){height:6px}.phone-signal i:nth-child(3){height:9px}.phone-signal i:nth-child(4){height:12px}
+.phone-envelope{position:relative;width:15px;height:10px;border:1.5px solid currentColor}
+.phone-envelope:after{content:"";position:absolute;width:8px;height:8px;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:rotate(45deg);left:2px;top:-5px}
+.phone-battery{position:relative;width:21px;height:10px;border:1.5px solid currentColor;padding:1px;background:repeating-linear-gradient(90deg,currentColor 0 4px,transparent 4px 6px);background-clip:content-box}
+.phone-battery:after{content:"";position:absolute;width:2px;height:4px;right:-4px;top:1.5px;background:currentColor}
+:root[data-theme="lcd"] :is(.log,.form,.list){background-color:var(--bg);background-image:repeating-linear-gradient(0deg,var(--phone-grid) 0 1px,transparent 1px 3px);box-shadow:inset 0 2px 4px #263D5920}
+:root[data-theme="lcd"] .log{padding-inline:16px}
+:root[data-theme="lcd"] :is(.card,.optcard,.sumbox,.lore-entry,.ooc){border-radius:3px;border:1px solid var(--line);background:var(--panel);box-shadow:2px 2px 0 #40557418}
+:root[data-theme="lcd"] .card{border-left:3px solid var(--accent)}
+:root[data-theme="lcd"] :is(legend,label,.who,.sublabel,.mhead){font-family:var(--phone-ui);font-weight:400}
+:root[data-theme="lcd"] .av{border-radius:3px;border:1px solid var(--phone-frame);box-shadow:inset 0 0 0 2px #FFFFFF60}
+:root[data-theme="lcd"] .av img{border-radius:2px}
+:root[data-theme="lcd"] :is(.msg .body,.sbub){border:1px solid var(--line);border-radius:3px;box-shadow:2px 2px 0 #4155741C;line-height:1.9;letter-spacing:0}
+:root[data-theme="lcd"] .narr{font-style:normal;opacity:1}
+:root[data-theme="lcd"] .msg .who{font-size:12px;color:var(--soft)}
+:root[data-theme="lcd"] :is(input,textarea,select,.btn,.seg,.seg button){border-radius:3px}
+:root[data-theme="lcd"] :is(input,textarea,select){border:1px solid var(--line);background:var(--field)}
+:root[data-theme="lcd"] .btn,:root[data-theme="lcd"] .seg button.on{background:var(--phone-button);color:var(--phone-button-text);font-family:var(--phone-ui);box-shadow:inset 1px 1px 0 #FFFFFF60;border:1px solid var(--line)}
+:root[data-theme="lcd"] .plus{border-radius:3px;border:1px solid #FFFFFF70;background:#FFFFFF20}
+:root[data-theme="lcd"] .composer{background:var(--panel);border-top:2px solid var(--phone-frame);box-shadow:inset 0 2px 0 #FFFFFF70;padding-top:10px}
+:root[data-theme="lcd"] .composer .quick{gap:8px;padding-bottom:3px}
+:root[data-theme="lcd"] .composer .quick button{border:1px solid var(--line);border-radius:2px;background:var(--field);font:12px var(--phone-ui);color:var(--ink);padding:5px 8px}
+:root[data-theme="lcd"] .composer textarea{background:var(--field);color:var(--ink);border:1px solid var(--phone-frame);border-radius:3px;box-shadow:inset 1px 2px 0 #31486514}
+:root[data-theme="lcd"] #send{border-radius:4px;background:var(--phone-button);color:var(--phone-button-text);border:1px solid var(--phone-frame);box-shadow:inset 1px 1px 0 #FFFFFF70,1px 2px 0 #263C5525}
+:root[data-theme="lcd"] .paper{box-shadow:2px 3px 0 #465C7820}
+
+/* ---- 소설 배경 사진 ---- */
+.nbgrow{display:flex;align-items:center;gap:14px;margin-top:6px}
+.bgprev{position:relative;width:96px;height:170px;border-radius:14px;overflow:hidden;flex:0 0 auto;background:var(--panel) center/cover no-repeat;border:1px solid var(--line)}
+.bgprev i{position:absolute;inset:0;background:rgba(0,0,0,.45)}
+.bgprev i::before{content:"";position:absolute;left:12px;right:12px;top:30px;height:34px;background:repeating-linear-gradient(180deg,rgba(235,235,240,.8) 0 2px,transparent 2px 9px)}
+.bgprev i::after{content:"";position:absolute;left:12px;right:28px;top:78px;height:11px;background:repeating-linear-gradient(180deg,#F4F4F8 0 2px,transparent 2px 9px)}
+.bgprev span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:28px}
+/* 배경 사진 — 어두운 막을 덮고 밝은 글씨를 얹는다 (원본 방식) */
+body[data-novelbg]{background:#0c0c10 !important;background-image:none !important}
+body[data-novelbg]::after{content:"";position:fixed;inset:-30px;z-index:0;pointer-events:none;background-image:var(--novelbg);background-size:cover;background-position:center;background-repeat:no-repeat}
+body[data-novelbg] .app{z-index:2;isolation:isolate;background:transparent !important;border:0 !important;box-shadow:none !important}
+body[data-novelbg] .app::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:rgba(0,0,0,.45)}
+body[data-novelbg] #chat,body[data-novelbg] .log{background:transparent !important;background-image:none !important;box-shadow:none !important}
+body[data-novelbg] .log .msg.char .body{background:transparent !important;border:0 !important;box-shadow:none !important}
+body[data-novelbg] .log :is(.body,.nline,.thinking,.ooc,.who){color:#F4F4F8;text-shadow:0 1px 2px rgba(0,0,0,.55),0 0 1px rgba(0,0,0,.45)}
+body[data-novelbg] .log .narr{color:rgba(232,232,240,.80);font-style:italic}
+body[data-novelbg] .log .say{color:var(--saycol,#F4F4F8);text-shadow:none}
+body[data-novelbg] .log .spk{color:#F4F4F8}
+body[data-novelbg] .log .gloss{color:rgba(232,232,240,.75)}
+body[data-novelbg] .log .nline{color:rgba(230,230,238,.8)}
+body[data-novelbg] .log .thinking{color:rgba(230,230,238,.75)}
+body[data-novelbg] .log .ooc{color:rgba(230,230,238,.7);border-color:rgba(255,255,255,.3)}
+body[data-novelbg] .log .msg.user .body{background:rgba(255,255,255,.12) !important;border:0 !important;box-shadow:none !important}
+body[data-novelbg] .log .acts button{background:rgba(20,20,26,.55);border-color:rgba(255,255,255,.18);color:#F1F1F5}
+body[data-novelbg] #chat header.bar{background:transparent !important;background-image:none !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important;border-bottom:0 !important;box-shadow:none !important}
+body[data-novelbg] #chat header.bar :is(h2,.icon){color:#F4F4F8 !important;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+body[data-novelbg] #chat .phone-status{display:none !important}
+body[data-novelbg] #chat .composer{background:#17171C !important;background-image:none !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important;border-color:rgba(255,255,255,.08) !important;box-shadow:none !important}
+body[data-novelbg] #chat .composer .quick button{background:transparent;border-color:rgba(255,255,255,.14);color:rgba(230,230,238,.62) !important;font-family:inherit}
+body[data-novelbg] #chat .composer textarea{background:#26262D !important;color:#F1F1F5 !important;border:1px solid rgba(255,255,255,.08) !important;box-shadow:none !important}
+body[data-novelbg] #chat .composer textarea::placeholder{color:rgba(230,230,238,.45)}
+body[data-novelbg] #send{background:#F1F1F5 !important;color:#17171C !important;border:0 !important;box-shadow:none !important}
+
 .searchwrap{padding:0 16px 10px}
 .searchwrap input{width:100%}
 select{width:100%}
@@ -205,6 +304,15 @@ textarea.tall{min-height:180px}
 .log:not(.pron-on) .pron,.log:not(.pron-on) .glc{display:none}
 .log:not(.trans-on) .trans,.log:not(.trans-on) .glc{display:none}
 .log:not(.pron-on):not(.trans-on) .gloss{display:none}
+.tcard{background:#f3f4f6;border:1.5px solid #d9dbe0;border-radius:18px;overflow:hidden;margin:0 0 10px;color:#1f2329;font-family:-apple-system,"Noto Sans KR",sans-serif}
+.thead{padding:18px 18px 14px;border-bottom:1px solid #d9dbe0}
+.tpill{display:inline-block;background:#dfe3f7;color:#3949b5;font-size:13px;font-weight:600;padding:5px 11px;border-radius:9px}
+.ttitle{font-size:18px;font-weight:700;margin:12px 0 6px}
+.tmeta{font-size:13px;color:#7a7f89}
+.tbody{padding:14px 18px 18px;font-size:15px;line-height:1.75}
+.tsec{margin-top:4px}
+.tent{margin-top:2px}
+.trow{}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:0 0 10px}
 .card .ctitle{font-size:12px;letter-spacing:.06em;color:var(--accent);font-weight:700;margin-bottom:8px}
 .crow{margin:0 0 6px;line-height:1.65}
@@ -220,6 +328,7 @@ textarea.tall{min-height:180px}
 .card.hand{font-family:"Nanum Pen Script",var(--font-serif);font-size:1.3em;line-height:32px;padding:14px 16px 18px;background-image:repeating-linear-gradient(transparent,transparent 31px,var(--line) 31px,var(--line) 32px);background-position:0 40px;background-repeat:repeat}
 .card.hand .crow{margin-bottom:0}
 .card.hand .clab{font-size:.7em}
+.body.inner{font-style:italic;color:var(--narr);white-space:pre-wrap;line-height:1.75}
 .ooc{border:1px dashed var(--line);border-radius:12px;padding:10px 13px;color:var(--soft);font-size:.96em;white-space:pre-wrap;margin:0 0 10px}
 .nline{color:var(--soft);font-style:italic;font-family:var(--font-serif);margin:4px 2px 12px;line-height:1.75;font-size:.96em}
 .spk{font-weight:700;color:var(--accent)}
@@ -237,6 +346,25 @@ textarea.tall{min-height:180px}
 .acts button.red{color:var(--danger)}
 .msg{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .multi{margin:0 0 12px}
+.hcol{flex:1;min-width:0}
+.hcol h2{margin:0;font-size:16px}
+.hsub{font-size:12px;color:var(--soft)}
+.lore-tabs{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.lore-tabs::-webkit-scrollbar{display:none}
+.lore-tabs button{flex:none;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:12px;padding:8px 13px;white-space:nowrap}
+.lore-tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.lore-tabs button span{opacity:.6;margin-left:3px}
+.lore-entry{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:10px}
+.lore-entry>summary{display:flex;align-items:center;gap:12px;padding:15px 16px;cursor:pointer;list-style:none;min-height:58px}
+.lore-entry>summary::-webkit-details-marker{display:none}
+.lore-entry>summary:before{content:"›";font-size:24px;line-height:1;color:var(--soft);flex:0 0 auto;transition:transform .15s}
+.lore-entry[open]>summary:before{transform:rotate(90deg)}
+.lore-entry[open]>summary{border-bottom:1px solid var(--line)}
+.lore-peek{display:flex;align-items:baseline;gap:9px;min-width:0;flex:1;font-size:13px}
+.lore-peek b{flex:0 1 auto;max-width:52%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lore-peek>span{color:var(--soft);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.lore-fields{padding:5px 16px 16px}
+.lore-fields .btn{width:100%;margin-top:12px}
 .sumbox{display:block;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin:0 0 8px}
 .sumbox b{display:block;font-weight:600}
 .sumbox span{display:block;font-size:13px;color:var(--soft);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -246,7 +374,9 @@ textarea.tall{min-height:180px}
 .subline{display:flex;flex-direction:column;align-items:flex-start}
 .subline.mine{align-items:flex-end}
 .subline .nline{margin:4px 2px 8px}
-.sbub{background:var(--char-bg);border:1px solid var(--line);border-radius:4px 14px 14px 14px;padding:10px 13px;max-width:88%}
+.sbub{background:var(--char-bg);border:1px solid var(--line);border-radius:4px 14px 14px 14px;padding:9px 13px;max-width:88%;width:fit-content;line-height:1.6}
+.sbub p{margin:0 0 .5em}
+.sbub p:last-child{margin:0}
 .subline.mine .sbub{background:var(--user-bg);border:0;border-radius:14px 4px 14px 14px}
 .acts.r{justify-content:flex-end}
 .whochips{display:flex;gap:7px;overflow-x:auto;padding:2px 0 10px}
@@ -264,7 +394,8 @@ textarea.tall{min-height:180px}
 @media (prefers-reduced-motion:reduce){.thinking::after{animation:none;content:"..."}}
 .err{color:var(--danger);font-size:13px;margin:-8px 0 16px}
 .edit-area{width:100%;min-height:120px;font-size:16px}
-.composer{border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:var(--bg)}
+.composer{border-top:1px solid var(--line);padding:10px 12px calc(env(safe-area-inset-bottom,0px) * var(--sab,1) + 10px);background:var(--bg)}
+body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .composer .quick{display:flex;gap:6px;margin-bottom:8px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
 .composer .quick::-webkit-scrollbar{display:none}
 .composer .quick button{flex:none}
@@ -280,7 +411,7 @@ textarea.tall{min-height:180px}
 
   <!-- 홈 -->
   <section class="screen on" id="home">
-    <header class="bar homebar">
+    <header class="bar homebar"><div class="phone-status" aria-hidden="true"><span class="phone-signal"><i></i><i></i><i></i><i></i></span><span class="phone-envelope"></span><span class="phone-battery"></span></div>
       <button class="plus" id="newChar" aria-label="새 캐릭터">+</button>
       <div class="ttl"><h1>밤편지</h1></div>
       <div class="spacer"></div>
@@ -296,7 +427,7 @@ textarea.tall{min-height:180px}
 
   <!-- 업데이트 내역 -->
   <section class="screen" id="updates">
-    <header class="bar"><button class="icon back" data-back aria-label="뒤로">‹</button><h2>업데이트 내역</h2></header>
+    <header class="bar"><div class="phone-status" aria-hidden="true"><span class="phone-signal"><i></i><i></i><i></i><i></i></span><span class="phone-envelope"></span><span class="phone-battery"></span></div><button class="icon back" data-back aria-label="뒤로">‹</button><h2>업데이트 내역</h2></header>
     <div class="form">
       <div class="ver-now">
         <div class="big">지금 버전 v<span id="vNow"></span></div>
@@ -309,13 +440,23 @@ textarea.tall{min-height:180px}
 
   <!-- 문체 예시 / 인트로 편집 -->
   <section class="screen" id="subedit">
-    <header class="bar"><button class="icon back" id="subBack" aria-label="뒤로">‹</button><h2 id="subTitle"></h2></header>
+    <header class="bar"><div class="phone-status" aria-hidden="true"><span class="phone-signal"><i></i><i></i><i></i><i></i></span><span class="phone-envelope"></span><span class="phone-battery"></span></div><button class="icon back" id="subBack" aria-label="뒤로">‹</button><h2 id="subTitle"></h2></header>
     <div class="form" id="subBody"></div>
+  </section>
+
+  <!-- 로어북 -->
+  <section class="screen" id="lore">
+    <header class="bar"><div class="phone-status" aria-hidden="true"><span class="phone-signal"><i></i><i></i><i></i><i></i></span><span class="phone-envelope"></span><span class="phone-battery"></span></div><button class="icon back" id="loreBack" aria-label="뒤로">‹</button><div class="hcol"><h2>로어북</h2><div class="hsub" id="loreSub"></div></div></header>
+    <div class="form" id="loreBody"></div>
+  </section>
+  <section class="screen" id="lorebulk">
+    <header class="bar"><div class="phone-status" aria-hidden="true"><span class="phone-signal"><i></i><i></i><i></i><i></i></span><span class="phone-envelope"></span><span class="phone-battery"></span></div><button class="icon back" id="lbBack" aria-label="뒤로">‹</button><h2>한꺼번에 넣기</h2></header>
+    <div class="form"><textarea id="lb" style="min-height:320px"></textarea><button class="btn" id="lbgo" type="button" style="width:100%;margin-top:10px">넣기</button></div>
   </section>
 
   <!-- AI 설정 -->
   <section class="screen" id="settings">
-    <header class="bar"><button class="icon back" data-back aria-label="뒤로">‹</button><h2>설정</h2></header>
+    <header class="bar"><div class="phone-status" aria-hidden="true"><span class="phone-signal"><i></i><i></i><i></i><i></i></span><span class="phone-envelope"></span><span class="phone-battery"></span></div><button class="icon back" data-back aria-label="뒤로">‹</button><h2>설정</h2></header>
     <div class="form">
       <fieldset hidden>
         <legend>AI 제공자</legend>
@@ -369,7 +510,7 @@ textarea.tall{min-height:180px}
 
   <!-- 편집 -->
   <section class="screen" id="editor">
-    <header class="bar"><button class="icon back" data-back aria-label="뒤로">‹</button><h2 id="edTitle">새 캐릭터</h2></header>
+    <header class="bar"><div class="phone-status" aria-hidden="true"><span class="phone-signal"><i></i><i></i><i></i><i></i></span><span class="phone-envelope"></span><span class="phone-battery"></span></div><button class="icon back" data-back aria-label="뒤로">‹</button><h2 id="edTitle">새 캐릭터</h2></header>
     <div class="form">
       <div class="optcard">
         <label>대화 형식</label>
@@ -384,10 +525,19 @@ textarea.tall{min-height:180px}
         <div class="seg" id="fNarr"><button data-v="off">끔</button><button data-v="some">가끔</button><button data-v="many">자주</button></div>
         <label for="fHand">편지·일기 필체</label>
         <select id="fHand"></select>
+        <label>소설 배경 사진</label>
+        <div class="nbgrow">
+          <div class="bgprev" id="nbgPrev"><span>🖼</span></div>
+          <div class="avbtns"><button class="btn ghost" id="nbgPick" type="button">사진 고르기</button><button class="btn ghost" id="nbgClear" type="button">지우기</button><input type="file" id="nbgFile" accept="image/*" hidden></div>
+        </div>
+        <label for="saycol">배경 있을 때 대사 색</label>
+        <div style="display:flex;gap:8px;align-items:center"><input id="saycol" type="color" value="#F4F4F8" style="width:56px;padding:2px;height:40px"><button class="btn ghost" id="saycolx" type="button">기본색으로</button></div>
       </div>
 
       <fieldset>
         <legend>세계관 및 상황</legend>
+        <label for="fWorld">상황 및 세계관</label>
+        <textarea id="fWorld" class="tall"></textarea>
         <label>프로필 사진</label>
         <div class="avrow">
           <div class="av av-lg" id="avPreview"></div>
@@ -428,6 +578,11 @@ textarea.tall{min-height:180px}
         <div id="introList"></div>
         <button class="btn ghost addbtn" id="introAdd" type="button">+ 인트로 추가</button>
       </fieldset>
+
+      <fieldset>
+        <legend>로어북</legend>
+        <button class="btn ghost addbtn" id="loreOpen" type="button">로어북 열기 (0개)</button>
+      </fieldset>
     </div>
     <div class="actions">
       <button class="btn danger" id="delChar" hidden>삭제</button>
@@ -437,7 +592,7 @@ textarea.tall{min-height:180px}
 
   <!-- 채팅 -->
   <section class="screen" id="chat">
-    <header class="bar">
+    <header class="bar"><div class="phone-status" aria-hidden="true"><span class="phone-signal"><i></i><i></i><i></i><i></i></span><span class="phone-envelope"></span><span class="phone-battery"></span></div>
       <button class="icon back" data-back aria-label="뒤로">‹</button>
       <h2 id="chName"></h2>
       <button class="icon" id="editFromChat" aria-label="설정">설정</button>
@@ -514,9 +669,11 @@ async function flush() {
       const c = store.chars.find(x => x.id === id);
       if (c && c.avatar) await col().doc(`avatar_${id}`).set({ img: c.avatar });
       else await col().doc(`avatar_${id}`).delete().catch(() => {});
+      if (c && c.nbg) await col().doc(`nbg_${id}`).set({ img: c.nbg });
+      else await col().doc(`nbg_${id}`).delete().catch(() => {});
       dirtyAvatars.delete(id);
     }
-    if (doMeta || chats.length) await col().doc("meta").set({ chars: store.chars.map(c => { const o = Object.assign({}, c); delete o.avatar; return o; }), theme: store.theme || null, pages });
+    if (doMeta || chats.length) await col().doc("meta").set({ chars: store.chars.map(c => { const o = Object.assign({}, c); delete o.avatar; delete o.nbg; return o; }), theme: store.theme || null, pages });
     setSync("");
   } catch (e) {
     chats.forEach(id => dirtyChats.add(id)); metaDirty = true;
@@ -543,6 +700,7 @@ async function initDb() {
         snaps.forEach(s => { if (s.exists) list.push(...(s.data().msgs || [])); });
         chats[c.id] = list;
         try { const a = await col().doc(`avatar_${c.id}`).get(); if (a.exists) c.avatar = a.data().img; } catch (e) {}
+        try { const nb = await col().doc(`nbg_${c.id}`).get(); if (nb.exists) c.nbg = nb.data().img; } catch (e) {}
       }));
       store = { chars: m.chars || [], chats, theme: m.theme || store.theme };
       try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e) {}
@@ -734,7 +892,22 @@ function apiMessages(c, extraUser, cmd) {
   return [{ role: "system", content: t[0].content }, ...t.slice(1)];
 }
 
-const show = id => document.querySelectorAll(".screen").forEach(s => s.classList.toggle("on", s.id === id));
+const show = id => {
+  document.querySelectorAll(".screen").forEach(s => s.classList.toggle("on", s.id === id));
+  applyNovelBg(id === "chat" ? char() : null);
+};
+function applyNovelBg(c) {
+  const B = document.body;
+  if (c && c.nbg && fmtOf(c) !== "bubble" && $("#chat").classList.contains("on")) {
+    B.setAttribute("data-novelbg", "1");
+    B.style.setProperty("--novelbg", `url("${c.nbg}")`);
+    if (c.sayColor) B.style.setProperty("--saycol", c.sayColor); else B.style.removeProperty("--saycol");
+  } else {
+    B.removeAttribute("data-novelbg");
+    B.style.removeProperty("--novelbg");
+    B.style.removeProperty("--saycol");
+  }
+}
 document.querySelectorAll("[data-back]").forEach(b => b.onclick = () => { if (ctl) ctl.abort(); renderHome(); show("home"); });
 
 const newId = () => Math.random().toString(36).slice(2, 10);
@@ -752,7 +925,7 @@ function fmtOf(c) { return c && (c.format === "novel" || c.format === "script") 
 
 /* ---------- 명령어 ---------- */
 const CMDS = {
-  "/ooc": "이번 턴만 롤플레이에서 잠시 벗어나, 작가 대 작가로 유저의 말에 짧고 솔직하게 답한다. 지문과 대사를 쓰지 않고 캐릭터 연기도 하지 않는다. 설정 정리, 전개 제안, 질문에 대한 답 등 필요한 내용만 간단히 쓴다.",
+  "/ooc": "유저가 롤플레이 밖에서(OOC) 요청을 남겼다. 알겠다는 대답이나 설명 없이, 요청을 그대로 반영해 곧바로 이번 턴의 답변을 쓴다. 요청에 분량·형식·시점이 정해져 있으면 이번 턴에 그대로 따른다. 특정 장면과 분량 지시는 이번 턴에만 적용하고, 다음 턴부터는 이 장면에서 자연스럽게 이어가며 원래 분량 설정을 따른다. 말투·문체·설정처럼 계속 지켜야 하는 지시는 이후에도 유지한다. 요청이 작가에게 묻는 질문일 때만 롤플레이를 멈추고 짧게 답한다.",
   "/전환": "장면을 전환한다. 첫 줄에 >> 로 시작하는 나레이션 한두 줄로 시간과 장소가 어떻게 바뀌었는지 서술하고, 그 아래에 인물의 장면을 이어 쓴다.",
   "/편지": "이번 턴에는 완성된 편지 한 통만 출력한다. [편지]로 시작하고 [/편지]로 끝낸다. 태그 바깥에는 설명, 분석, 작성 계획을 붙이지 않는다.\n받는 사람, 본문, 맺음말과 보내는 사람 이름까지 편지 전체를 이번에 지정된 언어로 쓴다. 이름은 설정이나 기존 대화의 해당 언어 표기를 우선한다. 없으면 일관된 음역을 쓰며 다른 사람의 이름으로 바꾸지 않는다. 호칭 뒤에 한국어 조사를 기계적으로 붙이지 않는다.\n받는 사람을 부를 때는 이 인물이 평소에 상대를 부르는 호칭을 그대로 쓴다. 아래 관계·예의 및 언어별 호칭·맺음말 지침은 [수신]과 [서명] 칸에만 적용한다. 이 지침을 근거로 [본문]의 기존 캐릭터 말투나 존댓말 여부를 바꾸지 않는다.\n한국어: 예의를 갖추는 학생이 선생님에게 보내는 편지라면 '선생님께'와 '이름 올림' 또는 '이름 드림'이 자연스럽다. 가까운 친구에게는 평소 호칭과 자연스러운 서명을 쓴다. 모든 편지를 '에게'와 '이름이/가'로 고정하지 않는다.\n일본어: 그 관계에서 자연스러운 호칭과 맺음말을 쓴다. 예를 들어 〇〇先生へ, 이름より 등이 가능하지만 모든 관계에 같은 예시를 적용하지 않는다. 이름과 호칭에 한국어 '에게/께/올림/가'를 남기지 않는다.\n영어: 실제로 사용하는 호칭으로 Dear ... 등 자연스러운 인사를 정한다. 관계와 성격에 맞춰 Sincerely, 이름 또는 이름만 쓰는 등 적절한 서명을 고른다. 설정에 없는 성이나 직함을 만들어내지 않는다.\n서명 칸에는 보내는 사람의 이름과 관례적인 짧은 맺음말만 쓴다. 관계와 예의는 올림·드림·가, より, From·Sincerely 같은 맺음말을 고르는 데만 반영한다. 이름은 기존 설정과 해당 언어 표기를 유지한다. 이름 앞뒤에 인물 소개, 관계 설명, 소유·연애 호칭, 고백, 약속, 미래 관계의 예고, 문장형 수식어를 붙이지 않는다. 친밀한 관계여도 이 규칙은 같다. 예: 이치조 미나토 올림 / 미나토가 / 湊より / From, Minato. 부적절한 예: 당신의 학생이자 이제는 당신의 남자가 될 이치조 미나토 올림. 이 경우 서명은 이치조 미나토 올림으로만 쓴다. 과거 편지의 긴 서명을 따라 쓰지 않는다. 이 규칙은 [서명] 칸에만 적용하며 편지 본문의 말투·내용·분량을 바꾸거나 서명에서 뺀 수식어를 본문으로 옮기지 않는다.\n내용은 다음 세 칸으로 구분한다. [수신]받는 사람 호칭[/수신] 다음 빈 줄, [본문]편지 본문[/본문] 다음 빈 줄, [서명]맺음말과 보내는 사람[/서명]. 이 칸들은 모두 [편지]와 [/편지] 안에 둔다. 바깥의 [편지]와 [/편지]는 반드시 각각 독립된 줄에 쓴다. 구분자 라벨만 한국어로 유지하고 실제 내용은 지정 언어로 쓴다. 본문은 처음부터 끝까지 한 덩어리로 이어 쓰며 문단 구분·빈 줄·문장별 줄바꿈을 넣지 않는다. 받는 사람과 서명은 본문 밖의 별도 칸으로 유지한다. 받는 사람 호칭에 실제 관계에 없는 연애·배우자 호칭을 만들어 붙이지 않는다. 제목, 지문, 별도 대사, 번역 해설은 추가하지 않는다.",
   "/일기": "이번 턴에는 [일기]와 [/일기] 사이에 인물의 일기만 쓴다. 첫 줄은 날짜: 로 시작하고 값은 자연스러운 날짜 표기다. 날짜는 현재 장면의 시점에 맞춘다. 날짜 다음 줄에 1인칭 본문을 처음부터 끝까지 한 덩어리로 쓴다. 본문에 문단 구분이나 빈 줄, 문장별 줄바꿈을 넣지 않는다. 그날의 구체적인 일과 생각을 인물의 평소 말투로 쓴다. 번역, 설명, 일기 제목, 지문용 별표는 덧붙이지 않는다.",
@@ -762,6 +935,8 @@ const CMDS = {
   "/소문": "이번 턴에는 요즘 도는 소문만 보여준다.\n[소문]\n도는 말: 사람들이 실제로 할 법한 한마디\n출처: 어디서 시작되어 어떻게 퍼지는지\n사실: 확인된 실제 사정 또는 확인되지 않음\n[/소문]\n최대 세 가지이고 빈 줄로 구분한다. 인물의 비밀이 근거 없이 공개되지 않게 하고, 모든 소문을 스캔들로 만들지 않는다.",
   "/커뮤": "이번 턴에는 인터넷 커뮤니티 글 하나와 댓글만 보여준다.\n[커뮤]\n사이트: 이 세계관에 있을 법한 게시판 이름\n말머리: 자유\n제목: 글 제목\n정보: 익명 · 12분 전 · 조회 3,842 · 댓글 6\n본문:\n본문 내용\n댓글:\n익명1 | 댓글 내용\n익명2 | 댓글 내용\n[/커뮤]\n댓글은 여섯 개 안팎으로 한 줄에 하나씩 쓴다. 닉네임은 그 게시판에 어울리게 정한다. 지문이나 대사는 쓰지 않는다.",
   "/인스타": "이번 턴에는 인물의 가상 인스타 계정만 보여준다.\n[인스타]\n계정: @아이디\n소개: 프로필 소개\n\n사진: 게시된 사진의 모습\n캡션: 인물이 쓴 캡션\n정보: 날짜 · 좋아요 128\n댓글: 이름 | 댓글 내용\n댓글: 이름 | 댓글 내용\n[/인스타]\n게시물은 0~3개이고 빈 줄로 구분한다. 인물의 성격·생활·시대에 맞춘다. 사진 칸은 사진의 모습을 글로 묘사한다. 지문이나 대사는 쓰지 않는다.",
+  "/속마음": "이번 턴에는 캐릭터의 속마음을 내면의 독백 형식으로 길게, 한 덩어리로 출력한다.",
+  "/삭제내역": "이번 턴에는 인물의 휴대폰 휴지통에서 복구된 통화·메시지 삭제 내역만 보여준다. 다음 형식을 그대로 지킨다.\n[삭제내역]\n[통화 기록]\n- 2026. 10. 21. 23:40 | 발신 (05분 12초) | 상대 이름 (관계나 직함)\n· 내용: 통화에서 오간 이야기\n· 삭제 이유: 지운 이유\n· 당시 생각: '그때 속으로 한 생각'\n[메시지]\n- 2026. 10. 20. 14:15 | 수신 | 상대 이름 (관계나 직함)\n· 내용: [메시지 원문]\n· 삭제 이유: 지운 이유\n· 당시 감정: 감정 한두 마디. '그때 속으로 한 생각'\n[/삭제내역]\n통화와 메시지를 합쳐 2~4건이고, 최근 것이 위에 온다. 통화는 발신·수신·부재중 중 하나와 통화 시간을, 메시지는 발신·수신을 쓴다. 날짜와 시각은 지금 장면의 시점에 맞춘다. 상대는 캐릭터 설정과 대화에 나온 인물이나 그 세계에 있을 법한 인물로 하고, 상대에게 숨기고 싶었던 일이나 몰래 챙기던 일처럼 캐릭터다운 이유로 지운 내역을 고른다. 설정과 대화에서 벗어난 큰 사건을 새로 지어내지 않는다. 태그 바깥에 지문이나 대사, 설명을 쓰지 않는다.",
   "/모브": "이번 턴에 지금 상황에 어울리는 새 인물을 한 명 등장시킨다. 이름을 정하고, 그 인물이 말할 때는 줄 맨 앞에 그 이름과 | 를 붙여 쓴다. 설정에 없는 단역이어도 된다.",
   "/쇼핑": "이번 턴에는 인물의 최근 구매 내역만 보여준다.\n[주문]\n상품명 | 판매처 | 날짜 | 배송 상태\n[/주문]\n항목은 6개이고 최근 구매가 위에 온다. 캐릭터 설정과 지금까지의 대화, 생활 환경, 예산, 취향에 맞는 일상 구매로 채운다. 같은 시점에 다시 보면 이미 나온 품목과 날짜를 유지한다. 지문이나 대사, 구매 이유 해설은 쓰지 않는다.",
   "/결제": "이번 턴에는 인물의 최근 결제 내역만 보여준다.\n[결제]\n항목 | 금액 | 주기(매월·매년·단건) | 날짜 | 상태\n[/결제]\n항목은 6개다. 그 시대에 맞는 결제 수단과 생활을 반영한다. 지문이나 대사는 쓰지 않는다."
@@ -770,12 +945,12 @@ const CMD_SAY = {
   "/ooc": "(OOC)", "/전환": "(장면을 넘기자)", "/편지": "(편지를 보여줘)", "/일기": "(일기를 보여줘)",
   "/플리": "(지금 듣는 노래를 보여줘)", "/관계": "(관계를 정리해줘)", "/상태": "(지금 상태를 보여줘)",
   "/소문": "(요즘 도는 소문이 뭐야)", "/커뮤": "(커뮤에 뭐라고 올라왔어)", "/인스타": "(인스타를 보여줘)",
-  "/모브": "(누가 끼어들었어)", "/쇼핑": "(뭐 샀는지 보여줘)", "/결제": "(무슨 결제 나갔는지 보여줘)"
+  "/모브": "(누가 끼어들었어)", "/삭제내역": "(삭제 내역)", "/속마음": "(속마음)", "/쇼핑": "(뭐 샀는지 보여줘)", "/결제": "(무슨 결제 나갔는지 보여줘)"
 };
-const CMD_ALIAS = { "/관계도": "/관계", "/상태창": "/상태", "/커뮤니티": "/커뮤", "/커뮤반응": "/커뮤", "/주문": "/쇼핑", "/주문내역": "/쇼핑", "/결제내역": "/결제", "/장면전환": "/전환" };
-const CARD_CMDS = { "/편지": 1, "/일기": 1, "/플리": 1, "/관계": 1, "/상태": 1, "/소문": 1, "/커뮤": 1, "/인스타": 1, "/쇼핑": 1, "/결제": 1 };
+const CMD_ALIAS = { "/휴지통": "/삭제내역", "/복구": "/삭제내역", "#속마음": "/속마음", "/속마음보기": "/속마음", "/관계도": "/관계", "/상태창": "/상태", "/커뮤니티": "/커뮤", "/커뮤반응": "/커뮤", "/주문": "/쇼핑", "/주문내역": "/쇼핑", "/결제내역": "/결제", "/장면전환": "/전환" };
+const CARD_CMDS = { "/삭제내역": 1, "/편지": 1, "/일기": 1, "/플리": 1, "/관계": 1, "/상태": 1, "/소문": 1, "/커뮤": 1, "/인스타": 1, "/쇼핑": 1, "/결제": 1 };
 function parseCmd(text) {
-  const m = String(text || "").match(/^\s*(\/[^\s]+)\s*([\s\S]*)$/);
+  const m = String(text || "").match(/^\s*([\/#][^\s]+)\s*([\s\S]*)$/);
   if (!m) return null;
   const key = CMD_ALIAS[m[1]] || m[1];
   if (!CMDS[key]) return null;
@@ -813,13 +988,23 @@ function paperCard(kind, body, hand) {
   const rest = dl.join(" ").replace(/^본문\s*[:：]\s*/, "").replace(/\s+/g, " ").trim();
   return `<div class="paper diary"${style}><div class="dhead"><span>${esc(dtxt)}</span>${wd ? `<span class="wd">${esc(wd)}</span>` : ""}</div><div class="ruled">${esc(rest)}</div></div>`;
 }
+function trashCard(body) {
+  const lines = String(body || "").replace(/\r/g, "").split("\n").map(l => l.trim()).filter(Boolean);
+  const html = lines.map(l => {
+    if (/^\[[^\]]+\]$/.test(l)) return `<div class="tsec">${esc(l)}</div>`;
+    if (/^-\s/.test(l)) return `<div class="tent">${esc(l)}</div>`;
+    return `<div class="trow">${esc(l)}</div>`;
+  }).join("");
+  return `<div class="tcard"><div class="thead"><span class="tpill">휴지통 복구 기록 (통화·메시지)</span><div class="ttitle">최근 삭제된 송수신 내역</div><div class="tmeta">시스템 복구 로그 · 복구됨 · 조회 0</div></div><div class="tbody">${html}</div></div>`;
+}
 function renderCards(text, hand) {
-  const re = /\[(편지|일기|플리|관계|상태|소문|커뮤|인스타|주문|결제)\]([\s\S]*?)\[\/\1\]/g;
+  const re = /\[(삭제내역|편지|일기|플리|관계|상태|소문|커뮤|인스타|주문|결제)\]([\s\S]*?)\[\/\1\]/g;
   let out = "", last = 0, m;
   while ((m = re.exec(text))) {
     out += renderPlainChunk(text.slice(last, m.index));
     const kind = m[1], isHand = kind === "편지" || kind === "일기";
     if (kind === "편지" || kind === "일기") { out += paperCard(kind, m[2], hand); last = re.lastIndex; continue; }
+    if (kind === "삭제내역") { out += trashCard(m[2]); last = re.lastIndex; continue; }
     const rows = m[2].split(/\n/).map(l => l.trim()).filter(Boolean).map(l => {
       const lb = l.match(/^([^:|]{1,8}):\s*([\s\S]*)$/);
       if (lb) return `<div class="crow"><span class="clab">${esc(lb[1])}</span><span>${esc(lb[2])}</span></div>`;
@@ -918,7 +1103,7 @@ function renderHome() {
 }
 
 // 편집
-let editing = null, editAvatar = "", editUAvatar = "", editSamples = [], editGreets = [];
+let editing = null, editAvatar = "", editUAvatar = "", editNbg = "", editSamples = [], editGreets = [];
 function avHTML(c, cls) {
   const inner = c.avatar ? `<img src="${c.avatar}" alt="">` : esc(c.emoji || (c.name || "?").slice(0, 1));
   return `<div class="av ${cls || ""}">${inner}</div>`;
@@ -944,6 +1129,32 @@ function pickImage(f, done) {
   };
   fr.readAsDataURL(f);
 }
+function setNbgPrev() { const p = $("#nbgPrev"); p.style.backgroundImage = editNbg ? `url("${editNbg}")` : ""; p.innerHTML = editNbg ? "<i></i>" : "<span>🖼</span>"; }
+let editSay = "";
+$("#saycol").oninput = e => { editSay = e.target.value; };
+$("#saycolx").onclick = () => { editSay = ""; $("#saycol").value = "#F4F4F8"; };
+$("#nbgPick").onclick = () => $("#nbgFile").click();
+$("#nbgClear").onclick = () => { editNbg = ""; setNbgPrev(); };
+$("#nbgFile").onchange = e => {
+  const f = e.target.files[0]; e.target.value = "";
+  if (!f) return;
+  const fr = new FileReader();
+  fr.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const M = 1100, sc = Math.min(1, M / Math.max(img.width, img.height));
+      const cv = document.createElement("canvas");
+      cv.width = Math.round(img.width * sc); cv.height = Math.round(img.height * sc);
+      cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+      let q = 0.78, d = cv.toDataURL("image/jpeg", q);
+      while (d.length > 240000 && q > 0.4) { q -= 0.08; d = cv.toDataURL("image/jpeg", q); }
+      editNbg = d; setNbgPrev();
+    };
+    img.onerror = () => alert("이미지를 읽지 못했어요.");
+    img.src = fr.result;
+  };
+  fr.readAsDataURL(f);
+};
 $("#avPick").onclick = () => $("#avFile").click();
 $("#avClear").onclick = () => { editAvatar = ""; setAvPreview(); };
 $("#uavPick").onclick = () => $("#uavFile").click();
@@ -952,6 +1163,115 @@ $("#fName").addEventListener("input", setAvPreview);
 $("#fUName").addEventListener("input", setAvPreview);
 $("#avFile").onchange = e => { const f = e.target.files[0]; e.target.value = ""; pickImage(f, d => { editAvatar = d; setAvPreview(); }); };
 $("#uavFile").onchange = e => { const f = e.target.files[0]; e.target.value = ""; pickImage(f, d => { editUAvatar = d; setAvPreview(); }); };
+
+// ---------- 로어북 ----------
+const LORE_MAX = 50;
+let editBooks = [], curBook = 0;
+function normBooks(bk) {
+  bk = bk && bk.length ? bk : [{ name: "로어북1", items: [] }];
+  bk.forEach((b, i) => { if (!b.items) b.items = []; if (!b.name) b.name = "로어북" + (i + 1); });
+  if (curBook >= bk.length) curBook = bk.length - 1;
+  if (curBook < 0) curBook = 0;
+  return bk;
+}
+function allLore(bk) { let out = []; (bk || []).forEach(b => { out = out.concat(b.items || []); }); return out; }
+function updLoreBtn() { $("#loreOpen").textContent = "로어북 열기 (" + allLore(editBooks).length + "개)"; }
+$("#loreOpen").onclick = () => { editBooks = normBooks(editBooks); renderLore(); show("lore"); $("#loreBody").scrollTop = 0; };
+$("#loreBack").onclick = () => { updLoreBtn(); show("editor"); };
+$("#lbBack").onclick = () => { renderLore(); show("lore"); };
+function renderLore() {
+  const bk = editBooks = normBooks(editBooks), b = bk[curBook];
+  $("#loreSub").textContent = ($("#fName").value || "") + " · " + b.items.length + "/" + LORE_MAX;
+  let h = '<div class="lore-tabs">';
+  bk.forEach((x, bi) => { h += `<button type="button" class="${bi === curBook ? "on" : ""}" data-bk="${bi}">${esc(x.name)}<span>${x.items.length}</span></button>`; });
+  h += '<button type="button" id="bnew">+</button></div>';
+  h += `<label for="bname">로어북 이름</label><input type="text" id="bname" value="${esc(b.name)}">`;
+  if (bk.length > 1) h += '<button class="btn danger" id="bdel" type="button" style="width:100%;margin-top:10px">이 로어북 삭제</button>';
+  h += '<div style="height:10px"></div>';
+  b.items.forEach((it, i) => {
+    h += `<details class="lore-entry" data-lore-entry="${i}"${it.folded === false ? " open" : ""}><summary><span class="lore-peek"><b data-lore-title="${i}">${esc(it.title || "제목 없음")}</b><span data-lore-keys="${i}">${esc(it.keys || "키워드 없음")}</span></span></summary><div class="lore-fields">`
+      + `<label>제목</label><input type="text" data-l="${i}" data-lk="title" value="${esc(it.title || "")}">`
+      + `<label>키워드</label><input type="text" data-l="${i}" data-lk="keys" value="${esc(it.keys || "")}" placeholder="쉼표로 구분">`
+      + `<label>내용</label><textarea data-l="${i}" data-lk="text" style="min-height:90px">${esc(it.text || "")}</textarea>`
+      + `<label>항상 켜기</label><select data-l="${i}" data-lk="always"><option value="off"${it.always ? "" : " selected"}>키워드가 나올 때만</option><option value="on"${it.always ? " selected" : ""}>항상</option></select>`
+      + `<button class="btn danger" data-ldel="${i}" type="button">이 항목 삭제</button></div></details>`;
+  });
+  h += '<button class="btn" id="ladd" type="button" style="width:100%;margin-top:6px">항목 추가</button>';
+  h += '<button class="btn ghost" id="lbulk" type="button" style="width:100%;margin-top:8px">한꺼번에 넣기</button>';
+  const V = $("#loreBody");
+  V.innerHTML = h;
+  V.querySelectorAll("[data-lore-entry]").forEach(el => { el.ontoggle = () => { const item = b.items[+el.dataset.loreEntry]; if (item) item.folded = !el.open; }; });
+  V.querySelectorAll("[data-bk]").forEach(el => el.onclick = () => { curBook = +el.dataset.bk; renderLore(); V.scrollTop = 0; });
+  $("#bnew").onclick = () => { bk.push({ name: "로어북" + (bk.length + 1), items: [] }); curBook = bk.length - 1; renderLore(); V.scrollTop = 0; };
+  $("#bname").oninput = e => { b.name = e.target.value; const t = V.querySelector(`[data-bk="${curBook}"]`); if (t) t.firstChild.textContent = b.name; };
+  if ($("#bdel")) $("#bdel").onclick = () => { if (!confirm(b.name + " 통째로 삭제할까요?")) return; bk.splice(curBook, 1); curBook = 0; renderLore(); };
+  V.querySelectorAll("[data-l]").forEach(el => {
+    el.oninput = el.onchange = () => {
+      const i = +el.dataset.l, k = el.dataset.lk;
+      if (k === "always") b.items[i].always = el.value === "on"; else b.items[i][k] = el.value;
+      if (k === "title" || k === "keys") { const pk = V.querySelector(`[data-lore-${k}="${i}"]`); if (pk) pk.textContent = el.value || (k === "title" ? "제목 없음" : "키워드 없음"); }
+    };
+  });
+  V.querySelectorAll("[data-ldel]").forEach(el => el.onclick = () => {
+    const i = +el.dataset.ldel;
+    if (!confirm((b.items[i].title || "이 항목") + " 삭제할까요?")) return;
+    b.items.splice(i, 1); renderLore();
+  });
+  $("#lbulk").onclick = () => { $("#lb").value = ""; show("lorebulk"); };
+  $("#ladd").onclick = () => {
+    if (b.items.length >= LORE_MAX) return alert("한 로어북에 " + LORE_MAX + "개까지예요. + 로 새 로어북을 만들어주세요.");
+    b.items.push({ title: "", keys: "", text: "", always: false, folded: false });
+    renderLore(); V.scrollTop = V.scrollHeight;
+  };
+}
+function parseLoreBulk(raw) {
+  const blocks = String(raw || "").replace(/\r/g, "").split(/\n\s*\n/);
+  const out = [];
+  blocks.forEach(bl => {
+    let t = "", k = "", body = [], mode = null;
+    bl.split("\n").forEach(L => {
+      let m;
+      if ((m = L.match(/^\s*제목\s*[:：]\s*(.*)$/))) { t = m[1].trim(); mode = "t"; return; }
+      if ((m = L.match(/^\s*키워드\s*[:：]\s*(.*)$/))) { k = m[1].trim(); mode = "k"; return; }
+      if ((m = L.match(/^\s*내용\s*[:：]\s*(.*)$/))) { if (m[1].trim()) body.push(m[1]); mode = "c"; return; }
+      if (!t && !k && (m = L.match(/^\s*([^|\n]{1,30})\|\s*(.*)$/))) { t = m[1].trim(); k = m[2].trim(); mode = "c"; return; }
+      if (mode === "c" || mode === null) body.push(L);
+      else if (mode === "k" && L.trim()) k += ", " + L.trim();
+      else if (mode === "t" && L.trim()) body.push(L);
+    });
+    const text = body.join("\n").trim();
+    if (!text && !k) return;
+    out.push({ title: t, keys: k, text, always: false });
+  });
+  return out;
+}
+$("#lbgo").onclick = () => {
+  const items = parseLoreBulk($("#lb").value);
+  if (!items.length) return alert("읽을 수 있는 항목이 없어요. 형식을 확인해주세요.");
+  const bk = editBooks = normBooks(editBooks);
+  items.forEach(it => {
+    let b = bk[bk.length - 1];
+    if (b.items.length >= LORE_MAX) { b = { name: "로어북" + (bk.length + 1), items: [] }; bk.push(b); }
+    b.items.push(it);
+  });
+  curBook = bk.length - 1;
+  alert(items.length + "개 넣었어요.");
+  renderLore(); show("lore");
+};
+function pickLore(c) {
+  const items = allLore(c.books);
+  if (!items.length) return [];
+  const log = msgs().slice(-4).map(m => m.text).join(" ");
+  const out = [], rest = [];
+  items.forEach(it => {
+    if (!it.text) return;
+    if (it.always) { out.push(it); return; }
+    const kk = (it.keys || "").replace(/\{\{\s*user\s*\}\}/gi, c.uname || "").replace(/\{\{\s*char\s*\}\}/gi, c.name || "");
+    const keys = kk.split(/[,，]/).map(x => x.trim()).filter(Boolean);
+    for (let i = 0; i < keys.length; i++) if (log.indexOf(keys[i]) >= 0) { rest.push(it); return; }
+  });
+  return out.concat(rest).slice(0, 5);
+}
 
 // ---------- 문체 예시 · 인트로 (화자별 줄) ----------
 function edNames() {
@@ -1080,14 +1400,16 @@ function openEditor(id) {
   const c = editing || { len: "mid", tier: "default" };
   $("#edTitle").textContent = editing ? "캐릭터 설정" : "새 캐릭터";
   $("#fName").value = c.name || "";
-  editAvatar = c.avatar || ""; editUAvatar = c.uavatar || "";
+  editAvatar = c.avatar || ""; editUAvatar = c.uavatar || ""; editNbg = c.nbg || ""; setNbgPrev(); editSay = c.sayColor || ""; $("#saycol").value = editSay || "#F4F4F8";
   editSamples = JSON.parse(JSON.stringify(c.samples && c.samples.length ? c.samples
     : (c.styles && c.styles.length ? c.styles : (c.style ? [c.style] : [])).map((t, i) => ({ id: newId(), name: "문체 예시 " + (i + 1), on: true, lines: [{ who: "", t }] }))));
   editGreets = (c.greetings && c.greetings.length ? c.greetings.slice()
     : (c.intros && c.intros.length ? c.intros : (c.greet ? [c.greet] : [])).map(t => introText([{ who: "@char", t }], { char: c.name || "캐릭터", user: c.uname || "유저" })));
   if (!editGreets.length) editGreets = [""];
+  editBooks = JSON.parse(JSON.stringify(c.books || [])); curBook = 0; updLoreBtn();
   renderStyleList(); renderIntroList(); setAvPreview();
   $("#fChar").value = c.prompt || "";
+  $("#fWorld").value = c.world || "";
   $("#fUName").value = c.uname || ""; $("#fUser").value = c.upersona || "";
   segSet($("#fLen"), c.len || "mid"); segSet($("#fTense"), c.tense || "present"); segSet($("#fFormat"), c.format || "bubble"); segSet($("#fLang"), c.lang || "ko"); segSet($("#fNarr"), c.narr || "off");
   if (!$("#fHand").options.length) $("#fHand").innerHTML = Object.keys(HANDS).map(n => `<option>${n}</option>`).join("");
@@ -1105,8 +1427,8 @@ $("#searchIn").addEventListener("input", renderHome);
 $("#editFromChat").onclick = () => openEditor(cur);
 $("#saveChar").onclick = () => {
   const data = {
-    name: $("#fName").value.trim() || "이름 없음", avatar: editAvatar, uavatar: editUAvatar,
-    prompt: $("#fChar").value,
+    name: $("#fName").value.trim() || "이름 없음", avatar: editAvatar, uavatar: editUAvatar, nbg: editNbg, sayColor: editSay,
+    prompt: $("#fChar").value, world: $("#fWorld").value, books: allLore(editBooks).length ? normBooks(editBooks) : [],
     samples: editSamples.filter(sm => (sm.lines || []).some(l => l.t.trim())), greetings: editGreets.filter(t => t.trim()), styles: [], intros: [],
     uname: $("#fUName").value.trim(), upersona: $("#fUser").value,
     len: segGet($("#fLen")), tense: segGet($("#fTense")), format: segGet($("#fFormat")), lang: segGet($("#fLang")), narr: segGet($("#fNarr")), hand: $("#fHand").value
@@ -1152,6 +1474,7 @@ function openChat(id) {
 function renderLog(errText) {
   const c = char(), L = $("#log"), fmt = fmtOf(c);
   L.className = "log fmt-" + fmt + (ai.pron ? " pron-on" : "") + (ai.trans !== false ? " trans-on" : "");
+  applyNovelBg(c);
   L.innerHTML = "";
   const list = msgs();
   list.forEach((m, i) => {
@@ -1160,6 +1483,7 @@ function renderLog(errText) {
     let content, bare = false;
     if (m.role === "user") content = `<div class="body">${renderText(m.text, fmt)}</div>`;
     else if (m.ooc) { content = `<div class="ooc">${esc(m.text)}</div>`; bare = true; }
+    else if (m.inner) { content = `<div class="body inner">${esc(m.text)}</div>`; }
     else {
       const cards = renderCards(m.text, HANDS[c.hand] || HANDS["단정"]);
       if (cards) { content = cards; bare = true; }
@@ -1172,7 +1496,7 @@ function renderLog(errText) {
     else d.innerHTML = bare ? inner : `<div class="mrow">${avHTML(c, "mav")}<div class="mcol">${inner}</div></div>`;
     if (m.role !== "user" && !bare) d.querySelector(".who").textContent = c.name;
     const whoEl = d.querySelector(".who");
-    if (whoEl && m.role === "user") whoEl.remove();
+    if (whoEl && m.role === "user") { if (ai.uav === false) whoEl.remove(); else whoEl.textContent = c.uname || "나"; }
     const acts = [];
     if (i === list.length - 1 && m.role === "assistant" && i > 0) acts.push(["다시 생성", regen]);
     acts.push(["복사", () => { try { navigator.clipboard.writeText(m.text); } catch (e) {} }]);
@@ -1272,15 +1596,17 @@ ${glossRule}
   const styleBlock = sText.trim()
     ? "\n[문체 참고]\n아래 글은 원하는 문체의 예시다. 이름: 으로 시작하는 줄은 그 인물의 말, 이름이 없는 줄은 서술이다. 문장의 호흡, 지문과 대사가 섞이는 방식, 톤, 묘사의 밀도만 참고한다. 문장, 표현, 전개, 구조는 베끼지 않는다.\n" + sub(sText, c)
     : "";
+  const lore = pickLore(c);
+  const loreBlock = lore.length ? "[설정집]\n" + lore.map(it => "- " + (it.title ? it.title + ": " : "") + sub(it.text, c)).join("\n") + "\n\n" : "";
   const tense = c.tense === "past"
     ? "- 지문은 3인칭 과거형(~했다, ~였다)으로 쓴다."
     : "- 지문은 3인칭 현재형(~한다, ~본다)으로 쓴다.";
   return `너는 지금부터 캐릭터 롤플레이 채팅의 '${c.name}' 역할을 맡는다. 이후 대화에서 너는 오직 ${c.name}으로서 응답한다.
 
-[캐릭터 설정]
+${(c.world || "").trim() ? "[상황 및 세계관]\n" + sub(c.world, c) + "\n\n" : ""}[캐릭터 설정]
 ${sub(c.prompt, c) || "(설정 없음)"}
 
-[유저 캐릭터: ${u}]
+${loreBlock}[유저 캐릭터: ${u}]
 ${sub(c.upersona, c) || "(설정 없음)"}
 
 [작성 규칙]
@@ -1289,9 +1615,10 @@ ${tense}
 ${fmtRules}${langRule}${narrRule}
 - 대사나 질문으로 끝내야 하는 건 아니다. 지문으로 끝나도 되고 대사로 끝나도 된다. 장면 흐름에 맞게 정한다.
 - 이전 응답의 형식을 그대로 따라 하지 않는다. 문단 수, 지문과 대사의 순서·비율·길이는 매번 새로 정한다. 지문으로 시작해도 되고 대사로 시작해도 된다. 어떤 응답은 지문이 많고 어떤 응답은 대사가 많아도 된다. 앞의 답과 모양이 비슷해지는 것을 경계한다.
-- ${u}의 대사, 행동, 감정은 대신 쓰지 않는다.
+- ${u}의 새 대사·행동·동의를 대신 정하지 않는다.
 - ${u}가 결과나 시간 경과, 장면 전환을 뜻하는 지문을 쓰면(예: *결국 그날 밤 같이 잔다*, *다음 날 아침*), 그것은 이미 그렇게 되었다는 설정이다. 그 내용을 설명하거나 앞 장면을 이어 받지 말고, 곧바로 그 시점의 새 장면부터 쓴다. 앞 장면의 대화를 요약하거나 반응하지 않는다.
-- 분량: ${lenMap[c.len] || lenMap.mid}.
+- 분량: ${cmd ? "정해진 분량 없음. 흐름에 맞게 알아서 정한다." : (lenMap[c.len] || lenMap.mid)}
+- ${u}가 대화 중에 분량·문체·전개를 따로 요청하면 그 요청이 위 분량 설정보다 우선한다. 단, OOC에서 정한 분량은 그 OOC 턴에만 적용하고, 다음 답변부터는 위 분량 설정으로 돌아간다.
 ${(c.note || "").trim() ? "\n[추가 지시]\n" + sub(c.note, c) : ""}
 ${styleBlock}
 
@@ -1300,7 +1627,7 @@ ${cmd ? "\n[이번 턴 지시 — 위 형식 규칙보다 우선한다]\n" + CMD
 }
 
 function buildTurns(c, extraUser, cmd) {
-  let hist = msgs().map(m => ({ role: m.role, content: m.text }));
+  let hist = msgs().map(m => ({ role: m.role, content: sub(m.text, c) }));
   if (extraUser) hist.push({ role: "user", content: extraUser });
   const rules = buildRules(c, cmd);
   const LIMIT = 55000;
@@ -1369,7 +1696,7 @@ async function generate(extraUser) {
   if (finalText) {
     if (extraUser === CONT && msgs().length && msgs()[msgs().length - 1].role === "assistant") {
       msgs()[msgs().length - 1].text += "\n\n" + finalText;
-    } else msgs().push({ id: newId(), role: "assistant", text: finalText, ooc: cmd === "/ooc" || undefined });
+    } else msgs().push({ id: newId(), role: "assistant", text: cmd === "/속마음" ? finalText.replace(/^['‘"“]+|['’"”]+$/g, "").replace(/\*/g, "") : finalText, inner: cmd === "/속마음" || undefined });
     save();
   }
   busy = false; ctl = null; setBusy(false);
@@ -1427,18 +1754,58 @@ $("#resetChat").onclick = () => {
   if (busy || !confirm("대화를 처음부터 다시 시작할까요?")) return;
   store.chats[cur] = []; save(); openChat(cur);
 };
-// 모바일 키보드: 보이는 영역에 앱을 맞춤
-const vv = window.visualViewport;
-if (vv) {
-  const app = document.querySelector(".app");
-  const fit = () => {
-    app.style.height = Math.round(vv.height) + "px";
-    app.style.top = Math.round(vv.offsetTop) + "px";
-  };
-  vv.addEventListener("resize", fit);
-  vv.addEventListener("scroll", fit);
-  fit();
-}
+// 모바일 키보드: 보이는 영역과 읽던 위치를 함께 맞춤 (원본 방식)
+(function installViewportLayout() {
+  const vv = window.visualViewport, app = document.querySelector(".app"), view = $("#log");
+  let frame = 0, restoreFrame = 0, settling = false, settleTimer = 0, checks = [], lastHeight = -1, lastTop = -1, lastKeyboard = null;
+  let anchor = { bottom: true, top: 0 };
+  const chatScreen = () => $("#chat").classList.contains("on");
+  function remember() { anchor = { bottom: chatScreen() && view.scrollHeight - view.clientHeight - view.scrollTop < 48, top: view.scrollTop }; }
+  function restore() { restoreFrame = 0; view.scrollTop = anchor.bottom && chatScreen() ? Math.max(0, view.scrollHeight - view.clientHeight) : anchor.top; }
+  function sync() {
+    frame = 0;
+    if (vv && Math.abs(vv.scale - 1) > .02) return;
+    const height = Math.round(vv ? vv.height : window.innerHeight), offset = Math.round(vv ? vv.offsetTop : 0);
+    const focused = document.activeElement, editing = focused && /^(INPUT|TEXTAREA)$/.test(focused.tagName);
+    const full = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    const keyboard = !!editing && full - height > 90;
+    if (!keyboard && (window.scrollY || window.scrollX)) window.scrollTo(0, 0);
+    const top = keyboard ? Math.max(0, offset) : 0;
+    if (height === lastHeight && top === lastTop && keyboard === lastKeyboard) { if (settling) restore(); return; }
+    settling = true;
+    lastHeight = height; lastTop = top; lastKeyboard = keyboard;
+    app.style.height = height + "px";
+    app.style.top = top + "px";
+    document.body.style.setProperty("--sab", keyboard ? "0" : "1");
+    if (keyboard) document.body.setAttribute("data-kb", "1"); else document.body.removeAttribute("data-kb");
+    restore();
+    if (restoreFrame) cancelAnimationFrame(restoreFrame);
+    restoreFrame = requestAnimationFrame(restore);
+    clearTimeout(settleTimer);
+    settleTimer = setTimeout(() => { restore(); settling = false; remember(); }, 180);
+  }
+  function schedule() { if (!frame) frame = requestAnimationFrame(sync); }
+  function transition() {
+    if (!settling) remember();
+    settling = true;
+    checks.forEach(clearTimeout); checks = [];
+    schedule();
+    [80, 220, 450, 700].forEach(ms => checks.push(setTimeout(schedule, ms)));
+    clearTimeout(settleTimer);
+    settleTimer = setTimeout(() => { restore(); settling = false; remember(); }, 850);
+  }
+  view.addEventListener("scroll", () => { if (!settling) remember(); }, { passive: true });
+  const userScroll = () => { settling = false; clearTimeout(settleTimer); checks.forEach(clearTimeout); checks = []; remember(); };
+  view.addEventListener("touchstart", userScroll, { passive: true });
+  view.addEventListener("wheel", userScroll, { passive: true });
+  if (vv) { vv.addEventListener("resize", schedule, { passive: true }); vv.addEventListener("scroll", schedule, { passive: true }); vv.addEventListener("scrollend", schedule, { passive: true }); }
+  window.addEventListener("resize", schedule, { passive: true });
+  window.addEventListener("pageshow", transition);
+  window.addEventListener("orientationchange", transition);
+  document.addEventListener("focusin", transition);
+  document.addEventListener("focusout", transition);
+  schedule();
+})();
 $("#input").addEventListener("focus", () => {
   setTimeout(() => { $("#log").scrollTop = $("#log").scrollHeight; }, 300);
 });
