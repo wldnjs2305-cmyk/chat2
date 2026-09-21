@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.75","items":["답변 생성 중 표시를 'OO가 입력 중...'으로: 말풍선은 프로필·이름 아래 작은 글씨, 소설·대본·명령어는 글씨만","생성 중에 설정에 갔다 와도 입력 중 표시와 진행 중인 답변이 이어서 보이게","생성 중 다른 캐릭터로 가도 답변이 원래 캐릭터 대화에 저장되게"]},
   {"v":"1.74","items":["쇼핑·결제 원본 방식으로: 전용 지시문(형식·화폐·이전 기록 유지·결제 범위) 추가, 결제 지시문 원본으로 교체","금액·화폐 단위 정리해서 표시, 같은 상품·날짜는 이전 금액 유지"]},
   {"v":"1.73","items":["/커뮤 사이트 규칙에서 디시·에타 예시와 닉네임·추천수 규칙 제거","/인스타 카드가 안 나오던 문제 수정 (좋아요 숫자 처리 오류)"]},
   {"v":"1.72","items":["명령어 카드를 예전 앱(v46g) 모양·글씨체 그대로 옮김 (편지·일기·속마음·플리·관계·상태·소문·비밀·커뮤·인스타·쇼핑·결제·시청기록·통화기록·리뷰·메모)","/메모 나 [내용] 치면 입력창에 내 메모 틀 채워주기, 내 메모도 카드로","/관계도·/비밀·/시청기록·/통화기록·/리뷰·/메모·/이벤트 명령어 추가","*[내용]* 문자 지침 추가"]},
@@ -276,6 +277,7 @@ body[data-novelbg] .log .spk{color:#F4F4F8}
 body[data-novelbg] .log .gloss{color:rgba(232,232,240,.75)}
 body[data-novelbg] .log .nline{color:rgba(230,230,238,.8)}
 body[data-novelbg] .log .thinking{color:rgba(230,230,238,.75)}
+body[data-novelbg] .log .typing{color:rgba(230,230,238,.75)}
 body[data-novelbg] .log .ooc{color:rgba(230,230,238,.7);border-color:rgba(255,255,255,.3)}
 body[data-novelbg] .log .msg.user .body{background:rgba(255,255,255,.12) !important;border:0 !important;box-shadow:none !important}
 body[data-novelbg] .log .acts button{background:rgba(20,20,26,.55);border-color:rgba(255,255,255,.18);color:#F1F1F5}
@@ -427,6 +429,7 @@ body[data-novelbg] .unov .nn{color:rgba(232,232,240,.80);font-style:italic;text-
 .msg.user .body{word-break:keep-all;overflow-wrap:anywhere}
 .msg.user .tools{justify-content:flex-end}
 .tools .icon{font-size:12px;padding:3px 7px}
+.typing{color:var(--soft);font-size:14px;padding:4px 2px 2px}
 .thinking{color:var(--soft);font-size:14px}
 .thinking::after{content:"";display:inline-block;width:1.2em;text-align:left;animation:dots 1.2s steps(4) infinite}
 @keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
@@ -2251,6 +2254,7 @@ function renderLog(errText) {
     ["touchend", "touchmove", "touchcancel"].forEach(ev => d.addEventListener(ev, () => { if (timer) { clearTimeout(timer); timer = null; } }, { passive: true }));
     L.appendChild(d);
   });
+  if (live && busy && live.cid === cur) L.appendChild(liveEl(c));
   if (errText) { const e = document.createElement("div"); e.className = "err"; e.textContent = errText; L.appendChild(e); }
 }
 
@@ -2393,6 +2397,27 @@ const errCopy = code => ({
   session_expired: "로그인이 만료됐어요. 새로고침해주세요."
 }[code] || "응답을 받지 못했어요. 다시 생성을 눌러보세요.");
 
+// 답변 생성 중 표시 (화면을 나갔다 와도 이어서 보이게)
+let live = null;
+function liveEl(c) {
+  const fmt = fmtOf(c), bubble = fmt === "bubble" && !live.cmd;
+  const d = document.createElement("div");
+  d.className = "msg char live";
+  const inner = live.text ? `<div class="body">${renderText(live.text, fmt)}</div>` : `<div class="typing">${esc(iga(c.name))} 입력 중...</div>`;
+  if (bubble) { d.innerHTML = `<div class="mrow">${avHTML(c, "mav")}<div class="mcol"><div class="who"></div>${inner}</div></div>`; d.querySelector(".who").textContent = c.name; }
+  else d.innerHTML = inner;
+  return d;
+}
+function paintLive() {
+  if (!live || cur !== live.cid || !$("#chat").classList.contains("on")) return;
+  const c = store.chars.find(x => x.id === live.cid);
+  if (!c) return;
+  const L = $("#log");
+  const nearBottom = L.scrollHeight - L.scrollTop - L.clientHeight < 80;
+  const old = L.querySelector(".msg.live"), el = liveEl(c);
+  if (old) old.replaceWith(el); else L.appendChild(el);
+  if (nearBottom) L.scrollTop = L.scrollHeight;
+}
 async function generate(extraUser) {
   if (busy) return;
   const c = char();
@@ -2401,24 +2426,15 @@ async function generate(extraUser) {
   const useApi = ai.prov !== "builtin";
   if (!useApi && !sample) { renderLog("내장 Claude를 쓸 수 없어요. 홈의 AI 설정에서 API를 연결해주세요."); return; }
   busy = true; setBusy(true);
+  live = { cid: c.id, cmd, text: "" };
   renderLog();
-  const d = document.createElement("div");
-  d.className = "msg char";
-  d.innerHTML = fmtOf(c) === "bubble" && !cmd
-    ? `<div class="mrow">${avHTML(c, "mav")}<div class="mcol"><div class="who"></div><div class="body"><span class="thinking">${esc(iga(c.name))} 생각 중</span></div></div></div>`
-    : `<div class="body"><span class="thinking">${esc(iga(c.name))} 생각 중</span></div>`;
-  const wq = d.querySelector(".who");
-  if (wq) wq.textContent = c.name;
-  $("#log").appendChild(d); $("#log").scrollTop = $("#log").scrollHeight;
-  const body = d.querySelector(".body");
+  $("#log").scrollTop = $("#log").scrollHeight;
   ctl = new AbortController();
   let finalText = "", errMsg = null;
   try {
     const paint = text => {
       finalText = text;
-      const nearBottom = $("#log").scrollHeight - $("#log").scrollTop - $("#log").clientHeight < 80;
-      body.innerHTML = renderText(text, fmtOf(c));
-      if (nearBottom) $("#log").scrollTop = $("#log").scrollHeight;
+      if (live && !live.cmd) { live.text = text; paintLive(); }
     };
     if (useApi) {
       finalText = await callApi(ai, apiMessages(c, extraUser, cmd), paint, ctl.signal);
@@ -2437,14 +2453,15 @@ async function generate(extraUser) {
   if (finalText && ai.merge !== false && fmtOf(c) === "bubble" && !cmd) finalText = mergeDialogue(finalText);
   if (finalText && cmd && commerceKind(cmd)) { try { finalText = commerceResponse(finalText, c, cmd); } catch (e) { errMsg = e.message; finalText = ""; } }
   if (finalText && cmd) finalText = ocFinish(finalText, c, cmd);
+  const tgt = store.chats[c.id] || (store.chats[c.id] = []);
   if (finalText) {
-    if (extraUser === CONT && msgs().length && msgs()[msgs().length - 1].role === "assistant") {
-      msgs()[msgs().length - 1].text += "\n\n" + finalText;
-    } else msgs().push({ id: newId(), role: "assistant", text: finalText });
-    save();
+    if (extraUser === CONT && tgt.length && tgt[tgt.length - 1].role === "assistant") {
+      tgt[tgt.length - 1].text += "\n\n" + finalText;
+    } else tgt.push({ id: newId(), role: "assistant", text: finalText });
+    save(c.id);
   }
-  busy = false; ctl = null; setBusy(false);
-  renderLog(errMsg);
+  busy = false; ctl = null; live = null; setBusy(false);
+  if (cur === c.id && $("#chat").classList.contains("on")) renderLog(errMsg);
   $("#log").scrollTop = $("#log").scrollHeight;
 }
 
