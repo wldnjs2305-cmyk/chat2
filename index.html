@@ -6,6 +6,8 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.64","items":["내 말풍선 여백·모서리·줄 간격을 원본과 같게"]},
+  {"v":"1.63","items":["소설·대본 형식에서 내 글을 말풍선 대신 위아래 선 사이에 표시 (원본 방식)","내 대사는 자동으로 따옴표, 별표 지문은 회색, 명령어는 그대로 흐리게"]},
   {"v":"1.62","items":["소설 배경 사진을 원본 방식으로: 사진 위 어두운 막 + 밝은 글씨, 상단바·입력창 어둡게","소설·대본 형식 모두 적용, 배경 있을 때 대사 색 설정"]},
   {"v":"1.61","items":["소설 배경 사진 위 반투명 판 제거","핑크 테마 번역 글자색을 원본 색으로"]},
   {"v":"1.60","items":["핑크·새벽 액정 테마를 원본 디자인 그대로 적용 (새벽 액정은 폰 상태바·픽셀 글꼴 포함)","소설 형식일 때 대화 배경 사진 설정 추가"]},
@@ -296,7 +298,9 @@ textarea.tall{min-height:180px}
 .mav{width:38px;height:38px;font-size:17px}
 .msg.char .body{background:var(--char-bg);border:1px solid var(--line);border-radius:4px 16px 16px 16px;padding:14px 16px}
 .msg.user{display:flex;flex-direction:column;align-items:flex-end}
-.msg.user .body{background:var(--user-bg);border-radius:16px 4px 16px 16px;padding:10px 14px;max-width:85%;width:fit-content}
+.msg.user .body{background:var(--user-bg);border-radius:17px 4px 17px 17px;padding:9px 13px;max-width:85%;width:fit-content;line-height:1.85;letter-spacing:-.004em}
+.msg.user .body p{margin:0}
+.msg.user .body p+p{margin-top:.35em}
 .who{font-size:13px;color:var(--soft);margin:6px 0 6px 2px;font-weight:500}
 .body p{margin:0 0 .7em}
 .body p:last-child{margin-bottom:0}
@@ -331,6 +335,16 @@ textarea.tall{min-height:180px}
 .body.inner{font-style:italic;color:var(--narr);white-space:pre-wrap;line-height:1.75}
 .ooc{border:1px dashed var(--line);border-radius:12px;padding:10px 13px;color:var(--soft);font-size:.96em;white-space:pre-wrap;margin:0 0 10px}
 .nline{color:var(--soft);font-style:italic;font-family:var(--font-serif);margin:4px 2px 12px;line-height:1.75;font-size:.96em}
+.msg.user.unov{display:block;margin:30px 0;padding:26px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.unov .np{margin:0 0 .6em;line-height:1.75}
+.unov .np:last-child{margin:0}
+.unov .nn{color:var(--narr)}
+.unov .ns{color:var(--ink)}
+.unov .ncmd{color:var(--soft)}
+.unov .acts{justify-content:flex-start}
+body[data-novelbg] .msg.user.unov{border-color:rgba(255,255,255,.2)}
+body[data-novelbg] .unov .ns,body[data-novelbg] .unov .ncmd{color:#F4F4F8;text-shadow:0 1px 2px rgba(0,0,0,.55)}
+body[data-novelbg] .unov .nn{color:rgba(232,232,240,.80);font-style:italic;text-shadow:0 1px 2px rgba(0,0,0,.55)}
 .spk{font-weight:700;color:var(--accent)}
 .bar{color:var(--soft);margin:0 8px}
 .fmt-novel .msg.char .body,.fmt-script .msg.char .body{background:none;border:0;padding:0 2px}
@@ -921,6 +935,48 @@ function iga(name) {
   if (ch >= 0xAC00 && ch <= 0xD7A3) return n + ((ch - 0xAC00) % 28 ? "이" : "가");
   return n + "이(가)";
 }
+/* 소설·대본 — 내 글 (원본 방식). 별표가 있으면 별표 기준, 없으면 따옴표 안을 대사로 본다. 줄마다 문단 */
+function quoteSay(t) { t = String(t || "").trim(); if (!t) return t; if (/^["“'‘「『]/.test(t)) return t; return "\u201c" + t + "\u201d"; }
+function starSegs(line) {
+  const segs = [], re = /\*{1,3}([\s\S]+?)\*{1,3}/g; let last = 0, m;
+  while ((m = re.exec(line))) {
+    if (m.index > last) { const pre = line.slice(last, m.index).trim(); if (pre) segs.push({ nar: false, t: pre }); }
+    const inner = m[1].trim(); if (inner) segs.push({ nar: true, t: inner });
+    last = re.lastIndex;
+  }
+  const tail = line.slice(last).trim(); if (tail) segs.push({ nar: false, t: tail });
+  if (!segs.length && line) segs.push({ nar: false, t: line });
+  return segs;
+}
+function userNovelHTML(raw) {
+  const src = String(raw || "").replace(/\r/g, "");
+  if (/^\s*[\/#]/.test(src)) return `<p class="np"><span class="ncmd">${esc(src.trim())}</span></p>`;
+  const starMode = /\*/.test(src), quoteMode = !starMode && /["“「『]/.test(src);
+  let out = "";
+  src.split(/\n+/).forEach(line => {
+    line = line.trim(); if (!line) return;
+    let segs = [];
+    if (starMode) segs = starSegs(line);
+    else if (!quoteMode) segs = [{ nar: false, t: line }];
+    else {
+      const re = /("[^"\n]*"|“[^”\n]*”|「[^」\n]*」|『[^』\n]*』)/g; let last = 0, m;
+      while ((m = re.exec(line))) {
+        const pre = line.slice(last, m.index).trim(); if (pre) segs.push({ nar: true, t: pre });
+        segs.push({ nar: false, t: m[1] }); last = re.lastIndex;
+      }
+      const tail = line.slice(last).trim(); if (tail) segs.push({ nar: true, t: tail });
+    }
+    let inner = "";
+    const flush = () => { if (inner) out += `<p class="np">${inner}</p>`; inner = ""; };
+    segs.forEach(sg => {
+      const tx = esc(sg.nar ? sg.t : quoteSay(sg.t));
+      if (sg.nar) inner += (inner ? " " : "") + `<span class="nn">${tx}</span>`;
+      else { flush(); inner = `<span class="ns">${tx}</span>`; flush(); }
+    });
+    flush();
+  });
+  return out;
+}
 function fmtOf(c) { return c && (c.format === "novel" || c.format === "script") ? c.format : "bubble"; }
 
 /* ---------- 명령어 ---------- */
@@ -1481,7 +1537,9 @@ function renderLog(errText) {
     const d = document.createElement("div");
     d.className = "msg " + (m.role === "user" ? "user" : "char");
     let content, bare = false;
-    if (m.role === "user") content = `<div class="body">${renderText(m.text, fmt)}</div>`;
+    const unov = m.role === "user" && fmt !== "bubble";
+    if (unov) content = `<div class="unovb">${userNovelHTML(m.text)}</div>`;
+    else if (m.role === "user") content = `<div class="body">${renderText(m.text, fmt)}</div>`;
     else if (m.ooc) { content = `<div class="ooc">${esc(m.text)}</div>`; bare = true; }
     else if (m.inner) { content = `<div class="body inner">${esc(m.text)}</div>`; }
     else {
@@ -1490,7 +1548,8 @@ function renderLog(errText) {
       else { content = renderBlocks(m.text, fmt); bare = fmt !== "bubble"; }
     }
     const inner = `${bare ? "" : `<div class="who"></div>`}${content}<div class="tools"></div>`;
-    if (m.role === "user") d.innerHTML = ai.uav === false
+    if (unov) { d.className = "msg user unov"; d.innerHTML = content; }
+    else if (m.role === "user") d.innerHTML = ai.uav === false
       ? `<div class="mrow urow"><div class="mcol">${inner}</div></div>`
       : `<div class="mrow urow"><div class="mcol">${inner}</div>${avHTML({ avatar: c.uavatar, name: c.uname || "나" }, "mav")}</div>`;
     else d.innerHTML = bare ? inner : `<div class="mrow">${avHTML(c, "mav")}<div class="mcol">${inner}</div></div>`;
