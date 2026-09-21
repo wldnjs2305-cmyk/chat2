@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.48","items":["일본어·중국어 대사가 다음 줄로 떨어져 나오던 문제 수정"]},
   {"v":"1.47","items":["짧은 내 말풍선이 글자 단위로 꺾이던 문제 다시 수정"]},
   {"v":"1.46","items":["도구줄 스크롤바 숨김","내 말풍선 위 이름 제거"]},
   {"v":"1.45","items":["도구줄 순서 변경: 다시 생성 / 마지막 지우기 / 응답(길이) / 명령어 / 초기화","응답 버튼으로 대화 중에 바로 길이 변경"]},
@@ -254,7 +255,7 @@ textarea.tall{min-height:180px}
 .mhead{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--soft);margin-bottom:4px}
 .msg.user .mrow{align-self:stretch;width:100%}
 .urow .mcol{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-end}
-.body{word-break:keep-all;overflow-wrap:anywhere}
+.msg.user .body{word-break:keep-all;overflow-wrap:anywhere}
 .msg.user .tools{justify-content:flex-end}
 .tools .icon{font-size:12px;padding:3px 7px}
 .thinking{color:var(--soft);font-size:14px}
