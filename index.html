@@ -6,6 +6,9 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.47","items":["짧은 내 말풍선이 글자 단위로 꺾이던 문제 다시 수정"]},
+  {"v":"1.46","items":["도구줄 스크롤바 숨김","내 말풍선 위 이름 제거"]},
+  {"v":"1.45","items":["도구줄 순서 변경: 다시 생성 / 마지막 지우기 / 응답(길이) / 명령어 / 초기화","응답 버튼으로 대화 중에 바로 길이 변경"]},
   {"v":"1.44","items":["문체 예시·인트로 편집기를 원본 방식으로: 내레이터/유저/캐릭터별로 한 줄씩 대화처럼 작성","인트로의 내레이터·유저 줄은 대화 시작 시 각각 나레이션과 내 메시지로 표시","편지 명령어에 원본의 호칭·서명 규칙 전체 적용"]},
   {"v":"1.43","items":["메시지를 꾹 누르면 아래에 복사·수정·삭제·여기부터 지우기 버튼 줄 표시","짧은 내 말풍선이 억지로 줄바꿈되던 문제 수정","'생각 중' 문구에 이름 받침 맞춰 이/가 표시"]},
   {"v":"1.42","items":["편지·일기를 원본 방식대로 표시 (라벨 없이 수신/본문/서명, 줄 맞춤)","편지·일기 명령어 지시문을 원본 그대로 적용"]},
@@ -249,7 +252,9 @@ textarea.tall{min-height:180px}
 .whochips button{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:7px 14px;white-space:nowrap;color:var(--ink)}
 .whochips button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .mhead{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--soft);margin-bottom:4px}
+.msg.user .mrow{align-self:stretch;width:100%}
 .urow .mcol{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-end}
+.body{word-break:keep-all;overflow-wrap:anywhere}
 .msg.user .tools{justify-content:flex-end}
 .tools .icon{font-size:12px;padding:3px 7px}
 .thinking{color:var(--soft);font-size:14px}
@@ -259,7 +264,9 @@ textarea.tall{min-height:180px}
 .err{color:var(--danger);font-size:13px;margin:-8px 0 16px}
 .edit-area{width:100%;min-height:120px;font-size:16px}
 .composer{border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:var(--bg)}
-.composer .quick{display:flex;gap:6px;margin-bottom:8px;overflow-x:auto}
+.composer .quick{display:flex;gap:6px;margin-bottom:8px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
+.composer .quick::-webkit-scrollbar{display:none}
+.composer .quick button{flex:none}
 .composer .quick button{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 12px;font-size:13px;color:var(--soft);white-space:nowrap}
 .composer .in{display:flex;gap:8px;align-items:flex-end}
 .composer textarea{font-size:max(var(--font-size),16px);min-height:44px;max-height:160px;resize:none;border-radius:14px}
@@ -437,9 +444,11 @@ textarea.tall{min-height:180px}
     <div class="log" id="log" aria-live="polite"></div>
     <div class="composer">
       <div class="quick">
-        <button id="qNarr">*지문*</button>
-        <button id="qCmd">명령어</button><button id="resetChat">초기화</button><button id="qCont">이어쓰기</button>
         <button id="qRegen">다시 생성</button>
+        <button id="qDelLast">마지막 지우기</button>
+        <button id="qLen">응답</button>
+        <button id="qCmd">명령어</button>
+        <button id="resetChat">초기화</button>
       </div>
       <div class="in">
         <textarea id="input" rows="1" placeholder="메시지 입력  ·  *행동은 별표로*"></textarea>
@@ -1134,6 +1143,7 @@ function openChat(id) {
     save();
   }
   $("#chName").textContent = c.name;
+  updLenBtn();
   renderLog(); show("chat");
   setTimeout(() => { $("#log").scrollTop = $("#log").scrollHeight; }, 0);
 }
@@ -1161,7 +1171,7 @@ function renderLog(errText) {
     else d.innerHTML = bare ? inner : `<div class="mrow">${avHTML(c, "mav")}<div class="mcol">${inner}</div></div>`;
     if (m.role !== "user" && !bare) d.querySelector(".who").textContent = c.name;
     const whoEl = d.querySelector(".who");
-    if (whoEl && m.role === "user") whoEl.textContent = c.uname || "나";
+    if (whoEl && m.role === "user") whoEl.remove();
     const acts = [];
     if (i === list.length - 1 && m.role === "assistant" && i > 0) acts.push(["다시 생성", regen]);
     acts.push(["복사", () => { try { navigator.clipboard.writeText(m.text); } catch (e) {} }]);
@@ -1369,7 +1379,7 @@ async function generate(extraUser) {
 const CONT = "(방금 장면을 자연스럽게 이어서 계속 써줘. 유저의 행동은 쓰지 말 것.)";
 function setBusy(on) {
   $("#send").textContent = on ? "멈춤" : "보내기";
-  ["#qCont", "#qRegen"].forEach(s => $(s).disabled = on);
+  ["#qRegen", "#qDelLast"].forEach(s => $(s).disabled = on);
 }
 
 function send() {
@@ -1391,7 +1401,18 @@ function regen() {
 }
 $("#send").onclick = send;
 $("#qRegen").onclick = regen;
-$("#qCont").onclick = () => generate(CONT);
+const LEN_NAMES = { auto: "자동", short: "짧게", mid: "보통", long: "길게" };
+function updLenBtn() { const c = char(); $("#qLen").textContent = "응답 · " + (LEN_NAMES[c && c.len] || "보통"); }
+$("#qLen").onclick = () => {
+  const c = char(); if (!c) return;
+  showMsgMenu(Object.keys(LEN_NAMES).map(k => [(c.len === k ? "✓ " : "") + LEN_NAMES[k], () => { c.len = k; save(null); updLenBtn(); }]));
+};
+$("#qDelLast").onclick = () => {
+  if (busy) return;
+  const l = msgs();
+  if (!l.length) return;
+  l.pop(); save(); renderLog();
+};
 $("#qCmd").onclick = () => {
   const list = Object.keys(CMDS);
   const pick = prompt("명령어를 고르세요\n\n" + list.join("  "), "/편지");
@@ -1400,11 +1421,6 @@ $("#qCmd").onclick = () => {
   if (!CMDS[k]) { alert("없는 명령어예요."); return; }
   $("#input").value = k + " ";
   $("#input").focus();
-};
-$("#qNarr").onclick = () => {
-  const ta = $("#input"), s = ta.selectionStart, e = ta.selectionEnd, v = ta.value;
-  ta.value = v.slice(0, s) + "*" + v.slice(s, e) + "*" + v.slice(e);
-  ta.focus(); ta.setSelectionRange(s + 1, e + 1);
 };
 $("#resetChat").onclick = () => {
   if (busy || !confirm("대화를 처음부터 다시 시작할까요?")) return;
