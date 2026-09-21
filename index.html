@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.79","items":["꾹 누르면 나오는 버튼 줄을 말풍선 아래 위치에 맞춤","인스타 계정 주인 답글은 @아이디를 붙이고 들여쓰기","커뮤 익명 닉네임은 숫자 없이 '익명'으로 표시"]},
   {"v":"1.78","items":["명령어 턴의 표시를 이름 없이 '입력 중...'으로"]},
   {"v":"1.77","items":["명령어 턴(/ooc 제외)은 프로필·이름 없이 '입력 중...' 글씨만"]},
   {"v":"1.76","items":["말풍선 형식에서는 명령어 턴도 프로필·이름과 작은 말풍선 안에 '입력 중' 표시","입력 중 점이 움직이게"]},
@@ -578,6 +579,8 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .oc .ig-caption p{margin:8px 0;white-space:pre-wrap}
 .oc .ig-comment{margin-top:6px}
 .oc .ig-comment b{margin-right:6px}
+.oc .ig-comment.re{padding-left:18px}
+.oc .ig-at{color:#4A8FE7}
 .oc .ig-when{font-size:11px;color:var(--muted);margin:6px 0 0;letter-spacing:.02em}
 .oc .ig-private{padding:14px 16px;color:var(--muted)}
 .oc .ig-post+.ig-post{border-top:1px solid var(--line)}
@@ -1439,6 +1442,22 @@ function ocIgWhen(p) {
   }
   return String((p && p.date) || "");
 }
+function igFixReplies(list, handle) {
+  const out = [], h = String(handle || "").replace(/^@/, "").trim().toLowerCase();
+  (Array.isArray(list) ? list : []).forEach(q => {
+    if (!q || typeof q !== "object") return;
+    const who = String(q.who || "").replace(/^@/, "").trim();
+    let text = String(q.text || "").trim();
+    const mine = h && who.toLowerCase() === h;
+    let to = String(q.reply_to || q.to || "").replace(/^@/, "").trim();
+    if (mine && !/^@/.test(text)) {
+      if (!to) for (let k = out.length - 1; k >= 0; k--) { if (out[k].who.toLowerCase() !== h) { to = out[k].who; break; } }
+      if (to) text = "@" + to + " " + text;
+    }
+    out.push({ who: who || "익명", text, reply: mine || /^@/.test(text) });
+  });
+  return out;
+}
 function ocInsta(body, c) {
   let data;
   try { data = JSON.parse(String(body).trim().replace(/^```(?:json)?\s*|\s*```$/g, "")); }
@@ -1450,7 +1469,10 @@ function ocInsta(body, c) {
   posts.forEach(p => {
     if (!p || typeof p !== "object") return;
     h += `<article class="ig-post"><div class="ig-photo" role="img" aria-label="사진 묘사"><p>${esc(p.photo || "사진 없음")}</p></div><div class="ig-caption">${p.likes != null ? `<div class="ig-meta">좋아요 ${esc(p.likes)}</div>` : ""}<p><b>${esc(name)}</b> ${esc(p.caption || "")}</p><div class="ig-when">${esc(ocIgWhen(p))}</div>`;
-    (Array.isArray(p.comments) ? p.comments.slice(0, 4) : []).forEach(q => { if (q) h += `<div class="ig-comment"><b>${esc(q.who || "익명")}</b> ${esc(q.text || "")}</div>`; });
+    igFixReplies(p.comments, name).slice(0, 4).forEach(q => {
+      const tx = esc(q.text || "").replace(/^(@[^\s@]+)/, '<span class="ig-at">$1</span>');
+      h += `<div class="ig-comment${q.reply ? " re" : ""}"><b>${esc(q.who || "익명")}</b> ${tx}</div>`;
+    });
     h += "</div></article>";
   });
   if (!posts.length) h += '<div class="ig-private">게시물 없음</div>';
@@ -1473,11 +1495,13 @@ function ocComm(body) {
     if (/^(?:[ㄴ└↳>»]|re\s*[:：])\s*/i.test(t)) { re = true; t = t.replace(/^(?:[ㄴ└↳>»]|re\s*[:：])\s*/i, ""); }
     if (/^@/.test(t)) re = true;
     const m1 = t.match(/^([^|｜]{1,40})[|｜]\s*([\s\S]*?)(?:[|｜]\s*([+\-]?\d+))?$/);
-    if (m1) return { who: clean(m1[1]), t: (m1[2] || "").trim(), up: (m1[3] || "").trim(), re };
+    const anon = w => String(w || "").replace(/^익명\s*\d+$/, "익명");
+    const anonT = x => String(x || "").replace(/@익명\s*\d+/g, "@익명");
+    if (m1) return { who: anon(clean(m1[1])), t: anonT((m1[2] || "").trim()), up: (m1[3] || "").trim(), re };
     const m2 = t.match(/^([^:：\n]{1,24})\s*[:：]\s*([\s\S]+)$/);
-    if (m2) return { who: clean(m2[1]), t: m2[2].trim(), up: "", re };
+    if (m2) return { who: anon(clean(m2[1])), t: anonT(m2[2].trim()), up: "", re };
     const m3 = t.match(/^(\S{1,24}\([\d.]+\)|익명\s*\d*|ㅇㅇ)\s+([\s\S]+)$/);
-    if (m3) return { who: m3[1].trim(), t: m3[2].trim(), up: "", re };
+    if (m3) return { who: anon(m3[1].trim()), t: anonT(m3[2].trim()), up: "", re };
     return { who: "", t, up: "", re };
   };
   pre.split("\n").forEach(L => {
@@ -2279,7 +2303,7 @@ function toggleActs(d, acts) {
     b.onclick = e => { e.stopPropagation(); row.remove(); a[1](); };
     row.appendChild(b);
   });
-  d.appendChild(row);
+  (d.querySelector(".mrow > .mcol") || d).appendChild(row);
   if (navigator.vibrate) try { navigator.vibrate(10); } catch (e) {}
 }
 function showMsgMenu(acts) {
