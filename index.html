@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.70","items":["캐릭터 설정이 열리지 않던 문제 수정 (1.69에서 배경 사진 코드가 빠졌던 것 복구)"]},
   {"v":"1.69","items":["프로필 사진을 고를 때 확대·위치 조정 화면 추가 (드래그로 이동, 두 손가락이나 슬라이더로 확대)"]},
   {"v":"1.68","items":["캐릭터 프로필 사진을 이름 높이에 맞춤","대화방에서 연 캐릭터 설정의 ‹ 는 대화방으로 돌아가기","/ooc 내 메시지는 점선 상자로 표시","편지·일기 글씨 조금 작게, 설정에 카드 글자 크기 추가"]},
   {"v":"1.67","items":["소설·대본 형식의 속마음은 이름·프로필·말풍선 없이 본문처럼 표시"]},
@@ -828,7 +829,7 @@ applyLook();
 if (ai.max === 1500) ai.max = 0;
 const inClaude = !!window.claude;
 if (!inClaude && ai.prov === "builtin" && !localStorage.getItem(SKEY)) ai.prov = "openai";
-function updateBanner() { $("#aiBanner").hidden = !(ai.prov === "builtin" && !sample); }
+function updateBanner() { try { $("#aiBanner").hidden = !(ai.prov === "builtin" && !sample); } catch (e) {} }
 function syncProvUI() {
   const v = segGet($("#sProv"));
   $("#sApi").hidden = v === "builtin";
@@ -1248,6 +1249,32 @@ function openCropper(img, done) {
     done(cv.toDataURL("image/jpeg", 0.85));
   };
 }
+function setNbgPrev() { const p = $("#nbgPrev"); p.style.backgroundImage = editNbg ? `url("${editNbg}")` : ""; p.innerHTML = editNbg ? "<i></i>" : "<span>🖼</span>"; }
+let editSay = "";
+$("#saycol").oninput = e => { editSay = e.target.value; };
+$("#saycolx").onclick = () => { editSay = ""; $("#saycol").value = "#F4F4F8"; };
+$("#nbgPick").onclick = () => $("#nbgFile").click();
+$("#nbgClear").onclick = () => { editNbg = ""; setNbgPrev(); };
+$("#nbgFile").onchange = e => {
+  const f = e.target.files[0]; e.target.value = "";
+  if (!f) return;
+  const fr = new FileReader();
+  fr.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const M = 1100, sc = Math.min(1, M / Math.max(img.width, img.height));
+      const cv = document.createElement("canvas");
+      cv.width = Math.round(img.width * sc); cv.height = Math.round(img.height * sc);
+      cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+      let q = 0.78, d = cv.toDataURL("image/jpeg", q);
+      while (d.length > 240000 && q > 0.4) { q -= 0.08; d = cv.toDataURL("image/jpeg", q); }
+      editNbg = d; setNbgPrev();
+    };
+    img.onerror = () => alert("이미지를 읽지 못했어요.");
+    img.src = fr.result;
+  };
+  fr.readAsDataURL(f);
+};
 $("#avPick").onclick = () => $("#avFile").click();
 $("#avClear").onclick = () => { editAvatar = ""; setAvPreview(); };
 $("#uavPick").onclick = () => $("#uavFile").click();
