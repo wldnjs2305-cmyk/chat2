@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.68","items":["캐릭터 프로필 사진을 이름 높이에 맞춤","대화방에서 연 캐릭터 설정의 ‹ 는 대화방으로 돌아가기","/ooc 내 메시지는 점선 상자로 표시","편지·일기 글씨 조금 작게, 설정에 카드 글자 크기 추가"]},
   {"v":"1.67","items":["소설·대본 형식의 속마음은 이름·프로필·말풍선 없이 본문처럼 표시"]},
   {"v":"1.66","items":["말풍선 형식에서 AI가 나눈 문단을 화면에서만 한 덩어리로 합쳐서 표시 (내용·길이는 그대로)"]},
   {"v":"1.65","items":["속마음을 캐릭터 본인의 1인칭 목소리로, 문단 없이 한 덩어리로"]},
@@ -299,6 +300,7 @@ textarea.tall{min-height:180px}
 .mrow{display:flex;gap:10px;align-items:flex-start}
 .mcol{flex:1;min-width:0}
 .mav{width:38px;height:38px;font-size:17px}
+.mrow .mcol>.who{margin:0 0 4px 2px;line-height:38px}
 .msg.char .body{background:var(--char-bg);border:1px solid var(--line);border-radius:4px 16px 16px 16px;padding:14px 16px}
 .msg.user{display:flex;flex-direction:column;align-items:flex-end}
 .msg.user .body{background:var(--user-bg);border-radius:17px 4px 17px 17px;padding:9px 13px;max-width:85%;width:fit-content;line-height:1.85;letter-spacing:-.004em}
@@ -316,19 +318,19 @@ textarea.tall{min-height:180px}
 .tpill{display:inline-block;background:#dfe3f7;color:#3949b5;font-size:13px;font-weight:600;padding:5px 11px;border-radius:9px}
 .ttitle{font-size:18px;font-weight:700;margin:12px 0 6px}
 .tmeta{font-size:13px;color:#7a7f89}
-.tbody{padding:14px 18px 18px;font-size:15px;line-height:1.75}
+.tbody{padding:14px 18px 18px;font-size:var(--card-fs,15px);line-height:1.75}
 .tsec{margin-top:4px}
 .tent{margin-top:2px}
 .trow{}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:0 0 10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:0 0 10px;font-size:var(--card-fs,15px)}
 .card .ctitle{font-size:12px;letter-spacing:.06em;color:var(--accent);font-weight:700;margin-bottom:8px}
 .crow{margin:0 0 6px;line-height:1.65}
 .crow:last-child{margin-bottom:0}
 .clab{color:var(--soft);font-size:.88em;margin-right:8px}
-.paper{background:var(--panel);border:1px solid var(--line);border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.07);margin:0 0 10px;color:var(--ink);font-size:1.25em;padding:19px 20px 22px}
-.paper .ruled{line-height:30px;background-image:repeating-linear-gradient(180deg,transparent 0,transparent 29px,var(--line) 29px,var(--line) 30px);background-position:0 0;background-repeat:repeat;white-space:pre-wrap}
-.paper.letter .lto{line-height:30px;margin:0 0 30px}
-.paper.letter .lsign{display:block;text-align:right;line-height:30px;margin:30px 0 0}
+.paper{background:var(--panel);border:1px solid var(--line);border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.07);margin:0 0 10px;color:var(--ink);font-size:calc(var(--card-fs,15px) * 1.1);padding:19px 20px 22px}
+.paper .ruled{line-height:1.9em;background-image:repeating-linear-gradient(180deg,transparent 0,transparent calc(1.9em - 1px),var(--line) calc(1.9em - 1px),var(--line) 1.9em);background-position:0 0;background-repeat:repeat;white-space:pre-wrap}
+.paper.letter .lto{line-height:1.9em;margin:0 0 1.9em}
+.paper.letter .lsign{display:block;text-align:right;line-height:1.9em;margin:1.9em 0 0}
 .paper.diary{padding:16px 20px 22px}
 .paper.diary .dhead{display:flex;align-items:baseline;gap:10px;font-size:.92em;color:var(--soft);padding-bottom:9px;margin-bottom:11px;border-bottom:1.5px solid var(--line)}
 .paper.diary .dhead .wd{font-size:.8em}
@@ -337,7 +339,9 @@ textarea.tall{min-height:180px}
 .card.hand .clab{font-size:.7em}
 .fmt-novel .body.inner,.fmt-script .body.inner{background:none !important;border:0 !important;box-shadow:none !important;padding:0 2px !important;max-width:100%}
 .body.inner{font-style:italic;color:var(--narr);white-space:pre-wrap;line-height:1.75}
-.ooc{border:1px dashed var(--line);border-radius:12px;padding:10px 13px;color:var(--soft);font-size:.96em;white-space:pre-wrap;margin:0 0 10px}
+.ooc{margin:0 0 4px;padding:9px 13px;border-radius:12px;border:1px dashed var(--line);color:var(--soft);font-size:14px;white-space:pre-wrap}
+.msg.user.oocu{display:block}
+.msg.user.oocu .ooc{width:100%}
 .nline{color:var(--soft);font-style:italic;font-family:var(--font-serif);margin:4px 2px 12px;line-height:1.75;font-size:.96em}
 .msg.user.unov{display:block;margin:30px 0;padding:26px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .unov .np{margin:0 0 .6em;line-height:1.75}
@@ -491,6 +495,8 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
         <input type="range" id="sFs" min="12" max="22" step="0.5" style="width:100%;padding:0">
         <label>프로필 사진</label>
         <label style="display:flex;gap:10px;align-items:center;color:var(--ink);font-size:15px;margin:6px 0"><input type="checkbox" id="sUav" style="width:20px;height:20px"> 내 프로필 사진 보기</label>
+        <label for="sCfs" id="sCfsLabel">카드 글자 크기</label>
+        <input type="range" id="sCfs" min="11" max="20" step="0.5" style="width:100%;padding:0">
         <label>대사 번역·발음</label>
         <label style="display:flex;gap:10px;align-items:center;color:var(--ink);font-size:15px;margin:6px 0"><input type="checkbox" id="sTrans" style="width:20px;height:20px"> 번역 보기</label>
         <label style="display:flex;gap:10px;align-items:center;color:var(--ink);font-size:15px;margin:0 0 6px"><input type="checkbox" id="sPron" style="width:20px;height:20px"> 발음 보기</label>
@@ -804,6 +810,7 @@ function applyLook() {
   r.setProperty("--font-body", fam);
   r.setProperty("--font-serif", fam);
   r.setProperty("--font-size", (ai.fs || 15) + "px");
+  r.setProperty("--card-fs", (ai.cfs || 14) + "px");
   document.documentElement.dataset.theme = ai.theme || store.theme || "light";
 }
 try { Object.assign(ai, JSON.parse(localStorage.getItem(SKEY) || "{}")); } catch(e) {}
@@ -826,16 +833,18 @@ $("#sTheme").innerHTML = THEMES.map(t => `<option value="${t[0]}">${t[1]}</optio
 $("#sFontSel").innerHTML = Object.keys(FONTS).map(n => `<option>${n}</option>`).join("");
 $("#sTheme").onchange = () => { ai.theme = $("#sTheme").value; applyLook(); };
 $("#sFontSel").onchange = () => { ai.font = $("#sFontSel").value; applyLook(); };
+$("#sCfs").oninput = () => { ai.cfs = parseFloat($("#sCfs").value); $("#sCfsLabel").textContent = "카드 글자 크기 · " + ai.cfs + "px"; applyLook(); };
 $("#sFs").oninput = () => { ai.fs = parseFloat($("#sFs").value); $("#sFsLabel").textContent = "글자 크기 · " + ai.fs + "px"; applyLook(); };
 function readSettings() {
   return { prov: segGet($("#sProv")), url: $("#sUrl").value.trim().replace(/\/+$/, ""), key: $("#sKey").value.trim(),
-    model: $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 0, merge: $("#sMerge").checked, uav: $("#sUav").checked, trans: $("#sTrans").checked, pron: $("#sPron").checked, font: $("#sFontSel").value, fs: parseFloat($("#sFs").value) || 15, theme: $("#sTheme").value };
+    model: $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 0, merge: $("#sMerge").checked, uav: $("#sUav").checked, trans: $("#sTrans").checked, pron: $("#sPron").checked, font: $("#sFontSel").value, fs: parseFloat($("#sFs").value) || 15, cfs: parseFloat($("#sCfs").value) || 14, theme: $("#sTheme").value };
 }
 $("#setBtn").onclick = () => {
   segSet($("#sProv"), ai.prov); $("#sUrl").value = ai.url; $("#sKey").value = ai.key; $("#sModel").value = ai.model;
   $("#sTemp").value = ai.temp; $("#sTempV").textContent = ai.temp; $("#sMax").value = ai.max || ""; $("#sMerge").checked = ai.merge !== false; $("#sUav").checked = ai.uav !== false; $("#sTrans").checked = ai.trans !== false; $("#sPron").checked = !!ai.pron;
   $("#sTheme").value = ai.theme || "light";
   $("#sFontSel").value = FONTS[ai.font] ? ai.font : "고운돋움";
+  $("#sCfs").value = ai.cfs || 14; $("#sCfsLabel").textContent = "카드 글자 크기 · " + (ai.cfs || 14) + "px";
   $("#sFs").value = ai.fs || 15; $("#sFsLabel").textContent = "글자 크기 · " + (ai.fs || 15) + "px";
   $("#sVer").textContent = "지금 버전 v" + APP_VERSION; $("#sUpdOut").textContent = ""; $("#sTestOut").textContent = "";
   syncProvUI(); show("settings");
@@ -926,7 +935,12 @@ function applyNovelBg(c) {
     B.style.removeProperty("--saycol");
   }
 }
-document.querySelectorAll("[data-back]").forEach(b => b.onclick = () => { if (ctl) ctl.abort(); renderHome(); show("home"); });
+let editorFromChat = false;
+document.querySelectorAll("[data-back]").forEach(b => b.onclick = () => {
+  if (b.closest("#editor") && editorFromChat && cur && store.chars.some(c => c.id === cur)) { editorFromChat = false; openChat(cur); return; }
+  editorFromChat = false;
+  if (ctl) ctl.abort(); renderHome(); show("home");
+});
 
 const newId = () => Math.random().toString(36).slice(2, 10);
 const esc = s => s.replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
@@ -1477,14 +1491,14 @@ function openEditor(id) {
   $("#delChar").hidden = !editing;
   show("editor");
 }
-$("#newChar").onclick = () => openEditor(null);
+$("#newChar").onclick = () => { editorFromChat = false; openEditor(null); };
 $("#searchBtn").onclick = () => {
   const w = $("#searchWrap");
   w.hidden = !w.hidden;
   if (!w.hidden) $("#searchIn").focus(); else { $("#searchIn").value = ""; renderHome(); }
 };
 $("#searchIn").addEventListener("input", renderHome);
-$("#editFromChat").onclick = () => openEditor(cur);
+$("#editFromChat").onclick = () => { editorFromChat = true; openEditor(cur); };
 $("#saveChar").onclick = () => {
   const data = {
     name: $("#fName").value.trim() || "이름 없음", avatar: editAvatar, uavatar: editUAvatar, nbg: editNbg, sayColor: editSay,
@@ -1541,8 +1555,10 @@ function renderLog(errText) {
     const d = document.createElement("div");
     d.className = "msg " + (m.role === "user" ? "user" : "char");
     let content, bare = false;
-    const unov = m.role === "user" && fmt !== "bubble";
-    if (unov) content = `<div class="unovb">${userNovelHTML(m.text)}</div>`;
+    const isOocU = m.role === "user" && m.cmd === "/ooc";
+    const unov = m.role === "user" && fmt !== "bubble" && !isOocU;
+    if (isOocU) content = `<div class="ooc">${esc(m.text)}</div>`;
+    else if (unov) content = `<div class="unovb">${userNovelHTML(m.text)}</div>`;
     else if (m.role === "user") content = `<div class="body">${renderText(m.text, fmt)}</div>`;
     else if (m.ooc) { content = `<div class="ooc">${esc(m.text)}</div>`; bare = true; }
     else if (m.inner) { content = `<div class="body inner">${esc(m.text)}</div>`; bare = fmt !== "bubble"; }
@@ -1552,7 +1568,8 @@ function renderLog(errText) {
       else { content = renderBlocks(m.text, fmt); bare = fmt !== "bubble"; }
     }
     const inner = `${bare ? "" : `<div class="who"></div>`}${content}<div class="tools"></div>`;
-    if (unov) { d.className = "msg user unov"; d.innerHTML = content; }
+    if (isOocU) { d.className = "msg user oocu"; d.innerHTML = content; }
+    else if (unov) { d.className = "msg user unov"; d.innerHTML = content; }
     else if (m.role === "user") d.innerHTML = ai.uav === false
       ? `<div class="mrow urow"><div class="mcol">${inner}</div></div>`
       : `<div class="mrow urow"><div class="mcol">${inner}</div>${avHTML({ avatar: c.uavatar, name: c.uname || "나" }, "mav")}</div>`;
