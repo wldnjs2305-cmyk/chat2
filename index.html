@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"1.71","items":["말풍선 모드에서 이름을 프로필 사진 위쪽에 붙이고, 말풍선이 이름 바로 아래(프로필 옆)에서 시작하도록 위치 조정"]},
+  {"v":"1.71","items":["버튼을 빠르게 두 번 누르면 화면이 확대되던 문제 수정, 메시지 입력 칸의 안내 문구 없앰, 말풍선 모드에서 이름을 프로필 사진 위쪽에 붙이고, 말풍선이 이름 바로 아래(프로필 옆)에서 시작하도록 위치 조정"]},
   {"v":"1.70","items":["캐릭터 설정이 열리지 않던 문제 수정 (1.69에서 배경 사진 코드가 빠졌던 것 복구)"]},
   {"v":"1.69","items":["프로필 사진을 고를 때 확대·위치 조정 화면 추가 (드래그로 이동, 두 손가락이나 슬라이더로 확대)"]},
   {"v":"1.68","items":["캐릭터 프로필 사진을 이름 높이에 맞춤","대화방에서 연 캐릭터 설정의 ‹ 는 대화방으로 돌아가기","/ooc 내 메시지는 점선 상자로 표시","편지·일기 글씨 조금 작게, 설정에 카드 글자 크기 추가"]},
@@ -308,6 +308,7 @@ textarea.tall{min-height:180px}
 
 /* chat */
 .log{flex:1;overflow-y:auto;padding:18px 16px 8px}
+button,.quick button,.icon{touch-action:manipulation}
 .msg{margin:0 0 18px}
 .mrow{display:flex;gap:10px;align-items:flex-start}
 .mcol{flex:1;min-width:0}
@@ -643,7 +644,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
         <button id="resetChat">초기화</button>
       </div>
       <div class="in">
-        <textarea id="input" rows="1" placeholder="메시지 입력  ·  *행동은 별표로*"></textarea>
+        <textarea id="input" rows="1" placeholder=""></textarea>
         <button class="btn" id="send">보내기</button>
       </div>
     </div>
