@@ -6,6 +6,8 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.81","items":["지문 기울임체는 말풍선 형식에서만 (소설·대본은 반듯하게)"]},
+  {"v":"1.80","items":["*지문*을 기울임체로 표시"]},
   {"v":"1.79","items":["꾹 누르면 나오는 버튼 줄을 말풍선 아래 위치에 맞춤","인스타 계정 주인 답글은 @아이디를 붙이고 들여쓰기","커뮤 익명 닉네임은 숫자 없이 '익명'으로 표시"]},
   {"v":"1.78","items":["명령어 턴의 표시를 이름 없이 '입력 중...'으로"]},
   {"v":"1.77","items":["명령어 턴(/ooc 제외)은 프로필·이름 없이 '입력 중...' 글씨만"]},
@@ -375,14 +377,15 @@ button,.quick button,.icon{touch-action:manipulation}
 .unov .acts{justify-content:flex-start}
 body[data-novelbg] .msg.user.unov{border-color:rgba(255,255,255,.2)}
 body[data-novelbg] .unov .ns,body[data-novelbg] .unov .ncmd{color:#F4F4F8;text-shadow:0 1px 2px rgba(0,0,0,.55)}
-body[data-novelbg] .unov .nn{color:rgba(232,232,240,.80);font-style:italic;text-shadow:0 1px 2px rgba(0,0,0,.55)}
+body[data-novelbg] .unov .nn{color:rgba(232,232,240,.80);text-shadow:0 1px 2px rgba(0,0,0,.55)}
 .spk{font-weight:700;color:var(--accent)}
 .bar{color:var(--soft);margin:0 8px}
 .fmt-novel .msg.char .body,.fmt-script .msg.char .body{background:none;border:0;padding:0 2px}
 .fmt-novel .msg.char .body{line-height:1.85}
 .fmt-novel .body p,.fmt-script .body p{margin:0 0 .9em}
 .fmt-novel .narr,.fmt-script .narr{color:var(--soft)}
-.narr{font-family:var(--font-serif);color:var(--narr);line-height:1.8}
+.narr{font-family:var(--font-serif);color:var(--narr);line-height:1.8;font-style:italic}
+.fmt-novel .narr,.fmt-script .narr,body[data-novelbg] .log .narr{font-style:normal}
 .say{color:var(--ink)}
 .tools{display:none}
 .acts{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0}
