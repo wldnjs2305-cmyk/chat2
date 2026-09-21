@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.43","items":["메시지를 꾹 누르면 아래에 복사·수정·삭제·여기부터 지우기 버튼 줄 표시","짧은 내 말풍선이 억지로 줄바꿈되던 문제 수정","'생각 중' 문구에 이름 받침 맞춰 이/가 표시"]},
   {"v":"1.42","items":["편지·일기를 원본 방식대로 표시 (라벨 없이 수신/본문/서명, 줄 맞춤)","편지·일기 명령어 지시문을 원본 그대로 적용"]},
   {"v":"1.41","items":["캐릭터가 없을 때 뜨던 안내 문구 제거"]},
   {"v":"1.40","items":["홈 상단 버튼 정렬·크기 정리"]},
@@ -191,7 +192,7 @@ textarea.tall{min-height:180px}
 .mav{width:38px;height:38px;font-size:17px}
 .msg.char .body{background:var(--char-bg);border:1px solid var(--line);border-radius:4px 16px 16px 16px;padding:14px 16px}
 .msg.user{display:flex;flex-direction:column;align-items:flex-end}
-.msg.user .body{background:var(--user-bg);border-radius:16px 4px 16px 16px;padding:10px 14px;max-width:88%}
+.msg.user .body{background:var(--user-bg);border-radius:16px 4px 16px 16px;padding:10px 14px;max-width:85%;width:fit-content}
 .who{font-size:13px;color:var(--soft);margin:6px 0 6px 2px;font-weight:500}
 .body p{margin:0 0 .7em}
 .body p:last-child{margin-bottom:0}
@@ -225,9 +226,14 @@ textarea.tall{min-height:180px}
 .narr{font-family:var(--font-serif);color:var(--narr);line-height:1.8}
 .say{color:var(--ink)}
 .tools{display:none}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0}
+.msg.user .acts{justify-content:flex-end}
+.acts button{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:14px;padding:8px 16px;font-size:14px}
+.acts button.red{color:var(--danger)}
+.msg{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .multi{margin:0 0 12px}
 .mhead{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--soft);margin-bottom:4px}
-.urow .mcol{display:flex;flex-direction:column;align-items:flex-end}
+.urow .mcol{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-end}
 .msg.user .tools{justify-content:flex-end}
 .tools .icon{font-size:12px;padding:3px 7px}
 .thinking{color:var(--soft);font-size:14px}
@@ -704,6 +710,12 @@ const esc = s => s.replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",
 const sub = (t, c) => (t || "").replace(/\{\{\s*user\s*\}\}/gi, c.uname || "유저").replace(/\{\{\s*char\s*\}\}/gi, c.name || "캐릭터");
 
 // *지문* / 대사 렌더링
+function iga(name) {
+  const n = String(name || "").trim();
+  const ch = n.charCodeAt(n.length - 1);
+  if (ch >= 0xAC00 && ch <= 0xD7A3) return n + ((ch - 0xAC00) % 28 ? "이" : "가");
+  return n + "이(가)";
+}
 function fmtOf(c) { return c && (c.format === "novel" || c.format === "script") ? c.format : "bubble"; }
 
 /* ---------- 명령어 ---------- */
@@ -1012,17 +1024,38 @@ function renderLog(errText) {
     if (m.role !== "user" && !bare) d.querySelector(".who").textContent = c.name;
     const whoEl = d.querySelector(".who");
     if (whoEl && m.role === "user") whoEl.textContent = c.uname || "나";
-    const acts = [["수정", () => editMsg(d, m)], ["삭제", () => { if (busy) return; list.splice(i, 1); save(); renderLog(); }]];
+    const acts = [];
     if (i === list.length - 1 && m.role === "assistant" && i > 0) acts.push(["다시 생성", regen]);
+    acts.push(["복사", () => { try { navigator.clipboard.writeText(m.text); } catch (e) {} }]);
+    acts.push(["수정", () => editMsg(d, m)]);
+    acts.push(["삭제", () => { if (busy) return; list.splice(i, 1); save(); renderLog(); }, "red"]);
+    acts.push(["여기부터 지우기", () => { if (busy) return; if (!confirm("이 메시지부터 아래 대화를 모두 지울까요?")) return; list.splice(i); save(); renderLog(); }, "red"]);
     let timer = null;
-    d.addEventListener("contextmenu", e => { e.preventDefault(); showMsgMenu(acts); });
-    d.addEventListener("touchstart", () => { timer = setTimeout(() => { timer = null; showMsgMenu(acts); }, 450); }, { passive: true });
+    const toggle = () => toggleActs(d, acts);
+    d.addEventListener("contextmenu", e => { e.preventDefault(); toggle(); });
+    d.addEventListener("touchstart", e => { if (e.target.closest(".acts")) return; timer = setTimeout(() => { timer = null; toggle(); }, 450); }, { passive: true });
     ["touchend", "touchmove", "touchcancel"].forEach(ev => d.addEventListener(ev, () => { if (timer) { clearTimeout(timer); timer = null; } }, { passive: true }));
     L.appendChild(d);
   });
   if (errText) { const e = document.createElement("div"); e.className = "err"; e.textContent = errText; L.appendChild(e); }
 }
 
+function toggleActs(d, acts) {
+  const had = d.querySelector(".acts");
+  document.querySelectorAll(".msg .acts").forEach(x => x.remove());
+  if (had) return;
+  const row = document.createElement("div");
+  row.className = "acts";
+  acts.forEach(a => {
+    const b = document.createElement("button");
+    b.textContent = a[0];
+    if (a[2]) b.className = a[2];
+    b.onclick = e => { e.stopPropagation(); row.remove(); a[1](); };
+    row.appendChild(b);
+  });
+  d.appendChild(row);
+  if (navigator.vibrate) try { navigator.vibrate(10); } catch (e) {}
+}
 function showMsgMenu(acts) {
   const w = document.createElement("div");
   w.className = "msgmenu";
@@ -1152,8 +1185,8 @@ async function generate(extraUser) {
   const d = document.createElement("div");
   d.className = "msg char";
   d.innerHTML = fmtOf(c) === "bubble" && !cmd
-    ? `<div class="mrow">${avHTML(c, "mav")}<div class="mcol"><div class="who"></div><div class="body"><span class="thinking">${esc(c.name)}이(가) 생각 중</span></div></div></div>`
-    : `<div class="body"><span class="thinking">${esc(c.name)}이(가) 생각 중</span></div>`;
+    ? `<div class="mrow">${avHTML(c, "mav")}<div class="mcol"><div class="who"></div><div class="body"><span class="thinking">${esc(iga(c.name))} 생각 중</span></div></div></div>`
+    : `<div class="body"><span class="thinking">${esc(iga(c.name))} 생각 중</span></div>`;
   const wq = d.querySelector(".who");
   if (wq) wq.textContent = c.name;
   $("#log").appendChild(d); $("#log").scrollTop = $("#log").scrollHeight;
