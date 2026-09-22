@@ -6,6 +6,8 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.94","items":["모델 목록 칸의 안내 문구·힌트 문구 삭제"]},
+  {"v":"1.93","items":["모델 목록: 이름 | 모델 | 주소 | 키 순서도, 이름 | 주소 | 키 | 모델 순서도 둘 다 읽음"]},
   {"v":"1.92","items":["API 설정에 모델 목록 칸 추가, 도구줄 '모델' 버튼으로 대화 중에 바로 바꾸기 (예전 앱 v43 방식)"]},
   {"v":"1.91","items":["본 대화 지침 맨 위에 직접 문장을 넣을 수 있는 자리(MY_RULE) 추가"]},
   {"v":"1.90","items":["제미나이 모델이면 안전 필터 완화(safetySettings BLOCK_NONE)를 요청에 같이 보냄 (예전 앱 v43 방식)"]},
@@ -675,8 +677,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
         <label for="sModel">모델 이름</label>
         <input type="text" id="sModel" list="modelList" placeholder="gpt-4.1" autocomplete="off" spellcheck="false">
         <label for="sModels">모델 목록</label>
-        <textarea id="sModels" rows="4" autocomplete="off" spellcheck="false" style="width:100%;font-family:inherit" placeholder="gemini-3.8-pro&#10;빠른 거 | gemini-3.8-flash&#10;다른 곳 | 모델 이름 | https://주소/v1 | 키"></textarea>
-        <div class="hint" style="margin-top:4px">한 줄에 하나씩. 모델 이름만 쓰거나 '이름 | 모델'. 주소·키까지 쓰면 그 연결로 바뀌고, 비우면 지금 연결 그대로 모델만 바뀌어요. 저장한 연결은 '기본'으로 남아요.</div>
+        <textarea id="sModels" rows="4" autocomplete="off" spellcheck="false" style="width:100%;font-family:inherit"></textarea>
         <datalist id="modelList"><option value="gpt-4.1"><option value="gpt-4.1-mini"><option value="gpt-4o"><option value="gpt-4o-mini"></datalist>
         <label for="sTemp">창의성 (temperature): <span id="sTempV"></span></label>
         <input type="range" id="sTemp" min="0" max="1.5" step="0.05" style="width:100%">
@@ -2766,8 +2767,11 @@ function modelList() {
   return String(ai.models || "").split("\n").map(L => {
     const v = L.split("|").map(x => x.trim());
     if (!v[0]) return null;
+    const isUrl = x => /^https?:\/\//i.test(x || "");
     if (v.length === 1) return { label: v[0], model: v[0] };
-    return { label: v[0], model: v[1] || v[0], url: (v[2] || "").replace(/\/+$/, ""), key: v[3] || "" };
+    if (v.length === 2 && !isUrl(v[1])) return { label: v[0], model: v[1] };
+    if (!isUrl(v[1]) && isUrl(v[2])) return { label: v[0], model: v[1] || v[0], url: v[2].replace(/\/+$/, ""), key: v[3] || "" };
+    return { label: v[0], url: (v[1] || "").replace(/\/+$/, ""), key: v[2] || "", model: v[3] || v[0] };
   }).filter(Boolean);
 }
 function shortModel(m) { m = String(m || "").split("/").pop(); return m.length > 18 ? m.slice(0, 18) + "…" : (m || "없음"); }
