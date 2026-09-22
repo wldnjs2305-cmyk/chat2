@@ -6,6 +6,8 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.92","items":["API 설정에 모델 목록 칸 추가, 도구줄 '모델' 버튼으로 대화 중에 바로 바꾸기 (예전 앱 v43 방식)"]},
+  {"v":"1.91","items":["본 대화 지침 맨 위에 직접 문장을 넣을 수 있는 자리(MY_RULE) 추가"]},
   {"v":"1.90","items":["제미나이 모델이면 안전 필터 완화(safetySettings BLOCK_NONE)를 요청에 같이 보냄 (예전 앱 v43 방식)"]},
   {"v":"1.89","items":["/향수 명령어 추가: 이 인물이 실제로 쓸 법한 향수·바디로션·바디워시를 실제 있는 제품으로 이유와 함께 보여줌 (이름을 누르면 검색)"]},
   {"v":"1.88","items":["소설·대본 형식의 응답 길이를 늘림 (짧게 2~4 · 보통 4~6 · 길게 7~10문단)"]},
@@ -672,6 +674,9 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
         <input type="text" id="sKey" placeholder="sk-..." autocomplete="off" spellcheck="false" style="-webkit-text-security:disc">
         <label for="sModel">모델 이름</label>
         <input type="text" id="sModel" list="modelList" placeholder="gpt-4.1" autocomplete="off" spellcheck="false">
+        <label for="sModels">모델 목록</label>
+        <textarea id="sModels" rows="4" autocomplete="off" spellcheck="false" style="width:100%;font-family:inherit" placeholder="gemini-3.8-pro&#10;빠른 거 | gemini-3.8-flash&#10;다른 곳 | 모델 이름 | https://주소/v1 | 키"></textarea>
+        <div class="hint" style="margin-top:4px">한 줄에 하나씩. 모델 이름만 쓰거나 '이름 | 모델'. 주소·키까지 쓰면 그 연결로 바뀌고, 비우면 지금 연결 그대로 모델만 바뀌어요. 저장한 연결은 '기본'으로 남아요.</div>
         <datalist id="modelList"><option value="gpt-4.1"><option value="gpt-4.1-mini"><option value="gpt-4o"><option value="gpt-4o-mini"></datalist>
         <label for="sTemp">창의성 (temperature): <span id="sTempV"></span></label>
         <input type="range" id="sTemp" min="0" max="1.5" step="0.05" style="width:100%">
@@ -784,6 +789,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
         <button id="qRegen">다시 생성</button>
         <button id="qDelLast">마지막 지우기</button>
         <button id="qLen">응답</button>
+        <button id="qModel">모델</button>
         <button id="qMem">기억<span class="mdot" id="memDot" hidden></span></button>
         <button id="qPhone">핸드폰</button>
         <button id="qCmd">명령어</button>
@@ -1050,11 +1056,11 @@ $("#sFontSel").onchange = () => { ai.font = $("#sFontSel").value; applyLook(); }
 $("#sCfs").oninput = () => { ai.cfs = parseFloat($("#sCfs").value); $("#sCfsLabel").textContent = "카드 글자 크기 · " + ai.cfs + "px"; applyLook(); };
 $("#sFs").oninput = () => { ai.fs = parseFloat($("#sFs").value); $("#sFsLabel").textContent = "글자 크기 · " + ai.fs + "px"; applyLook(); };
 function readSettings() {
-  return { prov: segGet($("#sProv")), url: $("#sUrl").value.trim().replace(/\/+$/, ""), key: $("#sKey").value.trim(),
+  return { models: $("#sModels").value, home: ai.home, prov: segGet($("#sProv")), url: $("#sUrl").value.trim().replace(/\/+$/, ""), key: $("#sKey").value.trim(),
     model: $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 0, merge: $("#sMerge").checked, uav: $("#sUav").checked, trans: $("#sTrans").checked, pron: $("#sPron").checked, font: $("#sFontSel").value, fs: parseFloat($("#sFs").value) || 15, cfs: parseFloat($("#sCfs").value) || 14, theme: $("#sTheme").value };
 }
 $("#setBtn").onclick = () => {
-  segSet($("#sProv"), ai.prov); $("#sUrl").value = ai.url; $("#sKey").value = ai.key; $("#sModel").value = ai.model;
+  segSet($("#sProv"), ai.prov); $("#sUrl").value = ai.url; $("#sKey").value = ai.key; $("#sModel").value = ai.model; $("#sModels").value = ai.models || "";
   $("#sTemp").value = ai.temp; $("#sTempV").textContent = ai.temp; $("#sMax").value = ai.max || ""; $("#sMerge").checked = ai.merge !== false; $("#sUav").checked = ai.uav !== false; $("#sTrans").checked = ai.trans !== false; $("#sPron").checked = !!ai.pron;
   $("#sTheme").value = ai.theme || "light";
   $("#sFontSel").value = FONTS[ai.font] ? ai.font : "고운돋움";
@@ -1065,7 +1071,8 @@ $("#setBtn").onclick = () => {
 };
 $("#sSave").onclick = () => {
   ai = readSettings();
-  applyLook();
+  ai.home = { prov: ai.prov, url: ai.url, key: ai.key, model: ai.model };
+  applyLook(); updModelBtn();
   if (cur) renderLog();
   try { localStorage.setItem(SKEY, JSON.stringify(ai)); } catch(e) {}
   updateBanner(); renderHome(); show("home");
@@ -2404,6 +2411,16 @@ function editMsg(node, m) {
   body.querySelector("[data-s]").onclick = () => { m.text = ta.value; save(); renderLog(); };
 }
 
+/* ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
+   내가 직접 넣는 지침 — 아래 두 백틱(`) 사이에 쓰세요.
+   비워두면 아무것도 안 들어가요. 여러 줄로 써도 돼요.
+   안에 백틱(`)이나 ${ 는 쓰지 마세요.
+   ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
+const MY_RULE = `
+여기에 쓰세요
+`;
+/* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
+function myRule() { const t = MY_RULE.trim(); return t && t !== "여기에 쓰세요" ? t + "\n" : ""; }
 function buildRules(c, cmd) {
   const u = c.uname || "유저";
   const lenMap = {
@@ -2466,7 +2483,7 @@ ${glossRule}
     ? "- 지문은 3인칭 과거형(~했다, ~였다)으로 쓴다."
     : "- 지문은 3인칭 현재형(~한다, ~본다)으로 쓴다.";
   return `너는 지금부터 캐릭터 롤플레이 채팅의 '${c.name}' 역할을 맡는다. 이후 대화에서 너는 오직 ${c.name}으로서 응답한다.
-
+${myRule()}
 ${(c.world || "").trim() ? "[상황 및 세계관]\n" + sub(c.world, c) + "\n\n" : ""}[캐릭터 설정]
 ${sub(c.prompt, c) || "(설정 없음)"}
 
@@ -2744,7 +2761,34 @@ ${convo}`;
   }
   btn.disabled = false; btn.textContent = "정리하기";
 };
-function updLenBtn() { const c = char(); $("#qLen").textContent = "응답 · " + (LEN_NAMES[c && c.len] || "보통"); }
+/* 모델 목록 · 도구줄에서 바로 바꾸기 (v43 방식) */
+function modelList() {
+  return String(ai.models || "").split("\n").map(L => {
+    const v = L.split("|").map(x => x.trim());
+    if (!v[0]) return null;
+    if (v.length === 1) return { label: v[0], model: v[0] };
+    return { label: v[0], model: v[1] || v[0], url: (v[2] || "").replace(/\/+$/, ""), key: v[3] || "" };
+  }).filter(Boolean);
+}
+function shortModel(m) { m = String(m || "").split("/").pop(); return m.length > 18 ? m.slice(0, 18) + "…" : (m || "없음"); }
+function updModelBtn() { const b = $("#qModel"); if (b) b.textContent = "모델 · " + (ai.prov === "builtin" ? "내장" : shortModel(ai.model)); }
+function saveAi() { try { localStorage.setItem(SKEY, JSON.stringify(ai)); } catch (e) {} }
+$("#qModel").onclick = () => {
+  if (busy) return;
+  if (!ai.home) ai.home = { prov: ai.prov, url: ai.url, key: ai.key, model: ai.model };
+  const h = ai.home, list = modelList();
+  const same = (m, u) => ai.prov !== "builtin" && m === ai.model && (!u || u === ai.url);
+  const acts = [[(h.model === ai.model && h.prov === ai.prov && h.url === ai.url ? "✓ " : "") + "기본 · " + (h.prov === "builtin" ? "내장" : h.model), () => { Object.assign(ai, h); saveAi(); updModelBtn(); updateBanner(); }]];
+  list.forEach(m => acts.push([(same(m.model, m.url) ? "✓ " : "") + (m.label === m.model ? m.model : m.label + " · " + m.model), () => {
+    if (m.url) { ai.prov = "custom"; ai.url = m.url; ai.key = m.key; }
+    else if (ai.prov === "builtin") { ai.prov = h.prov === "builtin" ? "openai" : h.prov; ai.url = h.url; ai.key = h.key; }
+    else { ai.prov = h.prov === "builtin" ? ai.prov : h.prov; ai.url = h.url; ai.key = h.key; }
+    ai.model = m.model; saveAi(); updModelBtn(); updateBanner();
+  }]));
+  if (!list.length) acts.push(["설정에서 모델 목록 채우기", () => $("#setBtn").click()]);
+  showMsgMenu(acts);
+};
+function updLenBtn() { updModelBtn(); const c = char(); $("#qLen").textContent = "응답 · " + (LEN_NAMES[c && c.len] || "보통"); }
 $("#qLen").onclick = () => {
   const c = char(); if (!c) return;
   showMsgMenu(Object.keys(LEN_NAMES).map(k => [(c.len === k ? "✓ " : "") + LEN_NAMES[k], () => { c.len = k; save(null); updLenBtn(); }]));
