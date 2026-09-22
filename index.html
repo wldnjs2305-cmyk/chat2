@@ -6,6 +6,8 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"2.00","items":["임시저장은 버튼을 눌렀을 때만 (자동 저장 없앰)","새 캐릭터를 임시저장하면 홈에 '임시저장'으로 남고, 누르면 설정 화면에서 이어 쓰기"]},
+  {"v":"1.99","items":["홈 목록: 최근에 대화한 채팅방이 맨 위로","홈 목록: 꾹 누르면 채팅방 고정·고정 풀기 (고정한 방은 항상 맨 위)","캐릭터 설정 임시저장: 쓰는 중에 자동으로 저장, 다시 열면 이어 쓰기 물어봄 + 임시저장 버튼"]},
   {"v":"1.98","items":["/향수 이유 지침을 짧게: 성격과 생활에서 고르게 된 사정이 드러나게"]},
   {"v":"1.97","items":["/향수 지침 뒷부분을 새 문장으로 교체 (재력 줄 삭제, 프롬프트·대화 기반으로 고르기)"]},
   {"v":"1.96","items":["/향수 지침에서 '본인이 신경 쓰지 않는 물건이라도…' 문장 삭제"]},
@@ -182,6 +184,8 @@ header.bar h2{font-size:16px;margin:0;flex:1;font-weight:700;overflow:hidden;tex
 /* home */
 .list{flex:1;overflow-y:auto;padding:8px 0}
 .row{display:flex;align-items:center;gap:14px;padding:12px 16px;border:0;background:none;width:100%;text-align:left}
+#charList .row{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+#charList .row .pin{font-size:.78em;margin-left:5px;opacity:.55}
 .row:hover{background:var(--panel)}
 .optcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin:0 0 22px}
 .optcard label:first-child{margin-top:0}
@@ -777,6 +781,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
     </div>
     <div class="actions">
       <button class="btn danger" id="delChar" hidden>삭제</button>
+      <button class="btn ghost" id="draftChar" type="button">임시저장</button>
       <button class="btn" id="saveChar">저장하고 대화하기</button>
     </div>
   </section>
@@ -880,7 +885,7 @@ function save(chatId) {
   else { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e) {} }
   metaDirty = true;
   if (chatId === undefined) chatId = cur;
-  if (chatId) dirtyChats.add(chatId);
+  if (chatId) { dirtyChats.add(chatId); const lc = store.chars.find(x => x.id === chatId); if (lc) lc.lastAt = Date.now(); }
   if (!dbReady) return;
   clearTimeout(flushTimer);
   flushTimer = setTimeout(flush, 700);
@@ -1912,15 +1917,22 @@ function renderHome() {
     return;
   }
   L.innerHTML = "";
-  list.forEach(c => {
+  const order = new Map(store.chars.map((c, i) => [c.id, i]));
+  list.slice().sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (b.lastAt || 0) - (a.lastAt || 0) || order.get(a.id) - order.get(b.id)).forEach(c => {
     const msgs = store.chats[c.id] || [];
     const last = msgs[msgs.length - 1];
     const b = document.createElement("button");
     b.className = "row";
     b.innerHTML = `${avHTML(c)}<div class="meta"><div class="nm"></div><div class="pv"></div></div>`;
     b.querySelector(".nm").textContent = c.name || "이름 없음";
-    b.querySelector(".pv").textContent = last ? last.text.replace(/\*/g, "").slice(0, 60) : "대화를 시작해보세요";
-    b.onclick = () => openChat(c.id);
+    if (c.pinned) b.querySelector(".nm").insertAdjacentHTML("beforeend", '<span class="pin">📌</span>');
+    b.querySelector(".pv").textContent = c.draft ? "임시저장 · 눌러서 이어 쓰기" : (last ? last.text.replace(/\*/g, "").slice(0, 60) : "대화를 시작해보세요");
+    let pressT = 0, pressed = false;
+    const menu = () => { pressed = true; showMsgMenu([[c.pinned ? "고정 풀기" : "맨 위에 고정", () => { c.pinned = !c.pinned; save(null); renderHome(); }]]); };
+    b.addEventListener("pointerdown", () => { pressed = false; clearTimeout(pressT); pressT = setTimeout(menu, 550); });
+    ["pointerup", "pointerleave", "pointercancel", "pointermove"].forEach(ev => b.addEventListener(ev, e => { if (ev !== "pointermove" || Math.abs(e.movementY) > 3) clearTimeout(pressT); }));
+    b.addEventListener("contextmenu", e => { e.preventDefault(); clearTimeout(pressT); if (!pressed) menu(); });
+    b.onclick = () => { if (pressed) { pressed = false; return; } if (c.draft) { editorFromChat = false; openEditor(c.id); } else openChat(c.id); };
     L.appendChild(b);
   });
 }
@@ -2274,7 +2286,50 @@ function openEditor(id) {
   $("#fHand").value = HANDS[c.hand] ? c.hand : "단정";
   $("#delChar").hidden = !editing;
   show("editor");
+  setTimeout(offerDraft, 60);
 }
+/* 캐릭터 설정 임시저장 — 이 기기에만 */
+const DRAFT_PRE = "bamp_draft_";
+let draftTimer = 0, draftOff = false;
+function draftKey() { return DRAFT_PRE + (editing ? editing.id : "new"); }
+function readDraftForm() {
+  return { at: Date.now(), name: $("#fName").value, prompt: $("#fChar").value, world: $("#fWorld").value, uname: $("#fUName").value, upersona: $("#fUser").value,
+    samples: editSamples, greetings: editGreets, len: segGet($("#fLen")), tense: segGet($("#fTense")), format: segGet($("#fFormat")), lang: segGet($("#fLang")), narr: segGet($("#fNarr")), hand: $("#fHand").value };
+}
+function writeDraft() { if (draftOff) return false; try { localStorage.setItem(draftKey(), JSON.stringify(readDraftForm())); return true; } catch (e) { return false; } }
+function draftSoon() { clearTimeout(draftTimer); draftTimer = setTimeout(writeDraft, 600); }
+function clearDraft(key) { clearTimeout(draftTimer); try { localStorage.removeItem(key || draftKey()); } catch (e) {} }
+function applyDraft(d) {
+  $("#fName").value = d.name || ""; $("#fChar").value = d.prompt || ""; $("#fWorld").value = d.world || "";
+  $("#fUName").value = d.uname || ""; $("#fUser").value = d.upersona || "";
+  if (Array.isArray(d.samples)) editSamples = d.samples;
+  if (Array.isArray(d.greetings)) editGreets = d.greetings.length ? d.greetings : [""];
+  if (d.len) segSet($("#fLen"), d.len); if (d.tense) segSet($("#fTense"), d.tense); if (d.format) segSet($("#fFormat"), d.format);
+  if (d.lang) segSet($("#fLang"), d.lang); if (d.narr) segSet($("#fNarr"), d.narr); if (d.hand && HANDS[d.hand]) $("#fHand").value = d.hand;
+  renderStyleList(); renderIntroList(); setAvPreview();
+}
+function offerDraft() {
+  if (editing && editing.draft) return;
+  let d = null;
+  try { d = JSON.parse(localStorage.getItem(draftKey()) || "null"); } catch (e) {}
+  if (!d) return;
+  const t = new Date(d.at || Date.now());
+  const when = (t.getMonth() + 1) + "월 " + t.getDate() + "일 " + t.getHours() + ":" + String(t.getMinutes()).padStart(2, "0");
+  if (confirm("임시저장한 내용이 있어요 (" + when + ").\n이어서 쓸까요?")) applyDraft(d);
+  else clearDraft();
+}
+$("#draftChar").onclick = () => {
+  const b = $("#draftChar");
+  let ok = true;
+  if (!editing || editing.draft) {
+    const data = editorData();
+    if (editing) Object.assign(editing, data);
+    else { editing = Object.assign({ id: newId() }, data); store.chars.unshift(editing); $("#delChar").hidden = false; }
+    editing.draft = true; dirtyAvatars.add(editing.id); save(editing.id);
+  } else ok = writeDraft();
+  b.textContent = ok ? "임시저장됨 ✓" : "저장 실패";
+  setTimeout(() => { b.textContent = "임시저장"; }, 1500);
+};
 $("#newChar").onclick = () => { editorFromChat = false; openEditor(null); };
 $("#searchBtn").onclick = () => {
   const w = $("#searchWrap");
@@ -2283,24 +2338,28 @@ $("#searchBtn").onclick = () => {
 };
 $("#searchIn").addEventListener("input", renderHome);
 $("#editFromChat").onclick = () => { editorFromChat = true; openEditor(cur); };
-$("#saveChar").onclick = () => {
-  const data = {
+function editorData() {
+  return {
     name: $("#fName").value.trim() || "이름 없음", avatar: editAvatar, uavatar: editUAvatar, nbg: editNbg, sayColor: editSay,
     prompt: $("#fChar").value, world: $("#fWorld").value, books: allLore(editBooks).length ? normBooks(editBooks) : [],
     samples: editSamples.filter(sm => (sm.lines || []).some(l => l.t.trim())), greetings: editGreets.filter(t => t.trim()), styles: [], intros: [],
     uname: $("#fUName").value.trim(), upersona: $("#fUser").value,
     len: segGet($("#fLen")), tense: segGet($("#fTense")), format: segGet($("#fFormat")), lang: segGet($("#fLang")), narr: segGet($("#fNarr")), hand: $("#fHand").value
   };
+}
+$("#saveChar").onclick = () => {
+  const data = editorData();
+  clearDraft();
   let id;
-  if (editing) { Object.assign(editing, data); id = editing.id; }
+  if (editing) { Object.assign(editing, data); delete editing.draft; id = editing.id; }
   else { id = newId(); store.chars.unshift(Object.assign({ id }, data)); }
   dirtyAvatars.add(id);
-  save(); openChat(id);
+  save(id); openChat(id);
 };
 $("#delChar").onclick = () => {
   if (!editing || !confirm(`'${editing.name}'와(과) 대화 기록을 삭제할까요?`)) return;
   store.chars = store.chars.filter(c => c.id !== editing.id);
-  const gone = editing.id; delete store.chats[gone]; if (cur === gone) cur = null; save(gone); renderHome(); show("home");
+  const gone = editing.id; clearDraft(DRAFT_PRE + gone); delete store.chats[gone]; if (cur === gone) cur = null; save(gone); renderHome(); show("home");
 };
 
 // 채팅
