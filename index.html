@@ -6,6 +6,8 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"1.90","items":["제미나이 모델이면 안전 필터 완화(safetySettings BLOCK_NONE)를 요청에 같이 보냄 (예전 앱 v43 방식)"]},
+  {"v":"1.89","items":["/향수 명령어 추가: 이 인물이 실제로 쓸 법한 향수·바디로션·바디워시를 실제 있는 제품으로 이유와 함께 보여줌 (이름을 누르면 검색)"]},
   {"v":"1.88","items":["소설·대본 형식의 응답 길이를 늘림 (짧게 2~4 · 보통 4~6 · 길게 7~10문단)"]},
   {"v":"1.87","items":["핸드폰을 다시 별도 파일(phone.js)로 분리: 밤편지 파일이 가벼워짐"]},
   {"v":"1.86","items":["핸드폰을 밤편지 파일 안에 합침 (phone.js 따로 올릴 필요 없음)"]},
@@ -510,6 +512,14 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .oc .rv .rvstars .rs.on{color:#FFC107}
 .oc .rv .rvstars i{font-style:normal;font-size:.78em;color:var(--muted);margin-left:8px}
 .oc .rv .rvbody{margin-top:8px;font-size:.92em;line-height:1.65}
+.oc .rv.sc .scitem{padding:13px 16px}
+.oc .rv.sc .scitem+.scitem{border-top:1px solid var(--line)}
+.oc .rv.sc .scsite{font-size:.74em;line-height:1;display:inline-block;padding:4px 8px;border-radius:99px;background:var(--line);color:var(--muted);margin-bottom:7px}
+.oc .rv.sc .sclink{display:block;color:inherit;text-decoration:none}
+.oc .rv.sc .scbr{font-size:.78em;color:var(--muted);letter-spacing:.02em;line-height:1.3}
+.oc .rv.sc .scnm{font-size:.98em;font-weight:600;line-height:1.4;margin-top:2px}
+.oc .rv.sc .scnote{font-size:.8em;color:var(--muted);margin-top:4px;line-height:1.45}
+.oc .rv.sc .scbody{margin-top:8px;font-size:.92em;line-height:1.65}
 .oc .pl{background:var(--field);border-radius:16px;padding:6px 4px;margin:10px 0}
 .oc .pl a{display:block;padding:10px 14px;text-decoration:none;color:inherit;border-bottom:1px solid var(--line)}
 .oc .pl a:last-child{border-bottom:0}
@@ -1070,6 +1080,15 @@ $("#sTest").onclick = async () => {
 };
 
 function apiBase(cfg) { return cfg.prov === "openai" ? "https://api.openai.com/v1" : cfg.url; }
+/* 제미나이 안전 필터 완화 (v43 방식). 중계 서버가 그대로 넘겨줘야 먹힌다 */
+const GEMINI_SAFE_CATS = ["HARM_CATEGORY_HARASSMENT", "HARM_CATEGORY_HATE_SPEECH", "HARM_CATEGORY_SEXUALLY_EXPLICIT", "HARM_CATEGORY_DANGEROUS_CONTENT", "HARM_CATEGORY_CIVIC_INTEGRITY"];
+function applyGeminiSafety(body) {
+  const list = GEMINI_SAFE_CATS.map(c => ({ category: c, threshold: "BLOCK_NONE" }));
+  body.extra_body = body.extra_body || {};
+  body.extra_body.google = Object.assign({}, body.extra_body.google, { safety_settings: list });
+  body.safety_settings = list;
+  return body;
+}
 async function callApi(cfg, messages, onText, signal, maxOverride) {
   if (!cfg.key && cfg.prov === "openai") throw new Error("API 키를 입력해주세요.");
   if (cfg.prov === "custom" && !cfg.url) throw new Error("API 주소를 입력해주세요.");
@@ -1078,6 +1097,7 @@ async function callApi(cfg, messages, onText, signal, maxOverride) {
   const mt = cfg.max || 0;
   if (cfg.prov === "openai" && /^(o\d|gpt-5)/.test(cfg.model)) { delete body.temperature; if (mt) body.max_completion_tokens = mt; }
   else if (mt) body.max_tokens = mt;
+  if (/gemini/i.test(cfg.model)) applyGeminiSafety(body);
   let res;
   try {
     res = await fetch(apiBase(cfg) + "/chat/completions", {
@@ -1220,6 +1240,7 @@ const CMDS = {
   "/시청기록": "이번 턴에는 최근 시청 기록만 [시청]과 [/시청] 사이에 쓴다. 한 줄에 하나씩 '제목 | 채널 | 어디까지 봤는지 | 언제' 형식으로 쓰고 항목은 다섯 개다. 최근에 본 것이 위에 온다.\n제목과 채널은 이 인물이 볼 법한 것으로 자유롭게 짓는다. 실제로 존재하는 영상을 맞히려 하지 않는다. 채널명은 현실에 있는 곳을 써도 되고 그럴듯하게 지어내도 된다. 제목은 실제 유튜브 제목처럼 쓴다. 대문자 강조, 물음표 남발, ㅋㅋ나 ㄷㄷ 같은 표기도 그 채널 성격에 맞으면 쓴다.\n'어디까지 봤는지' 칸이 이 목록의 핵심이다. 끝까지 봤는지, 몇 분 보다 껐는지, 몇 번째 다시 보는지를 적는다.\n음악 영상으로 목록을 채우지 않는다. 노래는 따로 다룬다. 직업이나 성격 하나만으로 다섯 개를 같은 주제로 채우지 않는다. 찾아본 것과 아무 생각 없이 튼 것을 섞는다. 시간대가 드러나면 언제 칸에 적는다.\n같은 시점에 다시 조회하면 이미 나온 제목과 시점을 유지한다.\n현대 한국이 아니면 그 나라에서 실제로 쓰는 영상 플랫폼과 실존 채널로 맞춘다. 영상 플랫폼이 없는 세계관이면 그 시대에 이 인물이 구경하거나 즐겨 보던 것을 같은 형식으로 쓰고, 이때는 채널 칸에 실존 채널 대신 그 시대에 맞는 이름을 쓴다.",
   "/통화기록": "이번 턴에는 최근 통화 기록만 [통화]와 [/통화] 사이에 쓴다. 한 줄에 하나씩 '상대 | 통화 길이 | 발신 또는 수신 또는 부재중 | 날짜와 시각 | 비고' 형식으로 쓰고 항목은 여섯 개다. 최근이 위에 온다.\n상대는 설정과 대화에 이미 나온 사람을 우선하고, 없으면 이 인물의 생활에 있을 법한 사람이나 가게로 정한다. 이 인물이 저장해둔 이름 그대로 쓴다.\n부재중과 아주 짧은 통화를 반드시 섞는다. 누구의 전화를 받지 않았는지가 이 목록의 핵심이다. 비고에는 다시 걸었는지 정도만 짧게 쓰고 통화 내용을 지어내 옮기지 않는다.\n유저가 맡은 인물과의 통화는 대화에서 실제로 통화한 적이 있을 때만 넣는다.\n같은 시점에 다시 조회하면 이미 나온 기록을 유지한다.\n전화가 없는 세계관이면 최근에 주고받은 전갈이나 서신을 같은 형식으로 쓴다.",
   "/리뷰": "이번 턴에는 이 인물이 남긴 후기만 [리뷰]와 [/리뷰] 사이에 쓴다. 후기는 세 개이고 빈 줄로 나눈다. 각 후기는 다음 라벨을 각각 한 줄씩 쓴다.\n플랫폼: 후기를 남긴 곳. 쿠팡, 네이버 쇼핑, 배달의민족, 알라딘, 왓챠처럼 현실에 실제로 있는 이름을 쓴다. 한국이 아니면 그 나라에서 실제로 쓰는 곳으로 한다\n상품: 후기를 남긴 상품이나 작품의 이름\n옵션: 상품 아래에 붙는 짧은 선택 사항. '기초 1단계', '구이용 1kg', '블랙 / L', '2인분'처럼 쓴다. 붙일 것이 없으면 이 줄을 비워 둔다\n별점: 1에서 5 사이의 정수만 쓴다. 별표나 다른 기호를 쓰지 않는다\n날짜: 장면 속 날짜\n내용: 이 인물이 실제로 썼을 법한 후기 본문\n세 개의 플랫폼과 상품 종류를 서로 다르게 한다. 전부 음식이나 전부 책으로 채우지 않는다. 이 인물이 실제로 돈이나 시간을 쓴 것에서 고르고, 직업 하나만으로 단정하지 않는다.\n후기 본문은 대화할 때의 말투가 아니라 모르는 사람에게 쓰는 말투다. 이 차이가 이 카드의 핵심이다. 말을 짧게 하는 사람이면 한 줄로 끝낸다.\n별점을 전부 높게 주지 않는다. 별점이 낮으면 본문에도 그 이유가 드러나야 한다.\n후기 문화가 없는 세계관이면 그 시대에 남겼을 평이나 장부의 촌평을 같은 형식으로 쓰고, 플랫폼 칸에는 그 기록이 남은 곳을 쓴다.",
+  "/향수": "이번 턴에는 이 인물이 실제로 쓰는 향수, 바디로션, 바디워시만 [향수]와 [/향수] 사이에 쓴다. 세 개를 향수, 바디로션, 바디워시 순서로 빈 줄로 나눈다. 각 항목은 다음 라벨을 각각 한 줄씩 쓴다.\n종류: 향수 / 바디로션 / 바디워시 중 하나\n브랜드: 브랜드 이름\n제품: 판매되는 정확한 제품명. 향수는 농도(오 드 퍼퓸, 오 드 뚜왈렛 등)까지 쓴다\n향: 주요 노트나 향의 느낌을 짧게\n이유: 이 인물이 이걸 쓰는 이유를 한두 문장으로\n현실에 실제로 판매되는 제품만 쓴다. 브랜드와 제품명이 확실하지 않으면 지어내지 말고 확실히 아는 제품으로 바꾼다. 브랜드만 맞고 없는 라인 이름을 붙이지 않는다.\n이유는 향이 이미지에 어울린다는 말로 끝내지 않는다. 이 인물의 성격, 생활, 예산, 하는 일, 누가 사줬는지, 귀찮아하는지 공들이는지처럼 이 사람이 이걸 고르게 된 사정이 드러나야 한다.\n세 개를 전부 비싼 브랜드로 맞추지 않는다. 향수에는 공을 들여도 바디워시는 아무거나 쓰는 사람이 있고, 향수를 안 뿌리는 사람도 있다. 그런 인물이면 향수 칸에 가장 가까운 것(가끔 뿌리는 것, 선물받고 둔 것)을 쓰고 이유에 그 사정을 쓴다.\n인물 설정에 향이나 쓰는 제품이 적혀 있으면 무엇보다 그것을 따른다. 대화에서 이미 나온 향이 있으면 그것과 어긋나지 않게 한다.\n세계관이 현대가 아니어도 현실에 실제로 파는 제품으로 고른다.\n같은 시점에 다시 조회하면 이미 나온 제품을 유지한다. 지문이나 대사는 쓰지 않는다.",
   "/메모": "이번 턴에는 인물이 유저에게 남긴 짧은 메모만 [메모]와 [/메모] 사이에 쓴다. 다음 세 줄을 먼저 쓰고 그 아래에 본문을 쓴다.\n쓴사람: 메모를 쓴 인물의 이름\n받는사람: 메모를 받을 사람의 이름\n남긴곳: 식탁 위, 현관문, 책상 서랍처럼 메모를 둔 자리\n본문은 짧게 쓴다. 두세 줄이면 충분하고 길어야 다섯 줄이다. 편지가 아니라 쪽지이므로 인사말과 맺음말을 갖추지 않는다. 이 인물이 급하게 적었을 법한 말투로 쓴다.\n메모를 남길 상황부터 만든다. 자리를 비우거나, 먼저 나가거나, 상대가 잠들었거나, 직접 말하기 어려운 것이 있을 때 쓴다. 지금 두 사람이 마주 보고 있는 상황이면 메모 대신 그냥 말한다.\n지문이나 대사는 쓰지 않는다. 메모에 적힌 글자만 쓴다.\n종이가 없는 세계관이면 그 시대에 짧은 말을 남기는 방식으로 바꾼다.",
   "/삭제내역": "이번 턴에는 인물의 휴대폰 휴지통에서 복구된 통화·메시지 삭제 내역만 보여준다. 다음 형식을 그대로 지킨다.\n[삭제내역]\n[통화 기록]\n- 2026. 10. 21. 23:40 | 발신 (05분 12초) | 상대 이름 (관계나 직함)\n· 내용: 통화에서 오간 이야기\n· 삭제 이유: 지운 이유\n· 당시 생각: '그때 속으로 한 생각'\n[메시지]\n- 2026. 10. 20. 14:15 | 수신 | 상대 이름 (관계나 직함)\n· 내용: [메시지 원문]\n· 삭제 이유: 지운 이유\n· 당시 감정: 감정 한두 마디. '그때 속으로 한 생각'\n[/삭제내역]\n통화와 메시지를 합쳐 2~4건이고, 최근 것이 위에 온다. 통화는 발신·수신·부재중 중 하나와 통화 시간을, 메시지는 발신·수신을 쓴다. 날짜와 시각은 지금 장면의 시점에 맞춘다. 상대는 캐릭터 설정과 대화에 나온 인물이나 그 세계에 있을 법한 인물로 하고, 상대에게 숨기고 싶었던 일이나 몰래 챙기던 일처럼 캐릭터다운 이유로 지운 내역을 고른다. 설정과 대화에서 벗어난 큰 사건을 새로 지어내지 않는다. 태그 바깥에 지문이나 대사, 설명을 쓰지 않는다.",
   "/모브": "이번 턴에 지금 상황에 어울리는 새 인물을 한 명 등장시킨다. 이름을 정하고, 그 인물이 말할 때는 줄 맨 앞에 그 이름과 | 를 붙여 쓴다. 설정에 없는 단역이어도 된다.",
@@ -1231,10 +1252,10 @@ const CMD_SAY = {
   "/소문": "(요즘 도는 소문이 뭐야)", "/커뮤": "(커뮤에 뭐라고 올라왔어)", "/인스타": "(인스타를 보여줘)",
   "/모브": "(누가 끼어들었어)", "/삭제내역": "(삭제 내역)", "/속마음": "(속마음)", "/쇼핑": "(뭐 샀는지 보여줘)", "/결제": "(무슨 결제 나갔는지 보여줘)",
   "/관계도": "(관계를 정리해줘)", "/비밀": "(숨기고 있는 거 알려줘)", "/메모": "(메모 남겨줘)", "/시청기록": "(뭐 봤는지 보여줘)",
-  "/통화기록": "(통화 기록 보여줘)", "/리뷰": "(후기 뭐 썼는지 보여줘)", "/이벤트": "(무슨 일이 생겼어)"
+  "/통화기록": "(통화 기록 보여줘)", "/리뷰": "(후기 뭐 썼는지 보여줘)", "/향수": "(무슨 향 쓰는지 알려줘)", "/이벤트": "(무슨 일이 생겼어)"
 };
-const CMD_ALIAS = { "/휴지통": "/삭제내역", "/복구": "/삭제내역", "#속마음": "/속마음", "/속마음보기": "/속마음", "/커뮤니티": "/커뮤", "/커뮤반응": "/커뮤", "/주문": "/쇼핑", "/주문내역": "/쇼핑", "/결제내역": "/결제", "/장면전환": "/전환", "/시청": "/시청기록", "/통화": "/통화기록" };
-const CARD_CMDS = { "/삭제내역": 1, "/편지": 1, "/일기": 1, "/플리": 1, "/관계": 1, "/소문": 1, "/커뮤": 1, "/인스타": 1, "/쇼핑": 1, "/결제": 1, "/속마음": 1, "/관계도": 1, "/비밀": 1, "/시청기록": 1, "/통화기록": 1, "/리뷰": 1, "/메모": 1 };
+const CMD_ALIAS = { "/휴지통": "/삭제내역", "/복구": "/삭제내역", "#속마음": "/속마음", "/속마음보기": "/속마음", "/커뮤니티": "/커뮤", "/커뮤반응": "/커뮤", "/주문": "/쇼핑", "/주문내역": "/쇼핑", "/결제내역": "/결제", "/장면전환": "/전환", "/시청": "/시청기록", "/통화": "/통화기록", "/향": "/향수", "/바디": "/향수" };
+const CARD_CMDS = { "/삭제내역": 1, "/편지": 1, "/일기": 1, "/플리": 1, "/관계": 1, "/소문": 1, "/커뮤": 1, "/인스타": 1, "/쇼핑": 1, "/결제": 1, "/속마음": 1, "/관계도": 1, "/비밀": 1, "/시청기록": 1, "/통화기록": 1, "/리뷰": 1, "/향수": 1, "/메모": 1 };
 function parseCmd(text) {
   const m = String(text || "").match(/^\s*([\/#][^\s]+)\s*([\s\S]*)$/);
   if (!m) return null;
@@ -1284,7 +1305,7 @@ function trashCard(body) {
   return `<div class="tcard"><div class="thead"><span class="tpill">휴지통 복구 기록 (통화·메시지)</span><div class="ttitle">최근 삭제된 송수신 내역</div><div class="tmeta">시스템 복구 로그 · 복구됨 · 조회 0</div></div><div class="tbody">${html}</div></div>`;
 }
 /* ---------- 예전 앱(v46g) 카드 — 모양·글씨체 그대로 ---------- */
-const OC_KINDS = ["삭제내역", "편지", "일기", "속마음", "플리", "관계", "상태", "비밀", "소문", "커뮤", "주문", "결제", "인스타", "시청", "통화", "리뷰", "메모"];
+const OC_KINDS = ["삭제내역", "편지", "일기", "속마음", "플리", "관계", "상태", "비밀", "소문", "커뮤", "주문", "결제", "인스타", "시청", "통화", "리뷰", "향수", "메모"];
 const OC_USER_HAND = "'HandKonkon','Caveat','Yomogi',cursive";
 function ocHand(c, hand) { return hand || HANDS[c && c.hand] || HANDS["단정"]; }
 function ocIsUser(c, n) {
@@ -1467,6 +1488,24 @@ function ocReview(body) {
   if (!out) return "";
   return `<div class="rv"><div class="rvhd"><b>내가 쓴 후기</b><i>${items.length}건</i></div>${out}</div>`;
 }
+function ocScent(body) {
+  const items = String(body || "").trim().split(/\n\s*\n/).filter(Boolean);
+  let out = "";
+  items.forEach(blk => {
+    const f = {};
+    blk.split("\n").forEach(L => {
+      const m = L.replace(/^[-•*\s]+/, "").match(/^([^:：]{1,8})[:：]\s*([\s\S]*)$/);
+      if (m) f[m[1].trim()] = m[2].trim();
+      else if (L.trim()) f.이유 = (f.이유 ? f.이유 + " " : "") + L.trim();
+    });
+    const kind = f.종류 || "", br = f.브랜드 || "", nm = f.제품 || f.상품 || "";
+    if (!nm && !br) return;
+    const q = encodeURIComponent([br, nm].filter(Boolean).join(" "));
+    out += `<div class="scitem">${kind ? `<div class="scsite">${esc(kind)}</div>` : ""}<a class="sclink" href="https://search.shopping.naver.com/search/all?query=${q}" target="_blank" rel="noreferrer">${br ? `<div class="scbr">${esc(br)}</div>` : ""}${nm ? `<div class="scnm">${esc(nm)}</div>` : ""}</a>${f.향 ? `<div class="scnote">${esc(f.향)}</div>` : ""}${f.이유 ? `<div class="scbody">${ocCardText(f.이유)}</div>` : ""}</div>`;
+  });
+  if (!out) return "";
+  return `<div class="rv sc"><div class="rvhd"><b>쓰는 향</b><i>향수 · 바디</i></div>${out}</div>`;
+}
 function ocIgWhen(p) {
   const at = p && p.at;
   if (at) {
@@ -1610,6 +1649,7 @@ function ocCard(kind, body, c, hand) {
   else if (kind === "플리") h = ocPlay(body);
   else if (kind === "비밀" || kind === "관계" || kind === "소문") h = ocDetail(kind, body);
   else if (kind === "리뷰") h = ocReview(body);
+  else if (kind === "향수") h = ocScent(body);
   else if (kind === "인스타") h = ocInsta(body, c);
   else if (kind === "커뮤") h = ocComm(body);
   if (!h) return renderPlainChunk(body);
@@ -2597,7 +2637,7 @@ window.BamPhone = {
   charAvatar: () => (char() && char().avatar) || "",
   turns: () => {
     const c = char(); if (!c) return [];
-    return msgs().filter(m => !m.cmd && !/^\s*\[(편지|일기|삭제내역|플리|관계|소문|커뮤|인스타|주문|결제|비밀|시청|통화|리뷰|메모|속마음)\]/.test(m.text || ""))
+    return msgs().filter(m => !m.cmd && !/^\s*\[(편지|일기|삭제내역|플리|관계|소문|커뮤|인스타|주문|결제|비밀|시청|통화|리뷰|향수|메모|속마음)\]/.test(m.text || ""))
       .map(m => ({ who: m.role === "user" ? "user" : "char", name: m.role === "user" ? (c.uname || "나") : c.name, text: phonePlain(m.text) }))
       .filter(t => t.text.length >= 2);
   },
