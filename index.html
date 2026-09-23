@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"2.41","items":[]}
+  {"v":"2.45","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -775,7 +775,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .tkiss.touch .tk-me{color:var(--fp,#2a2427)}
 .tkiss.touch .tk-you{color:var(--fp,#2a2427);opacity:1;animation:tkbeat calc(1s - var(--heat) * .5s) ease-in-out infinite}
 .tkiss .tk-bloom{position:absolute;left:-90px;top:-90px;width:180px;height:180px;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(255,111,174,.55),rgba(255,160,205,.22) 45%,transparent 70%);opacity:var(--heat);scale:calc(.6 + var(--heat) * 2.2)}
-@keyframes tkbeat{0%,100%{scale:1}15%{scale:1.08}30%{scale:1}}
+@keyframes tkbeat{0%,100%{scale:1}15%{scale:1.025}30%{scale:1}}
 .tkiss.pounce .tk-you{animation:tkpounce .55s ease-out,tkbeat calc(1s - var(--heat) * .5s) ease-in-out .55s infinite}
 @keyframes tkpounce{0%{scale:1.6}45%{scale:.86}75%{scale:1.1}100%{scale:1}}
 .tkiss .tk-fx{position:absolute;inset:0;pointer-events:none}
@@ -817,6 +817,8 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .drw .dw-paper{position:relative}
 .drw{touch-action:none;-webkit-user-select:none;user-select:none}
 .drw .dw-paper{touch-action:none}
+.drw .dw-pen{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:rgba(255,111,174,.35);box-shadow:0 0 0 2px rgba(255,111,174,.55);opacity:0;pointer-events:none;transition:opacity .2s}
+.drw .dw-pen.on{opacity:1}
 .drw .dw-zm{position:absolute;right:18px;top:12px;display:flex;gap:6px;z-index:1}
 .drw .dw-zm button{min-width:36px;min-height:36px;padding:0 10px;border:0;border-radius:18px;background:rgba(58,50,56,.72);color:#fff;font-size:15px}
 .drw .dw-fit{font-size:13px !important}
@@ -3475,7 +3477,7 @@ function thumbKiss() {
     st.touches++; ov.classList.add("touch"); ripple(px, py); haptic([60, 40, 120]);
     if (style !== "sweet") { ripple(px, py); ov.classList.remove("pounce"); void ov.offsetWidth; ov.classList.add("pounce"); }
     setMode("together");
-    nextTease = style === "dodge" ? (Math.random() < 0.4 ? 1500 + Math.random() * 1800 : 7000 + Math.random() * 8000)
+    nextTease = style === "dodge" ? (Math.random() < 0.35 ? 4500 + Math.random() * 2500 : 11000 + Math.random() * 9000)
       : style === "chase" ? 20000 + Math.random() * 12000 : 1e9;
   };
   const flee = (d, dt, max) => {
@@ -3529,8 +3531,7 @@ function thumbKiss() {
         yx = px; yy = py;
         heat = Math.min(1, heat + dt / 8);
         if (t - lastBeat > 1000 - heat * 550) { lastBeat = t; haptic([12 + Math.round(heat * 30)]); }
-        if (spd > 1100) { ov.classList.remove("touch"); setMode(style === "dodge" ? "seek" : "chase"); }
-        else if (modeT > nextTease) startTease();
+        if (modeT > nextTease) startTease();
       } else if (mode === "chase") {
         moveTo(px, py, style === "chase" ? 520 : 420, dt); if (d < 18) touchOn();
       } else if (mode === "poke") { if (modeT < 320) moveTo(to[0], to[1], 480, dt); else setMode("seek"); }
@@ -3611,7 +3612,7 @@ function drawTogether() {
   const $$ = q => ov.querySelector(q);
   const cv = $$("canvas"), ctx = cv.getContext("2d"), paper = $$(".dw-paper"), stEl = $$(".dw-st");
   const strokes = []; let color = COLORS[0], wide = false, cur2 = null, busyD = false, turns = 0, closed = false;
-  const notes = []; let turnStart = 0;
+  const notes = []; let turnStart = 0, lastTask = "";
   let S = 300;
   const fit = () => {
     const cs = getComputedStyle(paper); const w = paper.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), h = paper.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom); S = Math.max(120, Math.floor(Math.min(w, h)));
@@ -3682,20 +3683,64 @@ function drawTogether() {
   const close = () => { closed = true; removeEventListener("resize", fit); ov.remove(); };
   $$(".dw-x").onclick = () => { if (strokes.length && !confirm("그림을 버리고 나갈까요?")) return; close(); };
   const snapshot = (px, q) => { const o = document.createElement("canvas"); o.width = o.height = px; const x = o.getContext("2d"); x.drawImage(cv, 0, 0, px, px); return o.toDataURL("image/jpeg", q); };
-  const animate = list => new Promise(res => {
-    let i = 0, k = 0;
-    const tick = () => {
-      if (closed) return res();
-      if (i >= list.length) { redraw(); return res(); }
+  // 사람 손처럼: 선을 부드럽게 잇고, 손떨림을 살짝 넣고, 빠르기·쉬는 틈을 들쭉날쭉하게
+  const humanize = sk => {
+    const p = sk.pts;
+    if (!p.length) return sk;
+    const dense = [];
+    if (p.length === 1) dense.push(p[0]);
+    for (let i = 0; i < p.length - 1; i++) {
+      const p0 = p[i - 1] || p[i], p1 = p[i], p2 = p[i + 1], p3 = p[i + 2] || p2;
+      const n = Math.max(2, Math.ceil(Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) / 5));
+      for (let t = 0; t < n; t++) {
+        const u1 = t / n, u2 = u1 * u1, u3 = u2 * u1;
+        const f = (a, b, c2, d) => 0.5 * (2 * b + (-a + c2) * u1 + (2 * a - 5 * b + 4 * c2 - d) * u2 + (-a + 3 * b - 3 * c2 + d) * u3);
+        dense.push([f(p0[0], p1[0], p2[0], p3[0]), f(p0[1], p1[1], p2[1], p3[1])]);
+      }
+    }
+    if (p.length > 1) dense.push(p[p.length - 1]);
+    const ph = Math.random() * 6, ph2 = Math.random() * 6, amp = 1.6 + Math.random() * 1.6;
+    sk.pts = dense.map((q, i) => {
+      const a = dense[Math.max(0, i - 1)], b = dense[Math.min(dense.length - 1, i + 1)];
+      let nx = -(b[1] - a[1]), ny = b[0] - a[0]; const l = Math.hypot(nx, ny) || 1; nx /= l; ny /= l;
+      const o = (Math.sin(i * 0.19 + ph) + 0.6 * Math.sin(i * 0.053 + ph2)) * amp;
+      return [q[0] + nx * o, q[1] + ny * o];
+    });
+    return sk;
+  };
+  const pen = document.createElement("div"); pen.className = "dw-pen"; paper.appendChild(pen);
+  const penAt = (x, y) => { const r = cv.getBoundingClientRect(), pr = paper.getBoundingClientRect(); pen.style.transform = `translate(${r.left - pr.left + x / 1000 * r.width}px,${r.top - pr.top + y / 1000 * r.height}px)`; };
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const frame = () => new Promise(r => requestAnimationFrame(r));
+  const animate = async list => {
+    pen.classList.add("on");
+    for (let i = 0; i < list.length; i++) {
+      if (closed) return;
       const sk = list[i];
-      const total = sk.text ? sk.text.length : sk.pts.length;
-      k = Math.min(total, k + (sk.text ? 1 : 2));
-      redraw(); drawStroke(sk, k);
-      if (k >= total) { strokes.push(sk); i++; k = 0; setTimeout(() => requestAnimationFrame(tick), 220); }
-      else setTimeout(() => requestAnimationFrame(tick), sk.text ? 70 : 14);
-    };
-    tick();
-  });
+      if (sk.text) {
+        penAt(sk.x, sk.y);
+        await wait(250 + Math.random() * 300);
+        for (let k = 1; k <= sk.text.length; k++) { if (closed) return; redraw(); drawStroke(sk, k); penAt(sk.x + k * sk.size * 0.9, sk.y); await wait(90 + Math.random() * 120); }
+        strokes.push(sk); redraw();
+      } else {
+        humanize(sk);
+        const total = sk.pts.length, vmax = 3 + Math.random() * 3;
+        penAt(sk.pts[0][0], sk.pts[0][1]);
+        await wait(120 + Math.random() * 260);
+        let k = 1;
+        while (k < total) {
+          if (closed) return;
+          const e = Math.sin(Math.PI * k / total);
+          k = Math.min(total, k + Math.max(1, Math.round(vmax * (0.35 + 0.65 * e))));
+          redraw(); drawStroke(sk, k); penAt(sk.pts[k - 1][0], sk.pts[k - 1][1]);
+          await frame();
+        }
+        strokes.push(sk); redraw();
+      }
+      await wait(Math.random() < 0.2 ? 600 + Math.random() * 700 : 150 + Math.random() * 300);
+    }
+    pen.classList.remove("on");
+  };
   const parse = txt => {
     const t = String(txt || "").replace(/```(?:json)?/g, "");
     let j = null;
@@ -3738,14 +3783,31 @@ function drawTogether() {
       const keep = ctx; fresh.forEach(sk => { const p = sk.pts; x2.strokeStyle = sk.color; x2.lineWidth = sk.w; x2.lineCap = x2.lineJoin = "round"; x2.beginPath(); x2.moveTo(p[0][0], p[0][1]); if (p.length === 1) x2.lineTo(p[0][0] + 0.1, p[0][1]); for (let i = 1; i < p.length; i++) x2.lineTo(p[i][0], p[i][1]); x2.stroke(); });
       freshImg = o.toDataURL("image/jpeg", 0.8);
     }
+    const TASKS = {
+      finish: `${u}가 그리다 만 것이나 덜 채워진 부분을 찾아서 마저 그려 준다. 빠진 부분 채우기, 색칠하듯 선 더하기, 어울리는 배경 넣기 같은 식이다.`,
+      together: `${u}가 그린 것에 이어서 같은 장면을 넓혀 간다. 그 그림 옆이나 주변에 함께 있을 법한 것을 그려서 둘이 한 장면을 만든다.`,
+      fresh: `도화지 빈 곳에 새로운 것을 하나 그린다. 지금 대화나 두 사람 사이에 어울리는 물건·음식·장소·날씨 같은 것에서 고른다.`,
+      prank: `${u}의 그림에 장난을 친다. 수염이나 안경 그려 넣기, 웃긴 표정으로 바꾸기, 엉뚱한 걸 덧붙이기처럼 귀여운 장난이다. 망가뜨리지는 않는다.`,
+      cuddle: `${u}에게 마음을 담은 장난을 친다. 먼저 설정과 최근 대화로 두 사람이 어떤 사이인지 본다. 연인이나 썸이면 꽁냥꽁냥하게 한다: 하트나 작은 선물, 둘이 나란히 있거나 손잡은 모습, 좋아한다는 말이나 애칭 같은 짧은 손글씨. 친구·가족·동료처럼 연애 사이가 아니면 연애 표현은 쓰지 않고 그 관계다운 다정한 장난으로 한다: 엄지척, 응원 한마디, 같이 노는 모습, 칭찬 스티커 같은 것. 사이가 안 좋거나 티격태격하는 사이면 투닥거리는 장난으로 한다. ${nm}이 까칠한 성격이면 티 안 내는 척 슬쩍, 능글맞으면 대놓고 한다.`,
+      start: `빈 도화지에 먼저 그림을 시작한다. ${u}가 이어 그리기 좋게 무언가를 그린다.`
+    };
+    let task;
+    if (!strokes.some(x => x.who === "u" && !x.er)) task = "start";
+    else {
+      const pool = ["finish", "together", "fresh", "prank", "cuddle", "together", "finish", "cuddle"].filter(x => x !== lastTask);
+      task = pool[Math.floor(Math.random() * pool.length)];
+    }
+    lastTask = task;
     const recent = msgs().slice(-8).map(m => (m.role === "user" ? u : nm) + ": " + sub(m.text || "", c).slice(0, 300)).join("\n");
     const prompt = `너는 ${nm}이다. 지금 ${u}와 폰으로 같은 도화지 하나에 번갈아 그림을 그리며 놀고 있다. 첫 번째 이미지는 지금까지의 도화지 전체다.${freshImg ? ` 두 번째 이미지는 ${u}가 방금 이번 차례에 새로 그린 선만 따로 떼어 놓은 것이다.` : ""}
 ${said ? `${u}가 넘기면서 한 말: "${said}"
 ` : ""}${notes.length ? `지난 차례들에 네가 그린 것: ${notes.join(" / ")}
 ` : ""}
-먼저 ${u}가 방금 그린 것이 무엇인지 모양·색·위치를 보고 알아본다. ${u}의 말이 있으면 그 말을 가장 믿는다. 그리고 거기에 반응하는 걸 가장 우선한다. 예를 들어 ${u}가 꽃을 줬으면 받거나, 들고 있는 모습을 그리거나, 꽃에 뭔가 보태는 식이다.
-${nm}의 성격과 지금 두 사람 분위기대로 네 차례의 그림을 보탠다. 이어서 그리기, 옆에 자기나 ${u} 그리기, 장난스러운 낙서, 꾸미기, 짧은 글씨 남기기 중에서 고른다. 지난 차례에 그린 것을 또 그리지 않는다. 이미 있는 그림의 위치와 모양을 보고 빈 곳이나 맞닿는 곳에 맞춰 그린다.
-좌표는 도화지 왼쪽 위가 (0,0), 오른쪽 아래가 (1000,1000)이고 정수만 쓴다. 선 하나는 점을 순서대로 이은 것이다. 모양이 알아보이게 한 선에 점 6~30개를 찍는다. 선은 3~12개.
+먼저 ${u}가 그린 것이 무엇인지 모양·색·위치를 보고 알아본다.
+[이번 차례에 할 일] ${TASKS[task]}
+이 일을 ${nm}의 성격과 지금 두 사람 분위기대로 한다. ${task === "together" || task === "cuddle" ? "자기 자신(설정 속 외모나 동물 모습)을 그려 넣어도 되지만 장면의 일부로 작게만 그린다." : "이번엔 자기 자신의 모습(설정 속 외모나 동물 모습)을 그리지 않는다."} 지난 차례에 그린 것을 또 그리지 않는다. 이미 있는 그림의 위치와 크기를 보고 거기에 맞춰 그린다.
+사람이 손가락으로 쓱쓱 그리는 것처럼 그린다. 윤곽을 먼저 그리고, 그다음 안쪽 디테일, 마지막에 꾸밈 선 순서로 선을 놓는다. 한 획은 끊기지 않게 이어지는 한 번의 손놀림이다. 너무 반듯한 도형보다 손그림다운 모양이 좋다. 알아볼 수 있을 만큼 충분히 그린다.
+좌표는 도화지 왼쪽 위가 (0,0), 오른쪽 아래가 (1000,1000)이고 정수만 쓴다. 선 하나는 점을 순서대로 이은 것이다. 한 선에 점 8~40개, 선은 6~18개.
 JSON 하나만 출력한다. 코드블록, 설명, 다른 글은 쓰지 않는다. 괄호와 쉼표를 빠짐없이 닫는다.
 {"saw":"${u}가 방금 그린 것이 무엇으로 보이는지 한 문장","strokes":[{"color":"#2a2227","width":10,"points":[[x,y],[x,y]]}],"texts":[{"text":"짧은 글씨","x":0,"y":0,"size":60,"color":"#ff6fae"}],"desc":"이번에 무엇을 왜 그렸는지 한 문장"}
 texts는 없어도 되고 최대 2개, 글씨는 10자 이내. 색은 #2a2227 #ff6fae #6fb6ff #ffc94d #5cc27a #b48cff 중에서 고른다.
