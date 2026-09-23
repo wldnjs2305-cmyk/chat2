@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"2.31","items":["앱을 다시 열면 테마가 풀리던 문제 수정: 테마를 고르는 순간 바로 저장 (저장 버튼 안 눌러도 됨)","계정 동기화가 끝난 뒤 예전 테마(밝게·밤)로 덮어써서 月夜·月白가 이상하게 보이던 문제 수정"]},
   {"v":"2.30","items":["손끝 뽀뽀: 열 때마다 캐릭터 설정·기억 요약·최근 대화를 보고 새로 판단 (판단 끝날 때까지 '○○ 기다리는 중…' 후 등장, 6초 넘으면 지난번 판단으로)"]},
   {"v":"2.29","items":["손끝 뽀뽀가 캐릭터 성격 따라 달라짐: 캐릭터 설정과 최근 대화를 보고 AI가 피하기·쫓기·다정 중 하나를 골라줌 (대화가 20개쯤 쌓이면 다시 판단)","피하기(까칠·튕기는 캐릭터): 요리조리 도망다니다 내가 따라잡으면 덮쳐지듯 닿고, 잠깐 있다가 또 빠져나감","쫓기(능글 캐릭터): 점점 빨라지며 나를 쫓아다니고, 도망가도 더 빠르게 따라와 덮침","다정: 지금처럼 살살 다가와 맞춰 줌"]},
   {"v":"2.28","items":["손끝 뽀뽀를 원래 커플 앱처럼: 하얀 화면에 지문 모양 손끝, 글씨·말풍선·하트 효과 빼고 닿으면 두 지문이 핑크로 물들며 동그란 물결","캐릭터 지문은 말없이 다가오고, 가끔 톡 치고 빠지기·빙글 돌기·숨었다 나오기·도망가기 장난, 내가 휙 빼면 따라옴","카드는 지문 두 개 + 닿아 있던 시간·닿은 횟수만"]},
@@ -1318,7 +1319,7 @@ async function initDb() {
       }));
       store = { chars: m.chars || [], chats, theme: m.theme || store.theme };
       try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e) {}
-      if (store.theme) document.documentElement.dataset.theme = store.theme;
+      try { applyLook(); } catch (e) {}
       dbReady = true;
     } else {
       dbReady = true;
@@ -1433,7 +1434,7 @@ $("#sProv").onclick = e => { if (e.target.dataset.v) { segSet($("#sProv"), e.tar
 $("#sTemp").oninput = () => $("#sTempV").textContent = $("#sTemp").value;
 $("#sTheme").innerHTML = THEMES.map(t => `<option value="${t[0]}">${t[1]}</option>`).join("");
 $("#sFontSel").innerHTML = Object.keys(FONTS).map(n => `<option>${n}</option>`).join("");
-$("#sTheme").onchange = () => { ai.theme = $("#sTheme").value; applyLook(); };
+$("#sTheme").onchange = () => { ai.theme = $("#sTheme").value; store.theme = ai.theme; saveAi(); applyLook(); try { save(null); } catch (e) {} };
 $("#sFontSel").onchange = () => { ai.font = $("#sFontSel").value; applyLook(); };
 $("#sCfs").oninput = () => { ai.cfs = parseFloat($("#sCfs").value); $("#sCfsLabel").textContent = "카드 글자 크기 · " + ai.cfs + "px"; applyLook(); };
 $("#sFs").oninput = () => { ai.fs = parseFloat($("#sFs").value); $("#sFsLabel").textContent = "글자 크기 · " + ai.fs + "px"; applyLook(); };
