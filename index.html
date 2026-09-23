@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"2.37","items":[]}
+  {"v":"2.38","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -813,13 +813,17 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .drw .dw-st{flex:1;font-size:13.5px;color:#7a6a78;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .drw.wait .dw-st{color:#c2357e}
 .drw .dw-paper{flex:1;min-height:0;min-width:0;display:grid;place-items:center;padding:6px 12px;overflow:hidden}
-.drw canvas{background:#fff;border-radius:6px;box-shadow:0 2px 12px rgba(60,40,55,.12);touch-action:none}
+.drw canvas{background:#fff;border-radius:6px;box-shadow:0 2px 12px rgba(60,40,55,.12);touch-action:none;transform-origin:center center}
+.drw .dw-paper{position:relative}
+.drw .dw-fit{position:absolute;right:18px;top:12px;min-height:36px;padding:0 12px;border:0;border-radius:18px;background:rgba(58,50,56,.75);color:#fff;font-size:13px;z-index:1}
+.drw .dw-fit[hidden]{display:none}
+.drw .dw-row button{padding:0 10px !important}
 .drw.wait canvas{box-shadow:0 0 0 2px rgba(255,111,174,.5),0 2px 12px rgba(60,40,55,.12)}
 .drw .dw-tools{display:flex;flex-direction:column;gap:8px;padding:8px 12px 14px}
 .drw .dw-cols{display:flex;justify-content:center;gap:10px}
 .drw .dw-c{width:32px;height:32px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #d8cdd4;padding:0}
 .drw .dw-c.on{box-shadow:0 0 0 3px #3a3238}
-.drw .dw-er{background:#fff;color:#7a6a78;font-size:14px}
+.drw .dw-er{width:auto;border-radius:16px;padding:0 10px;background:#fff;color:#7a6a78;font-size:12.5px}
 .drw .dw-row{display:flex;gap:8px}
 .drw .dw-row button{min-height:44px;border:0;border-radius:10px;background:#fff;color:#3a3238;font-size:14px;padding:0 12px}
 .drw .dw-pass{flex:1;background:#ffd6ea !important;color:#2a1520 !important}
@@ -3576,9 +3580,9 @@ function drawTogether() {
   ov.className = "drw";
   const av = c.avatar ? `<img src="${c.avatar}" alt="">` : esc(nm.slice(0, 1));
   ov.innerHTML = `<div class="dw-top"><button class="dw-x" aria-label="닫기">✕</button><div class="dw-av">${av}</div><div class="dw-st"></div><button class="dw-done">완성</button></div>
-  <div class="dw-paper"><canvas></canvas></div>
-  <div class="dw-tools"><div class="dw-cols">${COLORS.map((k, i) => `<button class="dw-c${i ? "" : " on"}" data-c="${k}" style="background:${k}" aria-label="색"></button>`).join("")}<button class="dw-c dw-er" data-c="er" aria-label="지우개">⌫</button></div>
-  <div class="dw-row"><button class="dw-w" aria-label="굵기">굵게</button><button class="dw-undo">되돌리기</button><button class="dw-pass">${esc(nm)}에게 넘기기</button></div></div>`;
+  <div class="dw-paper"><canvas></canvas><button class="dw-fit" hidden>원래 크기</button></div>
+  <div class="dw-tools"><div class="dw-cols">${COLORS.map((k, i) => `<button class="dw-c${i ? "" : " on"}" data-c="${k}" style="background:${k}" aria-label="색"></button>`).join("")}<button class="dw-c dw-er" data-c="er" aria-label="지우개">지우개</button></div>
+  <div class="dw-row"><button class="dw-w" aria-label="굵기">굵게</button><button class="dw-undo">되돌리기</button><button class="dw-clear">전부 지우기</button><button class="dw-pass">${esc(nm)}에게 넘기기</button></div></div>`;
   document.body.appendChild(ov);
   const $$ = q => ov.querySelector(q);
   const cv = $$("canvas"), ctx = cv.getContext("2d"), paper = $$(".dw-paper"), stEl = $$(".dw-st");
@@ -3607,13 +3611,37 @@ function drawTogether() {
   status("같이 그림 그리자 · 먼저 그려봐");
   requestAnimationFrame(fit); addEventListener("resize", fit);
   const pos = e => { const r = cv.getBoundingClientRect(); return [Math.round((e.clientX - r.left) / r.width * 1000), Math.round((e.clientY - r.top) / r.height * 1000)]; };
+  // 확대: 두 손가락으로 벌리기·옮기기
+  const fingers = new Map(); let zoom = 1, tx = 0, ty = 0, g = null, blockDraw = false;
+  const fitBtn = $$(".dw-fit");
+  const applyZoom = () => { cv.style.transform = `translate(${tx}px,${ty}px) scale(${zoom})`; fitBtn.hidden = zoom <= 1.01; };
+  const gInfo = () => { const p = [...fingers.values()]; return { d: Math.hypot(p[0][0] - p[1][0], p[0][1] - p[1][1]) || 1, mx: (p[0][0] + p[1][0]) / 2, my: (p[0][1] + p[1][1]) / 2 }; };
+  fitBtn.onclick = () => { zoom = 1; tx = ty = 0; applyZoom(); };
   cv.addEventListener("pointerdown", e => {
-    if (busyD) return; e.preventDefault(); cv.setPointerCapture(e.pointerId);
+    e.preventDefault(); cv.setPointerCapture(e.pointerId);
+    fingers.set(e.pointerId, [e.clientX, e.clientY]);
+    if (fingers.size === 2) {
+      if (cur2) { const i = strokes.indexOf(cur2); if (i >= 0 && cur2.pts.length < 12) strokes.splice(i, 1); cur2 = null; redraw(); }
+      const gi = gInfo(); g = { d0: gi.d, mx0: gi.mx, my0: gi.my, z0: zoom, tx0: tx, ty0: ty }; blockDraw = true; return;
+    }
+    if (busyD || blockDraw || fingers.size > 1) return;
     cur2 = { who: "u", color, er: color === "er", w: color === "er" ? 50 : (wide ? 24 : 10), pts: [pos(e)] }; strokes.push(cur2); drawStroke(cur2);
   });
-  cv.addEventListener("pointermove", e => { if (!cur2) return; const p = pos(e), l = cur2.pts[cur2.pts.length - 1]; if (Math.hypot(p[0] - l[0], p[1] - l[1]) < 4) return; cur2.pts.push(p); redraw(); });
-  const upD = () => { cur2 = null; };
+  cv.addEventListener("pointermove", e => {
+    if (fingers.has(e.pointerId)) fingers.set(e.pointerId, [e.clientX, e.clientY]);
+    if (g && fingers.size >= 2) {
+      const gi = gInfo();
+      zoom = Math.max(1, Math.min(5, g.z0 * gi.d / g.d0));
+      const lim = S * (zoom - 1) / 2 + 40;
+      tx = Math.max(-lim, Math.min(lim, g.tx0 + gi.mx - g.mx0)); ty = Math.max(-lim, Math.min(lim, g.ty0 + gi.my - g.my0));
+      if (zoom <= 1) { tx = ty = 0; }
+      applyZoom(); return;
+    }
+    if (!cur2) return; const p = pos(e), l = cur2.pts[cur2.pts.length - 1]; if (Math.hypot(p[0] - l[0], p[1] - l[1]) < 4 / zoom) return; cur2.pts.push(p); redraw();
+  });
+  const upD = e => { fingers.delete(e.pointerId); cur2 = null; if (fingers.size < 2) g = null; if (!fingers.size) blockDraw = false; };
   cv.addEventListener("pointerup", upD); cv.addEventListener("pointercancel", upD);
+  $$(".dw-clear").onclick = () => { if (busyD || !strokes.length) return; if (!confirm("그림을 전부 지울까요?")) return; strokes.length = 0; redraw(); };
   ov.querySelectorAll(".dw-c").forEach(b => b.onclick = () => { ov.querySelectorAll(".dw-c").forEach(x => x.classList.remove("on")); b.classList.add("on"); color = b.dataset.c; });
   $$(".dw-w").onclick = () => { wide = !wide; $$(".dw-w").textContent = wide ? "가늘게" : "굵게"; };
   $$(".dw-undo").onclick = () => { if (busyD) return; for (let i = strokes.length - 1; i >= 0; i--) if (strokes[i].who === "u") { strokes.splice(i, 1); break; } redraw(); };
