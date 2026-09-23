@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"2.45","items":[]}
+  {"v":"2.47","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -837,6 +837,12 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root[data-skin="tk"] .drw .dw-row button,:root[data-skin="tk"] .drw canvas,:root[data-skin="tk"] .drw .dw-av{border-radius:0}
 .draw-card img{display:block;width:100%;border-radius:6px;margin:2px 0 4px;background:#fff}
 :root[data-skin="tk"] .draw-card img{border-radius:0}
+
+.tts-b{align-self:flex-start;margin:4px 0 0 2px;min-width:32px;min-height:32px;padding:0 8px;border:1px solid var(--line);border-radius:16px;background:transparent;color:var(--soft);font-size:12px;line-height:1;cursor:pointer}
+.tts-b.on{color:var(--accent);border-color:var(--accent)}
+.tts-b.load{opacity:.6}
+:root[data-skin="tk"] .tts-b{border-radius:0;border-color:var(--tk-dash);color:var(--tk-mauve);font-family:"NeoDunggeunmo","DotGothic16",monospace}
+:root[data-skin="tk"] .tts-b.on{color:var(--tk-pink);border-color:var(--tk-pink);box-shadow:0 0 8px rgba(255,126,185,.45)}
 </style>
 </head>
 <body>
@@ -966,6 +972,14 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
         <div class="hint" id="sUpdOut"></div>
       </fieldset>
       <fieldset>
+        <legend>목소리</legend>
+        <label for="sTtsKey">제미나이 API 키 (구글 AI 스튜디오)</label>
+        <input type="password" id="sTtsKey" autocomplete="off">
+        <label for="sTtsModel">목소리 모델</label>
+        <input type="text" id="sTtsModel" autocomplete="off">
+        <label style="display:flex;gap:10px;align-items:center;color:var(--ink);font-size:15px;margin:8px 0"><input type="checkbox" id="sTtsAuto" style="width:20px;height:20px"> 답장 오면 바로 읽어주기</label>
+      </fieldset>
+      <fieldset>
         <legend>백업</legend>
         <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" id="exportBtn" type="button">백업 내보내기</button><button class="btn ghost" id="importBtn" type="button">백업 불러오기</button></div>
         <input type="file" id="importFile" accept=".json,application/json" hidden>
@@ -991,6 +1005,11 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
         <div class="seg" id="fNarr"><button data-v="off">끔</button><button data-v="some">가끔</button><button data-v="many">자주</button></div>
         <label for="fHand">편지·일기 필체</label>
         <select id="fHand"></select>
+        <label for="fVoice">목소리</label>
+        <select id="fVoice"></select>
+        <label for="fVoiceStyle">목소리 말투</label>
+        <input type="text" id="fVoiceStyle" maxlength="120">
+        <div style="margin-top:6px"><button class="btn ghost" id="fVoiceTry" type="button">목소리 들어보기</button></div>
         <label>소설 배경 사진</label>
         <div class="nbgrow">
           <div class="bgprev" id="nbgPrev"><span>🖼</span></div>
@@ -1357,12 +1376,13 @@ $("#sCfs").oninput = () => { ai.cfs = parseFloat($("#sCfs").value); $("#sCfsLabe
 $("#sFs").oninput = () => { ai.fs = parseFloat($("#sFs").value); $("#sFsLabel").textContent = "글자 크기 · " + ai.fs + "px"; applyLook(); saveAi(); };
 function readSettings() {
   return { models: $("#sModels").value, home: ai.home, prov: segGet($("#sProv")), url: $("#sUrl").value.trim().replace(/\/+$/, ""), key: $("#sKey").value.trim(),
-    model: $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 0, merge: $("#sMerge").checked, uav: $("#sUav").checked, trans: $("#sTrans").checked, pron: $("#sPron").checked, font: $("#sFontSel").value, fs: parseFloat($("#sFs").value) || 15, cfs: parseFloat($("#sCfs").value) || 14, theme: $("#sTheme").value };
+    model: $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 0, merge: $("#sMerge").checked, uav: $("#sUav").checked, trans: $("#sTrans").checked, pron: $("#sPron").checked, font: $("#sFontSel").value, fs: parseFloat($("#sFs").value) || 15, cfs: parseFloat($("#sCfs").value) || 14, theme: $("#sTheme").value, ttsKey: $("#sTtsKey").value.trim(), ttsModel: $("#sTtsModel").value.trim(), ttsAuto: $("#sTtsAuto").checked };
 }
 $("#setBtn").onclick = () => {
   segSet($("#sProv"), ai.prov); $("#sUrl").value = ai.url; $("#sKey").value = ai.key; $("#sModel").value = ai.model; $("#sModels").value = ai.models || "";
   $("#sTemp").value = ai.temp; $("#sTempV").textContent = ai.temp; $("#sMax").value = ai.max || ""; $("#sMerge").checked = ai.merge !== false; $("#sUav").checked = ai.uav !== false; $("#sTrans").checked = ai.trans !== false; $("#sPron").checked = !!ai.pron;
   $("#sTheme").value = ai.theme || "light";
+  $("#sTtsKey").value = ai.ttsKey || ""; $("#sTtsModel").value = ai.ttsModel || TTS_DEFAULT_MODEL; $("#sTtsAuto").checked = !!ai.ttsAuto;
   $("#sFontSel").value = FONTS[ai.font] ? ai.font : "고운돋움";
   $("#sCfs").value = ai.cfs || 14; $("#sCfsLabel").textContent = "카드 글자 크기 · " + (ai.cfs || 14) + "px";
   $("#sFs").value = ai.fs || 15; $("#sFsLabel").textContent = "글자 크기 · " + (ai.fs || 15) + "px";
@@ -2761,6 +2781,9 @@ function openEditor(id) {
   segSet($("#fLen"), c.len || "mid"); segSet($("#fTense"), c.tense || "present"); segSet($("#fFormat"), c.format || "bubble"); segSet($("#fLang"), c.lang || "ko"); segSet($("#fNarr"), c.narr || "off");
   if (!$("#fHand").options.length) $("#fHand").innerHTML = Object.keys(HANDS).map(n => `<option>${n}</option>`).join("");
   $("#fHand").value = HANDS[c.hand] ? c.hand : "단정";
+  if (!$("#fVoice").options.length) $("#fVoice").innerHTML = TTS_VOICES.map(v => `<option value="${v[0]}">${v[0]} · ${v[1]}</option>`).join("");
+  $("#fVoice").value = TTS_VOICES.some(v => v[0] === c.voice) ? c.voice : TTS_DEFAULT;
+  $("#fVoiceStyle").value = c.voiceStyle || "";
   $("#delChar").hidden = !editing;
   show("editor");
   setTimeout(offerDraft, 60);
@@ -2823,7 +2846,8 @@ function editorData() {
     samples: editSamples.filter(sm => (sm.lines || []).some(l => l.t.trim())), greetings: editGreets.filter(t => t.trim()), styles: [], intros: [],
     cast: editCast.filter(x => (x.name || "").trim()).map(x => Object.assign({}, x, { name: x.name.trim(), samples: (x.samples || []).filter(sm => (sm.lines || []).some(l => l.t.trim())) })),
     uname: $("#fUName").value.trim(), upersona: $("#fUser").value,
-    len: segGet($("#fLen")), tense: segGet($("#fTense")), format: segGet($("#fFormat")), lang: segGet($("#fLang")), narr: segGet($("#fNarr")), hand: $("#fHand").value
+    len: segGet($("#fLen")), tense: segGet($("#fTense")), format: segGet($("#fFormat")), lang: segGet($("#fLang")), narr: segGet($("#fNarr")), hand: $("#fHand").value,
+    voice: $("#fVoice").value, voiceStyle: $("#fVoiceStyle").value.trim()
   };
 }
 $("#saveChar").onclick = () => {
@@ -2915,6 +2939,11 @@ function renderLog(errText) {
     if (m.role !== "user" && !bare && !multi) d.querySelector(".who").textContent = c.name;
     const whoEl = d.querySelector(".who");
     if (whoEl && m.role === "user") { if (ai.uav === false) whoEl.remove(); else whoEl.textContent = c.uname || "나"; }
+    if (ai.ttsKey && m.role === "assistant" && !m.ooc && !m.inner && ttsLine(m.text, fmt)) {
+      const tb = document.createElement("button"); tb.className = "tts-b"; tb.type = "button"; tb.textContent = "▶"; tb.setAttribute("aria-label", "목소리로 듣기");
+      tb.onclick = e => { e.stopPropagation(); ttsSpeak(ttsLine(m.text, fmt), c, tb); };
+      const cols = d.querySelectorAll(".mcol"); (cols.length ? cols[cols.length - 1] : d).appendChild(tb);
+    }
     const acts = [];
     if (i === list.length - 1 && m.role === "assistant" && i > 0) acts.push(["다시 생성", regen]);
     acts.push(["복사", () => { try { navigator.clipboard.writeText(m.text); } catch (e) {} }]);
@@ -3170,9 +3199,11 @@ async function generate(extraUser) {
     } else tgt.push({ id: newId(), role: "assistant", text: finalText });
     save(c.id);
   }
+  const autoRead = !!(finalText && ai.ttsAuto && ai.ttsKey && !cmd);
   busy = false; ctl = null; live = null; setBusy(false);
   if (cur === c.id && $("#chat").classList.contains("on")) { renderLog(errMsg); updMemDot(); }
   $("#log").scrollTop = $("#log").scrollHeight;
+  if (autoRead && cur === c.id) { const bs = $("#log").querySelectorAll(".msg.char .tts-b"); if (bs.length) bs[bs.length - 1].click(); }
 }
 
 const CONT = "(방금 장면을 자연스럽게 이어서 계속 써줘. 유저의 행동은 쓰지 말 것.)";
@@ -3631,6 +3662,7 @@ function drawTogether() {
     if (n > 1) ctx.lineTo(p[n - 1][0], p[n - 1][1]);
     ctx.stroke();
   };
+  const seg = (sk, a, b) => { ctx.strokeStyle = sk.er ? "#ffffff" : sk.color; ctx.lineWidth = sk.w; ctx.lineCap = ctx.lineJoin = "round"; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); };
   const redraw = () => { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, 1000, 1000); strokes.forEach(sk => drawStroke(sk)); };
   const status = t => { stEl.textContent = t; };
   status("같이 그림 그리자 · 먼저 그려봐");
@@ -3672,7 +3704,7 @@ function drawTogether() {
       if (zoom <= 1) { tx = ty = 0; }
       applyZoom(); return;
     }
-    if (!cur2) return; const p = pos(e), l = cur2.pts[cur2.pts.length - 1]; if (Math.hypot(p[0] - l[0], p[1] - l[1]) < 4 / zoom) return; cur2.pts.push(p); redraw();
+    if (!cur2) return; const p = pos(e), l = cur2.pts[cur2.pts.length - 1]; if (Math.hypot(p[0] - l[0], p[1] - l[1]) < 4 / zoom) return; cur2.pts.push(p); seg(cur2, l, p);
   });
   const upD = e => { fingers.delete(e.pointerId); cur2 = null; if (fingers.size < 2) g = null; if (!fingers.size) blockDraw = false; };
   paper.addEventListener("pointerup", upD); paper.addEventListener("pointercancel", upD);
@@ -3691,7 +3723,7 @@ function drawTogether() {
     if (p.length === 1) dense.push(p[0]);
     for (let i = 0; i < p.length - 1; i++) {
       const p0 = p[i - 1] || p[i], p1 = p[i], p2 = p[i + 1], p3 = p[i + 2] || p2;
-      const n = Math.max(2, Math.ceil(Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) / 5));
+      const n = Math.max(2, Math.ceil(Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) / 7));
       for (let t = 0; t < n; t++) {
         const u1 = t / n, u2 = u1 * u1, u3 = u2 * u1;
         const f = (a, b, c2, d) => 0.5 * (2 * b + (-a + c2) * u1 + (2 * a - 5 * b + 4 * c2 - d) * u2 + (-a + 3 * b - 3 * c2 + d) * u3);
@@ -3720,22 +3752,24 @@ function drawTogether() {
       if (sk.text) {
         penAt(sk.x, sk.y);
         await wait(250 + Math.random() * 300);
-        for (let k = 1; k <= sk.text.length; k++) { if (closed) return; redraw(); drawStroke(sk, k); penAt(sk.x + k * sk.size * 0.9, sk.y); await wait(90 + Math.random() * 120); }
-        strokes.push(sk); redraw();
+        const snap = ctx.getImageData(0, 0, cv.width, cv.height);
+        for (let k = 1; k <= sk.text.length; k++) { if (closed) return; ctx.putImageData(snap, 0, 0); drawStroke(sk, k); penAt(sk.x + k * sk.size * 0.9, sk.y); await wait(90 + Math.random() * 120); }
+        strokes.push(sk);
       } else {
         humanize(sk);
         const total = sk.pts.length, vmax = 3 + Math.random() * 3;
         penAt(sk.pts[0][0], sk.pts[0][1]);
         await wait(120 + Math.random() * 260);
         let k = 1;
+        if (total === 1) seg(sk, sk.pts[0], [sk.pts[0][0] + 0.1, sk.pts[0][1]]);
         while (k < total) {
           if (closed) return;
-          const e = Math.sin(Math.PI * k / total);
-          k = Math.min(total, k + Math.max(1, Math.round(vmax * (0.35 + 0.65 * e))));
-          redraw(); drawStroke(sk, k); penAt(sk.pts[k - 1][0], sk.pts[k - 1][1]);
+          const e = Math.sin(Math.PI * k / total), nk = Math.min(total, k + Math.max(1, Math.round(vmax * (0.35 + 0.65 * e))));
+          for (let q = k; q < nk; q++) seg(sk, sk.pts[q - 1], sk.pts[q]);
+          k = nk; penAt(sk.pts[k - 1][0], sk.pts[k - 1][1]);
           await frame();
         }
-        strokes.push(sk); redraw();
+        strokes.push(sk);
       }
       await wait(Math.random() < 0.2 ? 600 + Math.random() * 700 : 150 + Math.random() * 300);
     }
@@ -3803,7 +3837,8 @@ function drawTogether() {
 ${said ? `${u}가 넘기면서 한 말: "${said}"
 ` : ""}${notes.length ? `지난 차례들에 네가 그린 것: ${notes.join(" / ")}
 ` : ""}
-먼저 ${u}가 그린 것이 무엇인지 모양·색·위치를 보고 알아본다.
+먼저 ${u}가 그린 것이 무엇인지 모양·색·위치를 보고 알아본다. 그림 속 글씨와 화살표도 꼼꼼히 읽는다.
+[가장 먼저] ${u}가 너(${nm})나 ${u} 자신을 그렸는지, 너한테 하는 말을 썼는지 본다. 너를 돼지·강아지처럼 놀리듯 그렸거나 약 올리는 글씨를 썼으면, 이번 할 일보다 그 반응이 먼저다. ${nm}의 성격대로 반응한다: 발끈해서 반박하는 글씨, 그림을 제대로 고쳐 그리기, ${u}를 똑같이 놀리는 반격 낙서, 삐진 표시 같은 것. 칭찬이나 애정 표현이면 ${nm}답게 받아친다. 이런 게 없을 때만 아래 할 일을 한다.
 [이번 차례에 할 일] ${TASKS[task]}
 이 일을 ${nm}의 성격과 지금 두 사람 분위기대로 한다. ${task === "together" || task === "cuddle" ? "자기 자신(설정 속 외모나 동물 모습)을 그려 넣어도 되지만 장면의 일부로 작게만 그린다." : "이번엔 자기 자신의 모습(설정 속 외모나 동물 모습)을 그리지 않는다."} 지난 차례에 그린 것을 또 그리지 않는다. 이미 있는 그림의 위치와 크기를 보고 거기에 맞춰 그린다.
 사람이 손가락으로 쓱쓱 그리는 것처럼 그린다. 윤곽을 먼저 그리고, 그다음 안쪽 디테일, 마지막에 꾸밈 선 순서로 선을 놓는다. 한 획은 끊기지 않게 이어지는 한 번의 손놀림이다. 너무 반듯한 도형보다 손그림다운 모양이 좋다. 알아볼 수 있을 만큼 충분히 그린다.
@@ -3819,7 +3854,12 @@ ${sub(c.prompt || "", c).slice(0, 2500)}
 ${recent || "(없음)"}`;
     const ask = async () => {
       const imgs = [img].concat(freshImg ? [freshImg] : []);
-      if (ai.prov !== "builtin") return await callApi(Object.assign({}, ai, { max: Math.max(ai.max || 0, 8000), temp: Math.min(ai.temp ?? 0.9, 0.8) }), [{ role: "user", content: [{ type: "text", text: prompt }].concat(imgs.map(u2 => ({ type: "image_url", image_url: { url: u2 } }))) }], null, null);
+      if (ai.prov !== "builtin") {
+        const ac = new AbortController(), to = setTimeout(() => ac.abort(), 120000);
+        try { return await callApi(Object.assign({}, ai, { max: Math.max(ai.max || 0, 8000), temp: Math.min(ai.temp ?? 0.9, 0.8) }), [{ role: "user", content: [{ type: "text", text: prompt }].concat(imgs.map(u2 => ({ type: "image_url", image_url: { url: u2 } }))) }], null, ac.signal); }
+        catch (e) { if (e && e.name === "AbortError") throw new Error("답이 너무 오래 걸려요"); throw e; }
+        finally { clearTimeout(to); }
+      }
       if (sample) return (await sample([{ role: "user", content: imgs.map(u2 => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: u2.split(",")[1] } })).concat([{ type: "text", text: prompt }]) }], { cache: false })).text;
       throw new Error("AI에 연결되지 않았어요.");
     };
@@ -3850,6 +3890,102 @@ ${recent || "(없음)"}`;
     setTimeout(() => { $("#log").scrollTop = $("#log").scrollHeight; }, 0);
   };
 }
+// ---------- 목소리 (제미나이 TTS) ----------
+const TTS_DEFAULT_MODEL = "gemini-3.1-flash-tts-preview";
+const TTS_VOICES = [["Achird","다정한"],["Puck","발랄한"],["Charon","차분한"],["Fenrir","들뜬"],["Orus","단단한"],["Enceladus","숨소리 섞인"],["Iapetus","맑은"],["Umbriel","느긋한"],["Algieba","부드러운"],["Algenib","거친"],["Rasalgethi","또렷한"],["Alnilam","힘있는"],["Schedar","담담한"],["Gacrux","성숙한"],["Zubenelgenubi","편한"],["Sadachbia","생기있는"],["Sadaltager","지적인"],["Kore","단호한"],["Zephyr","밝은"],["Leda","앳된"],["Aoede","산뜻한"],["Callirrhoe","여유로운"],["Autonoe","환한"],["Despina","매끄러운"],["Erinome","깨끗한"],["Laomedeia","경쾌한"],["Achernar","보드라운"],["Pulcherrima","당찬"],["Vindemiatrix","온화한"],["Sulafat","따뜻한"]];
+const TTS_DEFAULT = "Achird";
+let ttsCtx = null, ttsSrc = null, ttsBtn = null;
+const ttsCache = new Map();
+function ttsUnlock() {
+  try {
+    if (!ttsCtx) ttsCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ttsCtx.state === "suspended") ttsCtx.resume();
+  } catch (e) {}
+}
+document.addEventListener("pointerdown", () => { if (ai.ttsKey) ttsUnlock(); }, { passive: true });
+function ttsLine(text, fmt) {
+  let t = String(text || "").replace(/\r/g, "");
+  if (new RegExp("^\\s*\\[(" + OC_KINDS.join("|") + ")\\]").test(t)) return "";
+  t = t.split("\n").filter(l => !/^\s*(>>|》)/.test(l) && !(SMS_RE.test(l.trim()) && !/^\[\[/.test(l.trim()))).join("\n");
+  t = t.replace(/\[\[[^\]]*\]\]/g, "").replace(/\[\/?[^\]\n]{1,20}\]/g, " ");
+  if (fmt && fmt !== "bubble") {
+    const q = t.match(/"[^"]+"|“[^”]+”|「[^」]+」|『[^』]+』/g);
+    t = q ? q.map(x => x.slice(1, -1)).join("\n") : "";
+  } else {
+    t = t.replace(/\*[^*]*\*/g, " ").replace(/\([^)]*\)/g, " ").replace(/["“”「」『』]/g, "");
+  }
+  t = t.replace(/^[^\n|:]{1,14}\s*[|]\s*/gm, "").replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim();
+  return t.slice(0, 900);
+}
+function ttsStop() {
+  try { if (ttsSrc) { ttsSrc.onended = null; ttsSrc.stop(); } } catch (e) {}
+  ttsSrc = null; if (ttsBtn) { ttsBtn.classList.remove("on", "load"); ttsBtn.textContent = "▶"; } ttsBtn = null;
+}
+async function ttsFetch(text, c) {
+  const voice = TTS_VOICES.some(v => v[0] === c.voice) ? c.voice : TTS_DEFAULT;
+  const style = (c.voiceStyle || "").trim();
+  const model = (ai.ttsModel || TTS_DEFAULT_MODEL).trim();
+  const key = [model, voice, style, text].join("\u0001");
+  if (ttsCache.has(key)) return ttsCache.get(key);
+  const prompt = (style ? `${c.name || "캐릭터"}의 대사다. ${style} 말투로, 대본을 연기하듯 자연스럽게 읽는다. 아래 대사만 소리 내어 읽는다:\n` : `${c.name || "캐릭터"}의 대사다. 대본을 연기하듯 자연스럽게 읽는다. 아래 대사만 소리 내어 읽는다:\n`) + text;
+  let res;
+  try {
+    res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-goog-api-key": ai.ttsKey },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } } } })
+    });
+  } catch (e) { throw new Error("목소리 서버에 연결하지 못했어요."); }
+  if (!res.ok) {
+    let msg = ""; try { const j = await res.json(); msg = (j.error && j.error.message) || ""; } catch (e) {}
+    const m = { 400: "요청이 잘못됐어요", 401: "키가 올바르지 않아요", 403: "이 키로는 쓸 수 없어요", 404: "목소리 모델 이름을 찾을 수 없어요", 429: "사용 한도를 넘었어요. 잠시 뒤에 다시 해주세요" }[res.status];
+    throw new Error((m || "오류 " + res.status) + (msg ? " (" + msg.slice(0, 120) + ")" : ""));
+  }
+  const j = await res.json();
+  const part = ((j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts) || []).find(p => p.inlineData || p.inline_data);
+  if (!part) throw new Error("목소리를 받지 못했어요.");
+  const d = part.inlineData || part.inline_data, mime = d.mimeType || d.mime_type || "";
+  const bin = atob(d.data);
+  ttsUnlock();
+  let buf;
+  if (/wav|mpeg|mp3|ogg|opus|aac/i.test(mime)) {
+    const ab = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) ab[i] = bin.charCodeAt(i);
+    buf = await ttsCtx.decodeAudioData(ab.buffer);
+  } else {
+    const rate = +((mime.match(/rate=(\d+)/) || [])[1]) || 24000, n = bin.length >> 1, f = new Float32Array(n);
+    for (let i = 0; i < n; i++) { let v = bin.charCodeAt(2 * i) | (bin.charCodeAt(2 * i + 1) << 8); if (v >= 32768) v -= 65536; f[i] = v / 32768; }
+    buf = ttsCtx.createBuffer(1, n, rate); buf.getChannelData(0).set(f);
+  }
+  if (ttsCache.size > 40) ttsCache.delete(ttsCache.keys().next().value);
+  ttsCache.set(key, buf);
+  return buf;
+}
+async function ttsSpeak(text, c, btn, quiet) {
+  if (!ai.ttsKey) { if (!quiet) alert("설정 > 목소리에 제미나이 API 키를 넣어주세요."); return; }
+  if (btn && ttsBtn === btn) { ttsStop(); return; }
+  ttsStop();
+  if (!text) { if (!quiet) alert("읽을 대사가 없어요."); return; }
+  ttsUnlock();
+  ttsBtn = btn || null; if (btn) { btn.classList.add("load"); btn.textContent = "…"; }
+  try {
+    const buf = await ttsFetch(text, c);
+    if (btn && ttsBtn !== btn) return;
+    const src = ttsCtx.createBufferSource(); src.buffer = buf; src.connect(ttsCtx.destination);
+    src.onended = () => { if (ttsSrc === src) ttsStop(); };
+    ttsSrc = src; src.start();
+    if (btn) { btn.classList.remove("load"); btn.classList.add("on"); btn.textContent = "■"; }
+  } catch (e) {
+    ttsStop();
+    if (!quiet) alert((e && e.message) || "목소리를 받지 못했어요.");
+  }
+}
+$("#fVoiceTry").onclick = () => {
+  const c = { name: $("#fName").value.trim() || "캐릭터", voice: $("#fVoice").value, voiceStyle: $("#fVoiceStyle").value.trim() };
+  ttsSpeak("안녕. 오늘 하루는 어땠어?", c, null);
+};
+["sTtsKey", "sTtsModel"].forEach(id => $("#" + id).addEventListener("input", () => { ai.ttsKey = $("#sTtsKey").value.trim(); ai.ttsModel = $("#sTtsModel").value.trim(); saveAi(); }));
+$("#sTtsAuto").onchange = () => { ai.ttsAuto = $("#sTtsAuto").checked; saveAi(); };
+
 $("#qCmd").onclick = () => {
   const list = Object.keys(CMDS);
   const pick = prompt("명령어를 고르세요\n\n" + list.join("  "), "/편지");
