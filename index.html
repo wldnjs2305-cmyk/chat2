@@ -868,16 +868,16 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root[data-skin="pe"] body:not([data-novelbg]) #editFromChat{display:none}
 
 /* 홈: 제목줄 + 회색 도구줄 */
-:root[data-skin="pe"] body:not([data-novelbg]) header.homebar{display:grid;grid-template-columns:auto 1fr auto auto;grid-template-areas:"ttl ttl ttl win" "plus sp srch set";row-gap:0;column-gap:4px;padding:0 8px 0 10px;
+:root[data-skin="pe"] body:not([data-novelbg]) header.homebar{display:grid;grid-template-columns:auto 1fr auto auto;grid-template-areas:"ttl ttl win win" "plus sp srch set";row-gap:0;column-gap:4px;padding:0 8px 0 10px;
   background:linear-gradient(var(--pe-pink) 0 50px,var(--pe-dark) 50px 52px,var(--pe-gray) 52px calc(100% - 2px),var(--pe-dark) calc(100% - 2px));border-bottom:0}
 :root[data-skin="pe"] body:not([data-novelbg]) .homebar .ttl{grid-area:ttl;position:static;text-align:left;align-self:center;height:50px;display:flex;align-items:center}
 :root[data-skin="pe"] body:not([data-novelbg]) .homebar .ttl h1{font-size:19px}
-:root[data-skin="pe"] body:not([data-novelbg]) .homebar .wbtns{grid-area:win}
+:root[data-skin="pe"] body:not([data-novelbg]) .homebar .wbtns{grid-area:win;justify-self:end}
 :root[data-skin="pe"] body:not([data-novelbg]) .homebar>.plus{grid-area:plus;background:none;color:var(--pe-dark);font-size:30px;font-weight:300;width:42px;height:44px;margin:3px 0 5px}
 :root[data-skin="pe"] body:not([data-novelbg]) .homebar .spacer{grid-area:sp}
 :root[data-skin="pe"] body:not([data-novelbg]) .homebar #searchBtn{grid-area:srch;color:var(--pe-dark);align-self:center}
 :root[data-skin="pe"] body:not([data-novelbg]) .homebar #searchBtn svg{width:23px;height:23px}
-:root[data-skin="pe"] body:not([data-novelbg]) .homebar #setBtn{grid-area:set;align-self:center;font-size:0;width:42px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b1b1f' stroke-width='1.6' stroke-linejoin='round'%3E%3Cpolygon points='19.03,10.43 21.52,10.76 21.52,13.24 19.03,13.57 18.08,15.86 19.61,17.85 17.85,19.61 15.86,18.08 13.57,19.03 13.24,21.52 10.76,21.52 10.43,19.03 8.14,18.08 6.15,19.61 4.39,17.85 5.92,15.86 4.97,13.57 2.48,13.24 2.48,10.76 4.97,10.43 5.92,8.14 4.39,6.15 6.15,4.39 8.14,5.92 10.43,4.97 10.76,2.48 13.24,2.48 13.57,4.97 15.86,5.92 17.85,4.39 19.61,6.15 18.08,8.14'/%3E%3Ccircle cx='12' cy='12' r='3' fill='%23f08db7'/%3E%3C/svg%3E") center/25px no-repeat}
+:root[data-skin="pe"] body:not([data-novelbg]) .homebar #setBtn{grid-area:set;justify-self:end;align-self:center;font-size:0;width:42px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b1b1f' stroke-width='1.6' stroke-linejoin='round'%3E%3Cpolygon points='19.03,10.43 21.52,10.76 21.52,13.24 19.03,13.57 18.08,15.86 19.61,17.85 17.85,19.61 15.86,18.08 13.57,19.03 13.24,21.52 10.76,21.52 10.43,19.03 8.14,18.08 6.15,19.61 4.39,17.85 5.92,15.86 4.97,13.57 2.48,13.24 2.48,10.76 4.97,10.43 5.92,8.14 4.39,6.15 6.15,4.39 8.14,5.92 10.43,4.97 10.76,2.48 13.24,2.48 13.57,4.97 15.86,5.92 17.85,4.39 19.61,6.15 18.08,8.14'/%3E%3Ccircle cx='12' cy='12' r='3' fill='%23f08db7'/%3E%3C/svg%3E") center/25px no-repeat}
 :root[data-skin="pe"] body:not([data-novelbg]) .homebar>.icon:hover{background-color:rgba(0,0,0,.06)}
 :root[data-skin="pe"] body:not([data-novelbg]) .searchwrap{padding:12px 12px 0}
 
@@ -907,10 +907,10 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root[data-skin="pe"] body:not([data-novelbg]) .log{background:#000}
 :root[data-skin="pe"] body:not([data-novelbg]) .log .who{color:#cfcfd5}
 :root[data-skin="pe"] body:not([data-novelbg]) .log .mav{width:46px;height:46px;border-radius:10px;border:1.5px solid #3a3a40}
-:root[data-skin="pe"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body{position:relative;width:fit-content;max-width:100%;background:#fafafa;border:0;border-radius:14px;padding:12px 16px;margin-left:6px;
+:root[data-skin="pe"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body{position:relative;width:fit-content;max-width:100%;background:#fafafa;border:0;border-radius:0 14px 14px 14px;padding:12px 16px;margin-left:8px;
   --ink:#1b1b1f;--narr:#85858d;--soft:#85858d;--faint:#85858d;color:#1b1b1f}
-:root[data-skin="pe"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body::before{content:"";position:absolute;left:-9px;top:9px;width:11px;height:13px;background:#fafafa;clip-path:polygon(0 0,100% 35%,100% 100%)}
-:root[data-skin="pe"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.user .body{background:var(--pe-pink);color:#1b1b1f;border:0;border-radius:16px;padding:10px 16px;--ink:#1b1b1f;--narr:#7e5a6b;--faint:#7e5a6b}
+:root[data-skin="pe"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body::before{content:"";position:absolute;left:-9px;top:0;width:10px;height:11px;background:#fafafa;clip-path:polygon(0 0,100% 0,100% 100%)}
+:root[data-skin="pe"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.user .body{background:var(--pe-pink);color:#1b1b1f;border:0;border-radius:16px 4px 16px 16px;padding:10px 16px;--ink:#1b1b1f;--narr:#7e5a6b;--faint:#7e5a6b}
 :root[data-skin="pe"] body:not([data-novelbg]) #chat > .log.fmt-bubble .narr{font-family:var(--font-body);font-style:normal;font-size:.9em}
 
 /* 입력 영역 */
@@ -931,6 +931,99 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root[data-skin="pe"] body:not([data-novelbg]) #chat #input{background:#000;color:#f2f2f4;caret-color:var(--pe-pink);border:1.5px solid #e6e6ea;border-radius:6px}
 :root[data-skin="pe"] body:not([data-novelbg]) #chat #send{background:var(--pe-pink);color:var(--pe-dark);border:0;border-radius:3px;min-height:44px;padding:10px 18px;font-weight:600}
 :root[data-skin="pe"] body:not([data-novelbg]) #chat #send:disabled{opacity:.5}
+</style>
+<style id="tsukiyo-theme">
+@import url("https://fonts.googleapis.com/css2?family=DotGothic16&family=Shippori+Mincho:wght@500&display=swap");
+/* ===== 月夜 ===== */
+:root[data-skin="tk"]{
+  --bg:#000; --panel:#0e0b0e; --field:#0e0b0e; --ink:#f4f0f4; --soft:#9d8f9b; --line:#3f343d;
+  --accent:#ff7eb9; --accent-ink:#140f13; --user-bg:#d8bdd3; --char-bg:#000; --narr:#a898a6; --faint:#8e7f8c;
+  --tk-mauve:#c4a6c1; --tk-pink:#ff7eb9; --tk-dash:#5e4f5c;
+  accent-color:#ff7eb9;
+}
+:root[data-skin="tk"], :root[data-skin="tk"] body{background:#000}
+:root[data-skin="tk"] body:not([data-novelbg]) header.bar{margin:0;background:#000;border-bottom:1px dashed var(--tk-dash)}
+:root[data-skin="tk"] body:not([data-novelbg]) header.bar .icon{color:#f4f0f4}
+
+/* 홈 머리 */
+:root[data-skin="tk"] body:not([data-novelbg]) header.homebar{display:grid;grid-template-columns:auto 1fr auto auto;grid-template-areas:"kao kao kao kao" "ttl ttl ttl ttl" "plus sp srch set";padding:18px 10px 6px;row-gap:0;column-gap:2px}
+:root[data-skin="tk"] body:not([data-novelbg]) .homebar::before{content:"(*≧▽≦*)";grid-area:kao;justify-self:end;padding-right:10px;font:15px/1 "DotGothic16","NeoDunggeunmo",monospace;letter-spacing:1px;color:var(--tk-pink);text-shadow:0 0 6px var(--tk-pink)}
+:root[data-skin="tk"] body:not([data-novelbg]) .homebar .ttl{grid-area:ttl;position:static;text-align:right;padding:26px 12px 14px}
+:root[data-skin="tk"] body:not([data-novelbg]) .homebar .ttl h1{font-size:13px;font-weight:400;letter-spacing:7px;color:#f4f0f4}
+:root[data-skin="tk"] body:not([data-novelbg]) .homebar .ttl h1::before{content:"よるのてがみ";display:block;font:30px/1.15 "DotGothic16","NeoDunggeunmo",monospace;letter-spacing:3px;color:var(--tk-mauve);margin-bottom:2px}
+:root[data-skin="tk"] body:not([data-novelbg]) .homebar .spacer{grid-area:sp}
+:root[data-skin="tk"] body:not([data-novelbg]) .homebar>.plus{grid-area:plus;width:auto;height:44px;padding:0 6px;background:none;font-size:0;border-radius:0}
+:root[data-skin="tk"] body:not([data-novelbg]) .homebar>.plus::after{content:"［＋ 새 캐릭터］";font:14px "DotGothic16","NeoDunggeunmo",monospace;color:var(--tk-mauve)}
+:root[data-skin="tk"] body:not([data-novelbg]) .homebar #searchBtn{grid-area:srch}
+:root[data-skin="tk"] body:not([data-novelbg]) .homebar #searchBtn svg{display:none}
+:root[data-skin="tk"] body:not([data-novelbg]) .homebar #setBtn{grid-area:set}
+:root[data-skin="tk"] body:not([data-novelbg]) .homebar>.icon{height:44px;white-space:nowrap;display:flex;align-items:center;padding:0 6px;border-radius:0;font:14px "DotGothic16","NeoDunggeunmo",monospace;color:var(--tk-mauve)}
+:root[data-skin="tk"] body:not([data-novelbg]) .homebar #searchBtn::after{content:"［검색］"}
+:root[data-skin="tk"] body:not([data-novelbg]) .homebar #setBtn::before{content:"［"}
+:root[data-skin="tk"] body:not([data-novelbg]) .homebar #setBtn::after{content:"］"}
+:root[data-skin="tk"] body:not([data-novelbg]) .homebar>.icon:hover{background:none;color:#f4f0f4}
+
+/* 홈 목록 */
+:root[data-skin="tk"] body:not([data-novelbg]) #home{position:relative}
+:root[data-skin="tk"] body:not([data-novelbg]) .list{position:relative;z-index:1;padding:0 12px}
+:root[data-skin="tk"] body:not([data-novelbg]) #charList .row{background:#000;border-bottom:1px dashed #3f343d;padding:14px 8px;gap:14px;min-height:84px}
+:root[data-skin="tk"] body:not([data-novelbg]) #charList .row:hover{background:#0b090b}
+:root[data-skin="tk"] body:not([data-novelbg]) #charList .row .av{width:56px;height:56px;border-radius:0;border:1px solid #f4f0f4;background:#0e0b0e;color:#f4f0f4;font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","GounBatang",serif;font-weight:500}
+:root[data-skin="tk"] body:not([data-novelbg]) #charList .row .av img{border-radius:0}
+:root[data-skin="tk"] body:not([data-novelbg]) #charList .row .nm{font-weight:400;font-size:17px;color:#f4f0f4;display:flex;align-items:center;gap:8px}
+:root[data-skin="tk"] body:not([data-novelbg]) #charList .row .pv{color:#9d8f9b}
+:root[data-skin="tk"] body:not([data-novelbg]) #charList .row .pin{font-size:0;margin:0;opacity:1}
+:root[data-skin="tk"] body:not([data-novelbg]) #charList .row .pin::after{content:"推し";font:11px/1 "DotGothic16","NeoDunggeunmo",monospace;padding:2px 5px;border:1px solid var(--tk-pink);color:var(--tk-pink);text-shadow:0 0 5px var(--tk-pink)}
+
+/* 홈 장식: 세로글씨, 生きてるよ + 하트 */
+:root[data-skin="tk"] body:not([data-novelbg]) #home::after{content:"月が綺麗ですね\A月が綺麗ですね\A月が綺麗ですね";white-space:pre;writing-mode:vertical-rl;text-orientation:upright;position:absolute;right:18px;bottom:92px;z-index:0;pointer-events:none;
+  font:15px/2 "Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","GounBatang",serif;letter-spacing:4px;color:#f4f0f4;-webkit-mask-image:linear-gradient(to left,#000 20%,rgba(0,0,0,.25));mask-image:linear-gradient(to left,#000 20%,rgba(0,0,0,.25))}
+:root[data-skin="tk"] body:not([data-novelbg]) #home::before{content:"生きてるよ";position:absolute;left:24px;bottom:96px;z-index:0;pointer-events:none;padding-bottom:40px;
+  font:22px/1.2 "DotGothic16","NeoDunggeunmo",monospace;letter-spacing:3px;color:var(--tk-mauve);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 25 6' shape-rendering='crispEdges'%3E%3Cpath d='M1 0h2v1H1zM4 0h2v1H4zM0 1h7v2H0zM1 3h5v1H1zM2 4h3v1H2zM3 5h1v1H3z' fill='%23c4a6c1'/%3E%3Cpath d='M1 0h2v1H1zM4 0h2v1H4zM0 1h7v2H0zM1 3h5v1H1zM2 4h3v1H2zM3 5h1v1H3z' fill='%23c4a6c1' transform='translate(9 0)'/%3E%3Cpath d='M1 0h2v1H1zM4 0h2v1H4zM0 1h7v2H0zM1 3h5v1H1zM2 4h3v1H2zM3 5h1v1H3z' fill='%23ff7eb9' transform='translate(18 0)'/%3E%3C/svg%3E") left bottom/100px 24px no-repeat}
+:root[data-skin="tk"] body:not([data-novelbg]) .backup{position:relative;z-index:1;background:#000;border-top:1px dashed #3f343d;padding:8px 12px 12px;gap:6px}
+:root[data-skin="tk"] body:not([data-novelbg]) .backup .icon{min-height:44px;font:13px "DotGothic16","NeoDunggeunmo",monospace;color:#8e7f8c}
+:root[data-skin="tk"] body:not([data-novelbg]) .backup .icon::before{content:"［"}
+:root[data-skin="tk"] body:not([data-novelbg]) .backup .icon::after{content:"］"}
+
+/* 대화 머리 */
+:root[data-skin="tk"] body:not([data-novelbg]) #chat{position:relative}
+:root[data-skin="tk"] body:not([data-novelbg]) #chat header.bar h2{font-weight:400;letter-spacing:2px;color:#f4f0f4}
+:root[data-skin="tk"] body:not([data-novelbg]) #chName::after{content:"(｡･ω･｡) 온라인";display:block;font:11px/1.4 "DotGothic16","NeoDunggeunmo",monospace;letter-spacing:0;color:var(--tk-pink);text-shadow:0 0 5px var(--tk-pink)}
+:root[data-skin="tk"] body:not([data-novelbg]) #editFromChat{font:14px "DotGothic16","NeoDunggeunmo",monospace;color:var(--tk-mauve)}
+:root[data-skin="tk"] body:not([data-novelbg]) #editFromChat::before{content:"［"}
+:root[data-skin="tk"] body:not([data-novelbg]) #editFromChat::after{content:"］"}
+:root[data-skin="tk"] body:not([data-novelbg]) #chat::after{content:"月が綺麗ですね　月が綺麗ですね";position:absolute;right:8px;top:130px;writing-mode:vertical-rl;text-orientation:upright;pointer-events:none;z-index:0;
+  font:13px/1 "Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","GounBatang",serif;letter-spacing:5px;color:#f4f0f4;opacity:.2}
+:root[data-skin="tk"] body:not([data-novelbg]) #chat .log{position:relative;z-index:1;background:transparent}
+
+/* 대화 */
+:root[data-skin="tk"] body:not([data-novelbg]) .log .who{color:var(--tk-mauve)}
+:root[data-skin="tk"] body:not([data-novelbg]) .log .mav{border-radius:0;border:1px solid #f4f0f4;background:#0e0b0e;color:#f4f0f4;font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","GounBatang",serif;font-weight:500}
+:root[data-skin="tk"] body:not([data-novelbg]) .log .mav img{border-radius:0}
+:root[data-skin="tk"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body{width:fit-content;max-width:100%;background:#000;border:1px solid #f4f0f4;border-radius:2px 14px 14px 14px;padding:11px 14px;color:#f4f0f4;--ink:#f4f0f4;--narr:#a898a6;--faint:#8e7f8c}
+:root[data-skin="tk"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.user .body{background:#d8bdd3;color:#140f13;border:0;border-radius:14px 2px 14px 14px;--ink:#140f13;--narr:#6d5569;--faint:#6d5569}
+:root[data-skin="tk"] body:not([data-novelbg]) #chat > .log.fmt-bubble .narr{font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","GounBatang",serif;font-style:normal;font-size:.88em}
+:root[data-skin="tk"] body:not([data-novelbg]) .log .typing{font-family:"DotGothic16","NeoDunggeunmo",monospace;color:var(--tk-pink);text-shadow:0 0 6px var(--tk-pink)}
+:root[data-skin="tk"] body:not([data-novelbg]) #chat > .log.fmt-bubble .body.typbub{border-color:#5e4f5c}
+
+/* 상태창 → 분홍 메모장 */
+:root[data-skin="tk"] .oc .statc{background:#f4b6ce;border:1px solid #1d1a1c;border-radius:0;padding:0 4px 4px;box-shadow:0 0 14px rgba(244,182,206,.25);color:#262126;font-family:inherit}
+:root[data-skin="tk"] .oc .statc .pt{display:flex;align-items:center;gap:6px;margin:0;height:28px;padding:0 2px;font-size:13px;letter-spacing:0;color:#2a2227}
+:root[data-skin="tk"] .oc .statc .pt::before{content:"♥ -"}
+:root[data-skin="tk"] .oc .statc .pt::after{content:"— □ ✕";margin-left:auto;font:13px "DotGothic16","NeoDunggeunmo",monospace;letter-spacing:4px}
+:root[data-skin="tk"] .oc .statc .row{background:#fbfafb;border:0;border-top:1px solid #eee4ea;padding:6px 12px;color:#262126}
+:root[data-skin="tk"] .oc .statc .pt + .row{border-top:1px solid #b89aab}
+:root[data-skin="tk"] .oc .statc .row b{color:#8a6f80}
+
+/* 입력 */
+:root[data-skin="tk"] body:not([data-novelbg]) #chat > .composer{background:#000;border-top:1px dashed var(--tk-dash)}
+:root[data-skin="tk"] body:not([data-novelbg]) #chat .quick{gap:0}
+:root[data-skin="tk"] body:not([data-novelbg]) #chat .quick button{background:none;border:0;border-radius:0;padding:4px 3px;font:12px "DotGothic16","NeoDunggeunmo",monospace;color:var(--tk-mauve)}
+:root[data-skin="tk"] body:not([data-novelbg]) #chat .quick button::before{content:"［"}
+:root[data-skin="tk"] body:not([data-novelbg]) #chat .quick button::after{content:"］"}
+:root[data-skin="tk"] body:not([data-novelbg]) #chat #input{background:#000;color:#f4f0f4;caret-color:var(--tk-pink);border:1px solid #f4f0f4;border-radius:0}
+:root[data-skin="tk"] body:not([data-novelbg]) #chat #send{background:var(--tk-pink);color:#140f13;border:0;border-radius:0;min-height:44px;font:15px "DotGothic16","NeoDunggeunmo",monospace;letter-spacing:1px}
+:root[data-skin="tk"] body:not([data-novelbg]) #chat #send:disabled{opacity:.5}
 </style>
 </head>
 <body>
@@ -1401,7 +1494,7 @@ const HANDS = {
   "깜찍": "'HandSeh','Nanum Pen Script',cursive", "서툰": "'HandRam','Nanum Pen Script',cursive",
   "수수": "'HandDng','Nanum Pen Script',cursive"
 };
-const THEMES = [["light", "밝게"], ["night", "밤"], ["ps", "핑크 실버"], ["ps-night", "핑크 실버 밤"], ["pe", "핑크 EXE"]];
+const THEMES = [["light", "밝게"], ["night", "밤"], ["ps", "핑크 실버"], ["ps-night", "핑크 실버 밤"], ["pe", "핑크 EXE"], ["tk", "月夜 (츠키요)"]];
 function applyLook() {
   const r = document.documentElement.style;
   const fam = FONTS[ai.font] || FONTS["고운돋움"];
@@ -1411,8 +1504,8 @@ function applyLook() {
   r.setProperty("--card-fs", (ai.cfs || 14) + "px");
   r.setProperty("--rlh", Math.ceil((ai.cfs || 14) * 2.2) + "px");
   const th = ai.theme || store.theme || "light";
-  document.documentElement.dataset.theme = th === "night" || th === "dark" || th === "ps-night" || th === "pe" ? "night" : "light";
-  if (th === "ps" || th === "ps-night") document.documentElement.dataset.skin = "ps"; else if (th === "pe") document.documentElement.dataset.skin = "pe"; else delete document.documentElement.dataset.skin;
+  document.documentElement.dataset.theme = th === "night" || th === "dark" || th === "ps-night" || th === "pe" || th === "tk" ? "night" : "light";
+  if (th === "ps" || th === "ps-night") document.documentElement.dataset.skin = "ps"; else if (th === "pe") document.documentElement.dataset.skin = "pe"; else if (th === "tk") document.documentElement.dataset.skin = "tk"; else delete document.documentElement.dataset.skin;
 }
 // 핑크 EXE 창 버튼: □ = 설정, × = 뒤로
 document.querySelectorAll("header.bar").forEach(h => {
