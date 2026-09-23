@@ -6,6 +6,10 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"2.30","items":["손끝 뽀뽀: 열 때마다 캐릭터 설정·기억 요약·최근 대화를 보고 새로 판단 (판단 끝날 때까지 '○○ 기다리는 중…' 후 등장, 6초 넘으면 지난번 판단으로)"]},
+  {"v":"2.29","items":["손끝 뽀뽀가 캐릭터 성격 따라 달라짐: 캐릭터 설정과 최근 대화를 보고 AI가 피하기·쫓기·다정 중 하나를 골라줌 (대화가 20개쯤 쌓이면 다시 판단)","피하기(까칠·튕기는 캐릭터): 요리조리 도망다니다 내가 따라잡으면 덮쳐지듯 닿고, 잠깐 있다가 또 빠져나감","쫓기(능글 캐릭터): 점점 빨라지며 나를 쫓아다니고, 도망가도 더 빠르게 따라와 덮침","다정: 지금처럼 살살 다가와 맞춰 줌"]},
+  {"v":"2.28","items":["손끝 뽀뽀를 원래 커플 앱처럼: 하얀 화면에 지문 모양 손끝, 글씨·말풍선·하트 효과 빼고 닿으면 두 지문이 핑크로 물들며 동그란 물결","캐릭터 지문은 말없이 다가오고, 가끔 톡 치고 빠지기·빙글 돌기·숨었다 나오기·도망가기 장난, 내가 휙 빼면 따라옴","카드는 지문 두 개 + 닿아 있던 시간·닿은 횟수만"]},
+  {"v":"2.27","items":["/손끝 뽀뽀를 오래 할 수 있게: [그만할래]를 누를 때까지 계속, 닿아 있는 시간이 올라가고 하트가 퐁퐁","장난 추가: 톡 치고 도망가기, 빙글빙글 돌기, 숨었다가 까꿍, '잡아봐' 하고 도망가면 내가 손가락으로 잡기","내가 손가락을 휙 빼서 도망가면 캐릭터가 빠르게 잡으러 옴 (잡힌 횟수 기록)","끝나면 캐릭터 답장 없이 손끝 뽀뽀 카드만 남음 (닿아 있던 시간·횟수·잡기 기록). 캐릭터는 다음 대화부터 이 일을 알고 있음"]},
   {"v":"2.26","items":["/손끝 명령어 추가 (/뽀뽀, /썸키스도 됨): 커플 앱 손가락 뽀뽀처럼 화면을 꾹 누르고 있으면 상대 손끝이 다가와 닿는 순간 진동 + 하트, 그다음 인물이 그 기능인 걸 알고 반응","진동: 안드로이드는 진동, 아이폰(iOS 18 이상)은 햅틱 톡톡으로 최대한","月夜·月白: 지문이 대사보다 작고 다른 글꼴로 나오던 것 → 대사와 같은 크기·글꼴로","글꼴 추가: 둥근모 (도트), 갈무리 (도트), 나눔고딕코딩"]},
   {"v":"2.25","items":["月夜·月白 대화방: 이름 밑 (｡･ω･｡) 온라인 줄이 이름과 왼쪽 끝이 어긋나던 것 맞춤 (글꼴 하나로 통일)"]},
   {"v":"2.24","items":["홈 맨 아래 백업 버튼·픽셀 하트 줄 없애기: 백업 내보내기·불러오기는 설정 맨 아래 '백업'으로 옮김","月夜·月白 홈 윗줄 ［＋］［검색］［설정］ 글꼴을 하나로 맞추고 높이 정렬"]},
@@ -875,26 +879,46 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root[data-skin="tk"] body:not([data-novelbg]) #chat #chName::after{font:12px/1.3 "NeoDunggeunmo","DotGothic16",monospace;letter-spacing:0;margin:2px 0 0;padding:0;text-indent:0}
 </style>
 <style id="thumb-kiss">
-.tkiss{position:fixed;inset:0;z-index:9999;background:rgba(10,6,10,.86);touch-action:none;-webkit-user-select:none;user-select:none;overflow:hidden;color:#f4f0f4;font-family:var(--font-body)}
-:root[data-theme="light"] .tkiss{background:rgba(250,244,248,.9);color:#2a1520}
-.tkiss .tk-x{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);right:10px;width:44px;height:44px;border:0;background:none;color:inherit;font-size:18px;opacity:.7}
-.tkiss .tk-top{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 70px);display:flex;flex-direction:column;align-items:center;gap:10px;pointer-events:none;text-align:center}
-.tkiss .tk-av{width:64px;height:64px;border-radius:50%;overflow:hidden;display:grid;place-items:center;font-size:26px;border:1.5px solid #ff7eb9;box-shadow:0 0 14px rgba(255,126,185,.5);background:rgba(255,214,234,.12)}
-:root[data-skin="tk"] .tkiss .tk-av{border-radius:0}
+.tkiss{position:fixed;inset:0;z-index:9999;background:#fff;color:#3a3238;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overflow:hidden;font-family:var(--font-body)}
+.tkiss .tk-top{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 40px);display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
+.tkiss .tk-av{width:44px;height:44px;border-radius:50%;overflow:hidden;display:grid;place-items:center;font-size:18px;background:#f5eef2;color:#8a7a86}
 .tkiss .tk-av img{width:100%;height:100%;object-fit:cover}
-.tkiss .tk-msg{font-size:17px;letter-spacing:1px}
-.tkiss .tk-sub{font-size:13px;opacity:.6}
-.tkiss .tk-me,.tkiss .tk-you{position:absolute;left:-36px;top:-36px;width:72px;height:72px;border-radius:50%;opacity:0;pointer-events:none;transition:opacity .25s}
-.tkiss .tk-me{background:radial-gradient(circle,rgba(217,196,255,.85),rgba(217,196,255,.15) 60%,transparent 70%)}
-.tkiss .tk-you{background:radial-gradient(circle,rgba(255,126,185,.9),rgba(255,126,185,.18) 60%,transparent 70%);box-shadow:0 0 24px rgba(255,126,185,.5)}
-.tkiss .tk-me.on,.tkiss .tk-you.on{opacity:1}
-.tkiss.near .tk-you{animation:tkpulse .5s ease-in-out infinite}
-@keyframes tkpulse{50%{box-shadow:0 0 40px rgba(255,126,185,.85)}}
-.tkiss.hit .tk-me,.tkiss.hit .tk-you{opacity:1;animation:none;box-shadow:0 0 60px rgba(255,126,185,.95)}
-.tkiss .tk-burst{position:absolute;left:0;top:0;pointer-events:none}
-.tkiss .tk-burst i{position:absolute;left:-8px;top:-10px;font-style:normal;font-size:18px;color:#ff7eb9;text-shadow:0 0 8px rgba(255,126,185,.8);animation:tkfly 1.1s ease-out forwards}
-@keyframes tkfly{0%{transform:rotate(var(--a)) translateY(0) scale(.4);opacity:1}100%{transform:rotate(var(--a)) translateY(calc(var(--d) * -1)) scale(1.1);opacity:0}}
-@media (prefers-reduced-motion:reduce){.tkiss .tk-burst i,.tkiss.near .tk-you{animation:none}}
+.tkiss .tk-nm{font-size:14px;color:#6f6470}
+.tkiss .tk-tm{font-size:12px;color:#b3a8b0;min-height:1.2em;font-variant-numeric:tabular-nums}
+.tkiss .tk-hint{position:absolute;left:0;right:0;top:46%;text-align:center;font-size:14px;color:#b3a8b0;pointer-events:none;transition:opacity .4s}
+.tkiss .tk-hint.gone{opacity:0}
+.tkiss .tk-me,.tkiss .tk-you{position:absolute;left:-42px;top:-42px;width:84px;height:84px;opacity:0;pointer-events:none;transition:opacity .3s,color .3s}
+.tkiss .tk-me svg,.tkiss .tk-you svg{width:100%;height:100%;display:block}
+.tkiss .tk-me{color:#b9aeb6}
+.tkiss .tk-you{color:#ff8fc2}
+.tkiss .tk-me.on,.tkiss .tk-you.on{opacity:.9}
+.tkiss.touch .tk-me{color:#ff6fae;opacity:1}
+.tkiss.touch .tk-you{color:#ff6fae;opacity:1;animation:tkbeat 1s ease-in-out infinite}
+@keyframes tkbeat{0%,100%{scale:1}15%{scale:1.08}30%{scale:1}}
+.tkiss.pounce .tk-you{animation:tkpounce .55s ease-out,tkbeat 1s ease-in-out .55s infinite}
+@keyframes tkpounce{0%{scale:1.6}45%{scale:.86}75%{scale:1.1}100%{scale:1}}
+.tkiss .tk-fx{position:absolute;inset:0;pointer-events:none}
+.tkiss .tk-fx i{position:absolute;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;border:2px solid rgba(255,111,174,.6);animation:tkring 1.1s ease-out forwards}
+@keyframes tkring{to{transform:scale(4);opacity:0}}
+.tkiss .tk-end{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);transform:translateX(-50%);min-height:44px;padding:0 18px;border:0;background:none;color:#a39aa1;font-size:14px}
+@media (prefers-reduced-motion:reduce){.tkiss .tk-fx i,.tkiss.touch .tk-you{animation:none}}
+/* 손끝 뽀뽀 카드 */
+.msg.kissu{display:flex;justify-content:center;margin:6px 0}
+.kiss-card{width:min(260px,82%);padding:12px 16px 10px;border-radius:14px;background:#fff4f9;color:#2a1520;border:1.5px solid #ff9ecb;box-shadow:0 0 14px rgba(255,126,185,.28);font-size:13.5px}
+.kiss-card .kc-fp{display:flex;justify-content:center;margin:2px 0 4px}
+.kiss-card .kc-fp svg{width:34px;height:34px;color:#c9bec6}
+.kiss-card .kc-fp svg+svg{margin-left:-14px;color:#ff8fc2}
+.kiss-card .kc-hd{text-align:center;font-size:14px;letter-spacing:2px;color:#c2357e;margin-bottom:8px}
+.kiss-card .kc-row{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-top:1px dashed #f3c4da}
+.kiss-card .kc-row span{color:#8a5a72}
+.kiss-card .kc-row b{font-weight:400}
+.kiss-card .kc-ft{text-align:right;font-size:11px;color:#a07a8d;margin-top:6px}
+:root[data-theme="night"] .kiss-card{background:#1d1822;color:#f4f0f4;border-color:#ff7eb9}
+:root[data-theme="night"] .kiss-card .kc-row{border-top-color:#3f343d}
+:root[data-theme="night"] .kiss-card .kc-row span,:root[data-theme="night"] .kiss-card .kc-ft{color:#a898a6}
+:root[data-theme="night"] .kiss-card .kc-hd{color:#ff7eb9;text-shadow:0 0 6px rgba(255,126,185,.5)}
+:root[data-skin="tk"] .kiss-card{border-radius:0}
+:root[data-skin="tk"] .kiss-card .kc-hd,:root[data-skin="tk"] .kiss-card .kc-ft{font-family:"NeoDunggeunmo","DotGothic16",monospace}
 </style>
 </head>
 <body>
@@ -1612,7 +1636,7 @@ const CMDS = {
   "/향수": "이번 턴에는 이 인물이 실제로 쓰는 향수, 바디로션, 바디워시만 [향수]와 [/향수] 사이에 쓴다. 세 개를 향수, 바디로션, 바디워시 순서로 빈 줄로 나눈다. 각 항목은 다음 라벨을 각각 한 줄씩 쓴다.\n종류: 향수 / 바디로션 / 바디워시 중 하나\n브랜드: 브랜드 이름\n제품: 판매되는 정확한 제품명. 향수는 농도(오 드 퍼퓸, 오 드 뚜왈렛 등)까지 쓴다\n향: 주요 노트나 향의 느낌을 짧게\n이유: 이 인물이 이걸 쓰는 이유를 한두 문장으로\n현실에 실제로 판매되는 제품만 쓴다. 브랜드와 제품명이 확실하지 않으면 지어내지 말고 확실히 아는 제품으로 바꾼다. 브랜드만 맞고 없는 라인 이름을 붙이지 않는다.\n이유는 향이 이미지에 어울린다는 말로 끝내지 않는다. 이 인물의 성격과 생활에서 이걸 고르게 된 사정이 드러나야 한다.\n이 인물의 프롬프트와 대화 기반으로 물건을 고른다. 향수를 안 뿌리는 인물이면 향수 칸에 가장 가까운 것(가끔 뿌리는 것, 선물받고 둔 것)을 쓰고 이유에 그 사정을 쓴다.\n인물 설정에 향이나 쓰는 제품이 적혀 있으면 무엇보다 그것을 따른다. 대화에서 이미 나온 향이 있으면 그것과 어긋나지 않게 한다. 세계관이 현대가 아니어도 현실에 실제로 파는 제품으로 고른다. 같은 시점에 다시 조회하면 이미 나온 제품을 유지한다. 지문이나 대사는 쓰지 않는다.",
   "/메모": "이번 턴에는 인물이 유저에게 남긴 짧은 메모만 [메모]와 [/메모] 사이에 쓴다. 다음 세 줄을 먼저 쓰고 그 아래에 본문을 쓴다.\n쓴사람: 메모를 쓴 인물의 이름\n받는사람: 메모를 받을 사람의 이름\n남긴곳: 식탁 위, 현관문, 책상 서랍처럼 메모를 둔 자리\n본문은 짧게 쓴다. 두세 줄이면 충분하고 길어야 다섯 줄이다. 편지가 아니라 쪽지이므로 인사말과 맺음말을 갖추지 않는다. 이 인물이 급하게 적었을 법한 말투로 쓴다.\n메모를 남길 상황부터 만든다. 자리를 비우거나, 먼저 나가거나, 상대가 잠들었거나, 직접 말하기 어려운 것이 있을 때 쓴다. 지금 두 사람이 마주 보고 있는 상황이면 메모 대신 그냥 말한다.\n지문이나 대사는 쓰지 않는다. 메모에 적힌 글자만 쓴다.\n종이가 없는 세계관이면 그 시대에 짧은 말을 남기는 방식으로 바꾼다.",
   "/삭제내역": "이번 턴에는 인물의 휴대폰 휴지통에서 복구된 통화·메시지 삭제 내역만 보여준다. 다음 형식을 그대로 지킨다.\n[삭제내역]\n[통화 기록]\n- 2026. 10. 21. 23:40 | 발신 (05분 12초) | 상대 이름 (관계나 직함)\n· 내용: 통화에서 오간 이야기\n· 삭제 이유: 지운 이유\n· 당시 생각: '그때 속으로 한 생각'\n[메시지]\n- 2026. 10. 20. 14:15 | 수신 | 상대 이름 (관계나 직함)\n· 내용: [메시지 원문]\n· 삭제 이유: 지운 이유\n· 당시 감정: 감정 한두 마디. '그때 속으로 한 생각'\n[/삭제내역]\n통화와 메시지를 합쳐 2~4건이고, 최근 것이 위에 온다. 통화는 발신·수신·부재중 중 하나와 통화 시간을, 메시지는 발신·수신을 쓴다. 날짜와 시각은 지금 장면의 시점에 맞춘다. 상대는 캐릭터 설정과 대화에 나온 인물이나 그 세계에 있을 법한 인물로 하고, 상대에게 숨기고 싶었던 일이나 몰래 챙기던 일처럼 캐릭터다운 이유로 지운 내역을 고른다. 설정과 대화에서 벗어난 큰 사건을 새로 지어내지 않는다. 태그 바깥에 지문이나 대사, 설명을 쓰지 않는다.",
-  "/손끝": "방금 유저가 커플 앱의 '손가락 뽀뽀'(썸키스) 기능으로 이 인물과 손끝을 맞췄다. 두 사람이 각자 폰 화면을 꾹 누르고 있다가 손가락 자리가 겹치면 양쪽 폰이 동시에 떨리며 손끝이 닿았다고 알려주는 기능이다. 이 인물도 그 순간 자기 폰 화면을 누르고 있었고, 폰이 떨리는 걸 느꼈으며 이게 그 기능이라는 걸 안다. 이번 턴에는 손끝이 닿은 직후 이 인물의 반응을 평소 답변 형식 그대로 쓴다. 두 사람이 떨어져 있다면 떨어진 채로, 같은 공간에 있다면 그 자리에서 반응한다. 기능을 설명하지 않는다.",
+  "/손끝": "손끝 뽀뽀 놀이 (앱 안에서만 열리고 답장은 만들지 않음)",
   "/모브": "이번 턴에 지금 상황에 어울리는 새 인물을 한 명 등장시킨다. 이름을 정하고, 그 인물이 말할 때는 줄 맨 앞에 그 이름과 | 를 붙여 쓴다. 설정에 없는 단역이어도 된다.",
   "/이벤트": "이번 턴에 지금 장면에 예상하지 못한 일이 하나 벌어진다. 그 일이 일어나는 장면부터 바로 쓰고, 설명이나 예고, 선택지를 붙이지 않는다. 카드 형식을 쓰지 않고 평소 이야기처럼 쓴다.\n사건의 크기는 이 장면의 흐름을 바꾸는 정도를 기본으로 한다. 일정이 틀어지거나, 누가 찾아오거나, 연락이 오거나, 오해가 생기거나, 장소를 옮겨야 하게 되는 일이다. 관계나 서사가 움직이는 큰 사건은 드물게만 쓴다. 매번 큰 사건을 고르지 않는다.\n사람이 등장하는 사건도 된다. 이 인물을 아는 사람이 나타나거나, 두 사람 사이에 누가 끼어드는 일도 여기에 포함된다. 그런 인물은 장면이 끝날 때까지 자리에 남아 있고, 말을 걸면 대답한다. 다만 이 장면이 지나면 고정 인물로 굳지 않는다.\n반드시 이 세계관과 지금 있는 장소에서 실제로 일어날 수 있는 일만 쓴다. 시대와 장소에 없는 것을 가져오지 않는다. 지금까지의 대화에서 이미 깔려 있던 것을 꺼내 쓰는 쪽이 아무 데서나 가져오는 것보다 낫다.\n이미 진행 중인 갈등이 있으면 그 위에 새 갈등을 얹지 않는다. 기존 설정과 서사를 뒤집지 않는다. 죽음, 이별, 사고, 폭력처럼 되돌릴 수 없는 사건은 대화에서 그럴 만한 흐름이 쌓였을 때만 쓴다.\n사건은 벌어진 것으로 쓰되 결말까지 정하지 않는다. 어떻게 될지는 인물들의 다음 선택에 맡긴다."
 };
@@ -2915,10 +2939,12 @@ function renderLog(errText) {
     const d = document.createElement("div");
     d.className = "msg " + (m.role === "user" ? "user" : "char");
     let content, bare = false, multi = null;
+    const isKiss = !!(m.role === "user" && m.kiss);
     const isOocU = m.role === "user" && m.cmd === "/ooc";
     const isMemoU = m.role === "user" && !isOocU && /^\s*\[메모\]/.test(m.text || "");
-    const unov = m.role === "user" && fmt !== "bubble" && !isOocU && !isMemoU;
-    if (isOocU) content = `<div class="ooc">${esc(m.text)}</div>`;
+    const unov = m.role === "user" && fmt !== "bubble" && !isOocU && !isMemoU && !isKiss;
+    if (isKiss) content = kissCardHTML(m.kiss);
+    else if (isOocU) content = `<div class="ooc">${esc(m.text)}</div>`;
     else if (unov) content = `<div class="unovb">${userNovelHTML(m.text)}</div>`;
     else if (m.role === "user") content = `<div class="body">${renderText(m.text, fmt)}</div>`;
     else if (m.ooc) { content = `<div class="ooc">${esc(m.text)}</div>`; bare = true; }
@@ -2933,7 +2959,8 @@ function renderLog(errText) {
       }
     }
     const inner = `${bare ? "" : `<div class="who"></div>`}${content}<div class="tools"></div>`;
-    if (isOocU) { d.className = "msg user oocu"; d.innerHTML = content; }
+    if (isKiss) { d.className = "msg user kissu"; d.innerHTML = content; }
+    else if (isOocU) { d.className = "msg user oocu"; d.innerHTML = content; }
     else if (isMemoU) { d.className = "msg user memou"; d.innerHTML = `<div class="oc">${ocMemo(String(m.text).replace(/^\s*\[메모\]\s*/, "").replace(/\s*\[\/메모\]\s*$/, ""), c)}</div>`; }
     else if (unov) { d.className = "msg user unov"; d.innerHTML = content; }
     else if (m.role === "user") d.innerHTML = ai.uav === false
@@ -2949,7 +2976,7 @@ function renderLog(errText) {
     const acts = [];
     if (i === list.length - 1 && m.role === "assistant" && i > 0) acts.push(["다시 생성", regen]);
     acts.push(["복사", () => { try { navigator.clipboard.writeText(m.text); } catch (e) {} }]);
-    acts.push(["수정", () => editMsg(d, m)]);
+    if (!m.kiss) acts.push(["수정", () => editMsg(d, m)]);
     acts.push(["삭제", () => { if (busy) return; list.splice(i, 1); save(); renderLog(); }, "red"]);
     acts.push(["여기부터 지우기", () => { if (busy) return; if (!confirm("이 메시지부터 아래 대화를 모두 지울까요?")) return; list.splice(i); save(); renderLog(); }, "red"]);
     let timer = null;
@@ -3224,10 +3251,7 @@ function send() {
     return;
   }
   const pc = parseCmd(v);
-  if (pc && pc.key === "/손끝" && !thumbDone) {
-    thumbKiss(() => { thumbDone = true; $("#input").value = "/손끝"; send(); thumbDone = false; });
-    return;
-  }
+  if (pc && pc.key === "/손끝") { $("#input").value = ""; autoGrow(); thumbKiss(); return; }
   const um = { id: newId(), role: "user", text: pc ? v : autoSmsTime(v, msgs()) };
   if (pc) um.cmd = pc.key;
   msgs().push(um); save();
@@ -3411,7 +3435,6 @@ $("#qDelLast").onclick = () => {
   l.pop(); save(); renderLog();
 };
 // ---------- 손끝 (손가락 뽀뽀) ----------
-let thumbDone = false;
 const haptic = (() => {
   let lab = null;
   const tick = () => {
@@ -3432,58 +3455,187 @@ const haptic = (() => {
     pattern.forEach((d, i) => { if (i % 2 === 0) { const n = Math.max(1, Math.round(d / 60)); for (let k = 0; k < n; k++) setTimeout(tick, t + k * 70); } t += d; });
   };
 })();
-function thumbKiss(onDone) {
+function fmtDur(ms) { const s = Math.round(ms / 1000); return s < 60 ? s + "초" : Math.floor(s / 60) + "분" + (s % 60 ? " " + (s % 60) + "초" : ""); }
+function kissCardHTML(k) {
+  const d = new Date(k.at || Date.now());
+  const dt = d.getFullYear() + "." + String(d.getMonth() + 1).padStart(2, "0") + "." + String(d.getDate()).padStart(2, "0") + " " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  const rows = [["닿아 있던 시간", fmtDur(k.ms || 0)], ["손끝 닿은 횟수", (k.touches || 0) + "번"]];
+  return `<div class="kiss-card"><div class="kc-fp">${fingerprintSVG(7)}${fingerprintSVG(31)}</div><div class="kc-hd">손끝 뽀뽀</div>${rows.map(r => `<div class="kc-row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join("")}<div class="kc-ft">${dt}</div></div>`;
+}
+function fingerprintSVG(seed) {
+  let r = seed * 9301 + 49297;
+  const rnd = () => { r = (r * 9301 + 49297) % 233280; return r / 233280; };
+  let out = "";
+  for (let i = 0; i < 9; i++) {
+    const rx = 5 + i * 3.6, ry = rx * 1.28, cy = 50 + i * 0.6;
+    const len = 2 * Math.PI * Math.sqrt((rx * rx + ry * ry) / 2);
+    const gap = 3 + rnd() * 7, dash = len * (0.18 + rnd() * 0.3);
+    out += `<ellipse cx="50" cy="${cy.toFixed(1)}" rx="${rx.toFixed(1)}" ry="${ry.toFixed(1)}" stroke-dasharray="${dash.toFixed(1)} ${gap.toFixed(1)} ${(dash * 0.6).toFixed(1)} ${(gap * 0.8).toFixed(1)}" stroke-dashoffset="${(rnd() * len).toFixed(1)}" transform="rotate(${(rnd() * 20 - 10).toFixed(1)} 50 50)"/>`;
+  }
+  return `<svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">${out}</g></svg>`;
+}
+async function kissStyleOf(c) {
+  const n = (store.chats[c.id] || []).length;
+  const u = c.uname || "유저";
+  const mem = c.memory && c.memory.sumOn !== false ? (c.memory.summary || "").trim() : "";
+  const recent = (store.chats[c.id] || []).slice(-14).map(m => (m.role === "user" ? u : c.name) + ": " + sub(m.text || "", c).slice(0, 400)).join("\n");
+  const prompt = `아래 캐릭터 설정과 최근 대화를 보고, ${c.name}이(가) ${u}와 커플 앱 '손가락 뽀뽀'(서로 폰 화면에서 손끝 맞추기)를 할 때 어떻게 굴지 하나만 고른다.
+피하기: 까칠하거나 튕기거나 쑥스러워서 일단 요리조리 피해 다니는 타입
+쫓기: 능글맞거나 적극적이라 오히려 ${u}를 쫓아다니며 먼저 맞추려는 타입
+다정: 순하고 다정하게 다가와 맞춰 주는 타입
+설정과 대화에서 드러난 성격과 지금 두 사람 분위기로 판단한다. 피하기, 쫓기, 다정 중 한 단어만 출력한다.
+
+[설정]
+${sub(c.prompt || "", c).slice(0, 3000)}
+
+[지금까지 요약]
+${mem ? sub(mem, c).slice(0, 2000) : "(없음)"}
+
+[최근 대화]
+${recent || "(없음)"}`;
+  try {
+    let out = "";
+    if (ai.prov !== "builtin") out = await callApi(ai, [{ role: "user", content: prompt }], null, null);
+    else if (sample) out = (await sample([{ role: "user", content: prompt }], { cache: false })).text;
+    const v = /피하기/.test(out) ? "dodge" : /쫓기/.test(out) ? "chase" : /다정/.test(out) ? "sweet" : null;
+    if (v) { c.kissStyle = v; c.kissStyleN = n; save(null); }
+    return v || c.kissStyle || "sweet";
+  } catch (e) { return c.kissStyle || "sweet"; }
+}
+function thumbKiss() {
   const c = char() || {};
+  const nm = c.name || "상대";
   const ov = document.createElement("div");
   ov.className = "tkiss";
-  const av = c.avatar ? `<img src="${c.avatar}" alt="">` : esc((c.name || "?").slice(0, 1));
-  ov.innerHTML = `<button class="tk-x" aria-label="닫기">✕</button><div class="tk-top"><div class="tk-av">${av}</div><div class="tk-msg">화면을 꾹 누르고 기다려줘</div><div class="tk-sub"></div></div><div class="tk-me"></div><div class="tk-you"></div><div class="tk-burst"></div>`;
+  const av = c.avatar ? `<img src="${c.avatar}" alt="">` : esc(nm.slice(0, 1));
+  ov.innerHTML = `<div class="tk-top"><div class="tk-av">${av}</div><div class="tk-nm"></div><div class="tk-tm"></div></div><div class="tk-hint">화면을 꾹 눌러봐</div><div class="tk-me">${fingerprintSVG(7)}</div><div class="tk-you">${fingerprintSVG(31)}</div><div class="tk-fx"></div><button class="tk-end">그만할래</button>`;
   document.body.appendChild(ov);
-  const me = ov.querySelector(".tk-me"), you = ov.querySelector(".tk-you"), msg = ov.querySelector(".tk-msg"), sub = ov.querySelector(".tk-sub"), burst = ov.querySelector(".tk-burst");
-  sub.textContent = (c.name || "상대") + "도 화면을 누르고 있어요";
-  let fx = 0, fy = 0, yx = 0, yy = 0, holding = false, raf = 0, done = false, start = 0, lastBeat = 0;
-  const close = () => { cancelAnimationFrame(raf); ov.remove(); };
-  ov.querySelector(".tk-x").onclick = e => { e.stopPropagation(); close(); };
-  const place = (el, x, y) => { el.style.transform = `translate(${x}px,${y}px)`; };
-  const spawn = () => {
-    const w = innerWidth, h = innerHeight, side = Math.floor(Math.random() * 4);
-    yx = side === 0 ? -40 : side === 1 ? w + 40 : Math.random() * w;
-    yy = side === 2 ? -40 : side === 3 ? h + 40 : h * (0.3 + Math.random() * 0.5);
-    place(you, yx, yy); you.classList.add("on");
+  const $$ = q => ov.querySelector(q);
+  const me = $$(".tk-me"), you = $$(".tk-you"), tm = $$(".tk-tm"), hint = $$(".tk-hint"), fx = $$(".tk-fx");
+  $$(".tk-nm").textContent = nm;
+  const W = () => innerWidth, H = () => innerHeight;
+  let px = 0, py = 0, spd = 0, lastMove = 0, holding = false, spawned = false;
+  let yx = -60, yy = H() * 0.6, vx = 0, vy = 0;
+  let mode = "seek", modeT = 0, nextTease = 0, lastBeat = 0, raf = 0, prev = performance.now(), ang = 0, to = null, closed = false;
+  let style = c.kissStyle || "sweet";
+  const st = { ms: 0, touches: 0 };
+  const put = (el, x, y) => { el.style.transform = `translate(${x}px,${y}px)`; };
+  const ripple = (x, y) => { const e = document.createElement("i"); e.style.left = x + "px"; e.style.top = y + "px"; fx.appendChild(e); setTimeout(() => e.remove(), 1200); };
+  const edgePoint = () => {
+    const side = Math.floor(Math.random() * 4);
+    return side === 0 ? [-60, H() * (0.25 + Math.random() * 0.6)] : side === 1 ? [W() + 60, H() * (0.25 + Math.random() * 0.6)] : side === 2 ? [Math.random() * W(), -60] : [Math.random() * W(), H() + 60];
   };
-  const step = (t) => {
-    if (!holding || done) return;
-    const el = t - start;
-    const k = el < 700 ? 0 : Math.min(0.09, 0.02 + el / 40000);
-    yx += (fx - yx) * k + Math.sin(t / 180) * 0.6; yy += (fy - yy) * k + Math.cos(t / 210) * 0.6;
-    place(you, yx, yy);
-    const d = Math.hypot(fx - yx, fy - yy);
-    if (d < 140 && t - lastBeat > (d < 60 ? 260 : 520)) { lastBeat = t; haptic([18]); ov.classList.add("near"); }
-    if (d < 16) return hit();
-    raf = requestAnimationFrame(step);
+  const setMode = m => { mode = m; modeT = 0; };
+  const moveTo = (tx, ty, speed, dt) => { const dx = tx - yx, dy = ty - yy, d = Math.hypot(dx, dy) || 1, k = Math.min(d, speed * dt); yx += dx / d * k; yy += dy / d * k; };
+  const clock = ms => { const s2 = Math.floor(ms / 1000); return Math.floor(s2 / 60) + ":" + String(s2 % 60).padStart(2, "0"); };
+  const touchOn = () => {
+    st.touches++; ov.classList.add("touch"); ripple(px, py); haptic([60, 40, 120]);
+    if (style !== "sweet") { ripple(px, py); ov.classList.remove("pounce"); void ov.offsetWidth; ov.classList.add("pounce"); }
+    setMode("together"); nextTease = (style === "dodge" ? 4000 : 6000) + Math.random() * 4000;
   };
-  const hit = () => {
-    done = true; place(you, fx, fy);
-    ov.classList.add("hit"); msg.textContent = "닿았다 ♡"; sub.textContent = "";
-    burst.style.transform = `translate(${fx}px,${fy}px)`;
-    burst.innerHTML = Array.from({ length: 12 }, (_, i) => `<i style="--a:${i * 30}deg;--d:${50 + (i % 3) * 22}px">♥</i>`).join("");
-    haptic([90, 60, 90, 60, 260]);
-    setTimeout(() => { close(); onDone(); }, 1500);
+  const flee = (d, dt, max) => {
+    const ax = (yx - px) / (d || 1), ay = (yy - py) / (d || 1);
+    if (d < 200) { vx += ax * 1100 * dt; vy += ay * 1100 * dt; }
+    vx += (Math.random() - 0.5) * 300 * dt; vy += (Math.random() - 0.5) * 300 * dt;
+    vx *= 0.985; vy *= 0.985;
+    const v = Math.hypot(vx, vy); if (v > max) { vx = vx / v * max; vy = vy / v * max; }
+    yx += vx * dt; yy += vy * dt;
+    if (yx < 40) { yx = 40; vx = Math.abs(vx); } if (yx > W() - 40) { yx = W() - 40; vx = -Math.abs(vx); }
+    if (yy < 150) { yy = 150; vy = Math.abs(vy); } if (yy > H() - 110) { yy = H() - 110; vy = -Math.abs(vy); }
   };
+  const spawnCenter = () => { yx = W() / 2; yy = H() * 0.58; spawned = true; you.classList.add("on"); };
+  let ready = false;
+  const onReady = v => {
+    if (closed || ready) return; ready = true; style = v || style;
+    hint.textContent = "화면을 꾹 눌러봐"; if (holding) hint.classList.add("gone");
+    if (style === "dodge") spawnCenter();
+    else if (holding) { const p = edgePoint(); yx = p[0]; yy = p[1]; spawned = true; you.classList.add("on"); }
+  };
+  hint.textContent = nm + " 기다리는 중…";
+  kissStyleOf(c).then(onReady);
+  setTimeout(() => onReady(c.kissStyle || "sweet"), 6000);
+  const startTease = () => {
+    const r = style === "chase" ? Math.random() * 0.55 : Math.random();
+    ov.classList.remove("touch");
+    if (style === "dodge") { setMode("seek"); const a2 = Math.random() * Math.PI * 2; vx = Math.cos(a2) * 320; vy = Math.sin(a2) * 320; return; }
+    if (r < 0.3) { setMode("poke"); const a2 = Math.random() * Math.PI * 2; to = [px + Math.cos(a2) * 80, py + Math.sin(a2) * 80]; }
+    else if (r < 0.55) { setMode("circle"); ang = Math.atan2(yy - py, yx - px); }
+    else if (r < 0.8) { setMode("hide"); to = edgePoint(); }
+    else { setMode("run"); const a2 = Math.random() * Math.PI * 2; vx = Math.cos(a2) * 220; vy = Math.sin(a2) * 220; }
+  };
+  const loop = (t) => {
+    const dt = Math.min(0.05, (t - prev) / 1000); prev = t; modeT += dt * 1000; spd *= 0.85;
+    if (spawned) {
+      const d = Math.hypot(px - yx, py - yy);
+      if (!holding) {
+        if (style === "dodge") { if (d < 120) flee(d, dt, 70); else { ang += dt * 0.8; yx += Math.cos(ang) * 0.4; yy += Math.sin(ang * 0.7) * 0.4; } }
+        else if (style === "chase" && d > 30) moveTo(px, py, 160, dt);
+        else { ang += dt * 1.1; moveTo(px + Math.cos(ang) * 26, py + Math.sin(ang) * 16, 55, dt); }
+      }
+      else if (mode === "seek") {
+        if (style === "dodge") { flee(d, dt, 250 + Math.min(60, modeT / 200)); if (d < 28) touchOn(); }
+        else {
+          moveTo(px, py, style === "chase" ? Math.min(480, 190 + modeT / 7) : (modeT < 400 ? 340 : 120 + Math.min(220, modeT / 20)), dt);
+          if (d < 140 && t - lastBeat > (d < 60 ? 280 : 560)) { lastBeat = t; haptic([12]); }
+          if (d < 16) touchOn();
+        }
+      } else if (mode === "together") {
+        st.ms += dt * 1000; tm.textContent = clock(st.ms);
+        yx += (px - yx) * 0.35 + Math.sin(t / 170) * 0.7; yy += (py - yy) * 0.35 + Math.cos(t / 200) * 0.7;
+        if (t - lastBeat > 1000) { lastBeat = t; haptic([14]); }
+        if (spd > 1100) { ov.classList.remove("touch"); setMode(style === "dodge" ? "seek" : "chase"); }
+        else if (modeT > nextTease) startTease();
+      } else if (mode === "chase") {
+        moveTo(px, py, style === "chase" ? 520 : 420, dt); if (d < 18) touchOn();
+      } else if (mode === "poke") { if (modeT < 320) moveTo(to[0], to[1], 480, dt); else setMode("seek"); }
+      else if (mode === "circle") { ang += dt * 4; yx += (px + Math.cos(ang) * 48 - yx) * 0.25; yy += (py + Math.sin(ang) * 48 - yy) * 0.25; if (modeT > 2600) setMode("seek"); }
+      else if (mode === "hide") {
+        if (modeT < 700) moveTo(to[0], to[1], 700, dt);
+        else if (modeT < 2000) { if (modeT - dt * 1000 < 700) { const p = edgePoint(); yx = p[0]; yy = p[1]; } }
+        else setMode("seek");
+      } else if (mode === "run") {
+        const ax = (yx - px) / (d || 1), ay = (yy - py) / (d || 1);
+        if (d < 150) { vx += ax * 900 * dt; vy += ay * 900 * dt; }
+        const v = Math.hypot(vx, vy); if (v > 290) { vx = vx / v * 290; vy = vy / v * 290; }
+        yx += vx * dt; yy += vy * dt;
+        if (yx < 40) { yx = 40; vx = Math.abs(vx); } if (yx > W() - 40) { yx = W() - 40; vx = -Math.abs(vx); }
+        if (yy < 150) { yy = 150; vy = Math.abs(vy); } if (yy > H() - 110) { yy = H() - 110; vy = -Math.abs(vy); }
+        if (d < 30) touchOn(); else if (modeT > 6000) setMode("seek");
+      }
+      put(you, yx, yy);
+    }
+    raf = requestAnimationFrame(loop);
+  };
+  raf = requestAnimationFrame(loop);
+  const end = () => {
+    closed = true; cancelAnimationFrame(raf); ov.remove();
+    if (!st.touches) return;
+    const k = { at: Date.now(), ms: Math.round(st.ms), touches: st.touches };
+    msgs().push({ id: newId(), role: "user", kiss: k, text: `(커플 앱 손가락 뽀뽀로 ${nm}와 손끝을 맞췄다. ${fmtDur(k.ms)} 동안 닿아 있었고 ${k.touches}번 닿았다.)` });
+    save(); renderLog();
+    setTimeout(() => { $("#log").scrollTop = $("#log").scrollHeight; }, 0);
+  };
+  $$(".tk-end").onclick = e => { e.stopPropagation(); end(); };
   ov.addEventListener("pointerdown", e => {
-    if (done || e.target.closest(".tk-x")) return;
+    if (e.target.closest(".tk-end")) return;
     e.preventDefault();
-    holding = true; fx = e.clientX; fy = e.clientY; place(me, fx, fy); me.classList.add("on");
-    msg.textContent = "그대로 있어줘…"; start = performance.now(); spawn(); haptic([12]);
-    raf = requestAnimationFrame(step);
+    holding = true; px = e.clientX; py = e.clientY; put(me, px, py); me.classList.add("on"); lastMove = performance.now();
+    if (ready) hint.classList.add("gone");
+    if (!spawned && ready) { const p = edgePoint(); yx = p[0]; yy = p[1]; spawned = true; you.classList.add("on"); }
+    else if (mode === "together" || mode === "chase") setMode("seek");
+    if (style === "dodge") { vx = 0; vy = 0; }
+    haptic([10]);
   });
-  ov.addEventListener("pointermove", e => { if (holding && !done) { fx = e.clientX; fy = e.clientY; place(me, fx, fy); } });
-  const up = () => {
-    if (done) { haptic([40, 50, 40]); return; }
+  ov.addEventListener("pointermove", e => {
     if (!holding) return;
-    holding = false; cancelAnimationFrame(raf);
-    me.classList.remove("on"); you.classList.remove("on"); ov.classList.remove("near");
-    msg.textContent = "앗, 놓쳤어… 다시 꾹 눌러줘";
+    const now = performance.now(), v = Math.hypot(e.clientX - px, e.clientY - py) / Math.max(1, now - lastMove) * 1000;
+    spd = Math.max(spd, v); lastMove = now; px = e.clientX; py = e.clientY; put(me, px, py);
+  });
+  const up = () => {
+    if (!holding) return;
+    holding = false; me.classList.remove("on"); ov.classList.remove("touch");
+    if (mode === "together" || mode === "chase") setMode("seek");
+    haptic([30, 40, 30]);
   };
   ov.addEventListener("pointerup", up); ov.addEventListener("pointercancel", up);
 }
