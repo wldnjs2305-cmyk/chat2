@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"2.47","items":[]}
+  {"v":"2.48","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -973,10 +973,13 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
       </fieldset>
       <fieldset>
         <legend>목소리</legend>
-        <label for="sTtsKey">제미나이 API 키 (구글 AI 스튜디오)</label>
-        <input type="password" id="sTtsKey" autocomplete="off">
+        <label>목소리 연결</label>
+        <div class="seg" id="sTtsVia"><button data-v="same" type="button">대화랑 같은 연결</button><button data-v="google" type="button">구글 키 직접</button></div>
+        <div id="sTtsKeyWrap"><label for="sTtsKey">구글 API 키</label>
+        <input type="password" id="sTtsKey" autocomplete="off"></div>
         <label for="sTtsModel">목소리 모델</label>
         <input type="text" id="sTtsModel" autocomplete="off">
+        <label style="display:flex;gap:10px;align-items:center;color:var(--ink);font-size:15px;margin:8px 0"><input type="checkbox" id="sTtsOn" style="width:20px;height:20px"> 목소리 켜기 (▶ 버튼 보이기)</label>
         <label style="display:flex;gap:10px;align-items:center;color:var(--ink);font-size:15px;margin:8px 0"><input type="checkbox" id="sTtsAuto" style="width:20px;height:20px"> 답장 오면 바로 읽어주기</label>
       </fieldset>
       <fieldset>
@@ -1376,13 +1379,14 @@ $("#sCfs").oninput = () => { ai.cfs = parseFloat($("#sCfs").value); $("#sCfsLabe
 $("#sFs").oninput = () => { ai.fs = parseFloat($("#sFs").value); $("#sFsLabel").textContent = "글자 크기 · " + ai.fs + "px"; applyLook(); saveAi(); };
 function readSettings() {
   return { models: $("#sModels").value, home: ai.home, prov: segGet($("#sProv")), url: $("#sUrl").value.trim().replace(/\/+$/, ""), key: $("#sKey").value.trim(),
-    model: $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 0, merge: $("#sMerge").checked, uav: $("#sUav").checked, trans: $("#sTrans").checked, pron: $("#sPron").checked, font: $("#sFontSel").value, fs: parseFloat($("#sFs").value) || 15, cfs: parseFloat($("#sCfs").value) || 14, theme: $("#sTheme").value, ttsKey: $("#sTtsKey").value.trim(), ttsModel: $("#sTtsModel").value.trim(), ttsAuto: $("#sTtsAuto").checked };
+    model: $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 0, merge: $("#sMerge").checked, uav: $("#sUav").checked, trans: $("#sTrans").checked, pron: $("#sPron").checked, font: $("#sFontSel").value, fs: parseFloat($("#sFs").value) || 15, cfs: parseFloat($("#sCfs").value) || 14, theme: $("#sTheme").value, ttsKey: $("#sTtsKey").value.trim(), ttsModel: $("#sTtsModel").value.trim(), ttsAuto: $("#sTtsAuto").checked, ttsOn: $("#sTtsOn").checked, ttsVia: segGet($("#sTtsVia")) === "google" ? "google" : "same" };
 }
 $("#setBtn").onclick = () => {
   segSet($("#sProv"), ai.prov); $("#sUrl").value = ai.url; $("#sKey").value = ai.key; $("#sModel").value = ai.model; $("#sModels").value = ai.models || "";
   $("#sTemp").value = ai.temp; $("#sTempV").textContent = ai.temp; $("#sMax").value = ai.max || ""; $("#sMerge").checked = ai.merge !== false; $("#sUav").checked = ai.uav !== false; $("#sTrans").checked = ai.trans !== false; $("#sPron").checked = !!ai.pron;
   $("#sTheme").value = ai.theme || "light";
-  $("#sTtsKey").value = ai.ttsKey || ""; $("#sTtsModel").value = ai.ttsModel || TTS_DEFAULT_MODEL; $("#sTtsAuto").checked = !!ai.ttsAuto;
+  $("#sTtsKey").value = ai.ttsKey || ""; $("#sTtsModel").value = ai.ttsModel || TTS_DEFAULT_MODEL; $("#sTtsAuto").checked = !!ai.ttsAuto; $("#sTtsOn").checked = !!ai.ttsOn;
+  segSet($("#sTtsVia"), ai.ttsVia === "google" ? "google" : "same"); $("#sTtsKeyWrap").hidden = ai.ttsVia !== "google";
   $("#sFontSel").value = FONTS[ai.font] ? ai.font : "고운돋움";
   $("#sCfs").value = ai.cfs || 14; $("#sCfsLabel").textContent = "카드 글자 크기 · " + (ai.cfs || 14) + "px";
   $("#sFs").value = ai.fs || 15; $("#sFsLabel").textContent = "글자 크기 · " + (ai.fs || 15) + "px";
@@ -2939,7 +2943,7 @@ function renderLog(errText) {
     if (m.role !== "user" && !bare && !multi) d.querySelector(".who").textContent = c.name;
     const whoEl = d.querySelector(".who");
     if (whoEl && m.role === "user") { if (ai.uav === false) whoEl.remove(); else whoEl.textContent = c.uname || "나"; }
-    if (ai.ttsKey && m.role === "assistant" && !m.ooc && !m.inner && ttsLine(m.text, fmt)) {
+    if (ttsReady() && m.role === "assistant" && !m.ooc && !m.inner && ttsLine(m.text, fmt)) {
       const tb = document.createElement("button"); tb.className = "tts-b"; tb.type = "button"; tb.textContent = "▶"; tb.setAttribute("aria-label", "목소리로 듣기");
       tb.onclick = e => { e.stopPropagation(); ttsSpeak(ttsLine(m.text, fmt), c, tb); };
       const cols = d.querySelectorAll(".mcol"); (cols.length ? cols[cols.length - 1] : d).appendChild(tb);
@@ -3199,7 +3203,7 @@ async function generate(extraUser) {
     } else tgt.push({ id: newId(), role: "assistant", text: finalText });
     save(c.id);
   }
-  const autoRead = !!(finalText && ai.ttsAuto && ai.ttsKey && !cmd);
+  const autoRead = !!(finalText && ai.ttsAuto && ttsReady() && !cmd);
   busy = false; ctl = null; live = null; setBusy(false);
   if (cur === c.id && $("#chat").classList.contains("on")) { renderLog(errMsg); updMemDot(); }
   $("#log").scrollTop = $("#log").scrollHeight;
@@ -3902,7 +3906,7 @@ function ttsUnlock() {
     if (ttsCtx.state === "suspended") ttsCtx.resume();
   } catch (e) {}
 }
-document.addEventListener("pointerdown", () => { if (ai.ttsKey) ttsUnlock(); }, { passive: true });
+document.addEventListener("pointerdown", () => { if (ttsReady()) ttsUnlock(); }, { passive: true });
 function ttsLine(text, fmt) {
   let t = String(text || "").replace(/\r/g, "");
   if (new RegExp("^\\s*\\[(" + OC_KINDS.join("|") + ")\\]").test(t)) return "";
@@ -3917,6 +3921,47 @@ function ttsLine(text, fmt) {
   t = t.replace(/^[^\n|:]{1,14}\s*[|]\s*/gm, "").replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim();
   return t.slice(0, 900);
 }
+function ttsReady() { return ai.ttsVia === "google" ? !!ai.ttsKey : !!(ai.ttsOn && ai.prov !== "builtin" && (ai.prov === "openai" || ai.url)); }
+function b64buf(b64) { const bin = atob(b64), ab = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) ab[i] = bin.charCodeAt(i); return ab; }
+function pcmBuf(bytes, rate) {
+  const n = bytes.length >> 1, f = new Float32Array(n);
+  for (let i = 0; i < n; i++) { let v = bytes[2 * i] | (bytes[2 * i + 1] << 8); if (v >= 32768) v -= 65536; f[i] = v / 32768; }
+  const b = ttsCtx.createBuffer(1, n, rate || 24000); b.getChannelData(0).set(f); return b;
+}
+async function ttsViaProxy(text, voice, style, model, name) {
+  const base = apiBase(ai), hd = Object.assign({ "Content-Type": "application/json" }, ai.key ? { Authorization: "Bearer " + ai.key } : {});
+  let res, errTxt = "";
+  // 1) OpenAI 방식 음성 주소
+  try {
+    res = await fetch(base + "/audio/speech", { method: "POST", headers: hd, body: JSON.stringify({ model, input: text, voice, response_format: "wav", instructions: style ? `${name}의 대사다. ${style} 말투로 연기하듯 읽는다.` : `${name}의 대사다. 연기하듯 자연스럽게 읽는다.` }) });
+    if (res.ok) {
+      const ct = res.headers.get("content-type") || "";
+      const ab = new Uint8Array(await res.arrayBuffer());
+      ttsUnlock();
+      if (/pcm|l16/i.test(ct)) return pcmBuf(ab, +((ct.match(/rate=(\d+)/) || [])[1]) || 24000);
+      return await ttsCtx.decodeAudioData(ab.buffer);
+    }
+    try { const j = await res.json(); errTxt = (j.error && j.error.message) || ""; } catch (e) {}
+  } catch (e) {}
+  // 2) 대화 주소에 음성으로 답해 달라고 하기
+  const prompt = (style ? `${name}의 대사다. ${style} 말투로, 대본을 연기하듯 자연스럽게 읽는다. 아래 대사만 소리 내어 읽는다:\n` : `${name}의 대사다. 대본을 연기하듯 자연스럽게 읽는다. 아래 대사만 소리 내어 읽는다:\n`) + text;
+  try {
+    res = await fetch(base + "/chat/completions", { method: "POST", headers: hd, body: JSON.stringify({ model, messages: [{ role: "user", content: prompt }], modalities: ["audio"], audio: { voice, format: "wav" }, stream: false }) });
+  } catch (e) { throw new Error("목소리 서버에 연결하지 못했어요."); }
+  if (!res.ok) {
+    let msg = ""; try { const j = await res.json(); msg = (j.error && j.error.message) || j.message || ""; } catch (e) {}
+    throw new Error("중계 서버가 목소리를 지원하지 않는 것 같아요 (" + res.status + (msg || errTxt ? ": " + (msg || errTxt).slice(0, 100) : "") + ")");
+  }
+  const j = await res.json();
+  const m = j.choices && j.choices[0] && j.choices[0].message;
+  const a = m && m.audio && m.audio.data;
+  ttsUnlock();
+  if (a) { const bytes = b64buf(a); return /^RIFF/.test(String.fromCharCode(bytes[0], bytes[1], bytes[2], bytes[3])) ? await ttsCtx.decodeAudioData(bytes.buffer) : pcmBuf(bytes, 24000); }
+  const parts = (j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts) || [];
+  const p = parts.find(x => x.inlineData || x.inline_data);
+  if (p) { const d = p.inlineData || p.inline_data; const bytes = b64buf(d.data); return /wav/i.test(d.mimeType || d.mime_type || "") ? await ttsCtx.decodeAudioData(bytes.buffer) : pcmBuf(bytes, +(((d.mimeType || d.mime_type || "").match(/rate=(\d+)/) || [])[1]) || 24000); }
+  throw new Error("중계 서버가 소리 대신 글로 답했어요. 목소리 모델 이름을 확인해주세요.");
+}
 function ttsStop() {
   try { if (ttsSrc) { ttsSrc.onended = null; ttsSrc.stop(); } } catch (e) {}
   ttsSrc = null; if (ttsBtn) { ttsBtn.classList.remove("on", "load"); ttsBtn.textContent = "▶"; } ttsBtn = null;
@@ -3927,6 +3972,11 @@ async function ttsFetch(text, c) {
   const model = (ai.ttsModel || TTS_DEFAULT_MODEL).trim();
   const key = [model, voice, style, text].join("\u0001");
   if (ttsCache.has(key)) return ttsCache.get(key);
+  if (ai.ttsVia !== "google") {
+    const b = await ttsViaProxy(text, voice, style, model, c.name || "캐릭터");
+    if (ttsCache.size > 40) ttsCache.delete(ttsCache.keys().next().value);
+    ttsCache.set(key, b); return b;
+  }
   const prompt = (style ? `${c.name || "캐릭터"}의 대사다. ${style} 말투로, 대본을 연기하듯 자연스럽게 읽는다. 아래 대사만 소리 내어 읽는다:\n` : `${c.name || "캐릭터"}의 대사다. 대본을 연기하듯 자연스럽게 읽는다. 아래 대사만 소리 내어 읽는다:\n`) + text;
   let res;
   try {
@@ -3961,7 +4011,7 @@ async function ttsFetch(text, c) {
   return buf;
 }
 async function ttsSpeak(text, c, btn, quiet) {
-  if (!ai.ttsKey) { if (!quiet) alert("설정 > 목소리에 제미나이 API 키를 넣어주세요."); return; }
+  if (!ttsReady()) { if (!quiet) alert(ai.ttsVia === "google" ? "설정 > 목소리에 구글 API 키를 넣어주세요." : "설정 > 목소리에서 목소리를 켜주세요. (대화 연결이 API여야 해요)"); return; }
   if (btn && ttsBtn === btn) { ttsStop(); return; }
   ttsStop();
   if (!text) { if (!quiet) alert("읽을 대사가 없어요."); return; }
@@ -3985,6 +4035,8 @@ $("#fVoiceTry").onclick = () => {
 };
 ["sTtsKey", "sTtsModel"].forEach(id => $("#" + id).addEventListener("input", () => { ai.ttsKey = $("#sTtsKey").value.trim(); ai.ttsModel = $("#sTtsModel").value.trim(); saveAi(); }));
 $("#sTtsAuto").onchange = () => { ai.ttsAuto = $("#sTtsAuto").checked; saveAi(); };
+$("#sTtsOn").onchange = () => { ai.ttsOn = $("#sTtsOn").checked; saveAi(); };
+$("#sTtsVia").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { setTimeout(() => { ai.ttsVia = segGet($("#sTtsVia")); $("#sTtsKeyWrap").hidden = ai.ttsVia !== "google"; saveAi(); }, 0); }));
 
 $("#qCmd").onclick = () => {
   const list = Object.keys(CMDS);
