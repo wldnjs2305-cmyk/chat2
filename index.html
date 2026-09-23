@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"2.13","items":["/멀리서 명령어 추가: 유저가 없는 곳에서 이 인물이 보내는 진짜 생활 한 장면 (/멀리서 새벽 3시, /멀리서 부엌처럼 때·곳 지정 가능)","핑크 실버 말풍선 테마 적용 (말풍선 형식에서만)"]},
   {"v":"2.12","items":["소설·대본 형식에서 유저 메시지 수정이 안 되던 문제 수정","소설·대본 형식의 유저 메시지에도 문자 줄 모양(기울임·진한 색·시각) 적용","유저가 문자에 시각을 안 쓰면 보낼 때 자동으로 붙임 (앞 대화의 마지막 시각 +1분, 없으면 지금 시각)"]},
   {"v":"2.11","items":["같이 나오는 인물 추가: 캐릭터 설정에서 '+ 인물 추가'로 사진·이름·프롬프트·문체 예시를 인물마다 따로 설정 (예전 앱 v43 방식)","말하는 인물이 바뀌면 [이름]으로 나눠서, 그 인물의 사진과 이름으로 따로 보여줌"]},
   {"v":"2.10","items":["문자 메시지 줄도 기울임으로 (색은 지문보다 진하게 유지)"]},
@@ -545,6 +546,9 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .oc .rv .rvstars .rs.on{color:#FFC107}
 .oc .rv .rvstars i{font-style:normal;font-size:.78em;color:var(--muted);margin-left:8px}
 .oc .rv .rvbody{margin-top:8px;font-size:.92em;line-height:1.65}
+.oc .rv.far .farbody{padding:14px 16px 6px}
+.oc .rv.far .farbody p{margin:0 0 10px;line-height:1.75;font-size:.95em}
+.oc .rv.far .farbody em{color:var(--muted)}
 .oc .rv.sc .scitem{padding:13px 16px}
 .oc .rv.sc .scitem+.scitem{border-top:1px solid var(--line)}
 .oc .rv.sc .scsite{font-size:.74em;line-height:1;display:inline-block;padding:4px 8px;margin-left:-8px;border-radius:99px;background:var(--line);color:var(--muted);margin-bottom:7px}
@@ -593,6 +597,235 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root[data-theme="green"] .oc :is(.statc,.mind,.pl){border-radius:18px;border:1px solid #cfeabd;box-shadow:0 4px 14px rgba(90,150,70,.10)}
 :root[data-theme="ocean"] .oc :is(.statc,.mind,.pl){border-radius:22px;border:1px solid rgba(255,255,255,.90);background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(222,238,255,.50));box-shadow:0 8px 20px rgba(45,102,184,.12),inset 0 1px 0 rgba(255,255,255,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 :root[data-theme="berry"] .oc :is(.statc,.mind,.pl,.paper){border-radius:20px;border:1px solid var(--line);box-shadow:0 4px 16px rgba(255,140,180,.14)}
+</style>
+<style id="pink-silver-theme">
+/* 말풍선 모드에만 적용 */
+body:not([data-novelbg]) #chat:has(> .fmt-bubble) {
+  --ps-bg: #fff;
+  --ps-label: #77727c;
+  --ps-input: #fff;
+  --ps-input-text: #28252e;
+  --ps-white: #fafafb;
+  --ps-border: #b4b2ba;
+  --ps-pink: #fbdce9;
+  --ps-pink-border: #d9aaba;
+  background: var(--ps-bg);
+}
+
+/* 밤 모드에서도 말풍선과 실버 바 색은 유지 */
+:root:is([data-theme="night"], [data-theme="dark"])
+body:not([data-novelbg]) #chat:has(> .fmt-bubble) {
+  --ps-bg: #000;
+  --ps-label: #b5b0ba;
+  --ps-input: #080809;
+  --ps-input-text: #f5f2f6;
+}
+
+/* 상단 바 */
+body:not([data-novelbg]) #chat:has(> .fmt-bubble) > header.bar {
+  background: linear-gradient(#fcfcfd, #edeef1);
+  border-top: 4px solid #f6cadd;
+  border-bottom: 1px solid #bfc0c7;
+  color: #302c34;
+}
+
+body:not([data-novelbg]) #chat:has(> .fmt-bubble) > header.bar .icon {
+  color: #58545e;
+}
+
+/* 작은 핑크 폴더 */
+body:not([data-novelbg]) #chat:has(> .fmt-bubble) #chName::before {
+  content: "";
+  display: inline-block;
+  width: 21px;
+  height: 18px;
+  margin-right: 9px;
+  vertical-align: -3px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 20'%3E%3Cpath d='M2 4V2h7l3 3h10v13H2Z' fill='%23f5c8db' stroke='%235c5662' stroke-width='1.4' stroke-linejoin='round'/%3E%3Cpath d='M3 6h18' stroke='%23fff'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+
+body:not([data-novelbg]) #chat > .log.fmt-bubble {
+  background: var(--ps-bg);
+}
+
+body:not([data-novelbg]) #chat > .log.fmt-bubble .who {
+  color: var(--ps-label);
+}
+
+/* 캐릭터 말풍선 */
+body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1.5px solid var(--ps-border);
+  border-radius: 18px;
+  background: var(--ps-white);
+  color: #2d2931;
+  box-shadow:
+    0 3px 0 rgb(155 153 163 / 20%),
+    0 5px 9px rgb(0 0 0 / 7%);
+  overflow: visible;
+  overflow-wrap: anywhere;
+
+  --ink: #2d2931;
+  --narr: #78717e;
+  --soft: #78717e;
+  --faint: #817a86;
+}
+
+/* 테두리 삼각형 + 배경색 삼각형 */
+body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body::before,
+body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  border-style: solid;
+}
+
+body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body::before {
+  top: 17px;
+  left: -9px;
+  border-width: 8px 9px 8px 0;
+  border-color:
+    transparent var(--ps-border) transparent transparent;
+}
+
+body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body::after {
+  top: 18.5px;
+  left: -6.75px;
+  border-width: 6.5px 7.5px 6.5px 0;
+  border-color:
+    transparent var(--ps-white) transparent transparent;
+}
+
+/* 유저 말풍선: 네 모서리 둥글게, 꼬리 없음 */
+body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.user .body {
+  width: fit-content;
+  max-width: 85%;
+  padding: 9px 13px;
+  border: 1.5px solid var(--ps-pink-border);
+  border-radius: 18px;
+  background: var(--ps-pink);
+  color: #362732;
+  box-shadow:
+    0 3px 0 rgb(158 118 138 / 17%),
+    0 5px 9px rgb(0 0 0 / 6%);
+
+  --ink: #362732;
+  --narr: #846977;
+  --faint: #846977;
+}
+
+/* 캐릭터 프로필: 둥근 네모 */
+body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .mav {
+  border-radius: 12px;
+  border: 1px solid #b7a9b3;
+  background: linear-gradient(#ffeaf3, #f3cbdc);
+  color: #a26784;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 #fff;
+}
+
+body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .mav img {
+  border-radius: 0;
+}
+
+/* 입력 영역 */
+body:not([data-novelbg]) #chat:has(> .fmt-bubble) > .composer {
+  background: var(--ps-bg);
+  border-top: 0;
+}
+
+/* 실버 도구줄 */
+body:not([data-novelbg]) #chat:has(> .fmt-bubble) .quick {
+  gap: 0;
+  padding: 5px 0;
+  margin: -10px -12px 10px;
+  background: linear-gradient(#fafafd, #e8e9ee);
+  border-top: 1px solid #b8bbc4;
+  border-bottom: 1px solid #b8bbc4;
+}
+
+body[data-kb="1"]:not([data-novelbg]) #chat:has(> .fmt-bubble) .quick {
+  margin-top: -6px;
+}
+
+body:not([data-novelbg]) #chat:has(> .fmt-bubble) .quick button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 4px 12px;
+  background: transparent;
+  color: #514d58;
+  border: 0;
+  border-right: 1px solid #c3c5cd;
+  border-radius: 0;
+  box-shadow: 1px 0 0 rgb(255 255 255 / 80%);
+}
+
+body:not([data-novelbg]) #chat:has(> .fmt-bubble) .quick button:last-child {
+  border-right: 0;
+  box-shadow: none;
+}
+
+/* 작은 도구 아이콘 */
+body:not([data-novelbg]) #chat:has(> .fmt-bubble) .quick button::before {
+  content: var(--ps-symbol, "·");
+  color: var(--ps-symbol-color, #888493);
+  font: 19px/1 ui-monospace, monospace;
+  width: 19px;
+  flex: 0 0 19px;
+  text-align: center;
+}
+
+#qRegen {
+  --ps-symbol: "↻";
+  --ps-symbol-color: #dc7da8;
+}
+#qDelLast { --ps-symbol: "⌫"; }
+#qLen {
+  --ps-symbol: "▱";
+  --ps-symbol-color: #718ecc;
+}
+#qModel { --ps-symbol: "◇"; }
+#qMob { --ps-symbol: "♧"; }
+#qMem {
+  --ps-symbol: "▤";
+  --ps-symbol-color: #b69b52;
+}
+#qPhone { --ps-symbol: "▯"; }
+#qCmd { --ps-symbol: "⌘"; }
+#resetChat { --ps-symbol: "⟲"; }
+
+/* 입력창 */
+body:not([data-novelbg]) #chat:has(> .fmt-bubble) #input {
+  background: var(--ps-input);
+  color: var(--ps-input-text);
+  caret-color: #d781a8;
+  border: 1.5px solid #b5b5be;
+  border-radius: 10px;
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 6%);
+}
+
+/* 보내기 버튼 */
+body:not([data-novelbg]) #chat:has(> .fmt-bubble) #send {
+  background: linear-gradient(#ffe8f2, #f5ccdf);
+  color: #40313c;
+  border: 1.5px solid #cf9db4;
+  border-radius: 10px;
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 2px 0 rgb(137 99 120 / 17%);
+}
+
+body:not([data-novelbg]) #chat:has(> .fmt-bubble) #send:disabled {
+  opacity: .5;
+}
 </style>
 </head>
 <body>
@@ -1291,6 +1524,7 @@ const CMDS = {
   "/시청기록": "이번 턴에는 최근 시청 기록만 [시청]과 [/시청] 사이에 쓴다. 한 줄에 하나씩 '제목 | 채널 | 어디까지 봤는지 | 언제' 형식으로 쓰고 항목은 다섯 개다. 최근에 본 것이 위에 온다.\n제목과 채널은 이 인물이 볼 법한 것으로 자유롭게 짓는다. 실제로 존재하는 영상을 맞히려 하지 않는다. 채널명은 현실에 있는 곳을 써도 되고 그럴듯하게 지어내도 된다. 제목은 실제 유튜브 제목처럼 쓴다. 대문자 강조, 물음표 남발, ㅋㅋ나 ㄷㄷ 같은 표기도 그 채널 성격에 맞으면 쓴다.\n'어디까지 봤는지' 칸이 이 목록의 핵심이다. 끝까지 봤는지, 몇 분 보다 껐는지, 몇 번째 다시 보는지를 적는다.\n음악 영상으로 목록을 채우지 않는다. 노래는 따로 다룬다. 직업이나 성격 하나만으로 다섯 개를 같은 주제로 채우지 않는다. 찾아본 것과 아무 생각 없이 튼 것을 섞는다. 시간대가 드러나면 언제 칸에 적는다.\n같은 시점에 다시 조회하면 이미 나온 제목과 시점을 유지한다.\n현대 한국이 아니면 그 나라에서 실제로 쓰는 영상 플랫폼과 실존 채널로 맞춘다. 영상 플랫폼이 없는 세계관이면 그 시대에 이 인물이 구경하거나 즐겨 보던 것을 같은 형식으로 쓰고, 이때는 채널 칸에 실존 채널 대신 그 시대에 맞는 이름을 쓴다.",
   "/통화기록": "이번 턴에는 최근 통화 기록만 [통화]와 [/통화] 사이에 쓴다. 한 줄에 하나씩 '상대 | 통화 길이 | 발신 또는 수신 또는 부재중 | 날짜와 시각 | 비고' 형식으로 쓰고 항목은 여섯 개다. 최근이 위에 온다.\n상대는 설정과 대화에 이미 나온 사람을 우선하고, 없으면 이 인물의 생활에 있을 법한 사람이나 가게로 정한다. 이 인물이 저장해둔 이름 그대로 쓴다.\n부재중과 아주 짧은 통화를 반드시 섞는다. 누구의 전화를 받지 않았는지가 이 목록의 핵심이다. 비고에는 다시 걸었는지 정도만 짧게 쓰고 통화 내용을 지어내 옮기지 않는다.\n유저가 맡은 인물과의 통화는 대화에서 실제로 통화한 적이 있을 때만 넣는다.\n같은 시점에 다시 조회하면 이미 나온 기록을 유지한다.\n전화가 없는 세계관이면 최근에 주고받은 전갈이나 서신을 같은 형식으로 쓴다.",
   "/리뷰": "이번 턴에는 이 인물이 남긴 후기만 [리뷰]와 [/리뷰] 사이에 쓴다. 후기는 세 개이고 빈 줄로 나눈다. 각 후기는 다음 라벨을 각각 한 줄씩 쓴다.\n플랫폼: 후기를 남긴 곳. 쿠팡, 네이버 쇼핑, 배달의민족, 알라딘, 왓챠처럼 현실에 실제로 있는 이름을 쓴다. 한국이 아니면 그 나라에서 실제로 쓰는 곳으로 한다\n상품: 후기를 남긴 상품이나 작품의 이름\n옵션: 상품 아래에 붙는 짧은 선택 사항. '기초 1단계', '구이용 1kg', '블랙 / L', '2인분'처럼 쓴다. 붙일 것이 없으면 이 줄을 비워 둔다\n별점: 1에서 5 사이의 정수만 쓴다. 별표나 다른 기호를 쓰지 않는다\n날짜: 장면 속 날짜\n내용: 이 인물이 실제로 썼을 법한 후기 본문\n세 개의 플랫폼과 상품 종류를 서로 다르게 한다. 전부 음식이나 전부 책으로 채우지 않는다. 이 인물이 실제로 돈이나 시간을 쓴 것에서 고르고, 직업 하나만으로 단정하지 않는다.\n후기 본문은 대화할 때의 말투가 아니라 모르는 사람에게 쓰는 말투다. 이 차이가 이 카드의 핵심이다. 말을 짧게 하는 사람이면 한 줄로 끝낸다.\n별점을 전부 높게 주지 않는다. 별점이 낮으면 본문에도 그 이유가 드러나야 한다.\n후기 문화가 없는 세계관이면 그 시대에 남겼을 평이나 장부의 촌평을 같은 형식으로 쓰고, 플랫폼 칸에는 그 기록이 남은 곳을 쓴다.",
+  "/멀리서": "이번 턴에는 유저가 없는 곳에서 이 인물이 보내는 실제 생활의 한 장면만 [멀리서]와 [/멀리서] 사이에 쓴다. 첫 줄에 장소: 장소 이름, 둘째 줄에 시각: 오후 11:40 같은 시각을 쓰고, 빈 줄 다음에 본문을 쓴다.\n본문은 멀찍이서 지켜보는 카메라처럼 3인칭으로, 짧은 문단 3~5개로 쓴다. 행동과 혼잣말, 그 자리에 있는 다른 사람과 나누는 말이 중심이다.\n유저는 이 자리에 없고 이 장면을 보지 못한다. 유저를 그리워하거나, 유저가 없어서 심심해하거나, 유저 생각만 하는 장면으로 만들지 않는다. 유저 이야기는 나오지 않거나 스치듯 한 번이면 충분하다.\n이 인물 자신의 삶을 보여준다. 하는 일, 습관, 취미, 혼자 있을 때의 버릇, 가족·친구·동료 같은 사람들과의 관계, 유저 앞에서는 보이지 않는 얼굴과 말투처럼 이 사람이 원래 어떻게 사는지가 드러나야 한다.\n설정과 대화에 이미 나온 사실과 어긋나지 않게 한다. 설정에 근거가 없는 큰 비밀이나 사건을 새로 만들지 않는다.\n유저가 때나 곳을 정했으면 그때 그곳을 보여준다. 정하지 않았으면 지금 대화 시점에서 유저와 떨어져 있을 법한 때와 곳을 고른다.\n유저의 대사와 행동은 쓰지 않는다.",
   "/향수": "이번 턴에는 이 인물이 실제로 쓰는 향수, 바디로션, 바디워시만 [향수]와 [/향수] 사이에 쓴다. 세 개를 향수, 바디로션, 바디워시 순서로 빈 줄로 나눈다. 각 항목은 다음 라벨을 각각 한 줄씩 쓴다.\n종류: 향수 / 바디로션 / 바디워시 중 하나\n브랜드: 브랜드 이름\n제품: 판매되는 정확한 제품명. 향수는 농도(오 드 퍼퓸, 오 드 뚜왈렛 등)까지 쓴다\n향: 주요 노트나 향의 느낌을 짧게\n이유: 이 인물이 이걸 쓰는 이유를 한두 문장으로\n현실에 실제로 판매되는 제품만 쓴다. 브랜드와 제품명이 확실하지 않으면 지어내지 말고 확실히 아는 제품으로 바꾼다. 브랜드만 맞고 없는 라인 이름을 붙이지 않는다.\n이유는 향이 이미지에 어울린다는 말로 끝내지 않는다. 이 인물의 성격과 생활에서 이걸 고르게 된 사정이 드러나야 한다.\n이 인물의 프롬프트와 대화 기반으로 물건을 고른다. 향수를 안 뿌리는 인물이면 향수 칸에 가장 가까운 것(가끔 뿌리는 것, 선물받고 둔 것)을 쓰고 이유에 그 사정을 쓴다.\n인물 설정에 향이나 쓰는 제품이 적혀 있으면 무엇보다 그것을 따른다. 대화에서 이미 나온 향이 있으면 그것과 어긋나지 않게 한다. 세계관이 현대가 아니어도 현실에 실제로 파는 제품으로 고른다. 같은 시점에 다시 조회하면 이미 나온 제품을 유지한다. 지문이나 대사는 쓰지 않는다.",
   "/메모": "이번 턴에는 인물이 유저에게 남긴 짧은 메모만 [메모]와 [/메모] 사이에 쓴다. 다음 세 줄을 먼저 쓰고 그 아래에 본문을 쓴다.\n쓴사람: 메모를 쓴 인물의 이름\n받는사람: 메모를 받을 사람의 이름\n남긴곳: 식탁 위, 현관문, 책상 서랍처럼 메모를 둔 자리\n본문은 짧게 쓴다. 두세 줄이면 충분하고 길어야 다섯 줄이다. 편지가 아니라 쪽지이므로 인사말과 맺음말을 갖추지 않는다. 이 인물이 급하게 적었을 법한 말투로 쓴다.\n메모를 남길 상황부터 만든다. 자리를 비우거나, 먼저 나가거나, 상대가 잠들었거나, 직접 말하기 어려운 것이 있을 때 쓴다. 지금 두 사람이 마주 보고 있는 상황이면 메모 대신 그냥 말한다.\n지문이나 대사는 쓰지 않는다. 메모에 적힌 글자만 쓴다.\n종이가 없는 세계관이면 그 시대에 짧은 말을 남기는 방식으로 바꾼다.",
   "/삭제내역": "이번 턴에는 인물의 휴대폰 휴지통에서 복구된 통화·메시지 삭제 내역만 보여준다. 다음 형식을 그대로 지킨다.\n[삭제내역]\n[통화 기록]\n- 2026. 10. 21. 23:40 | 발신 (05분 12초) | 상대 이름 (관계나 직함)\n· 내용: 통화에서 오간 이야기\n· 삭제 이유: 지운 이유\n· 당시 생각: '그때 속으로 한 생각'\n[메시지]\n- 2026. 10. 20. 14:15 | 수신 | 상대 이름 (관계나 직함)\n· 내용: [메시지 원문]\n· 삭제 이유: 지운 이유\n· 당시 감정: 감정 한두 마디. '그때 속으로 한 생각'\n[/삭제내역]\n통화와 메시지를 합쳐 2~4건이고, 최근 것이 위에 온다. 통화는 발신·수신·부재중 중 하나와 통화 시간을, 메시지는 발신·수신을 쓴다. 날짜와 시각은 지금 장면의 시점에 맞춘다. 상대는 캐릭터 설정과 대화에 나온 인물이나 그 세계에 있을 법한 인물로 하고, 상대에게 숨기고 싶었던 일이나 몰래 챙기던 일처럼 캐릭터다운 이유로 지운 내역을 고른다. 설정과 대화에서 벗어난 큰 사건을 새로 지어내지 않는다. 태그 바깥에 지문이나 대사, 설명을 쓰지 않는다.",
@@ -1303,10 +1537,10 @@ const CMD_SAY = {
   "/소문": "(요즘 도는 소문이 뭐야)", "/커뮤": "(커뮤에 뭐라고 올라왔어)", "/인스타": "(인스타를 보여줘)",
   "/모브": "(누가 끼어들었어)", "/삭제내역": "(삭제 내역)", "/속마음": "(속마음)", "/쇼핑": "(뭐 샀는지 보여줘)", "/결제": "(무슨 결제 나갔는지 보여줘)",
   "/관계도": "(관계를 정리해줘)", "/비밀": "(숨기고 있는 거 알려줘)", "/메모": "(메모 남겨줘)", "/시청기록": "(뭐 봤는지 보여줘)",
-  "/통화기록": "(통화 기록 보여줘)", "/리뷰": "(후기 뭐 썼는지 보여줘)", "/향수": "(무슨 향 쓰는지 알려줘)", "/이벤트": "(무슨 일이 생겼어)"
+  "/통화기록": "(통화 기록 보여줘)", "/리뷰": "(후기 뭐 썼는지 보여줘)", "/향수": "(무슨 향 쓰는지 알려줘)", "/멀리서": "(내가 없을 때 뭐 하는지 보여줘)", "/이벤트": "(무슨 일이 생겼어)"
 };
 const CMD_ALIAS = { "/휴지통": "/삭제내역", "/복구": "/삭제내역", "#속마음": "/속마음", "/속마음보기": "/속마음", "/커뮤니티": "/커뮤", "/커뮤반응": "/커뮤", "/주문": "/쇼핑", "/주문내역": "/쇼핑", "/결제내역": "/결제", "/장면전환": "/전환", "/시청": "/시청기록", "/통화": "/통화기록", "/향": "/향수", "/바디": "/향수" };
-const CARD_CMDS = { "/삭제내역": 1, "/편지": 1, "/일기": 1, "/플리": 1, "/관계": 1, "/소문": 1, "/커뮤": 1, "/인스타": 1, "/쇼핑": 1, "/결제": 1, "/속마음": 1, "/관계도": 1, "/비밀": 1, "/시청기록": 1, "/통화기록": 1, "/리뷰": 1, "/향수": 1, "/메모": 1 };
+const CARD_CMDS = { "/삭제내역": 1, "/편지": 1, "/일기": 1, "/플리": 1, "/관계": 1, "/소문": 1, "/커뮤": 1, "/인스타": 1, "/쇼핑": 1, "/결제": 1, "/속마음": 1, "/관계도": 1, "/비밀": 1, "/시청기록": 1, "/통화기록": 1, "/리뷰": 1, "/향수": 1, "/멀리서": 1, "/메모": 1 };
 function parseCmd(text) {
   const m = String(text || "").match(/^\s*([\/#][^\s]+)\s*([\s\S]*)$/);
   if (!m) return null;
@@ -1356,7 +1590,7 @@ function trashCard(body) {
   return `<div class="tcard"><div class="thead"><span class="tpill">휴지통 복구 기록 (통화·메시지)</span><div class="ttitle">최근 삭제된 송수신 내역</div><div class="tmeta">시스템 복구 로그 · 복구됨 · 조회 0</div></div><div class="tbody">${html}</div></div>`;
 }
 /* ---------- 예전 앱(v46g) 카드 — 모양·글씨체 그대로 ---------- */
-const OC_KINDS = ["삭제내역", "편지", "일기", "속마음", "플리", "관계", "상태", "비밀", "소문", "커뮤", "주문", "결제", "인스타", "시청", "통화", "리뷰", "향수", "메모"];
+const OC_KINDS = ["삭제내역", "편지", "일기", "속마음", "플리", "관계", "상태", "비밀", "소문", "커뮤", "주문", "결제", "인스타", "시청", "통화", "리뷰", "향수", "멀리서", "메모"];
 const OC_USER_HAND = "'HandKonkon','Caveat','Yomogi',cursive";
 function ocHand(c, hand) { return hand || HANDS[c && c.hand] || HANDS["단정"]; }
 function ocIsUser(c, n) {
@@ -1539,6 +1773,18 @@ function ocReview(body) {
   if (!out) return "";
   return `<div class="rv"><div class="rvhd"><b>내가 쓴 후기</b><i>${items.length}건</i></div>${out}</div>`;
 }
+function ocFar(body) {
+  const lines = String(body || "").replace(/\r/g, "").trim().split("\n");
+  let place = "", time = "";
+  while (lines.length && /^\s*(장소|시각|시간)\s*[:：]/.test(lines[0])) {
+    const m = lines.shift().match(/^\s*(장소|시각|시간)\s*[:：]\s*(.*)$/);
+    if (m[1] === "장소") place = m[2].trim(); else time = m[2].trim();
+  }
+  const paras = lines.join("\n").trim().split(/\n\s*\n|\n/).map(x => x.trim()).filter(Boolean);
+  if (!paras.length) return "";
+  const meta = [place, time].filter(Boolean).join(" · ");
+  return `<div class="rv far"><div class="rvhd"><b>멀리서</b>${meta ? `<i>${esc(meta)}</i>` : ""}</div><div class="farbody">${paras.map(p => `<p>${ocCardText(p)}</p>`).join("")}</div></div>`;
+}
 function ocScent(body) {
   const items = String(body || "").trim().split(/\n\s*\n/).filter(Boolean);
   let out = "";
@@ -1701,6 +1947,7 @@ function ocCard(kind, body, c, hand) {
   else if (kind === "비밀" || kind === "관계" || kind === "소문") h = ocDetail(kind, body);
   else if (kind === "리뷰") h = ocReview(body);
   else if (kind === "향수") h = ocScent(body);
+  else if (kind === "멀리서") h = ocFar(body);
   else if (kind === "인스타") h = ocInsta(body, c);
   else if (kind === "커뮤") h = ocComm(body);
   if (!h) return renderPlainChunk(body);
@@ -1840,6 +2087,11 @@ function ocCommerce(text, c, cmd) {
 function cmdText(c, cmd) {
   let t = CMDS[cmd];
   if (cmd === "/쇼핑" || cmd === "/결제") t += ocCommercePrompt(c, cmd === "/결제" ? "결제" : "주문");
+  if (cmd === "/멀리서") {
+    const lastU = [...msgs()].reverse().find(m => m.role === "user");
+    const mm = lastU && String(lastU.text || "").match(/^\s*\/멀리서\s*([\s\S]*)$/);
+    if (mm && mm[1].trim()) t += "\n유저가 정한 때·곳: " + mm[1].trim();
+  }
   if (cmd === "/메모") {
     const lastU = [...msgs()].reverse().find(m => m.role === "user");
     const mm = lastU && String(lastU.text || "").match(/^\s*\/메모\s+(\S+)\s*([\s\S]*)$/);
@@ -2728,6 +2980,7 @@ ${fmtRules}${langRule}${narrRule}
 - 대사나 질문으로 끝내야 하는 건 아니다. 지문으로 끝나도 되고 대사로 끝나도 된다. 장면 흐름에 맞게 정한다.
 - 이전 응답의 형식을 그대로 따라 하지 않는다. 문단 수, 지문과 대사의 순서·비율·길이는 매번 새로 정한다. 지문으로 시작해도 되고 대사로 시작해도 된다. 어떤 응답은 지문이 많고 어떤 응답은 대사가 많아도 된다. 앞의 답과 모양이 비슷해지는 것을 경계한다.
 - ${u}의 새 대사·행동·동의를 대신 정하지 않는다.
+- [멀리서] 카드의 장면은 실제로 있었던 일이지만 ${u}는 보지 못했다. ${u}가 그 일을 아는 것처럼 반응하지 않는다. 남은 흔적이나 결과는 이어질 수 있다.
 - 별표로 감싼 대괄호는 문자 메시지다. *[내용]* 형태로 오면 그것은 지문이나 소리 내어 한 말이 아니라 휴대폰으로 보낸 문자다. 답할 때도 같은 *[내용]* 표기로 돌려주고, 문자에 대사용 따옴표를 붙이지 않는다. 문자를 보내고 받는 동안에도 두 사람이 있는 장면은 계속 흐르므로, 필요하면 문자 앞뒤에 지문을 함께 쓴다. 한 번에 한두 마디씩만 주고받고, 여러 줄을 몰아서 늘어놓지 않는다. 세계관에 휴대폰이 없으면 그 시대에 짧은 말을 주고받는 수단으로 바꿔 쓰되 표기는 그대로 *[내용]* 을 쓴다.
 - ${u}가 결과나 시간 경과, 장면 전환을 뜻하는 지문을 쓰면(예: *결국 그날 밤 같이 잔다*, *다음 날 아침*), 그것은 이미 그렇게 되었다는 설정이다. 그 내용을 설명하거나 앞 장면을 이어 받지 말고, 곧바로 그 시점의 새 장면부터 쓴다. 앞 장면의 대화를 요약하거나 반응하지 않는다.
 - 분량: ${cmd ? "정해진 분량 없음. 흐름에 맞게 알아서 정한다." : ((fmt === "bubble" ? lenMap : lenMapNovel)[c.len] || (fmt === "bubble" ? lenMap : lenMapNovel).mid)}
@@ -2885,7 +3138,7 @@ window.BamPhone = {
   charAvatar: () => (char() && char().avatar) || "",
   turns: () => {
     const c = char(); if (!c) return [];
-    return msgs().filter(m => !m.cmd && !/^\s*\[(편지|일기|삭제내역|플리|관계|소문|커뮤|인스타|주문|결제|비밀|시청|통화|리뷰|향수|메모|속마음)\]/.test(m.text || ""))
+    return msgs().filter(m => !m.cmd && !/^\s*\[(편지|일기|삭제내역|플리|관계|소문|커뮤|인스타|주문|결제|비밀|시청|통화|리뷰|향수|멀리서|메모|속마음)\]/.test(m.text || ""))
       .map(m => ({ who: m.role === "user" ? "user" : "char", name: m.role === "user" ? (c.uname || "나") : c.name, text: phonePlain(m.text) }))
       .filter(t => t.text.length >= 2);
   },
