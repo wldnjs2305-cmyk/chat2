@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"2.22","items":["月夜·月白: 내 말풍선을 핑크로","月夜·月白 홈: 토끼 장식, 목록에 마지막 대화 시각, 옛 세로글씨·生きてるよ 장식 빼기","月夜·月白 推し 홈: 맨 위에 고정한 캐릭터가 있으면 큰 推し 카드(무지개 테두리, 대화 수·마지막 시각, 만나러 가기) + その他 목록","月夜·月白 推し 대화방: 윗줄 핑크 선, 大好き 세로글씨, 프사·입력칸 핑크 테두리"]},
   {"v":"2.21","items":["핑크 EXE 테마 삭제 (쓰던 사람은 月夜로 자동으로 바뀜)"]},
   {"v":"2.20","items":["핑크 실버·핑크 실버 밤 테마 삭제 (쓰던 사람은 月白·月夜로 자동으로 바뀜)","月夜: 캐릭터 말풍선을 먹색 + 흰 글로우로, 내 말풍선은 라일락으로","月夜: 맨 위에 고정한 캐릭터(推し)는 대화방에서 말풍선이 핑크 글로우로, 이름 밑에 推し 온라인 표시","月白 (츠키요 화이트) 테마 추가: 月夜와 같은 모양의 흰 바탕 버전 (캐릭터는 흰 말풍선 + 먹색 테두리, 推し는 핑크 테두리, 내 말풍선은 라일락)"]},
   {"v":"2.14","items":["핑크 실버를 따로 고르는 테마로 분리: 설정 > 테마에서 '핑크 실버'·'핑크 실버 밤' (밝게·밤은 원래 모양 그대로)","핑크 실버 테마에서 화면 양옆·위쪽에 여백이 보이던 문제 수정"]},
@@ -606,7 +607,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 /* ===== 月夜 ===== */
 :root[data-skin="tk"]{
   --bg:#000; --panel:#0e0b0e; --field:#0e0b0e; --ink:#f4f0f4; --soft:#9d8f9b; --line:#3f343d;
-  --accent:#ff7eb9; --accent-ink:#140f13; --user-bg:#d9c4ff; --char-bg:#000; --narr:#a898a6; --faint:#8e7f8c;
+  --accent:#ff7eb9; --accent-ink:#140f13; --user-bg:#ffc2df; --char-bg:#000; --narr:#a898a6; --faint:#8e7f8c;
   --tk-mauve:#c4a6c1; --tk-pink:#ff7eb9; --tk-dash:#5e4f5c;
   accent-color:#ff7eb9;
 }
@@ -674,7 +675,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root[data-skin="tk"] body:not([data-novelbg]) #chat[data-oshi] > .log.fmt-bubble .msg.char .body{border-color:var(--tk-pink);box-shadow:0 0 12px rgba(255,126,185,.45)}
 :root[data-skin="tk"] body:not([data-novelbg]) #chat[data-oshi] #chName::after{content:"(*´▽`*) 推し 온라인"}
 :root[data-skin="tk"] body:not([data-novelbg]) #chat[data-oshi] > .log .who{color:var(--tk-pink)}
-:root[data-skin="tk"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.user .body{background:#d9c4ff;color:#1d1530;border:0;border-radius:14px 2px 14px 14px;--ink:#1d1530;--narr:#5e4a7a;--faint:#5e4a7a}
+:root[data-skin="tk"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.user .body{background:#ffc2df;color:#2a1520;border:0;border-radius:14px 2px 14px 14px;--ink:#2a1520;--narr:#8a5a72;--faint:#8a5a72}
 :root[data-skin="tk"] body:not([data-novelbg]) #chat > .log.fmt-bubble .narr{font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","GounBatang",serif;font-style:normal;font-size:.88em}
 :root[data-skin="tk"] body:not([data-novelbg]) .log .typing{font-family:"DotGothic16","NeoDunggeunmo",monospace;color:var(--tk-pink);text-shadow:0 0 6px var(--tk-pink)}
 :root[data-skin="tk"] body:not([data-novelbg]) #chat > .log.fmt-bubble .body.typbub{border-color:#5e4f5c}
@@ -700,7 +701,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 /* ===== 月白 (화이트) ===== */
 :root[data-skin="tk"][data-tone="white"]{
   --bg:#faf7f9; --panel:#ffffff; --field:#ffffff; --ink:#1d1720; --soft:#6f6070; --line:#e2d6df;
-  --accent:#ff7eb9; --accent-ink:#140f13; --user-bg:#d9c4ff; --char-bg:#fff; --narr:#7a6a78; --faint:#7a6a78;
+  --accent:#ff7eb9; --accent-ink:#140f13; --user-bg:#ffc2df; --char-bg:#fff; --narr:#7a6a78; --faint:#7a6a78;
   --tk-mauve:#7d5f79; --tk-pink:#ff7eb9; --tk-dash:#cdbfca;
   accent-color:#ff7eb9;
 }
@@ -768,7 +769,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat[data-oshi] > .log.fmt-bubble .msg.char .body{border-color:var(--tk-pink);box-shadow:0 0 12px rgba(255,126,185,.45)}
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat[data-oshi] #chName::after{content:"(*´▽`*) 推し 온라인"}
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat[data-oshi] > .log .who{color:#c2357e}
-:root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.user .body{background:#d9c4ff;color:#1d1530;border:0;border-radius:14px 2px 14px 14px;--ink:#1d1530;--narr:#5e4a7a;--faint:#5e4a7a}
+:root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.user .body{background:#ffc2df;color:#2a1520;border:0;border-radius:14px 2px 14px 14px;--ink:#2a1520;--narr:#8a5a72;--faint:#8a5a72}
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat > .log.fmt-bubble .narr{font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","GounBatang",serif;font-style:normal;font-size:.88em}
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) .log .typing{font-family:"DotGothic16","NeoDunggeunmo",monospace;color:#c2357e;text-shadow:0 0 6px rgba(255,126,185,.55)}
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat > .log.fmt-bubble .body.typbub{border-color:#cdbfca}
@@ -793,13 +794,78 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat #send:disabled{opacity:.5}
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #home::after{opacity:.35}
 </style>
+<style id="tsukiyo-home">
+@import url("https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding&display=swap");
+.tk-bun,.oshi-wrap,.oshi-etc,#charList .row .tm{display:none}
+:root[data-skin="tk"]{--tk-fg:#f4f0f4;--tk-sub:#9d8f9b;--tk-faint:#8e7f8c;--tk-line2:#3f343d;--tk-pinkink:#ff7eb9;--tk-card-bg:linear-gradient(170deg,#2a1d28,#0d090c 70%);--tk-cap-bg:rgba(0,0,0,.55)}
+:root[data-skin="tk"][data-tone="white"]{--tk-fg:#1d1720;--tk-sub:#6f6070;--tk-faint:#7a6a78;--tk-line2:#e2d6df;--tk-pinkink:#c2357e;--tk-card-bg:linear-gradient(170deg,#ffe6f1,#ffffff 70%);--tk-cap-bg:rgba(255,255,255,.75)}
+@keyframes tkwave{0%,100%{transform:translateX(-2.5px)}50%{transform:translateX(2.5px)}}
+@keyframes tkbeat{0%,100%{transform:scale(1)}20%{transform:scale(1.3)}40%{transform:scale(1)}}
+@keyframes tksheen{0%{transform:translateX(-160%) rotate(20deg)}55%,100%{transform:translateX(260%) rotate(20deg)}}
+@keyframes tkblink{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* 홈: 토끼 + 시간, 옛 장식 글씨 빼기 */
+:root[data-skin="tk"] body:not([data-novelbg]) header.homebar{position:relative}
+:root[data-skin="tk"] body:not([data-novelbg]) #home .tk-bun{display:flex;flex-direction:column;align-items:center;gap:6px;position:absolute;left:30px;top:22px;z-index:0;pointer-events:none}
+:root[data-skin="tk"] body:not([data-novelbg]) #home .tk-bun .b{white-space:pre;font:20px/1.3 "Nanum Gothic Coding",monospace;color:var(--tk-mauve)}
+:root[data-skin="tk"] body:not([data-novelbg]) #home .tk-bun .w{display:inline-block;animation:tkwave 1.8s ease-in-out infinite}
+:root[data-skin="tk"] body:not([data-novelbg]) #home .tk-bun .h{display:inline-block;color:var(--tk-pink);text-shadow:0 0 6px var(--tk-pink);animation:tkbeat 1.1s ease-in-out infinite}
+:root[data-skin="tk"] body:not([data-novelbg]) #home .tk-bun .s{white-space:pre;font:14px "Nanum Gothic Coding",monospace;color:var(--tk-faint)}
+:root[data-skin="tk"] body:not([data-novelbg]) #home .tk-bun .s span{color:var(--tk-pink)}
+:root[data-skin="tk"] body:not([data-novelbg]) #home:not([data-oshi])::before,:root[data-skin="tk"] body:not([data-novelbg]) #home:not([data-oshi])::after{content:none}
+:root[data-skin="tk"] body:not([data-novelbg]) #charList .row .tm{display:block;align-self:flex-start;padding-top:6px;margin-left:auto;flex:none;font:12px "DotGothic16","NeoDunggeunmo",monospace;color:var(--tk-faint)}
+
+/* 推し 홈 */
+:root[data-skin="tk"] body:not([data-novelbg]) #home[data-oshi] .tk-bun{display:none}
+:root[data-skin="tk"] body:not([data-novelbg]) #home[data-oshi] header.homebar{grid-template-columns:auto 1fr auto auto auto;grid-template-areas:"ttl sp plus srch set";padding:14px 10px 0}
+:root[data-skin="tk"] body:not([data-novelbg]) #home[data-oshi] .homebar::before{display:none}
+:root[data-skin="tk"] body:not([data-novelbg]) #home[data-oshi] .homebar .ttl{padding:0 0 0 8px;text-align:left}
+:root[data-skin="tk"] body:not([data-novelbg]) #home[data-oshi] .homebar .ttl h1{font-size:0;letter-spacing:0}
+:root[data-skin="tk"] body:not([data-novelbg]) #home[data-oshi] .homebar .ttl h1::before{font-size:16px;letter-spacing:2px;margin:0}
+:root[data-skin="tk"] body:not([data-novelbg]) #home[data-oshi] .homebar>.plus::after{content:"［＋］";font-size:13px}
+:root[data-skin="tk"] body:not([data-novelbg]) #home[data-oshi] .homebar>.icon{font-size:13px}
+:root[data-skin="tk"] body:not([data-novelbg]) #home[data-oshi]::before{content:"推ししか勝たん";writing-mode:vertical-rl;text-orientation:upright;position:absolute;left:14px;top:96px;bottom:auto;z-index:0;padding:0;background:none;pointer-events:none;font:14px/1 "Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","GounBatang",serif;letter-spacing:6px;color:var(--tk-fg);opacity:.35}
+:root[data-skin="tk"] body:not([data-novelbg]) #home[data-oshi]::after{content:"今日も推しが尊い";white-space:normal;right:14px;top:300px;bottom:auto;font:14px/1 "Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","GounBatang",serif;letter-spacing:6px;color:var(--tk-fg);opacity:.2;-webkit-mask-image:none;mask-image:none}
+:root[data-skin="tk"] body:not([data-novelbg]) .oshi-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;padding:14px 0 0;position:relative;z-index:1}
+:root[data-skin="tk"] body:not([data-novelbg]) .oshi-ttl{font:13px "DotGothic16","NeoDunggeunmo",monospace;letter-spacing:3px;color:var(--tk-pinkink);text-shadow:0 0 6px rgba(255,126,185,.6)}
+:root[data-skin="tk"] body:not([data-novelbg]) .oshi-ttl .bl{animation:tkblink 1.6s steps(2) infinite}
+:root[data-skin="tk"] body:not([data-novelbg]) .oshi-card{position:relative;width:214px;height:290px;padding:3px;box-sizing:border-box;border:0;border-radius:16px;background:conic-gradient(from 210deg,#ff7eb9,#c4a6c1,#9fd3ff,#fff0b8,#ff7eb9);box-shadow:0 0 26px rgba(255,126,185,.35);color:inherit;font:inherit;cursor:pointer}
+:root[data-skin="tk"] body:not([data-novelbg]) .oshi-card .in{position:relative;width:100%;height:100%;border-radius:13px;overflow:hidden;background:var(--tk-card-bg);display:flex;flex-direction:column}
+:root[data-skin="tk"] body:not([data-novelbg]) .oshi-card .ph{flex:1;min-height:0;display:grid;place-items:center;overflow:hidden;font:96px/1 "Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","GounBatang",serif;color:var(--tk-fg);opacity:.9}
+:root[data-skin="tk"] body:not([data-novelbg]) .oshi-card .ph img{width:100%;height:100%;object-fit:cover}
+:root[data-skin="tk"] body:not([data-novelbg]) .oshi-card .cap{display:flex;flex-direction:column;gap:2px;padding:10px 14px 12px;background:var(--tk-cap-bg);text-align:left}
+:root[data-skin="tk"] body:not([data-novelbg]) .oshi-card .nm2{font-size:20px;letter-spacing:2px;color:var(--tk-fg)}
+:root[data-skin="tk"] body:not([data-novelbg]) .oshi-card .no{margin-left:8px;font:11px "DotGothic16","NeoDunggeunmo",monospace;color:var(--tk-pinkink)}
+:root[data-skin="tk"] body:not([data-novelbg]) .oshi-card .sub{font:11px "Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","GounBatang",serif;letter-spacing:2px;color:var(--tk-mauve)}
+:root[data-skin="tk"] body:not([data-novelbg]) .oshi-card .sheen{position:absolute;top:-40%;left:0;width:38%;height:180%;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.18),rgba(255,255,255,0));pointer-events:none;animation:tksheen 4.5s ease-in-out infinite}
+:root[data-skin="tk"] body:not([data-novelbg]) .oshi-stats{display:flex;gap:22px;font:12px "DotGothic16","NeoDunggeunmo",monospace;color:var(--tk-sub)}
+:root[data-skin="tk"] body:not([data-novelbg]) .oshi-stats b{font-weight:400;color:var(--tk-fg)}
+:root[data-skin="tk"] body:not([data-novelbg]) .oshi-go{min-width:200px;min-height:46px;padding:0 22px;background:var(--tk-pink);color:#140f13;border:0;border-radius:0;font:15px "DotGothic16","NeoDunggeunmo",monospace;letter-spacing:2px;box-shadow:0 0 16px rgba(255,126,185,.45);cursor:pointer}
+:root[data-skin="tk"] body:not([data-novelbg]) .oshi-etc{display:flex;align-items:center;gap:10px;padding:26px 10px 6px;font:12px "DotGothic16","NeoDunggeunmo",monospace;letter-spacing:2px;color:var(--tk-faint);position:relative;z-index:1}
+:root[data-skin="tk"] body:not([data-novelbg]) .oshi-etc::after{content:"";flex:1;border-top:1px dashed var(--tk-line2)}
+:root[data-skin="tk"] body:not([data-novelbg]) #charList .row.oshi-row{display:none}
+:root[data-skin="tk"] body:not([data-novelbg]) #home[data-oshi] #charList .row{min-height:66px;padding:8px}
+:root[data-skin="tk"] body:not([data-novelbg]) #home[data-oshi] #charList .row .av{width:44px;height:44px}
+:root[data-skin="tk"] body:not([data-novelbg]) #home[data-oshi] .backup::before{content:"";width:48px;height:18px;margin-right:auto;align-self:center;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 6' shape-rendering='crispEdges'%3E%3Cpath d='M1 0h2v1H1zM4 0h2v1H4zM0 1h7v2H0zM1 3h5v1H1zM2 4h3v1H2zM3 5h1v1H3z' fill='%23c4a6c1'/%3E%3Cpath d='M1 0h2v1H1zM4 0h2v1H4zM0 1h7v2H0zM1 3h5v1H1zM2 4h3v1H2zM3 5h1v1H3z' fill='%23ff7eb9' transform='translate(9 0)'/%3E%3C/svg%3E") left center/contain no-repeat}
+:root[data-skin="tk"] body:not([data-novelbg]) #home[data-oshi] .backup{display:flex;align-items:center}
+
+/* 推し 대화방 */
+:root[data-skin="tk"] body:not([data-novelbg]) #chat[data-oshi] header.bar{border-bottom:1px solid var(--tk-pink);box-shadow:0 1px 10px rgba(255,126,185,.35)}
+:root[data-skin="tk"] body:not([data-novelbg]) #chat[data-oshi]::after{content:"大好き　大好き　大好き";color:var(--tk-pink);opacity:.3;letter-spacing:6px}
+:root[data-skin="tk"] body:not([data-novelbg]) #chat[data-oshi] > .log .mav{border-color:var(--tk-pink);box-shadow:0 0 8px rgba(255,126,185,.5)}
+:root[data-skin="tk"] body:not([data-novelbg]) #chat[data-oshi] #input{border-color:var(--tk-pink)}
+:root[data-skin="tk"] body:not([data-novelbg]) #chat[data-oshi] #send{box-shadow:0 0 12px rgba(255,126,185,.45)}
+@media (prefers-reduced-motion:reduce){.tk-bun .w,.tk-bun .h,.oshi-ttl .bl,.oshi-card .sheen{animation:none!important}}
+</style>
 </head>
 <body>
 <div class="app">
 
   <!-- 홈 -->
   <section class="screen on" id="home">
-    <header class="bar homebar"><div class="phone-status" aria-hidden="true"><span class="phone-signal"><i></i><i></i><i></i><i></i></span><span class="phone-envelope"></span><span class="phone-battery"></span></div>
+    <header class="bar homebar"><div class="tk-bun" aria-hidden="true"><div class="b"> /) /)
+( ˶. .˶)
+ <span class="w">づ<span class="h">♡</span> ⊂</span></div><div class="s">✦ʚ<span>♡</span>ɞ✦</div></div><div class="phone-status" aria-hidden="true"><span class="phone-signal"><i></i><i></i><i></i><i></i></span><span class="phone-envelope"></span><span class="phone-battery"></span></div>
       <button class="plus" id="newChar" aria-label="새 캐릭터">+</button>
       <div class="ttl"><h1>밤편지</h1></div>
       <div class="spacer"></div>
@@ -2231,17 +2297,53 @@ function mergeDialogue(text) {
 }
 
 // 홈
+function tmLabel(t) {
+  if (!t) return "";
+  const d = new Date(t), n = new Date();
+  const day = x => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const diff = Math.round((day(n) - day(d)) / 86400000);
+  if (diff <= 0) return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  if (diff === 1) return "昨日";
+  return (d.getMonth() + 1) + "/" + d.getDate();
+}
 function renderHome() {
   const L = $("#charList");
   const q = ($("#searchIn").value || "").trim().toLowerCase();
   const list = q ? store.chars.filter(c => ((c.name || "") + " " + (c.prompt || "")).toLowerCase().includes(q)) : store.chars;
   if (!store.chars.length) {
     L.innerHTML = "";
+    $("#home").removeAttribute("data-oshi");
     return;
   }
   L.innerHTML = "";
   const order = new Map(store.chars.map((c, i) => [c.id, i]));
-  list.slice().sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (b.lastAt || 0) - (a.lastAt || 0) || order.get(a.id) - order.get(b.id)).forEach(c => {
+  const sorted = list.slice().sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (b.lastAt || 0) - (a.lastAt || 0) || order.get(a.id) - order.get(b.id));
+  const oshi = q ? null : sorted.find(c => c.pinned && !c.draft) || null;
+  $("#home").toggleAttribute("data-oshi", !!oshi);
+  const bindPress = (el, c) => {
+    let pressT = 0, pressed = false;
+    const menu = () => { pressed = true; showMsgMenu([[c.pinned ? "고정 풀기" : "맨 위에 고정", () => { c.pinned = !c.pinned; save(null); renderHome(); }]]); };
+    el.addEventListener("pointerdown", () => { pressed = false; clearTimeout(pressT); pressT = setTimeout(menu, 550); });
+    ["pointerup", "pointerleave", "pointercancel", "pointermove"].forEach(ev => el.addEventListener(ev, e => { if (ev !== "pointermove" || Math.abs(e.movementY) > 3) clearTimeout(pressT); }));
+    el.addEventListener("contextmenu", e => { e.preventDefault(); clearTimeout(pressT); if (!pressed) menu(); });
+    el.onclick = () => { if (pressed) { pressed = false; return; } if (c.draft) { editorFromChat = false; openEditor(c.id); } else openChat(c.id); };
+  };
+  if (oshi) {
+    const om = store.chats[oshi.id] || [];
+    const w = document.createElement("div");
+    w.className = "oshi-wrap";
+    const ph = oshi.avatar ? `<img src="${oshi.avatar}" alt="">` : esc(oshi.emoji || (oshi.name || "?").slice(0, 1));
+    w.innerHTML = `<div class="oshi-ttl" aria-hidden="true"><span class="bl">♡</span> MY 推し <span class="bl">♡</span></div>`
+      + `<button class="oshi-card"><div class="in"><div class="ph">${ph}</div><div class="cap"><div><span class="nm2"></span><span class="no">No.01</span></div><div class="sub">今日も推しが尊い</div></div><div class="sheen"></div></div></button>`
+      + `<div class="oshi-stats"><span>대화 <b>${om.length}</b></span><span>마지막 <b>${tmLabel(oshi.lastAt) || "—"}</b></span></div>`
+      + `<button class="oshi-go">만나러 가기 ♡</button>`;
+    w.querySelector(".nm2").textContent = oshi.name || "이름 없음";
+    bindPress(w.querySelector(".oshi-card"), oshi);
+    w.querySelector(".oshi-go").onclick = () => openChat(oshi.id);
+    L.appendChild(w);
+    if (sorted.length > 1) { const d = document.createElement("div"); d.className = "oshi-etc"; d.textContent = "その他"; L.appendChild(d); }
+  }
+  sorted.forEach(c => {
     const msgs = store.chats[c.id] || [];
     const tagRe = new RegExp("\\[\\/?(" + OC_KINDS.join("|") + ")\\]", "g");
     let last = null, pvText = "";
@@ -2254,17 +2356,13 @@ function renderHome() {
       last = m; pvText = t; break;
     }
     const b = document.createElement("button");
-    b.className = "row";
-    b.innerHTML = `${avHTML(c)}<div class="meta"><div class="nm"></div><div class="pv"></div></div>`;
+    b.className = c === oshi ? "row oshi-row" : "row";
+    b.innerHTML = `${avHTML(c)}<div class="meta"><div class="nm"></div><div class="pv"></div></div><div class="tm"></div>`;
+    b.querySelector(".tm").textContent = tmLabel(c.lastAt);
     b.querySelector(".nm").textContent = c.name || "이름 없음";
     if (c.pinned) b.querySelector(".nm").insertAdjacentHTML("beforeend", '<span class="pin">📌</span>');
     b.querySelector(".pv").textContent = c.draft ? "임시저장 · 눌러서 이어 쓰기" : (last ? pvText.slice(0, 60) : "대화를 시작해보세요");
-    let pressT = 0, pressed = false;
-    const menu = () => { pressed = true; showMsgMenu([[c.pinned ? "고정 풀기" : "맨 위에 고정", () => { c.pinned = !c.pinned; save(null); renderHome(); }]]); };
-    b.addEventListener("pointerdown", () => { pressed = false; clearTimeout(pressT); pressT = setTimeout(menu, 550); });
-    ["pointerup", "pointerleave", "pointercancel", "pointermove"].forEach(ev => b.addEventListener(ev, e => { if (ev !== "pointermove" || Math.abs(e.movementY) > 3) clearTimeout(pressT); }));
-    b.addEventListener("contextmenu", e => { e.preventDefault(); clearTimeout(pressT); if (!pressed) menu(); });
-    b.onclick = () => { if (pressed) { pressed = false; return; } if (c.draft) { editorFromChat = false; openEditor(c.id); } else openChat(c.id); };
+    bindPress(b, c);
     L.appendChild(b);
   });
 }
