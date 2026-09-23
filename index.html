@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"2.10","items":["문자 메시지 줄도 기울임으로 (색은 지문보다 진하게 유지)"]},
   {"v":"2.09","items":["문자 시각: 유저가 먼저 적은 시각이 있으면 그 시각에 이어서 쓰도록 지침 보강"]},
   {"v":"2.08","items":["문자 메시지 줄: 옆에 보낸 시각(오후 9:32)을 붙이고, 지문보다 진한 색으로 표시","모델이 문자를 쓸 때 [내용] 오후 9:32 형식으로, 시각은 흐름에 맞게 정하도록 지침 추가"]},
   {"v":"2.07","items":["말풍선 형식에서 [문자]처럼 대괄호로 쓴 줄은 한 줄씩 따로 보이게 (다닥다닥 붙던 문제)"]},
@@ -367,7 +368,7 @@ body[data-novelbg] .unov .nn{color:rgba(232,232,240,.80);text-shadow:0 1px 2px r
 .narr{font-family:var(--font-serif);color:var(--narr);line-height:1.8;font-style:italic}
 .fmt-novel .narr,.fmt-script .narr,body[data-novelbg] .log .narr{font-style:normal}
 .say{color:var(--ink)}
-.sms{color:var(--ink);font-weight:600;font-style:normal}
+.sms{color:var(--ink);font-weight:600;font-style:italic}
 .smst{color:var(--faint);font-size:.78em;margin-left:6px;font-style:normal;white-space:nowrap}
 body[data-novelbg] .log .sms{color:var(--saycol,#F4F4F8)}
 .tools{display:none}
