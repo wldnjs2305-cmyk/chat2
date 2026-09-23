@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"2.26","items":["/손끝 명령어 추가 (/뽀뽀, /썸키스도 됨): 커플 앱 손가락 뽀뽀처럼 화면을 꾹 누르고 있으면 상대 손끝이 다가와 닿는 순간 진동 + 하트, 그다음 인물이 그 기능인 걸 알고 반응","진동: 안드로이드는 진동, 아이폰(iOS 18 이상)은 햅틱 톡톡으로 최대한","月夜·月白: 지문이 대사보다 작고 다른 글꼴로 나오던 것 → 대사와 같은 크기·글꼴로","글꼴 추가: 둥근모 (도트), 갈무리 (도트), 나눔고딕코딩"]},
   {"v":"2.25","items":["月夜·月白 대화방: 이름 밑 (｡･ω･｡) 온라인 줄이 이름과 왼쪽 끝이 어긋나던 것 맞춤 (글꼴 하나로 통일)"]},
   {"v":"2.24","items":["홈 맨 아래 백업 버튼·픽셀 하트 줄 없애기: 백업 내보내기·불러오기는 설정 맨 아래 '백업'으로 옮김","月夜·月白 홈 윗줄 ［＋］［검색］［설정］ 글꼴을 하나로 맞추고 높이 정렬"]},
   {"v":"2.23","items":["月夜·月白: 내 말풍선을 연한 딸기우유 핑크로","推し 홈 윗줄의 ［＋］［검색］［설정］ 높이·글꼴·색을 똑같이 맞춰 나란히"]},
@@ -679,7 +680,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root[data-skin="tk"] body:not([data-novelbg]) #chat[data-oshi] #chName::after{content:"(*´▽`*) 推し 온라인"}
 :root[data-skin="tk"] body:not([data-novelbg]) #chat[data-oshi] > .log .who{color:var(--tk-pink)}
 :root[data-skin="tk"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.user .body{background:#ffd6ea;color:#2a1520;border:0;border-radius:14px 2px 14px 14px;--ink:#2a1520;--narr:#8a5a72;--faint:#8a5a72}
-:root[data-skin="tk"] body:not([data-novelbg]) #chat > .log.fmt-bubble .narr{font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","GounBatang",serif;font-style:normal;font-size:.88em}
+:root[data-skin="tk"] body:not([data-novelbg]) #chat > .log.fmt-bubble .narr{font-style:normal;font-size:1em}
 :root[data-skin="tk"] body:not([data-novelbg]) .log .typing{font-family:"DotGothic16","NeoDunggeunmo",monospace;color:var(--tk-pink);text-shadow:0 0 6px var(--tk-pink)}
 :root[data-skin="tk"] body:not([data-novelbg]) #chat > .log.fmt-bubble .body.typbub{border-color:#5e4f5c}
 
@@ -773,7 +774,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat[data-oshi] #chName::after{content:"(*´▽`*) 推し 온라인"}
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat[data-oshi] > .log .who{color:#c2357e}
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.user .body{background:#ffd6ea;color:#2a1520;border:0;border-radius:14px 2px 14px 14px;--ink:#2a1520;--narr:#8a5a72;--faint:#8a5a72}
-:root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat > .log.fmt-bubble .narr{font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","GounBatang",serif;font-style:normal;font-size:.88em}
+:root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat > .log.fmt-bubble .narr{font-style:normal;font-size:1em}
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) .log .typing{font-family:"DotGothic16","NeoDunggeunmo",monospace;color:#c2357e;text-shadow:0 0 6px rgba(255,126,185,.55)}
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat > .log.fmt-bubble .body.typbub{border-color:#cdbfca}
 
@@ -799,6 +800,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 </style>
 <style id="tsukiyo-home">
 @import url("https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding&display=swap");
+@import url("https://cdn.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css");
 .tk-bun,.oshi-wrap,.oshi-etc,#charList .row .tm{display:none}
 :root[data-skin="tk"]{--tk-fg:#f4f0f4;--tk-sub:#9d8f9b;--tk-faint:#8e7f8c;--tk-line2:#3f343d;--tk-pinkink:#ff7eb9;--tk-card-bg:linear-gradient(170deg,#2a1d28,#0d090c 70%);--tk-cap-bg:rgba(0,0,0,.55)}
 :root[data-skin="tk"][data-tone="white"]{--tk-fg:#1d1720;--tk-sub:#6f6070;--tk-faint:#7a6a78;--tk-line2:#e2d6df;--tk-pinkink:#c2357e;--tk-card-bg:linear-gradient(170deg,#ffe6f1,#ffffff 70%);--tk-cap-bg:rgba(255,255,255,.75)}
@@ -871,6 +873,28 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 /* 대화방 이름 밑 온라인 줄: 이름과 왼쪽 끝 맞추기 */
 :root[data-skin="tk"] body:not([data-novelbg]) #chat header.bar h2{line-height:1.25}
 :root[data-skin="tk"] body:not([data-novelbg]) #chat #chName::after{font:12px/1.3 "NeoDunggeunmo","DotGothic16",monospace;letter-spacing:0;margin:2px 0 0;padding:0;text-indent:0}
+</style>
+<style id="thumb-kiss">
+.tkiss{position:fixed;inset:0;z-index:9999;background:rgba(10,6,10,.86);touch-action:none;-webkit-user-select:none;user-select:none;overflow:hidden;color:#f4f0f4;font-family:var(--font-body)}
+:root[data-theme="light"] .tkiss{background:rgba(250,244,248,.9);color:#2a1520}
+.tkiss .tk-x{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);right:10px;width:44px;height:44px;border:0;background:none;color:inherit;font-size:18px;opacity:.7}
+.tkiss .tk-top{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 70px);display:flex;flex-direction:column;align-items:center;gap:10px;pointer-events:none;text-align:center}
+.tkiss .tk-av{width:64px;height:64px;border-radius:50%;overflow:hidden;display:grid;place-items:center;font-size:26px;border:1.5px solid #ff7eb9;box-shadow:0 0 14px rgba(255,126,185,.5);background:rgba(255,214,234,.12)}
+:root[data-skin="tk"] .tkiss .tk-av{border-radius:0}
+.tkiss .tk-av img{width:100%;height:100%;object-fit:cover}
+.tkiss .tk-msg{font-size:17px;letter-spacing:1px}
+.tkiss .tk-sub{font-size:13px;opacity:.6}
+.tkiss .tk-me,.tkiss .tk-you{position:absolute;left:-36px;top:-36px;width:72px;height:72px;border-radius:50%;opacity:0;pointer-events:none;transition:opacity .25s}
+.tkiss .tk-me{background:radial-gradient(circle,rgba(217,196,255,.85),rgba(217,196,255,.15) 60%,transparent 70%)}
+.tkiss .tk-you{background:radial-gradient(circle,rgba(255,126,185,.9),rgba(255,126,185,.18) 60%,transparent 70%);box-shadow:0 0 24px rgba(255,126,185,.5)}
+.tkiss .tk-me.on,.tkiss .tk-you.on{opacity:1}
+.tkiss.near .tk-you{animation:tkpulse .5s ease-in-out infinite}
+@keyframes tkpulse{50%{box-shadow:0 0 40px rgba(255,126,185,.85)}}
+.tkiss.hit .tk-me,.tkiss.hit .tk-you{opacity:1;animation:none;box-shadow:0 0 60px rgba(255,126,185,.95)}
+.tkiss .tk-burst{position:absolute;left:0;top:0;pointer-events:none}
+.tkiss .tk-burst i{position:absolute;left:-8px;top:-10px;font-style:normal;font-size:18px;color:#ff7eb9;text-shadow:0 0 8px rgba(255,126,185,.8);animation:tkfly 1.1s ease-out forwards}
+@keyframes tkfly{0%{transform:rotate(var(--a)) translateY(0) scale(.4);opacity:1}100%{transform:rotate(var(--a)) translateY(calc(var(--d) * -1)) scale(1.1);opacity:0}}
+@media (prefers-reduced-motion:reduce){.tkiss .tk-burst i,.tkiss.near .tk-you{animation:none}}
 </style>
 </head>
 <body>
@@ -1335,7 +1359,10 @@ const SKEY = "bamp_ai_v1";
 let ai = { prov: "builtin", url: "", key: "", model: "gpt-4.1", temp: 0.9, max: 0, merge: true, font: "고운돋움", fs: 15, theme: "light", trans: true, pron: false, uav: true };
 const FONTS = {
   "고운돋움": '"GowoonDodum","Gowun Dodum","Noto Sans KR",sans-serif',
-  "고운바탕": '"GounBatang","Gowun Batang",serif'
+  "고운바탕": '"GounBatang","Gowun Batang",serif',
+  "둥근모 (도트)": '"NeoDunggeunmo","DotGothic16",monospace',
+  "갈무리 (도트)": '"Galmuri11","NeoDunggeunmo","DotGothic16",monospace',
+  "나눔고딕코딩": '"Nanum Gothic Coding","GowoonDodum",monospace'
 };
 const HANDS = {
   "단정": "'HandPol','Nanum Pen Script',cursive", "모범": "'HandMyo','Nanum Pen Script',cursive",
@@ -1585,6 +1612,7 @@ const CMDS = {
   "/향수": "이번 턴에는 이 인물이 실제로 쓰는 향수, 바디로션, 바디워시만 [향수]와 [/향수] 사이에 쓴다. 세 개를 향수, 바디로션, 바디워시 순서로 빈 줄로 나눈다. 각 항목은 다음 라벨을 각각 한 줄씩 쓴다.\n종류: 향수 / 바디로션 / 바디워시 중 하나\n브랜드: 브랜드 이름\n제품: 판매되는 정확한 제품명. 향수는 농도(오 드 퍼퓸, 오 드 뚜왈렛 등)까지 쓴다\n향: 주요 노트나 향의 느낌을 짧게\n이유: 이 인물이 이걸 쓰는 이유를 한두 문장으로\n현실에 실제로 판매되는 제품만 쓴다. 브랜드와 제품명이 확실하지 않으면 지어내지 말고 확실히 아는 제품으로 바꾼다. 브랜드만 맞고 없는 라인 이름을 붙이지 않는다.\n이유는 향이 이미지에 어울린다는 말로 끝내지 않는다. 이 인물의 성격과 생활에서 이걸 고르게 된 사정이 드러나야 한다.\n이 인물의 프롬프트와 대화 기반으로 물건을 고른다. 향수를 안 뿌리는 인물이면 향수 칸에 가장 가까운 것(가끔 뿌리는 것, 선물받고 둔 것)을 쓰고 이유에 그 사정을 쓴다.\n인물 설정에 향이나 쓰는 제품이 적혀 있으면 무엇보다 그것을 따른다. 대화에서 이미 나온 향이 있으면 그것과 어긋나지 않게 한다. 세계관이 현대가 아니어도 현실에 실제로 파는 제품으로 고른다. 같은 시점에 다시 조회하면 이미 나온 제품을 유지한다. 지문이나 대사는 쓰지 않는다.",
   "/메모": "이번 턴에는 인물이 유저에게 남긴 짧은 메모만 [메모]와 [/메모] 사이에 쓴다. 다음 세 줄을 먼저 쓰고 그 아래에 본문을 쓴다.\n쓴사람: 메모를 쓴 인물의 이름\n받는사람: 메모를 받을 사람의 이름\n남긴곳: 식탁 위, 현관문, 책상 서랍처럼 메모를 둔 자리\n본문은 짧게 쓴다. 두세 줄이면 충분하고 길어야 다섯 줄이다. 편지가 아니라 쪽지이므로 인사말과 맺음말을 갖추지 않는다. 이 인물이 급하게 적었을 법한 말투로 쓴다.\n메모를 남길 상황부터 만든다. 자리를 비우거나, 먼저 나가거나, 상대가 잠들었거나, 직접 말하기 어려운 것이 있을 때 쓴다. 지금 두 사람이 마주 보고 있는 상황이면 메모 대신 그냥 말한다.\n지문이나 대사는 쓰지 않는다. 메모에 적힌 글자만 쓴다.\n종이가 없는 세계관이면 그 시대에 짧은 말을 남기는 방식으로 바꾼다.",
   "/삭제내역": "이번 턴에는 인물의 휴대폰 휴지통에서 복구된 통화·메시지 삭제 내역만 보여준다. 다음 형식을 그대로 지킨다.\n[삭제내역]\n[통화 기록]\n- 2026. 10. 21. 23:40 | 발신 (05분 12초) | 상대 이름 (관계나 직함)\n· 내용: 통화에서 오간 이야기\n· 삭제 이유: 지운 이유\n· 당시 생각: '그때 속으로 한 생각'\n[메시지]\n- 2026. 10. 20. 14:15 | 수신 | 상대 이름 (관계나 직함)\n· 내용: [메시지 원문]\n· 삭제 이유: 지운 이유\n· 당시 감정: 감정 한두 마디. '그때 속으로 한 생각'\n[/삭제내역]\n통화와 메시지를 합쳐 2~4건이고, 최근 것이 위에 온다. 통화는 발신·수신·부재중 중 하나와 통화 시간을, 메시지는 발신·수신을 쓴다. 날짜와 시각은 지금 장면의 시점에 맞춘다. 상대는 캐릭터 설정과 대화에 나온 인물이나 그 세계에 있을 법한 인물로 하고, 상대에게 숨기고 싶었던 일이나 몰래 챙기던 일처럼 캐릭터다운 이유로 지운 내역을 고른다. 설정과 대화에서 벗어난 큰 사건을 새로 지어내지 않는다. 태그 바깥에 지문이나 대사, 설명을 쓰지 않는다.",
+  "/손끝": "방금 유저가 커플 앱의 '손가락 뽀뽀'(썸키스) 기능으로 이 인물과 손끝을 맞췄다. 두 사람이 각자 폰 화면을 꾹 누르고 있다가 손가락 자리가 겹치면 양쪽 폰이 동시에 떨리며 손끝이 닿았다고 알려주는 기능이다. 이 인물도 그 순간 자기 폰 화면을 누르고 있었고, 폰이 떨리는 걸 느꼈으며 이게 그 기능이라는 걸 안다. 이번 턴에는 손끝이 닿은 직후 이 인물의 반응을 평소 답변 형식 그대로 쓴다. 두 사람이 떨어져 있다면 떨어진 채로, 같은 공간에 있다면 그 자리에서 반응한다. 기능을 설명하지 않는다.",
   "/모브": "이번 턴에 지금 상황에 어울리는 새 인물을 한 명 등장시킨다. 이름을 정하고, 그 인물이 말할 때는 줄 맨 앞에 그 이름과 | 를 붙여 쓴다. 설정에 없는 단역이어도 된다.",
   "/이벤트": "이번 턴에 지금 장면에 예상하지 못한 일이 하나 벌어진다. 그 일이 일어나는 장면부터 바로 쓰고, 설명이나 예고, 선택지를 붙이지 않는다. 카드 형식을 쓰지 않고 평소 이야기처럼 쓴다.\n사건의 크기는 이 장면의 흐름을 바꾸는 정도를 기본으로 한다. 일정이 틀어지거나, 누가 찾아오거나, 연락이 오거나, 오해가 생기거나, 장소를 옮겨야 하게 되는 일이다. 관계나 서사가 움직이는 큰 사건은 드물게만 쓴다. 매번 큰 사건을 고르지 않는다.\n사람이 등장하는 사건도 된다. 이 인물을 아는 사람이 나타나거나, 두 사람 사이에 누가 끼어드는 일도 여기에 포함된다. 그런 인물은 장면이 끝날 때까지 자리에 남아 있고, 말을 걸면 대답한다. 다만 이 장면이 지나면 고정 인물로 굳지 않는다.\n반드시 이 세계관과 지금 있는 장소에서 실제로 일어날 수 있는 일만 쓴다. 시대와 장소에 없는 것을 가져오지 않는다. 지금까지의 대화에서 이미 깔려 있던 것을 꺼내 쓰는 쪽이 아무 데서나 가져오는 것보다 낫다.\n이미 진행 중인 갈등이 있으면 그 위에 새 갈등을 얹지 않는다. 기존 설정과 서사를 뒤집지 않는다. 죽음, 이별, 사고, 폭력처럼 되돌릴 수 없는 사건은 대화에서 그럴 만한 흐름이 쌓였을 때만 쓴다.\n사건은 벌어진 것으로 쓰되 결말까지 정하지 않는다. 어떻게 될지는 인물들의 다음 선택에 맡긴다."
 };
@@ -1594,9 +1622,9 @@ const CMD_SAY = {
   "/소문": "(요즘 도는 소문이 뭐야)", "/커뮤": "(커뮤에 뭐라고 올라왔어)", "/인스타": "(인스타를 보여줘)",
   "/모브": "(누가 끼어들었어)", "/삭제내역": "(삭제 내역)", "/속마음": "(속마음)", "/쇼핑": "(뭐 샀는지 보여줘)", "/결제": "(무슨 결제 나갔는지 보여줘)",
   "/관계도": "(관계를 정리해줘)", "/비밀": "(숨기고 있는 거 알려줘)", "/메모": "(메모 남겨줘)", "/시청기록": "(뭐 봤는지 보여줘)",
-  "/통화기록": "(통화 기록 보여줘)", "/리뷰": "(후기 뭐 썼는지 보여줘)", "/향수": "(무슨 향 쓰는지 알려줘)", "/멀리서": "(내가 없을 때 뭐 하는지 보여줘)", "/이벤트": "(무슨 일이 생겼어)"
+  "/통화기록": "(통화 기록 보여줘)", "/리뷰": "(후기 뭐 썼는지 보여줘)", "/향수": "(무슨 향 쓰는지 알려줘)", "/멀리서": "(내가 없을 때 뭐 하는지 보여줘)", "/이벤트": "(무슨 일이 생겼어)", "/손끝": "(손끝 꾹 ♡)"
 };
-const CMD_ALIAS = { "/휴지통": "/삭제내역", "/복구": "/삭제내역", "#속마음": "/속마음", "/속마음보기": "/속마음", "/커뮤니티": "/커뮤", "/커뮤반응": "/커뮤", "/주문": "/쇼핑", "/주문내역": "/쇼핑", "/결제내역": "/결제", "/장면전환": "/전환", "/시청": "/시청기록", "/통화": "/통화기록", "/향": "/향수", "/바디": "/향수" };
+const CMD_ALIAS = { "/뽀뽀": "/손끝", "/손가락뽀뽀": "/손끝", "/썸키스": "/손끝", "/휴지통": "/삭제내역", "/복구": "/삭제내역", "#속마음": "/속마음", "/속마음보기": "/속마음", "/커뮤니티": "/커뮤", "/커뮤반응": "/커뮤", "/주문": "/쇼핑", "/주문내역": "/쇼핑", "/결제내역": "/결제", "/장면전환": "/전환", "/시청": "/시청기록", "/통화": "/통화기록", "/향": "/향수", "/바디": "/향수" };
 const CARD_CMDS = { "/삭제내역": 1, "/편지": 1, "/일기": 1, "/플리": 1, "/관계": 1, "/상태": 1, "/소문": 1, "/커뮤": 1, "/인스타": 1, "/쇼핑": 1, "/결제": 1, "/속마음": 1, "/관계도": 1, "/비밀": 1, "/시청기록": 1, "/통화기록": 1, "/리뷰": 1, "/향수": 1, "/멀리서": 1, "/메모": 1 };
 function parseCmd(text) {
   const m = String(text || "").match(/^\s*([\/#][^\s]+)\s*([\s\S]*)$/);
@@ -3196,6 +3224,10 @@ function send() {
     return;
   }
   const pc = parseCmd(v);
+  if (pc && pc.key === "/손끝" && !thumbDone) {
+    thumbKiss(() => { thumbDone = true; $("#input").value = "/손끝"; send(); thumbDone = false; });
+    return;
+  }
   const um = { id: newId(), role: "user", text: pc ? v : autoSmsTime(v, msgs()) };
   if (pc) um.cmd = pc.key;
   msgs().push(um); save();
@@ -3378,6 +3410,83 @@ $("#qDelLast").onclick = () => {
   if (!l.length) return;
   l.pop(); save(); renderLog();
 };
+// ---------- 손끝 (손가락 뽀뽀) ----------
+let thumbDone = false;
+const haptic = (() => {
+  let lab = null;
+  const tick = () => {
+    try {
+      if (!lab) {
+        lab = document.createElement("label");
+        lab.setAttribute("aria-hidden", "true");
+        lab.style.cssText = "position:fixed;left:-9999px;top:0;opacity:0;pointer-events:none";
+        const i = document.createElement("input"); i.type = "checkbox"; i.setAttribute("switch", "");
+        lab.appendChild(i); document.body.appendChild(lab);
+      }
+      lab.click();
+    } catch (e) {}
+  };
+  return (pattern) => {
+    try { if (navigator.vibrate && navigator.vibrate(pattern)) return; } catch (e) {}
+    let t = 0;
+    pattern.forEach((d, i) => { if (i % 2 === 0) { const n = Math.max(1, Math.round(d / 60)); for (let k = 0; k < n; k++) setTimeout(tick, t + k * 70); } t += d; });
+  };
+})();
+function thumbKiss(onDone) {
+  const c = char() || {};
+  const ov = document.createElement("div");
+  ov.className = "tkiss";
+  const av = c.avatar ? `<img src="${c.avatar}" alt="">` : esc((c.name || "?").slice(0, 1));
+  ov.innerHTML = `<button class="tk-x" aria-label="닫기">✕</button><div class="tk-top"><div class="tk-av">${av}</div><div class="tk-msg">화면을 꾹 누르고 기다려줘</div><div class="tk-sub"></div></div><div class="tk-me"></div><div class="tk-you"></div><div class="tk-burst"></div>`;
+  document.body.appendChild(ov);
+  const me = ov.querySelector(".tk-me"), you = ov.querySelector(".tk-you"), msg = ov.querySelector(".tk-msg"), sub = ov.querySelector(".tk-sub"), burst = ov.querySelector(".tk-burst");
+  sub.textContent = (c.name || "상대") + "도 화면을 누르고 있어요";
+  let fx = 0, fy = 0, yx = 0, yy = 0, holding = false, raf = 0, done = false, start = 0, lastBeat = 0;
+  const close = () => { cancelAnimationFrame(raf); ov.remove(); };
+  ov.querySelector(".tk-x").onclick = e => { e.stopPropagation(); close(); };
+  const place = (el, x, y) => { el.style.transform = `translate(${x}px,${y}px)`; };
+  const spawn = () => {
+    const w = innerWidth, h = innerHeight, side = Math.floor(Math.random() * 4);
+    yx = side === 0 ? -40 : side === 1 ? w + 40 : Math.random() * w;
+    yy = side === 2 ? -40 : side === 3 ? h + 40 : h * (0.3 + Math.random() * 0.5);
+    place(you, yx, yy); you.classList.add("on");
+  };
+  const step = (t) => {
+    if (!holding || done) return;
+    const el = t - start;
+    const k = el < 700 ? 0 : Math.min(0.09, 0.02 + el / 40000);
+    yx += (fx - yx) * k + Math.sin(t / 180) * 0.6; yy += (fy - yy) * k + Math.cos(t / 210) * 0.6;
+    place(you, yx, yy);
+    const d = Math.hypot(fx - yx, fy - yy);
+    if (d < 140 && t - lastBeat > (d < 60 ? 260 : 520)) { lastBeat = t; haptic([18]); ov.classList.add("near"); }
+    if (d < 16) return hit();
+    raf = requestAnimationFrame(step);
+  };
+  const hit = () => {
+    done = true; place(you, fx, fy);
+    ov.classList.add("hit"); msg.textContent = "닿았다 ♡"; sub.textContent = "";
+    burst.style.transform = `translate(${fx}px,${fy}px)`;
+    burst.innerHTML = Array.from({ length: 12 }, (_, i) => `<i style="--a:${i * 30}deg;--d:${50 + (i % 3) * 22}px">♥</i>`).join("");
+    haptic([90, 60, 90, 60, 260]);
+    setTimeout(() => { close(); onDone(); }, 1500);
+  };
+  ov.addEventListener("pointerdown", e => {
+    if (done || e.target.closest(".tk-x")) return;
+    e.preventDefault();
+    holding = true; fx = e.clientX; fy = e.clientY; place(me, fx, fy); me.classList.add("on");
+    msg.textContent = "그대로 있어줘…"; start = performance.now(); spawn(); haptic([12]);
+    raf = requestAnimationFrame(step);
+  });
+  ov.addEventListener("pointermove", e => { if (holding && !done) { fx = e.clientX; fy = e.clientY; place(me, fx, fy); } });
+  const up = () => {
+    if (done) { haptic([40, 50, 40]); return; }
+    if (!holding) return;
+    holding = false; cancelAnimationFrame(raf);
+    me.classList.remove("on"); you.classList.remove("on"); ov.classList.remove("near");
+    msg.textContent = "앗, 놓쳤어… 다시 꾹 눌러줘";
+  };
+  ov.addEventListener("pointerup", up); ov.addEventListener("pointercancel", up);
+}
 $("#qCmd").onclick = () => {
   const list = Object.keys(CMDS);
   const pick = prompt("명령어를 고르세요\n\n" + list.join("  "), "/편지");
