@@ -835,6 +835,103 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root[data-skin="ps"]:is([data-theme="night"], [data-theme="dark"]), :root[data-skin="ps"]:is([data-theme="night"], [data-theme="dark"]) body { background: #000; }
 :root[data-skin="ps"] body:not([data-novelbg]) #chat:has(> .fmt-bubble) > header.bar { margin: 0; }
 </style>
+<style id="pink-exe-theme">
+/* ===== 핑크 EXE ===== */
+:root[data-skin="pe"]{
+  --bg:#000; --panel:#141416; --field:#101012; --ink:#f2f2f4; --soft:#a3a3ab; --line:#2f2f35;
+  --accent:#f6b5ce; --accent-ink:#1b1b1f; --user-bg:#f6b5ce; --char-bg:#fafafa; --narr:#b9b9c0; --faint:#8d8d95;
+  --pe-pink:#f6b5ce; --pe-gray:#d7d7db; --pe-dark:#1b1b1f; --pe-frame:#dcdce0;
+}
+:root[data-skin="pe"], :root[data-skin="pe"] body{background:#000}
+:root[data-skin="pe"]{accent-color:#f6b5ce}
+
+/* 창 테두리 */
+:root[data-skin="pe"] body:not([data-novelbg]) .screen.on{margin:6px;border:2px solid var(--pe-frame);background:#000;min-height:0}
+
+/* 분홍 제목줄 */
+:root[data-skin="pe"] body:not([data-novelbg]) header.bar{margin:0;background:var(--pe-pink);color:var(--pe-dark);border-bottom:2px solid var(--pe-dark);padding:8px 8px 8px 10px;min-height:50px}
+:root[data-skin="pe"] body:not([data-novelbg]) header.bar :is(h1,h2){color:var(--pe-dark)}
+:root[data-skin="pe"] body:not([data-novelbg]) header.bar .icon{color:var(--pe-dark)}
+:root[data-skin="pe"] body:not([data-novelbg]) header.bar .icon:hover{background:rgba(255,255,255,.35)}
+:root[data-skin="pe"] body:not([data-novelbg]) header.bar .icon.back{font-size:30px;padding:0 6px 4px}
+:root[data-skin="pe"] body:not([data-novelbg]) :is(#chName,.homebar h1)::before{content:"";display:inline-block;width:24px;height:24px;margin-right:8px;vertical-align:-5px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b1b1f' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Crect x='5' y='4' width='14' height='17' rx='1.5' fill='%23f08db7'/%3E%3Cpath d='M8 2.5v3M12 2.5v3M16 2.5v3M8 10h8M8 13.5h8M8 17h5' /%3E%3C/svg%3E") center/contain no-repeat}
+
+/* 창 버튼 ㅡ □ × */
+.wbtns{display:none}
+:root[data-skin="pe"] body:not([data-novelbg]) .wbtns{display:flex;gap:3px;margin-left:auto;flex:none;align-self:center}
+:root[data-skin="pe"] .wb{width:28px;height:26px;padding:0;border:1.5px solid var(--pe-dark);border-radius:0;background:var(--pe-gray) center/16px no-repeat;box-shadow:inset 1.5px 1.5px 0 #fff,inset -1.5px -1.5px 0 #8e8e96}
+:root[data-skin="pe"] .wb:active{box-shadow:inset 1.5px 1.5px 0 #8e8e96,inset -1.5px -1.5px 0 #fff}
+:root[data-skin="pe"] .wb:disabled{opacity:.45}
+:root[data-skin="pe"] .wmin{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b1b1f' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M6 18h12' stroke-width='3'/%3E%3C/svg%3E");cursor:default}
+:root[data-skin="pe"] .wmax{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b1b1f' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Crect x='5' y='5' width='14' height='14' stroke-width='2'/%3E%3Cpath d='M5 7h14' stroke-width='3'/%3E%3C/svg%3E")}
+:root[data-skin="pe"] .wx{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b1b1f' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18' stroke-width='2.8'/%3E%3C/svg%3E")}
+:root[data-skin="pe"] body:not([data-novelbg]) #editFromChat{display:none}
+
+/* 홈: 제목줄 + 회색 도구줄 */
+:root[data-skin="pe"] body:not([data-novelbg]) header.homebar{display:grid;grid-template-columns:auto 1fr auto auto;grid-template-areas:"ttl ttl ttl win" "plus sp srch set";row-gap:0;column-gap:4px;padding:0 8px 0 10px;
+  background:linear-gradient(var(--pe-pink) 0 50px,var(--pe-dark) 50px 52px,var(--pe-gray) 52px calc(100% - 2px),var(--pe-dark) calc(100% - 2px));border-bottom:0}
+:root[data-skin="pe"] body:not([data-novelbg]) .homebar .ttl{grid-area:ttl;position:static;text-align:left;align-self:center;height:50px;display:flex;align-items:center}
+:root[data-skin="pe"] body:not([data-novelbg]) .homebar .ttl h1{font-size:19px}
+:root[data-skin="pe"] body:not([data-novelbg]) .homebar .wbtns{grid-area:win}
+:root[data-skin="pe"] body:not([data-novelbg]) .homebar>.plus{grid-area:plus;background:none;color:var(--pe-dark);font-size:30px;font-weight:300;width:42px;height:44px;margin:3px 0 5px}
+:root[data-skin="pe"] body:not([data-novelbg]) .homebar .spacer{grid-area:sp}
+:root[data-skin="pe"] body:not([data-novelbg]) .homebar #searchBtn{grid-area:srch;color:var(--pe-dark);align-self:center}
+:root[data-skin="pe"] body:not([data-novelbg]) .homebar #searchBtn svg{width:23px;height:23px}
+:root[data-skin="pe"] body:not([data-novelbg]) .homebar #setBtn{grid-area:set;align-self:center;font-size:0;width:42px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b1b1f' stroke-width='1.6' stroke-linejoin='round'%3E%3Cpolygon points='19.03,10.43 21.52,10.76 21.52,13.24 19.03,13.57 18.08,15.86 19.61,17.85 17.85,19.61 15.86,18.08 13.57,19.03 13.24,21.52 10.76,21.52 10.43,19.03 8.14,18.08 6.15,19.61 4.39,17.85 5.92,15.86 4.97,13.57 2.48,13.24 2.48,10.76 4.97,10.43 5.92,8.14 4.39,6.15 6.15,4.39 8.14,5.92 10.43,4.97 10.76,2.48 13.24,2.48 13.57,4.97 15.86,5.92 17.85,4.39 19.61,6.15 18.08,8.14'/%3E%3Ccircle cx='12' cy='12' r='3' fill='%23f08db7'/%3E%3C/svg%3E") center/25px no-repeat}
+:root[data-skin="pe"] body:not([data-novelbg]) .homebar>.icon:hover{background-color:rgba(0,0,0,.06)}
+:root[data-skin="pe"] body:not([data-novelbg]) .searchwrap{padding:12px 12px 0}
+
+/* 캐릭터 카드 */
+:root[data-skin="pe"] body:not([data-novelbg]) .list{padding:16px 14px 8px}
+:root[data-skin="pe"] body:not([data-novelbg]) #charList .row{position:relative;margin:0 0 14px;padding:36px 16px 16px;gap:16px;border:1.5px solid #c9c9cf;
+  background:linear-gradient(var(--pe-pink) 0 20px,#c9c9cf 20px 21.5px,#fafafa 21.5px)}
+:root[data-skin="pe"] body:not([data-novelbg]) #charList .row:hover{filter:brightness(.97)}
+:root[data-skin="pe"] body:not([data-novelbg]) #charList .row::after{content:"";position:absolute;top:4px;right:8px;width:12px;height:12px;border:1.5px solid var(--pe-dark);background:#fafafa}
+:root[data-skin="pe"] body:not([data-novelbg]) #charList .row:has(.pin)::before{content:"";position:absolute;top:-6px;left:-4px;width:26px;height:26px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b1b1f' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M14 3l7 7-2 1-3 3 .5 4.5-1.5 1.5-4-4-5 5-1-1 5-5-4-4L7.5 9.5 12 10l3-3z' fill='%23f08db7'/%3E%3C/svg%3E") center/contain no-repeat}
+:root[data-skin="pe"] body:not([data-novelbg]) #charList .row .pin{display:none}
+:root[data-skin="pe"] body:not([data-novelbg]) #charList .row .nm{color:var(--pe-dark);font-size:18px;margin-bottom:4px}
+:root[data-skin="pe"] body:not([data-novelbg]) #charList .row .pv{color:#85858d;font-size:14px}
+:root[data-skin="pe"] body:not([data-novelbg]) #charList .row .av{width:68px;height:68px;border-radius:12px;border:1.5px solid var(--pe-dark)}
+:root[data-skin="pe"] .av{background:#fde3ee;color:#b8628b}
+:root[data-skin="pe"] :is(#charList .row .av,.log .mav) img{border-radius:0}
+
+/* 백업 줄 */
+:root[data-skin="pe"] body:not([data-novelbg]) .backup{gap:0;padding:0;background:var(--pe-gray);border-top:2px solid var(--pe-dark)}
+:root[data-skin="pe"] body:not([data-novelbg]) .backup .icon{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;border-radius:0;color:var(--pe-dark);font-size:14px}
+:root[data-skin="pe"] body:not([data-novelbg]) .backup .icon+.icon{border-left:1.5px solid #9a9aa2}
+:root[data-skin="pe"] body:not([data-novelbg]) .backup .icon::before{content:"";width:26px;height:26px;flex:none;background:center/contain no-repeat}
+:root[data-skin="pe"] body:not([data-novelbg]) #exportBtn::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b1b1f' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M3 3h11l3 3v7'/%3E%3Cpath d='M3 3v18h9'/%3E%3Cpath d='M7 3v5h7V3M7 21v-6h5'/%3E%3Cpath d='M14 18h8M19 15l3 3-3 3' stroke='%23f08db7' stroke-width='2'/%3E%3C/svg%3E")}
+:root[data-skin="pe"] body:not([data-novelbg]) #importBtn::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b1b1f' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M3 3h11l3 3v5'/%3E%3Cpath d='M3 3v18h9'/%3E%3Cpath d='M7 3v5h7V3M7 21v-6h5'/%3E%3Cpath d='M18 13v9M15 19l3 3 3-3' stroke='%23f08db7' stroke-width='2'/%3E%3C/svg%3E")}
+
+/* 대화 */
+:root[data-skin="pe"] body:not([data-novelbg]) .log{background:#000}
+:root[data-skin="pe"] body:not([data-novelbg]) .log .who{color:#cfcfd5}
+:root[data-skin="pe"] body:not([data-novelbg]) .log .mav{width:46px;height:46px;border-radius:10px;border:1.5px solid #3a3a40}
+:root[data-skin="pe"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body{position:relative;width:fit-content;max-width:100%;background:#fafafa;border:0;border-radius:14px;padding:12px 16px;margin-left:6px;
+  --ink:#1b1b1f;--narr:#85858d;--soft:#85858d;--faint:#85858d;color:#1b1b1f}
+:root[data-skin="pe"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body::before{content:"";position:absolute;left:-9px;top:9px;width:11px;height:13px;background:#fafafa;clip-path:polygon(0 0,100% 35%,100% 100%)}
+:root[data-skin="pe"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.user .body{background:var(--pe-pink);color:#1b1b1f;border:0;border-radius:16px;padding:10px 16px;--ink:#1b1b1f;--narr:#7e5a6b;--faint:#7e5a6b}
+:root[data-skin="pe"] body:not([data-novelbg]) #chat > .log.fmt-bubble .narr{font-family:var(--font-body);font-style:normal;font-size:.9em}
+
+/* 입력 영역 */
+:root[data-skin="pe"] body:not([data-novelbg]) #chat > .composer{background:#000;border-top:0}
+:root[data-skin="pe"] body:not([data-novelbg]) #chat .quick{gap:0;padding:4px 0;margin:-10px -12px 12px;background:var(--pe-gray);border-top:2px solid var(--pe-dark);border-bottom:2px solid var(--pe-dark)}
+:root[data-skin="pe"] body:not([data-novelbg]) #chat .quick button{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:4px 13px;background:transparent;color:var(--pe-dark);border:0;border-right:1.5px solid #a3a3aa;border-radius:0;font-size:13px}
+:root[data-skin="pe"] body:not([data-novelbg]) #chat .quick button:last-child{border-right:0}
+:root[data-skin="pe"] body:not([data-novelbg]) #chat .quick button::before{content:"";width:22px;height:22px;flex:none;background:var(--pe-ic) center/contain no-repeat}
+:root[data-skin="pe"] #qRegen{--pe-ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b1b1f' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M6 3h8l4 4v6'/%3E%3Cpath d='M14 3v4h4'/%3E%3Cpath d='M6 3v18h6'/%3E%3Cpath d='M22 17a4 4 0 1 1-1.2-2.8' stroke='%23f08db7' stroke-width='2'/%3E%3Cpath d='M21.5 12v3h-3' stroke='%23f08db7' stroke-width='2'/%3E%3C/svg%3E")}
+:root[data-skin="pe"] #qDelLast{--pe-ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b1b1f' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M9 5h11v14H9l-6-7z'/%3E%3Cpath d='M12 9.5l5 5M17 9.5l-5 5' stroke='%23f08db7' stroke-width='2'/%3E%3C/svg%3E")}
+:root[data-skin="pe"] #qLen{--pe-ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b1b1f' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M4 4h16v12H10l-4 4v-4H4z'/%3E%3Cpath d='M8 8.5h8M8 12h5' stroke='%23f08db7' stroke-width='2'/%3E%3C/svg%3E")}
+:root[data-skin="pe"] #qModel{--pe-ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b1b1f' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M3 6h18M3 12h18M3 18h18'/%3E%3Crect x='6' y='4' width='4' height='4' fill='%23f08db7'/%3E%3Crect x='14' y='10' width='4' height='4' fill='%23f08db7'/%3E%3Crect x='8' y='16' width='4' height='4' fill='%23f08db7'/%3E%3C/svg%3E")}
+:root[data-skin="pe"] #qMob{--pe-ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b1b1f' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Ccircle cx='9' cy='8' r='3.2'/%3E%3Cpath d='M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6'/%3E%3Ccircle cx='17' cy='9' r='2.6' fill='%23f08db7'/%3E%3Cpath d='M16 14c3 0 5 2 5 5' stroke='%23f08db7' stroke-width='2'/%3E%3C/svg%3E")}
+:root[data-skin="pe"] #qMem{--pe-ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b1b1f' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Crect x='5' y='3' width='14' height='18' rx='1'/%3E%3Cpath d='M5 3v18' stroke='%23f08db7' stroke-width='3.2'/%3E%3Cpath d='M9.5 8h6M9.5 11.5h6M9.5 15h4'/%3E%3C/svg%3E")}
+:root[data-skin="pe"] #qPhone{--pe-ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b1b1f' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Crect x='7' y='2.5' width='10' height='19' rx='2' stroke='%23f08db7' stroke-width='2'/%3E%3Cpath d='M10.5 18.5h3'/%3E%3C/svg%3E")}
+:root[data-skin="pe"] #qCmd{--pe-ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b1b1f' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Crect x='3' y='4' width='18' height='16' rx='1'/%3E%3Cpath d='M7 10l3 2.5L7 15M12 15h5' stroke='%23f08db7' stroke-width='2'/%3E%3C/svg%3E")}
+:root[data-skin="pe"] #resetChat{--pe-ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231b1b1f' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M4 12a8 8 0 1 0 2.4-5.7' /%3E%3Cpath d='M4 3v4.5h4.5' /%3E%3Ccircle cx='12' cy='12' r='2.2' fill='%23f08db7' stroke='none'/%3E%3C/svg%3E")}
+:root[data-skin="pe"] body:not([data-novelbg]) #chat #input{background:#000;color:#f2f2f4;caret-color:var(--pe-pink);border:1.5px solid #e6e6ea;border-radius:6px}
+:root[data-skin="pe"] body:not([data-novelbg]) #chat #send{background:var(--pe-pink);color:var(--pe-dark);border:0;border-radius:3px;min-height:44px;padding:10px 18px;font-weight:600}
+:root[data-skin="pe"] body:not([data-novelbg]) #chat #send:disabled{opacity:.5}
+</style>
 </head>
 <body>
 <div class="app">
@@ -1304,7 +1401,7 @@ const HANDS = {
   "깜찍": "'HandSeh','Nanum Pen Script',cursive", "서툰": "'HandRam','Nanum Pen Script',cursive",
   "수수": "'HandDng','Nanum Pen Script',cursive"
 };
-const THEMES = [["light", "밝게"], ["night", "밤"], ["ps", "핑크 실버"], ["ps-night", "핑크 실버 밤"]];
+const THEMES = [["light", "밝게"], ["night", "밤"], ["ps", "핑크 실버"], ["ps-night", "핑크 실버 밤"], ["pe", "핑크 EXE"]];
 function applyLook() {
   const r = document.documentElement.style;
   const fam = FONTS[ai.font] || FONTS["고운돋움"];
@@ -1314,9 +1411,21 @@ function applyLook() {
   r.setProperty("--card-fs", (ai.cfs || 14) + "px");
   r.setProperty("--rlh", Math.ceil((ai.cfs || 14) * 2.2) + "px");
   const th = ai.theme || store.theme || "light";
-  document.documentElement.dataset.theme = th === "night" || th === "dark" || th === "ps-night" ? "night" : "light";
-  if (th === "ps" || th === "ps-night") document.documentElement.dataset.skin = "ps"; else delete document.documentElement.dataset.skin;
+  document.documentElement.dataset.theme = th === "night" || th === "dark" || th === "ps-night" || th === "pe" ? "night" : "light";
+  if (th === "ps" || th === "ps-night") document.documentElement.dataset.skin = "ps"; else if (th === "pe") document.documentElement.dataset.skin = "pe"; else delete document.documentElement.dataset.skin;
 }
+// 핑크 EXE 창 버튼: □ = 설정, × = 뒤로
+document.querySelectorAll("header.bar").forEach(h => {
+  if (h.querySelector(".wbtns")) return;
+  const w = document.createElement("span");
+  w.className = "wbtns";
+  w.innerHTML = '<button type="button" class="wb wmin" aria-hidden="true" tabindex="-1"></button><button type="button" class="wb wmax" aria-label="설정"></button><button type="button" class="wb wx" aria-label="뒤로"></button>';
+  const back = h.querySelector(".back"), set = h.querySelector("#setBtn, #editFromChat");
+  const mx = w.querySelector(".wmax"), x = w.querySelector(".wx");
+  if (set) mx.onclick = () => set.click(); else mx.disabled = true;
+  if (back) x.onclick = () => back.click(); else x.disabled = true;
+  h.appendChild(w);
+});
 try { Object.assign(ai, JSON.parse(localStorage.getItem(SKEY) || "{}")); } catch(e) {}
 applyLook();
 if (ai.max === 1500) ai.max = 0;
