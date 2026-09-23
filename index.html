@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"2.14","items":["핑크 실버를 따로 고르는 테마로 분리: 설정 > 테마에서 '핑크 실버'·'핑크 실버 밤' (밝게·밤은 원래 모양 그대로)","핑크 실버 테마에서 화면 양옆·위쪽에 여백이 보이던 문제 수정"]},
   {"v":"2.13","items":["/멀리서 명령어 추가: 유저가 없는 곳에서 이 인물이 보내는 진짜 생활 한 장면 (/멀리서 새벽 3시, /멀리서 부엌처럼 때·곳 지정 가능)","핑크 실버 말풍선 테마 적용 (말풍선 형식에서만)"]},
   {"v":"2.12","items":["소설·대본 형식에서 유저 메시지 수정이 안 되던 문제 수정","소설·대본 형식의 유저 메시지에도 문자 줄 모양(기울임·진한 색·시각) 적용","유저가 문자에 시각을 안 쓰면 보낼 때 자동으로 붙임 (앞 대화의 마지막 시각 +1분, 없으면 지금 시각)"]},
   {"v":"2.11","items":["같이 나오는 인물 추가: 캐릭터 설정에서 '+ 인물 추가'로 사진·이름·프롬프트·문체 예시를 인물마다 따로 설정 (예전 앱 v43 방식)","말하는 인물이 바뀌면 [이름]으로 나눠서, 그 인물의 사진과 이름으로 따로 보여줌"]},
@@ -600,7 +601,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 </style>
 <style id="pink-silver-theme">
 /* 말풍선 모드에만 적용 */
-body:not([data-novelbg]) #chat:has(> .fmt-bubble) {
+:root[data-skin="ps"] body:not([data-novelbg]) #chat:has(> .fmt-bubble) {
   --ps-bg: #fff;
   --ps-label: #77727c;
   --ps-input: #fff;
@@ -613,8 +614,7 @@ body:not([data-novelbg]) #chat:has(> .fmt-bubble) {
 }
 
 /* 밤 모드에서도 말풍선과 실버 바 색은 유지 */
-:root:is([data-theme="night"], [data-theme="dark"])
-body:not([data-novelbg]) #chat:has(> .fmt-bubble) {
+:root[data-skin="ps"]:is([data-theme="night"], [data-theme="dark"]) body:not([data-novelbg]) #chat:has(> .fmt-bubble) {
   --ps-bg: #000;
   --ps-label: #b5b0ba;
   --ps-input: #080809;
@@ -622,19 +622,19 @@ body:not([data-novelbg]) #chat:has(> .fmt-bubble) {
 }
 
 /* 상단 바 */
-body:not([data-novelbg]) #chat:has(> .fmt-bubble) > header.bar {
+:root[data-skin="ps"] body:not([data-novelbg]) #chat:has(> .fmt-bubble) > header.bar {
   background: linear-gradient(#fcfcfd, #edeef1);
   border-top: 4px solid #f6cadd;
   border-bottom: 1px solid #bfc0c7;
   color: #302c34;
 }
 
-body:not([data-novelbg]) #chat:has(> .fmt-bubble) > header.bar .icon {
+:root[data-skin="ps"] body:not([data-novelbg]) #chat:has(> .fmt-bubble) > header.bar .icon {
   color: #58545e;
 }
 
 /* 작은 핑크 폴더 */
-body:not([data-novelbg]) #chat:has(> .fmt-bubble) #chName::before {
+:root[data-skin="ps"] body:not([data-novelbg]) #chat:has(> .fmt-bubble) #chName::before {
   content: "";
   display: inline-block;
   width: 21px;
@@ -644,16 +644,16 @@ body:not([data-novelbg]) #chat:has(> .fmt-bubble) #chName::before {
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 20'%3E%3Cpath d='M2 4V2h7l3 3h10v13H2Z' fill='%23f5c8db' stroke='%235c5662' stroke-width='1.4' stroke-linejoin='round'/%3E%3Cpath d='M3 6h18' stroke='%23fff'/%3E%3C/svg%3E") center/contain no-repeat;
 }
 
-body:not([data-novelbg]) #chat > .log.fmt-bubble {
+:root[data-skin="ps"] body:not([data-novelbg]) #chat > .log.fmt-bubble {
   background: var(--ps-bg);
 }
 
-body:not([data-novelbg]) #chat > .log.fmt-bubble .who {
+:root[data-skin="ps"] body:not([data-novelbg]) #chat > .log.fmt-bubble .who {
   color: var(--ps-label);
 }
 
 /* 캐릭터 말풍선 */
-body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body {
+:root[data-skin="ps"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body {
   position: relative;
   width: fit-content;
   max-width: 100%;
@@ -676,8 +676,8 @@ body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body {
 }
 
 /* 테두리 삼각형 + 배경색 삼각형 */
-body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body::before,
-body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body::after {
+:root[data-skin="ps"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body::before,
+:root[data-skin="ps"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body::after {
   content: "";
   position: absolute;
   width: 0;
@@ -686,7 +686,7 @@ body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body::after {
   border-style: solid;
 }
 
-body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body::before {
+:root[data-skin="ps"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body::before {
   top: 17px;
   left: -9px;
   border-width: 8px 9px 8px 0;
@@ -694,7 +694,7 @@ body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body::before {
     transparent var(--ps-border) transparent transparent;
 }
 
-body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body::after {
+:root[data-skin="ps"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body::after {
   top: 18.5px;
   left: -6.75px;
   border-width: 6.5px 7.5px 6.5px 0;
@@ -703,7 +703,7 @@ body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body::after {
 }
 
 /* 유저 말풍선: 네 모서리 둥글게, 꼬리 없음 */
-body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.user .body {
+:root[data-skin="ps"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.user .body {
   width: fit-content;
   max-width: 85%;
   padding: 9px 13px;
@@ -721,7 +721,7 @@ body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.user .body {
 }
 
 /* 캐릭터 프로필: 둥근 네모 */
-body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .mav {
+:root[data-skin="ps"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .mav {
   border-radius: 12px;
   border: 1px solid #b7a9b3;
   background: linear-gradient(#ffeaf3, #f3cbdc);
@@ -730,18 +730,18 @@ body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .mav {
   box-shadow: inset 0 1px 0 #fff;
 }
 
-body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .mav img {
+:root[data-skin="ps"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .mav img {
   border-radius: 0;
 }
 
 /* 입력 영역 */
-body:not([data-novelbg]) #chat:has(> .fmt-bubble) > .composer {
+:root[data-skin="ps"] body:not([data-novelbg]) #chat:has(> .fmt-bubble) > .composer {
   background: var(--ps-bg);
   border-top: 0;
 }
 
 /* 실버 도구줄 */
-body:not([data-novelbg]) #chat:has(> .fmt-bubble) .quick {
+:root[data-skin="ps"] body:not([data-novelbg]) #chat:has(> .fmt-bubble) .quick {
   gap: 0;
   padding: 5px 0;
   margin: -10px -12px 10px;
@@ -750,11 +750,11 @@ body:not([data-novelbg]) #chat:has(> .fmt-bubble) .quick {
   border-bottom: 1px solid #b8bbc4;
 }
 
-body[data-kb="1"]:not([data-novelbg]) #chat:has(> .fmt-bubble) .quick {
+:root[data-skin="ps"] body[data-kb="1"]:not([data-novelbg]) #chat:has(> .fmt-bubble) .quick {
   margin-top: -6px;
 }
 
-body:not([data-novelbg]) #chat:has(> .fmt-bubble) .quick button {
+:root[data-skin="ps"] body:not([data-novelbg]) #chat:has(> .fmt-bubble) .quick button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -768,13 +768,13 @@ body:not([data-novelbg]) #chat:has(> .fmt-bubble) .quick button {
   box-shadow: 1px 0 0 rgb(255 255 255 / 80%);
 }
 
-body:not([data-novelbg]) #chat:has(> .fmt-bubble) .quick button:last-child {
+:root[data-skin="ps"] body:not([data-novelbg]) #chat:has(> .fmt-bubble) .quick button:last-child {
   border-right: 0;
   box-shadow: none;
 }
 
 /* 작은 도구 아이콘 */
-body:not([data-novelbg]) #chat:has(> .fmt-bubble) .quick button::before {
+:root[data-skin="ps"] body:not([data-novelbg]) #chat:has(> .fmt-bubble) .quick button::before {
   content: var(--ps-symbol, "·");
   color: var(--ps-symbol-color, #888493);
   font: 19px/1 ui-monospace, monospace;
@@ -783,27 +783,27 @@ body:not([data-novelbg]) #chat:has(> .fmt-bubble) .quick button::before {
   text-align: center;
 }
 
-#qRegen {
+:root[data-skin="ps"] #qRegen {
   --ps-symbol: "↻";
   --ps-symbol-color: #dc7da8;
 }
-#qDelLast { --ps-symbol: "⌫"; }
-#qLen {
+:root[data-skin="ps"] #qDelLast { --ps-symbol: "⌫"; }
+:root[data-skin="ps"] #qLen {
   --ps-symbol: "▱";
   --ps-symbol-color: #718ecc;
 }
-#qModel { --ps-symbol: "◇"; }
-#qMob { --ps-symbol: "♧"; }
-#qMem {
+:root[data-skin="ps"] #qModel { --ps-symbol: "◇"; }
+:root[data-skin="ps"] #qMob { --ps-symbol: "♧"; }
+:root[data-skin="ps"] #qMem {
   --ps-symbol: "▤";
   --ps-symbol-color: #b69b52;
 }
-#qPhone { --ps-symbol: "▯"; }
-#qCmd { --ps-symbol: "⌘"; }
-#resetChat { --ps-symbol: "⟲"; }
+:root[data-skin="ps"] #qPhone { --ps-symbol: "▯"; }
+:root[data-skin="ps"] #qCmd { --ps-symbol: "⌘"; }
+:root[data-skin="ps"] #resetChat { --ps-symbol: "⟲"; }
 
 /* 입력창 */
-body:not([data-novelbg]) #chat:has(> .fmt-bubble) #input {
+:root[data-skin="ps"] body:not([data-novelbg]) #chat:has(> .fmt-bubble) #input {
   background: var(--ps-input);
   color: var(--ps-input-text);
   caret-color: #d781a8;
@@ -813,7 +813,7 @@ body:not([data-novelbg]) #chat:has(> .fmt-bubble) #input {
 }
 
 /* 보내기 버튼 */
-body:not([data-novelbg]) #chat:has(> .fmt-bubble) #send {
+:root[data-skin="ps"] body:not([data-novelbg]) #chat:has(> .fmt-bubble) #send {
   background: linear-gradient(#ffe8f2, #f5ccdf);
   color: #40313c;
   border: 1.5px solid #cf9db4;
@@ -823,9 +823,14 @@ body:not([data-novelbg]) #chat:has(> .fmt-bubble) #send {
     0 2px 0 rgb(137 99 120 / 17%);
 }
 
-body:not([data-novelbg]) #chat:has(> .fmt-bubble) #send:disabled {
+:root[data-skin="ps"] body:not([data-novelbg]) #chat:has(> .fmt-bubble) #send:disabled {
   opacity: .5;
 }
+
+/* 화면 가장자리까지 같은 색으로, 머리줄 여백 없애기 */
+:root[data-skin="ps"], :root[data-skin="ps"] body { background: #fff; }
+:root[data-skin="ps"]:is([data-theme="night"], [data-theme="dark"]), :root[data-skin="ps"]:is([data-theme="night"], [data-theme="dark"]) body { background: #000; }
+:root[data-skin="ps"] body:not([data-novelbg]) #chat:has(> .fmt-bubble) > header.bar { margin: 0; }
 </style>
 </head>
 <body>
@@ -1296,7 +1301,7 @@ const HANDS = {
   "깜찍": "'HandSeh','Nanum Pen Script',cursive", "서툰": "'HandRam','Nanum Pen Script',cursive",
   "수수": "'HandDng','Nanum Pen Script',cursive"
 };
-const THEMES = [["light", "밝게"], ["night", "밤"]];
+const THEMES = [["light", "밝게"], ["night", "밤"], ["ps", "핑크 실버"], ["ps-night", "핑크 실버 밤"]];
 function applyLook() {
   const r = document.documentElement.style;
   const fam = FONTS[ai.font] || FONTS["고운돋움"];
@@ -1306,7 +1311,8 @@ function applyLook() {
   r.setProperty("--card-fs", (ai.cfs || 14) + "px");
   r.setProperty("--rlh", Math.ceil((ai.cfs || 14) * 2.2) + "px");
   const th = ai.theme || store.theme || "light";
-  document.documentElement.dataset.theme = th === "night" || th === "dark" ? "night" : "light";
+  document.documentElement.dataset.theme = th === "night" || th === "dark" || th === "ps-night" ? "night" : "light";
+  if (th === "ps" || th === "ps-night") document.documentElement.dataset.skin = "ps"; else delete document.documentElement.dataset.skin;
 }
 try { Object.assign(ai, JSON.parse(localStorage.getItem(SKEY) || "{}")); } catch(e) {}
 applyLook();
