@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"2.48","items":[]}
+  {"v":"2.49","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -833,7 +833,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .drw .dw-row{display:flex;gap:8px}
 .drw .dw-row button{min-height:44px;border:0;border-radius:10px;background:#fff;color:#3a3238;font-size:14px;padding:0 12px}
 .drw .dw-pass{flex:1;background:#ffd6ea !important;color:#2a1520 !important}
-.drw.wait .dw-row button,.drw.wait .dw-cols{opacity:.45;pointer-events:none}
+.drw.wait .dw-undo,.drw.wait .dw-clear,.drw.wait .dw-pass,.drw.wait .dw-done{opacity:.45;pointer-events:none}
 :root[data-skin="tk"] .drw .dw-row button,:root[data-skin="tk"] .drw canvas,:root[data-skin="tk"] .drw .dw-av{border-radius:0}
 .draw-card img{display:block;width:100%;border-radius:6px;margin:2px 0 4px;background:#fff}
 :root[data-skin="tk"] .draw-card img{border-radius:0}
@@ -974,7 +974,11 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
       <fieldset>
         <legend>목소리</legend>
         <label>목소리 연결</label>
-        <div class="seg" id="sTtsVia"><button data-v="same" type="button">대화랑 같은 연결</button><button data-v="google" type="button">구글 키 직접</button></div>
+        <div class="seg" id="sTtsVia"><button data-v="same" type="button">대화랑 같은 연결</button><button data-v="other" type="button">다른 주소</button><button data-v="google" type="button">구글 키 직접</button></div>
+        <div id="sTtsOtherWrap"><label for="sTtsUrl">목소리 주소</label>
+        <input type="text" id="sTtsUrl" autocomplete="off">
+        <label for="sTtsOKey">목소리 키</label>
+        <input type="password" id="sTtsOKey" autocomplete="off"></div>
         <div id="sTtsKeyWrap"><label for="sTtsKey">구글 API 키</label>
         <input type="password" id="sTtsKey" autocomplete="off"></div>
         <label for="sTtsModel">목소리 모델</label>
@@ -1010,6 +1014,8 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
         <select id="fHand"></select>
         <label for="fVoice">목소리</label>
         <select id="fVoice"></select>
+        <label for="fVoiceId">목소리 이름 직접 쓰기 (나노GPT 등 다른 주소용)</label>
+        <input type="text" id="fVoiceId" maxlength="80" autocomplete="off">
         <label for="fVoiceStyle">목소리 말투</label>
         <input type="text" id="fVoiceStyle" maxlength="120">
         <div style="margin-top:6px"><button class="btn ghost" id="fVoiceTry" type="button">목소리 들어보기</button></div>
@@ -1379,14 +1385,15 @@ $("#sCfs").oninput = () => { ai.cfs = parseFloat($("#sCfs").value); $("#sCfsLabe
 $("#sFs").oninput = () => { ai.fs = parseFloat($("#sFs").value); $("#sFsLabel").textContent = "글자 크기 · " + ai.fs + "px"; applyLook(); saveAi(); };
 function readSettings() {
   return { models: $("#sModels").value, home: ai.home, prov: segGet($("#sProv")), url: $("#sUrl").value.trim().replace(/\/+$/, ""), key: $("#sKey").value.trim(),
-    model: $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 0, merge: $("#sMerge").checked, uav: $("#sUav").checked, trans: $("#sTrans").checked, pron: $("#sPron").checked, font: $("#sFontSel").value, fs: parseFloat($("#sFs").value) || 15, cfs: parseFloat($("#sCfs").value) || 14, theme: $("#sTheme").value, ttsKey: $("#sTtsKey").value.trim(), ttsModel: $("#sTtsModel").value.trim(), ttsAuto: $("#sTtsAuto").checked, ttsOn: $("#sTtsOn").checked, ttsVia: segGet($("#sTtsVia")) === "google" ? "google" : "same" };
+    model: $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 0, merge: $("#sMerge").checked, uav: $("#sUav").checked, trans: $("#sTrans").checked, pron: $("#sPron").checked, font: $("#sFontSel").value, fs: parseFloat($("#sFs").value) || 15, cfs: parseFloat($("#sCfs").value) || 14, theme: $("#sTheme").value, ttsKey: $("#sTtsKey").value.trim(), ttsModel: $("#sTtsModel").value.trim(), ttsAuto: $("#sTtsAuto").checked, ttsOn: $("#sTtsOn").checked, ttsVia: ["google", "other"].includes(segGet($("#sTtsVia"))) ? segGet($("#sTtsVia")) : "same", ttsUrl: $("#sTtsUrl").value.trim(), ttsOKey: $("#sTtsOKey").value.trim() };
 }
 $("#setBtn").onclick = () => {
   segSet($("#sProv"), ai.prov); $("#sUrl").value = ai.url; $("#sKey").value = ai.key; $("#sModel").value = ai.model; $("#sModels").value = ai.models || "";
   $("#sTemp").value = ai.temp; $("#sTempV").textContent = ai.temp; $("#sMax").value = ai.max || ""; $("#sMerge").checked = ai.merge !== false; $("#sUav").checked = ai.uav !== false; $("#sTrans").checked = ai.trans !== false; $("#sPron").checked = !!ai.pron;
   $("#sTheme").value = ai.theme || "light";
   $("#sTtsKey").value = ai.ttsKey || ""; $("#sTtsModel").value = ai.ttsModel || TTS_DEFAULT_MODEL; $("#sTtsAuto").checked = !!ai.ttsAuto; $("#sTtsOn").checked = !!ai.ttsOn;
-  segSet($("#sTtsVia"), ai.ttsVia === "google" ? "google" : "same"); $("#sTtsKeyWrap").hidden = ai.ttsVia !== "google";
+  segSet($("#sTtsVia"), ["google", "other"].includes(ai.ttsVia) ? ai.ttsVia : "same"); $("#sTtsKeyWrap").hidden = ai.ttsVia !== "google"; $("#sTtsOtherWrap").hidden = ai.ttsVia !== "other";
+  $("#sTtsUrl").value = ai.ttsUrl || ""; $("#sTtsOKey").value = ai.ttsOKey || "";
   $("#sFontSel").value = FONTS[ai.font] ? ai.font : "고운돋움";
   $("#sCfs").value = ai.cfs || 14; $("#sCfsLabel").textContent = "카드 글자 크기 · " + (ai.cfs || 14) + "px";
   $("#sFs").value = ai.fs || 15; $("#sFsLabel").textContent = "글자 크기 · " + (ai.fs || 15) + "px";
@@ -1429,6 +1436,7 @@ async function callApi(cfg, messages, onText, signal, maxOverride) {
   if (cfg.prov === "openai" && /^(o\d|gpt-5)/.test(cfg.model)) { delete body.temperature; if (mt) body.max_completion_tokens = mt; }
   else if (mt) body.max_tokens = mt;
   if (/gemini/i.test(cfg.model)) applyGeminiSafety(body);
+  if (cfg.extra) Object.assign(body, cfg.extra);
   let res;
   try {
     res = await fetch(apiBase(cfg) + "/chat/completions", {
@@ -2787,7 +2795,7 @@ function openEditor(id) {
   $("#fHand").value = HANDS[c.hand] ? c.hand : "단정";
   if (!$("#fVoice").options.length) $("#fVoice").innerHTML = TTS_VOICES.map(v => `<option value="${v[0]}">${v[0]} · ${v[1]}</option>`).join("");
   $("#fVoice").value = TTS_VOICES.some(v => v[0] === c.voice) ? c.voice : TTS_DEFAULT;
-  $("#fVoiceStyle").value = c.voiceStyle || "";
+  $("#fVoiceStyle").value = c.voiceStyle || ""; $("#fVoiceId").value = c.voiceId || "";
   $("#delChar").hidden = !editing;
   show("editor");
   setTimeout(offerDraft, 60);
@@ -2851,7 +2859,7 @@ function editorData() {
     cast: editCast.filter(x => (x.name || "").trim()).map(x => Object.assign({}, x, { name: x.name.trim(), samples: (x.samples || []).filter(sm => (sm.lines || []).some(l => l.t.trim())) })),
     uname: $("#fUName").value.trim(), upersona: $("#fUser").value,
     len: segGet($("#fLen")), tense: segGet($("#fTense")), format: segGet($("#fFormat")), lang: segGet($("#fLang")), narr: segGet($("#fNarr")), hand: $("#fHand").value,
-    voice: $("#fVoice").value, voiceStyle: $("#fVoiceStyle").value.trim()
+    voice: $("#fVoice").value, voiceStyle: $("#fVoiceStyle").value.trim(), voiceId: $("#fVoiceId").value.trim()
   };
 }
 $("#saveChar").onclick = () => {
@@ -3647,7 +3655,7 @@ function drawTogether() {
   const $$ = q => ov.querySelector(q);
   const cv = $$("canvas"), ctx = cv.getContext("2d"), paper = $$(".dw-paper"), stEl = $$(".dw-st");
   const strokes = []; let color = COLORS[0], wide = false, cur2 = null, busyD = false, turns = 0, closed = false;
-  const notes = []; let turnStart = 0, lastTask = "";
+  const notes = []; let lastTask = "";
   let S = 300;
   const fit = () => {
     const cs = getComputedStyle(paper); const w = paper.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), h = paper.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom); S = Math.max(120, Math.floor(Math.min(w, h)));
@@ -3694,7 +3702,7 @@ function drawTogether() {
       if (cur2) { const i = strokes.indexOf(cur2); if (i >= 0 && cur2.pts.length < 12) strokes.splice(i, 1); cur2 = null; redraw(); }
       const gi = gInfo(); g = { d0: gi.d, mx0: gi.mx, my0: gi.my, z0: zoom, tx0: tx, ty0: ty }; blockDraw = true; return;
     }
-    if (busyD || blockDraw || fingers.size > 1) return;
+    if (blockDraw || fingers.size > 1) return;
     const r0 = cv.getBoundingClientRect(); if (e.clientX < r0.left || e.clientX > r0.right || e.clientY < r0.top || e.clientY > r0.bottom) return;
     cur2 = { who: "u", color, er: color === "er", w: color === "er" ? 50 : (wide ? 24 : 10), pts: [pos(e)] }; strokes.push(cur2); drawStroke(cur2);
   });
@@ -3748,36 +3756,30 @@ function drawTogether() {
   const penAt = (x, y) => { const r = cv.getBoundingClientRect(), pr = paper.getBoundingClientRect(); pen.style.transform = `translate(${r.left - pr.left + x / 1000 * r.width}px,${r.top - pr.top + y / 1000 * r.height}px)`; };
   const wait = ms => new Promise(r => setTimeout(r, ms));
   const frame = () => new Promise(r => requestAnimationFrame(r));
-  const animate = async list => {
-    pen.classList.add("on");
-    for (let i = 0; i < list.length; i++) {
-      if (closed) return;
-      const sk = list[i];
-      if (sk.text) {
-        penAt(sk.x, sk.y);
-        await wait(250 + Math.random() * 300);
-        const snap = ctx.getImageData(0, 0, cv.width, cv.height);
-        for (let k = 1; k <= sk.text.length; k++) { if (closed) return; ctx.putImageData(snap, 0, 0); drawStroke(sk, k); penAt(sk.x + k * sk.size * 0.9, sk.y); await wait(90 + Math.random() * 120); }
-        strokes.push(sk);
-      } else {
-        humanize(sk);
-        const total = sk.pts.length, vmax = 3 + Math.random() * 3;
-        penAt(sk.pts[0][0], sk.pts[0][1]);
-        await wait(120 + Math.random() * 260);
-        let k = 1;
-        if (total === 1) seg(sk, sk.pts[0], [sk.pts[0][0] + 0.1, sk.pts[0][1]]);
-        while (k < total) {
-          if (closed) return;
-          const e = Math.sin(Math.PI * k / total), nk = Math.min(total, k + Math.max(1, Math.round(vmax * (0.35 + 0.65 * e))));
-          for (let q = k; q < nk; q++) seg(sk, sk.pts[q - 1], sk.pts[q]);
-          k = nk; penAt(sk.pts[k - 1][0], sk.pts[k - 1][1]);
-          await frame();
-        }
-        strokes.push(sk);
+  const drawOne = async sk => {
+    if (closed) return;
+    if (sk.text) {
+      penAt(sk.x, sk.y);
+      await wait(120 + Math.random() * 180);
+      for (let k = 1; k <= sk.text.length; k++) { if (closed) return; redraw(); drawStroke(sk, k); penAt(sk.x + k * sk.size * 0.9, sk.y); await wait(70 + Math.random() * 90); }
+      strokes.push(sk); redraw();
+    } else {
+      humanize(sk);
+      const total = sk.pts.length, vmax = 4 + Math.random() * 4;
+      penAt(sk.pts[0][0], sk.pts[0][1]);
+      await wait(50 + Math.random() * 110);
+      let k = 1;
+      if (total === 1) seg(sk, sk.pts[0], [sk.pts[0][0] + 0.1, sk.pts[0][1]]);
+      while (k < total) {
+        if (closed) return;
+        const e = Math.sin(Math.PI * k / total), nk = Math.min(total, k + Math.max(1, Math.round(vmax * (0.35 + 0.65 * e))));
+        for (let q = k; q < nk; q++) seg(sk, sk.pts[q - 1], sk.pts[q]);
+        k = nk; penAt(sk.pts[k - 1][0], sk.pts[k - 1][1]);
+        await frame();
       }
-      await wait(Math.random() < 0.2 ? 600 + Math.random() * 700 : 150 + Math.random() * 300);
+      strokes.push(sk);
     }
-    pen.classList.remove("on");
+    await wait(Math.random() < 0.1 ? 300 + Math.random() * 350 : 70 + Math.random() * 150);
   };
   const parse = txt => {
     const t = String(txt || "").replace(/```(?:json)?/g, "");
@@ -3812,13 +3814,13 @@ function drawTogether() {
     if (busyD) return;
     busyD = true; ov.classList.add("wait"); status(nm + "가 그리는 중…");
     const img = snapshot(512, 0.8);
-    const said = "";
-    const fresh = strokes.slice(turnStart).filter(x => x.who === "u" && !x.er);
+    const fresh = strokes.filter(x => x.who === "u" && !x.er && !x.sent);
+    fresh.forEach(x => { x.sent = true; });
     let freshImg = "";
     if (fresh.length) {
       const o = document.createElement("canvas"); o.width = o.height = 384; const x2 = o.getContext("2d");
       x2.fillStyle = "#fff"; x2.fillRect(0, 0, 384, 384); x2.setTransform(0.384, 0, 0, 0.384, 0, 0);
-      const keep = ctx; fresh.forEach(sk => { const p = sk.pts; x2.strokeStyle = sk.color; x2.lineWidth = sk.w; x2.lineCap = x2.lineJoin = "round"; x2.beginPath(); x2.moveTo(p[0][0], p[0][1]); if (p.length === 1) x2.lineTo(p[0][0] + 0.1, p[0][1]); for (let i = 1; i < p.length; i++) x2.lineTo(p[i][0], p[i][1]); x2.stroke(); });
+      fresh.forEach(sk => { const p = sk.pts; x2.strokeStyle = sk.color; x2.lineWidth = sk.w; x2.lineCap = x2.lineJoin = "round"; x2.beginPath(); x2.moveTo(p[0][0], p[0][1]); if (p.length === 1) x2.lineTo(p[0][0] + 0.1, p[0][1]); for (let i = 1; i < p.length; i++) x2.lineTo(p[i][0], p[i][1]); x2.stroke(); });
       freshImg = o.toDataURL("image/jpeg", 0.8);
     }
     const TASKS = {
@@ -3837,52 +3839,97 @@ function drawTogether() {
     }
     lastTask = task;
     const recent = msgs().slice(-8).map(m => (m.role === "user" ? u : nm) + ": " + sub(m.text || "", c).slice(0, 300)).join("\n");
-    const prompt = `너는 ${nm}이다. 지금 ${u}와 폰으로 같은 도화지 하나에 번갈아 그림을 그리며 놀고 있다. 첫 번째 이미지는 지금까지의 도화지 전체다.${freshImg ? ` 두 번째 이미지는 ${u}가 방금 이번 차례에 새로 그린 선만 따로 떼어 놓은 것이다.` : ""}
-${said ? `${u}가 넘기면서 한 말: "${said}"
-` : ""}${notes.length ? `지난 차례들에 네가 그린 것: ${notes.join(" / ")}
-` : ""}
+    const prompt = `너는 ${nm}이다. 지금 ${u}와 폰으로 같은 도화지 하나에 번갈아 그림을 그리며 놀고 있다. 첫 번째 이미지는 지금까지의 도화지 전체다.${freshImg ? ` 두 번째 이미지는 ${u}가 방금 새로 그린 선만 따로 떼어 놓은 것이다.` : ""}
+${notes.length ? `지난 차례들에 네가 그린 것: ${notes.join(" / ")}\n` : ""}
 먼저 ${u}가 그린 것이 무엇인지 모양·색·위치를 보고 알아본다. 그림 속 글씨와 화살표도 꼼꼼히 읽는다.
 [가장 먼저] ${u}가 너(${nm})나 ${u} 자신을 그렸는지, 너한테 하는 말을 썼는지 본다. 너를 돼지·강아지처럼 놀리듯 그렸거나 약 올리는 글씨를 썼으면, 이번 할 일보다 그 반응이 먼저다. ${nm}의 성격대로 반응한다: 발끈해서 반박하는 글씨, 그림을 제대로 고쳐 그리기, ${u}를 똑같이 놀리는 반격 낙서, 삐진 표시 같은 것. 칭찬이나 애정 표현이면 ${nm}답게 받아친다. 이런 게 없을 때만 아래 할 일을 한다.
 [이번 차례에 할 일] ${TASKS[task]}
-이 일을 ${nm}의 성격과 지금 두 사람 분위기대로 한다. ${task === "together" || task === "cuddle" ? "자기 자신(설정 속 외모나 동물 모습)을 그려 넣어도 되지만 장면의 일부로 작게만 그린다." : "이번엔 자기 자신의 모습(설정 속 외모나 동물 모습)을 그리지 않는다."} 지난 차례에 그린 것을 또 그리지 않는다. 이미 있는 그림의 위치와 크기를 보고 거기에 맞춰 그린다.
-사람이 손가락으로 쓱쓱 그리는 것처럼 그린다. 윤곽을 먼저 그리고, 그다음 안쪽 디테일, 마지막에 꾸밈 선 순서로 선을 놓는다. 한 획은 끊기지 않게 이어지는 한 번의 손놀림이다. 너무 반듯한 도형보다 손그림다운 모양이 좋다. 알아볼 수 있을 만큼 충분히 그린다.
-좌표는 도화지 왼쪽 위가 (0,0), 오른쪽 아래가 (1000,1000)이고 정수만 쓴다. 선 하나는 점을 순서대로 이은 것이다. 한 선에 점 8~40개, 선은 6~18개.
-JSON 하나만 출력한다. 코드블록, 설명, 다른 글은 쓰지 않는다. 괄호와 쉼표를 빠짐없이 닫는다.
-{"saw":"${u}가 방금 그린 것이 무엇으로 보이는지 한 문장","strokes":[{"color":"#2a2227","width":10,"points":[[x,y],[x,y]]}],"texts":[{"text":"짧은 글씨","x":0,"y":0,"size":60,"color":"#ff6fae"}],"desc":"이번에 무엇을 왜 그렸는지 한 문장"}
-texts는 없어도 되고 최대 2개, 글씨는 10자 이내. 색은 #2a2227 #ff6fae #6fb6ff #ffc94d #5cc27a #b48cff 중에서 고른다.
+이 일을 ${nm}의 말투·성격과 지금 두 사람 분위기 그대로 한다. 글씨를 쓰면 ${nm}이 평소 쓰는 말투로 쓴다. ${task === "together" || task === "cuddle" ? "자기 자신(설정 속 외모나 동물 모습)을 그려 넣어도 되지만 장면의 일부로 작게만 그린다." : "이번엔 자기 자신의 모습(설정 속 외모나 동물 모습)을 그리지 않는다."} 지난 차례에 그린 것을 또 그리지 않는다. 이미 있는 그림의 위치와 크기를 보고 거기에 맞춰 그린다.
+사람이 손가락으로 쓱쓱 그리는 것처럼 그린다. 윤곽 먼저, 그다음 안쪽, 마지막에 꾸밈 순서로 선을 놓는다. 한 획은 끊기지 않는 한 번의 손놀림이다. 손그림다운 모양이 좋다.
+좌표는 도화지 왼쪽 위가 0,0 오른쪽 아래가 1000,1000이고 정수만 쓴다. 선은 5~14개, 선 하나에 점 6~24개.
+아래 줄 형식으로만 출력한다. 한 줄에 하나씩 쓰고, 설명·코드블록·다른 글은 쓰지 않는다.
+SAW ${u}가 방금 그린 것이 무엇으로 보이는지 짧게
+S 색 굵기 x,y x,y x,y ...
+T 색 크기 x,y 짧은 글씨
+DESC 이번에 무엇을 그렸는지 짧게
+예시:
+SAW 노란 꽃
+S #5cc27a 10 400,620 410,700 405,780 398,860
+T #ff6fae 55 120,150 고마워
+DESC 꽃에 줄기를 달고 고맙다고 씀
+S 줄은 여러 개, T 줄은 없어도 되고 최대 2개(글씨 10자 이내). 색은 #2a2227 #ff6fae #6fb6ff #ffc94d #5cc27a #b48cff 중에서 고른다. 굵기는 6~24, 글씨 크기는 40~110.
 
 [${nm} 설정]
 ${sub(c.prompt || "", c).slice(0, 2500)}
 
 [최근 대화]
 ${recent || "(없음)"}`;
-    const ask = async () => {
-      const imgs = [img].concat(freshImg ? [freshImg] : []);
+    // 받는 대로 바로 그리기
+    const COLS = /^#[0-9a-fA-F]{3,8}$/;
+    const cl = v => Math.max(0, Math.min(1000, Math.round(+v || 0)));
+    const queue = []; let wake = null, streamDone = false, got = 0, desc = "";
+    const push = sk => { queue.push(sk); got++; if (wake) { const w = wake; wake = null; w(); } };
+    const parseLine = line => {
+      const l = line.trim().replace(/^[-*•]\s*/, "");
+      let m;
+      if ((m = l.match(/^DESC\s*[:：]?\s*(.+)$/i))) { desc = m[1].slice(0, 120); return; }
+      if ((m = l.match(/^T\s+(#[0-9a-fA-F]{3,8})\s+(\d+)\s+(-?\d+)\s*,\s*(-?\d+)\s+(.+)$/))) {
+        push({ who: "c", text: m[5].trim().slice(0, 20), x: cl(m[3]), y: cl(m[4]), size: Math.max(30, Math.min(120, +m[2] || 60)), color: m[1], pts: [] }); return;
+      }
+      if ((m = l.match(/^S\s+(#[0-9a-fA-F]{3,8})\s+(\d+)\s+(.+)$/))) {
+        const v = (m[3].match(/-?\d+(?:\.\d+)?/g) || []).map(Number), pts = [];
+        for (let k = 0; k + 1 < v.length && pts.length < 120; k += 2) pts.push([cl(v[k]), cl(v[k + 1])]);
+        if (pts.length >= 2) push({ who: "c", color: COLS.test(m[1]) ? m[1] : "#2a2227", w: Math.max(6, Math.min(30, +m[2] || 10)), pts });
+      }
+    };
+    let seen = 0;
+    const onText = full => {
+      const lines = String(full || "").split("\n");
+      for (; seen < lines.length - 1; seen++) parseLine(lines[seen]);
+    };
+    const player = (async () => {
+      pen.classList.add("on");
+      while (!closed) {
+        if (queue.length) await drawOne(queue.shift());
+        else if (streamDone) break;
+        else await new Promise(r => { wake = r; });
+      }
+      pen.classList.remove("on");
+    })();
+    const imgs = [img].concat(freshImg ? [freshImg] : []);
+    const ask = async (lite) => {
+      seen = 0;
       if (ai.prov !== "builtin") {
         const ac = new AbortController(), to = setTimeout(() => ac.abort(), 120000);
-        try { return await callApi(Object.assign({}, ai, { max: Math.max(ai.max || 0, 8000), temp: Math.min(ai.temp ?? 0.9, 0.8) }), [{ role: "user", content: [{ type: "text", text: prompt }].concat(imgs.map(u2 => ({ type: "image_url", image_url: { url: u2 } }))) }], null, ac.signal); }
+        const cfg = Object.assign({}, ai, { max: Math.max(ai.max || 0, 6000), temp: Math.min(ai.temp ?? 0.9, 0.8) });
+        if (lite) cfg.extra = { reasoning_effort: "low" };
+        try { return await callApi(cfg, [{ role: "user", content: [{ type: "text", text: prompt }].concat(imgs.map(u2 => ({ type: "image_url", image_url: { url: u2 } }))) }], onText, ac.signal); }
         catch (e) { if (e && e.name === "AbortError") throw new Error("답이 너무 오래 걸려요"); throw e; }
         finally { clearTimeout(to); }
       }
-      if (sample) return (await sample([{ role: "user", content: imgs.map(u2 => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: u2.split(",")[1] } })).concat([{ type: "text", text: prompt }]) }], { cache: false })).text;
+      if (sample) return (await sample([{ role: "user", content: imgs.map(u2 => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: u2.split(",")[1] } })).concat([{ type: "text", text: prompt }]) }], { cache: false, onText: ({ text }) => onText(text) })).text;
       throw new Error("AI에 연결되지 않았어요.");
     };
+    let errMsg = "";
     try {
-      let r = null;
-      for (let tries = 0; tries < 2 && !(r && r.list.length); tries++) {
-        const out = await ask();
-        if (closed) return;
-        try { r = parse(out); } catch (e) { r = null; }
-      }
-      if (!r || !r.list.length) throw new Error("그림을 제대로 못 받았어요");
-      await animate(r.list);
-      if (r.desc) notes.push(r.desc);
-      turnStart = strokes.length;
-      turns++; status("네 차례야");
-    } catch (e) {
+      let out = "";
+      try { out = await ask(true); }
+      catch (e) { if (/400|reasoning/i.test((e && e.message) || "")) out = await ask(false); else throw e; }
       if (closed) return;
-      status(((e && e.message) || "그림을 못 받았어요") + " · 다시 넘겨봐");
-    }
+      const lines = String(out || "").split("\n"); for (; seen < lines.length; seen++) parseLine(lines[seen]);
+      if (!got) { try { const r = parse(out); r.list.forEach(push); if (r.desc) desc = r.desc; } catch (e) {} }
+      if (!got && !closed) {
+        const out2 = await ask(false); if (closed) return;
+        const l2 = String(out2 || "").split("\n"); for (seen = 0; seen < l2.length; seen++) parseLine(l2[seen]);
+        if (!got) { try { const r = parse(out2); r.list.forEach(push); } catch (e) {} }
+      }
+      if (!got) errMsg = "그림을 제대로 못 받았어요";
+    } catch (e) { errMsg = (e && e.message) || "그림을 못 받았어요"; }
+    streamDone = true; if (wake) { const w = wake; wake = null; w(); }
+    await player;
+    if (closed) return;
+    if (desc) notes.push(desc);
+    if (errMsg && !got) status(errMsg + " · 다시 넘겨봐"); else { turns++; status("네 차례야"); }
     busyD = false; ov.classList.remove("wait");
   };
   $$(".dw-done").onclick = () => {
@@ -3921,7 +3968,11 @@ function ttsLine(text, fmt) {
   t = t.replace(/^[^\n|:]{1,14}\s*[|]\s*/gm, "").replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim();
   return t.slice(0, 900);
 }
-function ttsReady() { return ai.ttsVia === "google" ? !!ai.ttsKey : !!(ai.ttsOn && ai.prov !== "builtin" && (ai.prov === "openai" || ai.url)); }
+function ttsReady() {
+  if (ai.ttsVia === "google") return !!ai.ttsKey;
+  if (ai.ttsVia === "other") return !!(ai.ttsOn && ai.ttsUrl);
+  return !!(ai.ttsOn && ai.prov !== "builtin" && (ai.prov === "openai" || ai.url));
+}
 function b64buf(b64) { const bin = atob(b64), ab = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) ab[i] = bin.charCodeAt(i); return ab; }
 function pcmBuf(bytes, rate) {
   const n = bytes.length >> 1, f = new Float32Array(n);
@@ -3929,7 +3980,10 @@ function pcmBuf(bytes, rate) {
   const b = ttsCtx.createBuffer(1, n, rate || 24000); b.getChannelData(0).set(f); return b;
 }
 async function ttsViaProxy(text, voice, style, model, name) {
-  const base = apiBase(ai), hd = Object.assign({ "Content-Type": "application/json" }, ai.key ? { Authorization: "Bearer " + ai.key } : {});
+  const other = ai.ttsVia === "other";
+  const base = other ? String(ai.ttsUrl || "").trim().replace(/\/+$/, "").replace(/\/(audio\/speech|chat\/completions)$/, "") : apiBase(ai);
+  const k2 = other ? ai.ttsOKey : ai.key;
+  const hd = Object.assign({ "Content-Type": "application/json" }, k2 ? { Authorization: "Bearer " + k2 } : {});
   let res, errTxt = "";
   // 1) OpenAI 방식 음성 주소
   try {
@@ -3967,7 +4021,7 @@ function ttsStop() {
   ttsSrc = null; if (ttsBtn) { ttsBtn.classList.remove("on", "load"); ttsBtn.textContent = "▶"; } ttsBtn = null;
 }
 async function ttsFetch(text, c) {
-  const voice = TTS_VOICES.some(v => v[0] === c.voice) ? c.voice : TTS_DEFAULT;
+  const voice = (c.voiceId || "").trim() || (TTS_VOICES.some(v => v[0] === c.voice) ? c.voice : TTS_DEFAULT);
   const style = (c.voiceStyle || "").trim();
   const model = (ai.ttsModel || TTS_DEFAULT_MODEL).trim();
   const key = [model, voice, style, text].join("\u0001");
@@ -4011,7 +4065,7 @@ async function ttsFetch(text, c) {
   return buf;
 }
 async function ttsSpeak(text, c, btn, quiet) {
-  if (!ttsReady()) { if (!quiet) alert(ai.ttsVia === "google" ? "설정 > 목소리에 구글 API 키를 넣어주세요." : "설정 > 목소리에서 목소리를 켜주세요. (대화 연결이 API여야 해요)"); return; }
+  if (!ttsReady()) { if (!quiet) alert(ai.ttsVia === "google" ? "설정 > 목소리에 구글 API 키를 넣어주세요." : ai.ttsVia === "other" ? "설정 > 목소리에서 목소리를 켜고 목소리 주소를 넣어주세요." : "설정 > 목소리에서 목소리를 켜주세요. (대화 연결이 API여야 해요)"); return; }
   if (btn && ttsBtn === btn) { ttsStop(); return; }
   ttsStop();
   if (!text) { if (!quiet) alert("읽을 대사가 없어요."); return; }
@@ -4030,13 +4084,13 @@ async function ttsSpeak(text, c, btn, quiet) {
   }
 }
 $("#fVoiceTry").onclick = () => {
-  const c = { name: $("#fName").value.trim() || "캐릭터", voice: $("#fVoice").value, voiceStyle: $("#fVoiceStyle").value.trim() };
+  const c = { name: $("#fName").value.trim() || "캐릭터", voice: $("#fVoice").value, voiceStyle: $("#fVoiceStyle").value.trim(), voiceId: $("#fVoiceId").value.trim() };
   ttsSpeak("안녕. 오늘 하루는 어땠어?", c, null);
 };
-["sTtsKey", "sTtsModel"].forEach(id => $("#" + id).addEventListener("input", () => { ai.ttsKey = $("#sTtsKey").value.trim(); ai.ttsModel = $("#sTtsModel").value.trim(); saveAi(); }));
+["sTtsKey", "sTtsModel", "sTtsUrl", "sTtsOKey"].forEach(id => $("#" + id).addEventListener("input", () => { ai.ttsKey = $("#sTtsKey").value.trim(); ai.ttsModel = $("#sTtsModel").value.trim(); ai.ttsUrl = $("#sTtsUrl").value.trim(); ai.ttsOKey = $("#sTtsOKey").value.trim(); saveAi(); }));
 $("#sTtsAuto").onchange = () => { ai.ttsAuto = $("#sTtsAuto").checked; saveAi(); };
 $("#sTtsOn").onchange = () => { ai.ttsOn = $("#sTtsOn").checked; saveAi(); };
-$("#sTtsVia").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { setTimeout(() => { ai.ttsVia = segGet($("#sTtsVia")); $("#sTtsKeyWrap").hidden = ai.ttsVia !== "google"; saveAi(); }, 0); }));
+$("#sTtsVia").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { setTimeout(() => { ai.ttsVia = segGet($("#sTtsVia")); $("#sTtsKeyWrap").hidden = ai.ttsVia !== "google"; $("#sTtsOtherWrap").hidden = ai.ttsVia !== "other"; saveAi(); }, 0); }));
 
 $("#qCmd").onclick = () => {
   const list = Object.keys(CMDS);
