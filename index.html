@@ -6,6 +6,8 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"2.03","items":["모브 켬: 가족·친구·전 애인·약혼자 같은 관계 인물도 꼭 나올 만한 순간에만 등장 가능 (설정과 어긋나지 않게)"]},
+  {"v":"2.02","items":["도구줄에 '모브' 버튼 추가: 켜면 흐름에 맞을 때만 주변 인물이 등장하고 장면이 끝나면 빠짐, 끄면 새로 안 나오고 있던 인물도 자연스럽게 퇴장 (캐릭터마다 따로)"]},
   {"v":"2.01","items":["캐릭터 설정 아래 버튼 크기 정리: 삭제·임시저장은 글자만큼, 저장하고 대화하기가 남은 자리를 채움 (한 줄 유지)"]},
   {"v":"2.00","items":["임시저장은 버튼을 눌렀을 때만 (자동 저장 없앰)","새 캐릭터를 임시저장하면 홈에 '임시저장'으로 남고, 누르면 설정 화면에서 이어 쓰기"]},
   {"v":"1.99","items":["홈 목록: 최근에 대화한 채팅방이 맨 위로","홈 목록: 꾹 누르면 채팅방 고정·고정 풀기 (고정한 방은 항상 맨 위)","캐릭터 설정 임시저장: 쓰는 중에 자동으로 저장, 다시 열면 이어 쓰기 물어봄 + 임시저장 버튼"]},
@@ -802,6 +804,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
         <button id="qDelLast">마지막 지우기</button>
         <button id="qLen">응답</button>
         <button id="qModel">모델</button>
+        <button id="qMob">모브</button>
         <button id="qMem">기억<span class="mdot" id="memDot" hidden></span></button>
         <button id="qPhone">핸드폰</button>
         <button id="qCmd">명령어</button>
@@ -2486,6 +2489,10 @@ const MY_RULE = `
 여기에 쓰세요
 `;
 /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
+function mobRule(c) {
+  if (c && c.mob) return "주변 인물: 장면 흐름상 자연스러울 때만 주변 인물(손님, 이웃, 지나가는 사람 등)을 등장시켜 그들의 대사와 행동을 직접 쓴다. 매 장면마다 넣지 않는다. 주변 인물은 끼어들거나 작은 사건을 일으켜 이야기를 움직일 수 있다. 가족, 친구, 전 애인, 약혼자처럼 인물과 관계있는 사람도 등장할 수 있지만, 이야기상 그 사람이 나타날 수밖에 없는 순간에만 쓰고 자주 쓰지 않는다. 설정에 적힌 과거·관계와 어긋나는 인물은 만들지 않는다. 한 번 나온 인물은 이름과 성격을 유지하고, 볼일이 끝나거나 장면이 바뀌면 자연스럽게 퇴장시킨다.\n";
+  return "주변 인물: 새로운 주변 인물을 등장시키지 않는다. 이미 장면에 있는 주변 인물은 흐름에 맞게 자연스럽게 퇴장시킨다. 설정에 있는 인물과 유저가 직접 등장시킨 인물은 예외다.\n";
+}
 function myRule() { const t = MY_RULE.trim(); return t && t !== "여기에 쓰세요" ? t + "\n" : ""; }
 function buildRules(c, cmd) {
   const u = c.uname || "유저";
@@ -2549,7 +2556,7 @@ ${glossRule}
     ? "- 지문은 3인칭 과거형(~했다, ~였다)으로 쓴다."
     : "- 지문은 3인칭 현재형(~한다, ~본다)으로 쓴다.";
   return `너는 지금부터 캐릭터 롤플레이 채팅의 '${c.name}' 역할을 맡는다. 이후 대화에서 너는 오직 ${c.name}으로서 응답한다.
-${myRule()}
+${myRule()}${mobRule(c)}
 ${(c.world || "").trim() ? "[상황 및 세계관]\n" + sub(c.world, c) + "\n\n" : ""}[캐릭터 설정]
 ${sub(c.prompt, c) || "(설정 없음)"}
 
@@ -2857,7 +2864,9 @@ $("#qModel").onclick = () => {
   if (!list.length) acts.push(["설정에서 모델 목록 채우기", () => $("#setBtn").click()]);
   showMsgMenu(acts);
 };
-function updLenBtn() { updModelBtn(); const c = char(); $("#qLen").textContent = "응답 · " + (LEN_NAMES[c && c.len] || "보통"); }
+function updMobBtn() { const c = char(), b = $("#qMob"); if (b) b.textContent = "모브 · " + (c && c.mob ? "켬" : "끔"); }
+$("#qMob").onclick = () => { const c = char(); if (!c || busy) return; c.mob = !c.mob; save(null); updMobBtn(); };
+function updLenBtn() { updModelBtn(); updMobBtn(); const c = char(); $("#qLen").textContent = "응답 · " + (LEN_NAMES[c && c.len] || "보통"); }
 $("#qLen").onclick = () => {
   const c = char(); if (!c) return;
   showMsgMenu(Object.keys(LEN_NAMES).map(k => [(c.len === k ? "✓ " : "") + LEN_NAMES[k], () => { c.len = k; save(null); updLenBtn(); }]));
@@ -2996,3 +3005,4 @@ renderHome();
 </script>
 </body>
 </html>
+
