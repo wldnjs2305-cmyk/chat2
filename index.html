@@ -6,6 +6,9 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"2.25","items":["月夜·月白 대화방: 이름 밑 (｡･ω･｡) 온라인 줄이 이름과 왼쪽 끝이 어긋나던 것 맞춤 (글꼴 하나로 통일)"]},
+  {"v":"2.24","items":["홈 맨 아래 백업 버튼·픽셀 하트 줄 없애기: 백업 내보내기·불러오기는 설정 맨 아래 '백업'으로 옮김","月夜·月白 홈 윗줄 ［＋］［검색］［설정］ 글꼴을 하나로 맞추고 높이 정렬"]},
+  {"v":"2.23","items":["月夜·月白: 내 말풍선을 연한 딸기우유 핑크로","推し 홈 윗줄의 ［＋］［검색］［설정］ 높이·글꼴·색을 똑같이 맞춰 나란히"]},
   {"v":"2.22","items":["月夜·月白: 내 말풍선을 핑크로","月夜·月白 홈: 토끼 장식, 목록에 마지막 대화 시각, 옛 세로글씨·生きてるよ 장식 빼기","月夜·月白 推し 홈: 맨 위에 고정한 캐릭터가 있으면 큰 推し 카드(무지개 테두리, 대화 수·마지막 시각, 만나러 가기) + その他 목록","月夜·月白 推し 대화방: 윗줄 핑크 선, 大好き 세로글씨, 프사·입력칸 핑크 테두리"]},
   {"v":"2.21","items":["핑크 EXE 테마 삭제 (쓰던 사람은 月夜로 자동으로 바뀜)"]},
   {"v":"2.20","items":["핑크 실버·핑크 실버 밤 테마 삭제 (쓰던 사람은 月白·月夜로 자동으로 바뀜)","月夜: 캐릭터 말풍선을 먹색 + 흰 글로우로, 내 말풍선은 라일락으로","月夜: 맨 위에 고정한 캐릭터(推し)는 대화방에서 말풍선이 핑크 글로우로, 이름 밑에 推し 온라인 표시","月白 (츠키요 화이트) 테마 추가: 月夜와 같은 모양의 흰 바탕 버전 (캐릭터는 흰 말풍선 + 먹색 테두리, 推し는 핑크 테두리, 내 말풍선은 라일락)"]},
@@ -607,7 +610,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 /* ===== 月夜 ===== */
 :root[data-skin="tk"]{
   --bg:#000; --panel:#0e0b0e; --field:#0e0b0e; --ink:#f4f0f4; --soft:#9d8f9b; --line:#3f343d;
-  --accent:#ff7eb9; --accent-ink:#140f13; --user-bg:#ffc2df; --char-bg:#000; --narr:#a898a6; --faint:#8e7f8c;
+  --accent:#ff7eb9; --accent-ink:#140f13; --user-bg:#ffd6ea; --char-bg:#000; --narr:#a898a6; --faint:#8e7f8c;
   --tk-mauve:#c4a6c1; --tk-pink:#ff7eb9; --tk-dash:#5e4f5c;
   accent-color:#ff7eb9;
 }
@@ -675,7 +678,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root[data-skin="tk"] body:not([data-novelbg]) #chat[data-oshi] > .log.fmt-bubble .msg.char .body{border-color:var(--tk-pink);box-shadow:0 0 12px rgba(255,126,185,.45)}
 :root[data-skin="tk"] body:not([data-novelbg]) #chat[data-oshi] #chName::after{content:"(*´▽`*) 推し 온라인"}
 :root[data-skin="tk"] body:not([data-novelbg]) #chat[data-oshi] > .log .who{color:var(--tk-pink)}
-:root[data-skin="tk"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.user .body{background:#ffc2df;color:#2a1520;border:0;border-radius:14px 2px 14px 14px;--ink:#2a1520;--narr:#8a5a72;--faint:#8a5a72}
+:root[data-skin="tk"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.user .body{background:#ffd6ea;color:#2a1520;border:0;border-radius:14px 2px 14px 14px;--ink:#2a1520;--narr:#8a5a72;--faint:#8a5a72}
 :root[data-skin="tk"] body:not([data-novelbg]) #chat > .log.fmt-bubble .narr{font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","GounBatang",serif;font-style:normal;font-size:.88em}
 :root[data-skin="tk"] body:not([data-novelbg]) .log .typing{font-family:"DotGothic16","NeoDunggeunmo",monospace;color:var(--tk-pink);text-shadow:0 0 6px var(--tk-pink)}
 :root[data-skin="tk"] body:not([data-novelbg]) #chat > .log.fmt-bubble .body.typbub{border-color:#5e4f5c}
@@ -701,7 +704,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 /* ===== 月白 (화이트) ===== */
 :root[data-skin="tk"][data-tone="white"]{
   --bg:#faf7f9; --panel:#ffffff; --field:#ffffff; --ink:#1d1720; --soft:#6f6070; --line:#e2d6df;
-  --accent:#ff7eb9; --accent-ink:#140f13; --user-bg:#ffc2df; --char-bg:#fff; --narr:#7a6a78; --faint:#7a6a78;
+  --accent:#ff7eb9; --accent-ink:#140f13; --user-bg:#ffd6ea; --char-bg:#fff; --narr:#7a6a78; --faint:#7a6a78;
   --tk-mauve:#7d5f79; --tk-pink:#ff7eb9; --tk-dash:#cdbfca;
   accent-color:#ff7eb9;
 }
@@ -769,7 +772,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat[data-oshi] > .log.fmt-bubble .msg.char .body{border-color:var(--tk-pink);box-shadow:0 0 12px rgba(255,126,185,.45)}
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat[data-oshi] #chName::after{content:"(*´▽`*) 推し 온라인"}
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat[data-oshi] > .log .who{color:#c2357e}
-:root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.user .body{background:#ffc2df;color:#2a1520;border:0;border-radius:14px 2px 14px 14px;--ink:#2a1520;--narr:#8a5a72;--faint:#8a5a72}
+:root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.user .body{background:#ffd6ea;color:#2a1520;border:0;border-radius:14px 2px 14px 14px;--ink:#2a1520;--narr:#8a5a72;--faint:#8a5a72}
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat > .log.fmt-bubble .narr{font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","GounBatang",serif;font-style:normal;font-size:.88em}
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) .log .typing{font-family:"DotGothic16","NeoDunggeunmo",monospace;color:#c2357e;text-shadow:0 0 6px rgba(255,126,185,.55)}
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat > .log.fmt-bubble .body.typbub{border-color:#cdbfca}
@@ -856,6 +859,18 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root[data-skin="tk"] body:not([data-novelbg]) #chat[data-oshi] #input{border-color:var(--tk-pink)}
 :root[data-skin="tk"] body:not([data-novelbg]) #chat[data-oshi] #send{box-shadow:0 0 12px rgba(255,126,185,.45)}
 @media (prefers-reduced-motion:reduce){.tk-bun .w,.tk-bun .h,.oshi-ttl .bl,.oshi-card .sheen{animation:none!important}}
+/* 홈 윗줄 버튼 셋 줄맞춤 */
+:root[data-skin="tk"] body:not([data-novelbg]) #home .homebar>.plus,:root[data-skin="tk"] body:not([data-novelbg]) #home .homebar>.icon{display:flex;align-items:center;align-self:center;height:44px;padding:0 6px;background:none;border-radius:0;color:var(--tk-mauve);font-weight:400}
+:root[data-skin="tk"] body:not([data-novelbg]) #home .homebar>.plus::after,:root[data-skin="tk"] body:not([data-novelbg]) #home .homebar>.icon{font-family:"DotGothic16","NeoDunggeunmo",monospace;font-weight:400;color:var(--tk-mauve)}
+:root[data-skin="tk"] body:not([data-novelbg]) #home[data-oshi] .homebar>.plus::after,:root[data-skin="tk"] body:not([data-novelbg]) #home[data-oshi] .homebar>.icon{font-size:13px;line-height:1}
+:root[data-skin="tk"] body:not([data-novelbg]) #home[data-oshi] .homebar .ttl{align-self:center}
+:root[data-skin="tk"] body:not([data-novelbg]) #home .homebar>.plus,:root[data-skin="tk"] body:not([data-novelbg]) #home .homebar>.icon{display:inline-flex;justify-content:center;line-height:1;font-size:0}
+:root[data-skin="tk"] body:not([data-novelbg]) #home .homebar>.plus::after,:root[data-skin="tk"] body:not([data-novelbg]) #home .homebar #searchBtn::after,:root[data-skin="tk"] body:not([data-novelbg]) #home .homebar #setBtn{font:14px/1 "NeoDunggeunmo",monospace;letter-spacing:0;color:var(--tk-mauve)}
+:root[data-skin="tk"] body:not([data-novelbg]) #home .homebar #setBtn::before,:root[data-skin="tk"] body:not([data-novelbg]) #home .homebar #setBtn::after{font:inherit;color:inherit}
+:root[data-skin="tk"] body:not([data-novelbg]) #home[data-oshi] .homebar>.plus::after,:root[data-skin="tk"] body:not([data-novelbg]) #home[data-oshi] .homebar #searchBtn::after,:root[data-skin="tk"] body:not([data-novelbg]) #home[data-oshi] .homebar #setBtn{font-size:13px}
+/* 대화방 이름 밑 온라인 줄: 이름과 왼쪽 끝 맞추기 */
+:root[data-skin="tk"] body:not([data-novelbg]) #chat header.bar h2{line-height:1.25}
+:root[data-skin="tk"] body:not([data-novelbg]) #chat #chName::after{font:12px/1.3 "NeoDunggeunmo","DotGothic16",monospace;letter-spacing:0;margin:2px 0 0;padding:0;text-indent:0}
 </style>
 </head>
 <body>
@@ -876,7 +891,6 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
     <div class="banner" id="aiBanner" hidden>내장 Claude를 쓸 수 없는 곳이에요.</div>
     <div class="banner" id="syncBanner" hidden></div>
     <div class="list" id="charList"></div>
-    <div class="backup"><button class="icon" id="exportBtn">백업 내보내기</button><button class="icon" id="importBtn">백업 불러오기</button><input type="file" id="importFile" accept=".json,application/json" hidden></div>
   </section>
 
   <!-- 업데이트 내역 -->
@@ -984,6 +998,11 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
         <div class="hint" id="sVer"></div>
         <button class="btn ghost" id="sUpd" type="button">업데이트 확인</button>
         <div class="hint" id="sUpdOut"></div>
+      </fieldset>
+      <fieldset>
+        <legend>백업</legend>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" id="exportBtn" type="button">백업 내보내기</button><button class="btn ghost" id="importBtn" type="button">백업 불러오기</button></div>
+        <input type="file" id="importFile" accept=".json,application/json" hidden>
       </fieldset>
     </div>
     <div class="actions"><button class="btn" id="sSave">저장</button></div>
