@@ -669,6 +669,9 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
   overflow: visible;
   overflow-wrap: anywhere;
 
+  /* 꼬리 높이: 숫자 작을수록 위로 (기본 10px) */
+  --ps-tail-y: 10px;
+
   --ink: #2d2931;
   --narr: #78717e;
   --soft: #78717e;
@@ -687,7 +690,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 }
 
 :root[data-skin="ps"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body::before {
-  top: 17px;
+  top: var(--ps-tail-y, 10px);
   left: -9px;
   border-width: 8px 9px 8px 0;
   border-color:
@@ -695,20 +698,20 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 }
 
 :root[data-skin="ps"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body::after {
-  top: 18.5px;
+  top: calc(var(--ps-tail-y, 10px) + 1.5px);
   left: -6.75px;
   border-width: 6.5px 7.5px 6.5px 0;
   border-color:
     transparent var(--ps-white) transparent transparent;
 }
 
-/* 유저 말풍선: 네 모서리 둥글게, 꼬리 없음 */
+/* 유저 말풍선: 오른쪽 위만 각지게 (밝게 테마처럼) */
 :root[data-skin="ps"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.user .body {
   width: fit-content;
   max-width: 85%;
   padding: 9px 13px;
   border: 1.5px solid var(--ps-pink-border);
-  border-radius: 18px;
+  border-radius: 18px 4px 18px 18px;
   background: var(--ps-pink);
   color: #362732;
   box-shadow:
