@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"2.38","items":[]}
+  {"v":"2.41","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -815,7 +815,11 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .drw .dw-paper{flex:1;min-height:0;min-width:0;display:grid;place-items:center;padding:6px 12px;overflow:hidden}
 .drw canvas{background:#fff;border-radius:6px;box-shadow:0 2px 12px rgba(60,40,55,.12);touch-action:none;transform-origin:center center}
 .drw .dw-paper{position:relative}
-.drw .dw-fit{position:absolute;right:18px;top:12px;min-height:36px;padding:0 12px;border:0;border-radius:18px;background:rgba(58,50,56,.75);color:#fff;font-size:13px;z-index:1}
+.drw{touch-action:none;-webkit-user-select:none;user-select:none}
+.drw .dw-paper{touch-action:none}
+.drw .dw-zm{position:absolute;right:18px;top:12px;display:flex;gap:6px;z-index:1}
+.drw .dw-zm button{min-width:36px;min-height:36px;padding:0 10px;border:0;border-radius:18px;background:rgba(58,50,56,.72);color:#fff;font-size:15px}
+.drw .dw-fit{font-size:13px !important}
 .drw .dw-fit[hidden]{display:none}
 .drw .dw-row button{padding:0 10px !important}
 .drw.wait canvas{box-shadow:0 0 0 2px rgba(255,111,174,.5),0 2px 12px rgba(60,40,55,.12)}
@@ -1436,6 +1440,26 @@ async function callApi(cfg, messages, onText, signal, maxOverride) {
     }
   }
   return text;
+}
+// 최근에 같이 그린 그림이 있으면 그 턴에 그림을 붙여서 보냄 (카드 뒤 6개 메시지까지)
+function withDrawing(turns, c, kind) {
+  try {
+    const list = msgs(), from = Math.max(0, list.length - 7);
+    let dm = null;
+    for (let i = list.length - 1; i >= from; i--) if (list[i].draw && list[i].draw.img) { dm = list[i]; break; }
+    if (!dm) return turns;
+    const key = sub(dm.text, c);
+    for (let i = turns.length - 1; i >= 0; i--) {
+      const t = turns[i];
+      if (t.role !== "user" || typeof t.content !== "string" || !t.content.includes(key)) continue;
+      const img = dm.draw.img;
+      t.content = kind === "api"
+        ? [{ type: "text", text: t.content }, { type: "image_url", image_url: { url: img } }]
+        : [{ type: "image", source: { type: "base64", media_type: "image/jpeg", data: img.split(",")[1] } }, { type: "text", text: t.content }];
+      break;
+    }
+  } catch (e) {}
+  return turns;
 }
 function apiMessages(c, extraUser, cmd) {
   const t = buildTurns(c, extraUser, cmd).filter(m => m.content && m.content.trim());
@@ -3121,9 +3145,9 @@ async function generate(extraUser) {
       if (live && !live.cmd) { live.text = text; paintLive(); }
     };
     if (useApi) {
-      finalText = await callApi(ai, apiMessages(c, extraUser, cmd), paint, ctl.signal);
+      finalText = await callApi(ai, withDrawing(apiMessages(c, extraUser, cmd), c, "api"), paint, ctl.signal);
     } else {
-      const r = await sample(buildTurns(c, extraUser, cmd), {
+      const r = await sample(withDrawing(buildTurns(c, extraUser, cmd), c, "builtin"), {
         cache: false, signal: ctl.signal, modelTier: c.tier || "default",
         onText: ({ text }) => paint(text)
       });
@@ -3580,14 +3604,14 @@ function drawTogether() {
   ov.className = "drw";
   const av = c.avatar ? `<img src="${c.avatar}" alt="">` : esc(nm.slice(0, 1));
   ov.innerHTML = `<div class="dw-top"><button class="dw-x" aria-label="닫기">✕</button><div class="dw-av">${av}</div><div class="dw-st"></div><button class="dw-done">완성</button></div>
-  <div class="dw-paper"><canvas></canvas><button class="dw-fit" hidden>원래 크기</button></div>
+  <div class="dw-paper"><canvas></canvas><div class="dw-zm"><button class="dw-zo" aria-label="축소">－</button><button class="dw-zi" aria-label="확대">＋</button><button class="dw-fit" hidden>원래 크기</button></div></div>
   <div class="dw-tools"><div class="dw-cols">${COLORS.map((k, i) => `<button class="dw-c${i ? "" : " on"}" data-c="${k}" style="background:${k}" aria-label="색"></button>`).join("")}<button class="dw-c dw-er" data-c="er" aria-label="지우개">지우개</button></div>
   <div class="dw-row"><button class="dw-w" aria-label="굵기">굵게</button><button class="dw-undo">되돌리기</button><button class="dw-clear">전부 지우기</button><button class="dw-pass">${esc(nm)}에게 넘기기</button></div></div>`;
   document.body.appendChild(ov);
   const $$ = q => ov.querySelector(q);
   const cv = $$("canvas"), ctx = cv.getContext("2d"), paper = $$(".dw-paper"), stEl = $$(".dw-st");
   const strokes = []; let color = COLORS[0], wide = false, cur2 = null, busyD = false, turns = 0, closed = false;
-  const notes = [];
+  const notes = []; let turnStart = 0;
   let S = 300;
   const fit = () => {
     const cs = getComputedStyle(paper); const w = paper.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), h = paper.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom); S = Math.max(120, Math.floor(Math.min(w, h)));
@@ -3617,17 +3641,27 @@ function drawTogether() {
   const applyZoom = () => { cv.style.transform = `translate(${tx}px,${ty}px) scale(${zoom})`; fitBtn.hidden = zoom <= 1.01; };
   const gInfo = () => { const p = [...fingers.values()]; return { d: Math.hypot(p[0][0] - p[1][0], p[0][1] - p[1][1]) || 1, mx: (p[0][0] + p[1][0]) / 2, my: (p[0][1] + p[1][1]) / 2 }; };
   fitBtn.onclick = () => { zoom = 1; tx = ty = 0; applyZoom(); };
-  cv.addEventListener("pointerdown", e => {
-    e.preventDefault(); cv.setPointerCapture(e.pointerId);
+  const stepZoom = f => { zoom = Math.max(1, Math.min(5, zoom * f)); const lim = S * (zoom - 1) / 2 + 40; tx = Math.max(-lim, Math.min(lim, tx * f)); ty = Math.max(-lim, Math.min(lim, ty * f)); if (zoom <= 1.01) { zoom = 1; tx = ty = 0; } applyZoom(); };
+  $$(".dw-zi").onclick = () => stepZoom(1.5);
+  $$(".dw-zo").onclick = () => stepZoom(1 / 1.5);
+  // 화면 전체가 확대되지 않게 막기
+  ["gesturestart", "gesturechange", "gestureend"].forEach(ev => ov.addEventListener(ev, e => e.preventDefault()));
+  ov.addEventListener("touchmove", e => { if (e.touches.length > 1 || e.target.closest(".dw-paper")) e.preventDefault(); }, { passive: false });
+  let lastTap = 0;
+  ov.addEventListener("touchend", e => { const n = Date.now(); if (n - lastTap < 320 && !e.target.closest("button")) e.preventDefault(); lastTap = n; }, { passive: false });
+  paper.addEventListener("pointerdown", e => {
+    if (e.target.closest("button")) return;
+    e.preventDefault(); try { paper.setPointerCapture(e.pointerId); } catch (er) {}
     fingers.set(e.pointerId, [e.clientX, e.clientY]);
     if (fingers.size === 2) {
       if (cur2) { const i = strokes.indexOf(cur2); if (i >= 0 && cur2.pts.length < 12) strokes.splice(i, 1); cur2 = null; redraw(); }
       const gi = gInfo(); g = { d0: gi.d, mx0: gi.mx, my0: gi.my, z0: zoom, tx0: tx, ty0: ty }; blockDraw = true; return;
     }
     if (busyD || blockDraw || fingers.size > 1) return;
+    const r0 = cv.getBoundingClientRect(); if (e.clientX < r0.left || e.clientX > r0.right || e.clientY < r0.top || e.clientY > r0.bottom) return;
     cur2 = { who: "u", color, er: color === "er", w: color === "er" ? 50 : (wide ? 24 : 10), pts: [pos(e)] }; strokes.push(cur2); drawStroke(cur2);
   });
-  cv.addEventListener("pointermove", e => {
+  paper.addEventListener("pointermove", e => {
     if (fingers.has(e.pointerId)) fingers.set(e.pointerId, [e.clientX, e.clientY]);
     if (g && fingers.size >= 2) {
       const gi = gInfo();
@@ -3640,7 +3674,7 @@ function drawTogether() {
     if (!cur2) return; const p = pos(e), l = cur2.pts[cur2.pts.length - 1]; if (Math.hypot(p[0] - l[0], p[1] - l[1]) < 4 / zoom) return; cur2.pts.push(p); redraw();
   });
   const upD = e => { fingers.delete(e.pointerId); cur2 = null; if (fingers.size < 2) g = null; if (!fingers.size) blockDraw = false; };
-  cv.addEventListener("pointerup", upD); cv.addEventListener("pointercancel", upD);
+  paper.addEventListener("pointerup", upD); paper.addEventListener("pointercancel", upD);
   $$(".dw-clear").onclick = () => { if (busyD || !strokes.length) return; if (!confirm("그림을 전부 지울까요?")) return; strokes.length = 0; redraw(); };
   ov.querySelectorAll(".dw-c").forEach(b => b.onclick = () => { ov.querySelectorAll(".dw-c").forEach(x => x.classList.remove("on")); b.classList.add("on"); color = b.dataset.c; });
   $$(".dw-w").onclick = () => { wide = !wide; $$(".dw-w").textContent = wide ? "가늘게" : "굵게"; };
@@ -3695,12 +3729,25 @@ function drawTogether() {
     if (busyD) return;
     busyD = true; ov.classList.add("wait"); status(nm + "가 그리는 중…");
     const img = snapshot(512, 0.8);
+    const said = "";
+    const fresh = strokes.slice(turnStart).filter(x => x.who === "u" && !x.er);
+    let freshImg = "";
+    if (fresh.length) {
+      const o = document.createElement("canvas"); o.width = o.height = 384; const x2 = o.getContext("2d");
+      x2.fillStyle = "#fff"; x2.fillRect(0, 0, 384, 384); x2.setTransform(0.384, 0, 0, 0.384, 0, 0);
+      const keep = ctx; fresh.forEach(sk => { const p = sk.pts; x2.strokeStyle = sk.color; x2.lineWidth = sk.w; x2.lineCap = x2.lineJoin = "round"; x2.beginPath(); x2.moveTo(p[0][0], p[0][1]); if (p.length === 1) x2.lineTo(p[0][0] + 0.1, p[0][1]); for (let i = 1; i < p.length; i++) x2.lineTo(p[i][0], p[i][1]); x2.stroke(); });
+      freshImg = o.toDataURL("image/jpeg", 0.8);
+    }
     const recent = msgs().slice(-8).map(m => (m.role === "user" ? u : nm) + ": " + sub(m.text || "", c).slice(0, 300)).join("\n");
-    const prompt = `너는 ${nm}이다. 지금 ${u}와 폰으로 같은 도화지 하나에 번갈아 그림을 그리며 놀고 있다. 첨부한 이미지가 지금까지의 그림이다.
-${nm}의 성격과 지금 두 사람 분위기대로, 이 그림에 네 차례의 그림을 보탠다. 이어서 그리기, 옆에 자기나 ${u} 그리기, 장난스러운 낙서, 꾸미기, 짧은 글씨 남기기 중 성격에 맞는 걸 고른다. 이미 있는 그림의 위치와 모양을 보고 거기에 맞춰 그린다.
+    const prompt = `너는 ${nm}이다. 지금 ${u}와 폰으로 같은 도화지 하나에 번갈아 그림을 그리며 놀고 있다. 첫 번째 이미지는 지금까지의 도화지 전체다.${freshImg ? ` 두 번째 이미지는 ${u}가 방금 이번 차례에 새로 그린 선만 따로 떼어 놓은 것이다.` : ""}
+${said ? `${u}가 넘기면서 한 말: "${said}"
+` : ""}${notes.length ? `지난 차례들에 네가 그린 것: ${notes.join(" / ")}
+` : ""}
+먼저 ${u}가 방금 그린 것이 무엇인지 모양·색·위치를 보고 알아본다. ${u}의 말이 있으면 그 말을 가장 믿는다. 그리고 거기에 반응하는 걸 가장 우선한다. 예를 들어 ${u}가 꽃을 줬으면 받거나, 들고 있는 모습을 그리거나, 꽃에 뭔가 보태는 식이다.
+${nm}의 성격과 지금 두 사람 분위기대로 네 차례의 그림을 보탠다. 이어서 그리기, 옆에 자기나 ${u} 그리기, 장난스러운 낙서, 꾸미기, 짧은 글씨 남기기 중에서 고른다. 지난 차례에 그린 것을 또 그리지 않는다. 이미 있는 그림의 위치와 모양을 보고 빈 곳이나 맞닿는 곳에 맞춰 그린다.
 좌표는 도화지 왼쪽 위가 (0,0), 오른쪽 아래가 (1000,1000)이고 정수만 쓴다. 선 하나는 점을 순서대로 이은 것이다. 모양이 알아보이게 한 선에 점 6~30개를 찍는다. 선은 3~12개.
 JSON 하나만 출력한다. 코드블록, 설명, 다른 글은 쓰지 않는다. 괄호와 쉼표를 빠짐없이 닫는다.
-{"strokes":[{"color":"#2a2227","width":10,"points":[[x,y],[x,y]]}],"texts":[{"text":"짧은 글씨","x":0,"y":0,"size":60,"color":"#ff6fae"}],"desc":"이번에 무엇을 왜 그렸는지 한 문장"}
+{"saw":"${u}가 방금 그린 것이 무엇으로 보이는지 한 문장","strokes":[{"color":"#2a2227","width":10,"points":[[x,y],[x,y]]}],"texts":[{"text":"짧은 글씨","x":0,"y":0,"size":60,"color":"#ff6fae"}],"desc":"이번에 무엇을 왜 그렸는지 한 문장"}
 texts는 없어도 되고 최대 2개, 글씨는 10자 이내. 색은 #2a2227 #ff6fae #6fb6ff #ffc94d #5cc27a #b48cff 중에서 고른다.
 
 [${nm} 설정]
@@ -3709,8 +3756,9 @@ ${sub(c.prompt || "", c).slice(0, 2500)}
 [최근 대화]
 ${recent || "(없음)"}`;
     const ask = async () => {
-      if (ai.prov !== "builtin") return await callApi(Object.assign({}, ai, { max: Math.max(ai.max || 0, 8000), temp: Math.min(ai.temp ?? 0.9, 0.8) }), [{ role: "user", content: [{ type: "text", text: prompt }, { type: "image_url", image_url: { url: img } }] }], null, null);
-      if (sample) return (await sample([{ role: "user", content: [{ type: "image", source: { type: "base64", media_type: "image/jpeg", data: img.split(",")[1] } }, { type: "text", text: prompt }] }], { cache: false })).text;
+      const imgs = [img].concat(freshImg ? [freshImg] : []);
+      if (ai.prov !== "builtin") return await callApi(Object.assign({}, ai, { max: Math.max(ai.max || 0, 8000), temp: Math.min(ai.temp ?? 0.9, 0.8) }), [{ role: "user", content: [{ type: "text", text: prompt }].concat(imgs.map(u2 => ({ type: "image_url", image_url: { url: u2 } }))) }], null, null);
+      if (sample) return (await sample([{ role: "user", content: imgs.map(u2 => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: u2.split(",")[1] } })).concat([{ type: "text", text: prompt }]) }], { cache: false })).text;
       throw new Error("AI에 연결되지 않았어요.");
     };
     try {
@@ -3723,6 +3771,7 @@ ${recent || "(없음)"}`;
       if (!r || !r.list.length) throw new Error("그림을 제대로 못 받았어요");
       await animate(r.list);
       if (r.desc) notes.push(r.desc);
+      turnStart = strokes.length;
       turns++; status("네 차례야");
     } catch (e) {
       if (closed) return;
@@ -3734,7 +3783,7 @@ ${recent || "(없음)"}`;
     if (busyD) return;
     if (!strokes.length) { close(); return; }
     const img = snapshot(480, 0.72);
-    msgs().push({ id: newId(), role: "user", draw: { at: Date.now(), img, turns }, text: `(${u}와 ${nm}가 같은 도화지에 번갈아 그림을 그렸다.${notes.length ? " " + nm + "가 그린 것: " + notes.join(" / ") : ""})` });
+    msgs().push({ id: newId(), role: "user", draw: { at: Date.now(), img, turns }, text: `(${u}와 ${nm}가 같은 도화지에 번갈아 그린 그림을 완성해서 대화방에 남겼다. 최근이면 그 그림이 첨부돼 있다.${notes.length ? " " + nm + "가 그린 것: " + notes.join(" / ") : ""})` });
     save(); close(); renderLog();
     setTimeout(() => { $("#log").scrollTop = $("#log").scrollHeight; }, 0);
   };
