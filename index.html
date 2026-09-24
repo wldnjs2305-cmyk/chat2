@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"2.49","items":[]}
+  {"v":"2.52","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -819,6 +819,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .drw .dw-paper{touch-action:none}
 .drw .dw-pen{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:rgba(255,111,174,.35);box-shadow:0 0 0 2px rgba(255,111,174,.55);opacity:0;pointer-events:none;transition:opacity .2s}
 .drw .dw-pen.on{opacity:1}
+.drw .dw-pen.think{opacity:.55;transition:opacity .2s}
 .drw .dw-zm{position:absolute;right:18px;top:12px;display:flex;gap:6px;z-index:1}
 .drw .dw-zm button{min-width:36px;min-height:36px;padding:0 10px;border:0;border-radius:18px;background:rgba(58,50,56,.72);color:#fff;font-size:15px}
 .drw .dw-fit{font-size:13px !important}
@@ -3723,12 +3724,12 @@ function drawTogether() {
   $$(".dw-clear").onclick = () => { if (busyD || !strokes.length) return; if (!confirm("그림을 전부 지울까요?")) return; strokes.length = 0; redraw(); };
   ov.querySelectorAll(".dw-c").forEach(b => b.onclick = () => { ov.querySelectorAll(".dw-c").forEach(x => x.classList.remove("on")); b.classList.add("on"); color = b.dataset.c; });
   $$(".dw-w").onclick = () => { wide = !wide; $$(".dw-w").textContent = wide ? "가늘게" : "굵게"; };
-  $$(".dw-undo").onclick = () => { if (busyD) return; for (let i = strokes.length - 1; i >= 0; i--) if (strokes[i].who === "u") { strokes.splice(i, 1); break; } redraw(); };
-  const close = () => { closed = true; removeEventListener("resize", fit); ov.remove(); };
+  $$(".dw-undo").onclick = () => { if (busyD) return; for (let i = strokes.length - 1; i >= 0; i--) if (strokes[i].who === "u") { strokes.splice(i, 1); break; } redraw(); if (req) { req.abort(); req = null; } };
+  const close = () => { closed = true; try { clearTimeout(idleT); if (req) req.abort(); } catch (e) {} removeEventListener("resize", fit); ov.remove(); };
   $$(".dw-x").onclick = () => { if (strokes.length && !confirm("그림을 버리고 나갈까요?")) return; close(); };
   const snapshot = (px, q) => { const o = document.createElement("canvas"); o.width = o.height = px; const x = o.getContext("2d"); x.drawImage(cv, 0, 0, px, px); return o.toDataURL("image/jpeg", q); };
   // 사람 손처럼: 선을 부드럽게 잇고, 손떨림을 살짝 넣고, 빠르기·쉬는 틈을 들쭉날쭉하게
-  const humanize = sk => {
+  const humanize = (sk, ampIn) => {
     const p = sk.pts;
     if (!p.length) return sk;
     const dense = [];
@@ -3743,11 +3744,11 @@ function drawTogether() {
       }
     }
     if (p.length > 1) dense.push(p[p.length - 1]);
-    const ph = Math.random() * 6, ph2 = Math.random() * 6, amp = 1.6 + Math.random() * 1.6;
+    const ph = Math.random() * 6, ph2 = Math.random() * 6, amp = (ampIn == null ? 1.6 : ampIn) * (0.8 + Math.random() * 0.6);
     sk.pts = dense.map((q, i) => {
       const a = dense[Math.max(0, i - 1)], b = dense[Math.min(dense.length - 1, i + 1)];
       let nx = -(b[1] - a[1]), ny = b[0] - a[0]; const l = Math.hypot(nx, ny) || 1; nx /= l; ny /= l;
-      const o = (Math.sin(i * 0.19 + ph) + 0.6 * Math.sin(i * 0.053 + ph2)) * amp;
+      const o = (Math.sin(i * HAND.f1 + ph) + 0.6 * Math.sin(i * HAND.f2 + ph2)) * amp;
       return [q[0] + nx * o, q[1] + ny * o];
     });
     return sk;
@@ -3756,30 +3757,150 @@ function drawTogether() {
   const penAt = (x, y) => { const r = cv.getBoundingClientRect(), pr = paper.getBoundingClientRect(); pen.style.transform = `translate(${r.left - pr.left + x / 1000 * r.width}px,${r.top - pr.top + y / 1000 * r.height}px)`; };
   const wait = ms => new Promise(r => setTimeout(r, ms));
   const frame = () => new Promise(r => requestAnimationFrame(r));
+  // ---- 그림체 (캐릭터마다 자동) ----
+  const DSTYLES = {
+    neat: { w: 0.8, amp: 0.7, speed: 0.75, pause: 1.3, n: "7~16", hint: "가는 선으로 꼼꼼하게, 디테일까지 차근차근 그린다. 반듯하고 정돈된 편이다." },
+    rough: { w: 1.25, amp: 2.8, speed: 1.5, pause: 0.6, n: "4~9", hint: "대충 쓱쓱 빠르게 그린다. 선이 삐뚤빼뚤하고 과감하며 디테일은 생략한다." },
+    cute: { w: 1.0, amp: 1.4, speed: 1.0, pause: 1.0, n: "5~12", hint: "동글동글 귀엽게 그린다. 둥근 모양, 볼터치, 반짝이·하트 같은 꾸밈을 좋아하고 분홍·하늘·보라를 즐겨 쓴다." },
+    kid: { w: 1.1, amp: 3.4, speed: 0.9, pause: 1.1, n: "4~10", hint: "초등학생 그림처럼 단순하고 삐뚤빼뚤하게 그린다. 막대 인간, 동그라미 해 같은 식이다." },
+    bold: { w: 1.6, amp: 1.0, speed: 1.1, pause: 0.9, n: "5~12", hint: "만화처럼 굵고 또렷한 선으로 과장되게 그린다. 효과선이나 느낌표 같은 연출을 넣는다." }
+  };
+  let dsKey = DSTYLES[c.drawStyle] ? c.drawStyle : "cute", dsX = c.drawStyleX || null;
+  // 캐릭터마다 고유한 손버릇 값 (같은 캐릭터는 늘 같음)
+  let hh = 2166136261; for (const ch of String(c.id || nm)) { hh ^= ch.charCodeAt(0); hh = Math.imul(hh, 16777619) >>> 0; }
+  const hr = k => ((Math.imul(hh ^ (k * 2654435761), 1597334677) >>> 0) % 10000) / 10000;
+  const HAND = { f1: 0.14 + hr(1) * 0.12, f2: 0.035 + hr(2) * 0.04, a: 0.85 + hr(3) * 0.3, w: 0.9 + hr(4) * 0.2, v: 0.9 + hr(5) * 0.2 };
+  const DS = () => {
+    const b = DSTYLES[dsKey], x = dsX || {};
+    return { hint: b.hint, n: x.n || b.n, w: (x.w || b.w) * HAND.w, amp: (x.amp || b.amp) * HAND.a, speed: (x.speed || b.speed) * HAND.v, pause: x.pause || b.pause, colors: x.colors || [] };
+  };
+  if (!DSTYLES[c.drawStyle] || !c.drawStyleX || c.drawStyleP !== (c.prompt || "").length) {
+    (async () => {
+      const p = `아래 캐릭터 설정을 보고, ${nm}이(가) 손가락으로 그림을 그리면 어떤 그림체일지 하나만 고른다.
+종류: 꼼꼼(가는 선으로 디테일까지 차근차근) / 털털(대충 쓱쓱 빠르고 과감하게) / 동글(동글동글 귀엽게 꾸미기 좋아함) / 삐뚤(초등학생처럼 단순하고 삐뚤빼뚤) / 만화(굵고 과장된 만화체)
+그리고 같은 종류라도 사람마다 다르게, 이 인물만의 세부 값을 정한다.
+굵기 0.6~1.8 (1이 보통) / 떨림 0.4~3.6 (손이 얼마나 삐뚤빼뚤한지) / 속도 0.6~1.6 (1이 보통) / 쉼 0.5~1.5 (획 사이에 얼마나 뜸 들이는지) / 디테일 적음·보통·많음 / 좋아하는 색 2개 (#2a2227 #ff6fae #6fb6ff #ffc94d #5cc27a #b48cff 중)
+성격·나이·취향·직업으로 판단한다. 아래 한 줄 형식으로만 출력한다.
+STYLE 종류 굵기 떨림 속도 쉼 디테일 색1 색2
+예: STYLE 털털 1.3 2.6 1.4 0.7 적음 #2a2227 #6fb6ff
+
+[설정]
+${sub(c.prompt || "", c).slice(0, 1500)}`;
+      try {
+        let out = "";
+        if (ai.prov !== "builtin") {
+          try { out = await callApi(Object.assign({}, ai, { extra: { reasoning_effort: "low" } }), [{ role: "user", content: p }], null, null); }
+          catch (e) { out = await callApi(ai, [{ role: "user", content: p }], null, null); }
+        } else if (sample) out = (await sample([{ role: "user", content: p }], { cache: false })).text;
+        const k = /꼼꼼/.test(out) ? "neat" : /털털/.test(out) ? "rough" : /동글/.test(out) ? "cute" : /삐뚤/.test(out) ? "kid" : /만화/.test(out) ? "bold" : null;
+        if (k) {
+          const nums = (String(out).replace(/#[0-9a-fA-F]{3,8}/g, " ").match(/\d+(?:\.\d+)?/g) || []).map(Number);
+          const clamp = (v, a, b, d) => (isFinite(v) && v > 0 ? Math.max(a, Math.min(b, v)) : d);
+          const det = /많음/.test(out) ? "9~18" : /적음/.test(out) ? "4~8" : "6~12";
+          const cols = (String(out).match(/#[0-9a-fA-F]{6}/g) || []).slice(0, 2);
+          const x = { w: clamp(nums[0], 0.6, 1.8, DSTYLES[k].w), amp: clamp(nums[1], 0.4, 3.6, DSTYLES[k].amp), speed: clamp(nums[2], 0.6, 1.6, DSTYLES[k].speed), pause: clamp(nums[3], 0.5, 1.5, DSTYLES[k].pause), n: det, colors: cols };
+          dsKey = k; dsX = x;
+          const real = store.chars.find(y => y.id === c.id);
+          if (real) { real.drawStyle = k; real.drawStyleX = x; real.drawStyleP = (real.prompt || "").length; save(null); }
+        }
+      } catch (e) {}
+    })();
+  }
+  // ---- 선 긋기 ----
+  const animStroke = async (sk, amp, fast) => {
+    humanize(sk, amp);
+    const total = sk.pts.length, vmax = (4 + Math.random() * 4) * DS().speed * (fast || 1);
+    penAt(sk.pts[0][0], sk.pts[0][1]);
+    await wait((50 + Math.random() * 110) * DS().pause / (fast || 1));
+    let k = 1;
+    if (total === 1) seg(sk, sk.pts[0], [sk.pts[0][0] + 0.1, sk.pts[0][1]]);
+    while (k < total) {
+      if (closed) return;
+      const e = Math.sin(Math.PI * k / total), nk = Math.min(total, k + Math.max(1, Math.round(vmax * (0.35 + 0.65 * e))));
+      for (let q = k; q < nk; q++) seg(sk, sk.pts[q - 1], sk.pts[q]);
+      k = nk; penAt(sk.pts[k - 1][0], sk.pts[k - 1][1]);
+      await frame();
+    }
+    strokes.push(sk);
+  };
+  // ---- 글씨를 펜 선으로 (필체 글꼴의 뼈대를 따라 쓰기) ----
+  const textToStrokes = async t => {
+    const SC = 0.6;
+    let size = t.size, fs = Math.max(14, Math.round(size * SC));
+    try { await document.fonts.load(`${fs}px ${hand}`); } catch (e) {}
+    const m = document.createElement("canvas").getContext("2d");
+    m.font = `${fs}px ${hand}`;
+    let wU = m.measureText(t.text).width / SC;
+    if (wU > 940) { size = size * 940 / wU; fs = Math.max(14, Math.round(size * SC)); m.font = `${fs}px ${hand}`; wU = m.measureText(t.text).width / SC; }
+    const x0 = Math.max(24, Math.min(t.x, 976 - wU)), y0 = Math.max(size * 0.7 + 10, Math.min(t.y, 990 - size * 0.7));
+    t.x = x0; t.y = y0; t.size = size;
+    const W2 = Math.ceil(wU * SC) + 8, H2 = Math.ceil(fs * 1.6) + 8;
+    const oc = document.createElement("canvas"); oc.width = W2; oc.height = H2;
+    const cx = oc.getContext("2d"); cx.font = `${fs}px ${hand}`; cx.textBaseline = "middle"; cx.fillStyle = "#000"; cx.fillText(t.text, 4, H2 / 2);
+    const d = cx.getImageData(0, 0, W2, H2).data, G = new Uint8Array(W2 * H2);
+    for (let i = 0; i < W2 * H2; i++) G[i] = d[i * 4 + 3] > 110 ? 1 : 0;
+    // 뼈대만 남기기 (Zhang-Suen)
+    const at = (x, y) => (x < 0 || y < 0 || x >= W2 || y >= H2) ? 0 : G[y * W2 + x];
+    let changed = true, guard = 0;
+    while (changed && guard++ < 40) {
+      changed = false;
+      for (let pass = 0; pass < 2; pass++) {
+        const del = [];
+        for (let y = 1; y < H2 - 1; y++) for (let x = 1; x < W2 - 1; x++) {
+          if (!G[y * W2 + x]) continue;
+          const P = [at(x, y - 1), at(x + 1, y - 1), at(x + 1, y), at(x + 1, y + 1), at(x, y + 1), at(x - 1, y + 1), at(x - 1, y), at(x - 1, y - 1)];
+          const B = P.reduce((a, b) => a + b, 0); if (B < 2 || B > 6) continue;
+          let A = 0; for (let k = 0; k < 8; k++) if (!P[k] && P[(k + 1) % 8]) A++;
+          if (A !== 1) continue;
+          if (pass === 0 ? (P[0] * P[2] * P[4] || P[2] * P[4] * P[6]) : (P[0] * P[2] * P[6] || P[0] * P[4] * P[6])) continue;
+          del.push(y * W2 + x);
+        }
+        if (del.length) { changed = true; del.forEach(i => { G[i] = 0; }); }
+      }
+    }
+    // 뼈대를 따라 선으로 잇기
+    const nb = (x, y) => { const r = []; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if ((dx || dy) && at(x + dx, y + dy)) r.push([x + dx, y + dy]); return r; };
+    const seen2 = new Uint8Array(W2 * H2), lines = [];
+    const walk = (sx, sy) => {
+      const L = [[sx, sy]]; seen2[sy * W2 + sx] = 1; let x = sx, y = sy, px = 0, py = 0;
+      for (;;) {
+        const cand = nb(x, y).filter(q => !seen2[q[1] * W2 + q[0]]);
+        if (!cand.length) break;
+        cand.sort((a, b) => ((a[0] - x) * px + (a[1] - y) * py < (b[0] - x) * px + (b[1] - y) * py ? 1 : -1));
+        const q = cand[0]; px = q[0] - x; py = q[1] - y; x = q[0]; y = q[1]; seen2[y * W2 + x] = 1; L.push([x, y]);
+      }
+      if (L.length >= 3) lines.push(L);
+    };
+    const ends = [];
+    for (let y = 0; y < H2; y++) for (let x = 0; x < W2; x++) if (G[y * W2 + x] && nb(x, y).length === 1) ends.push([x, y]);
+    ends.sort((a, b) => a[0] - b[0] || a[1] - b[1]).forEach(p => { if (!seen2[p[1] * W2 + p[0]]) walk(p[0], p[1]); });
+    for (let y = 0; y < H2; y++) for (let x = 0; x < W2; x++) if (G[y * W2 + x] && !seen2[y * W2 + x]) walk(x, y);
+    // 글자 순서대로 (한 글자 안에서는 위→아래, 왼→오)
+    const bounds = []; for (let i = 1; i <= t.text.length; i++) bounds.push(4 + m.measureText(t.text.slice(0, i)).width);
+    const charOf = L => { const mx = Math.min(...L.map(p => p[0])); let i = 0; while (i < bounds.length - 1 && mx > bounds[i]) i++; return i; };
+    lines.sort((a, b) => charOf(a) - charOf(b) || Math.min(...a.map(p => p[1])) - Math.min(...b.map(p => p[1])) || Math.min(...a.map(p => p[0])) - Math.min(...b.map(p => p[0])));
+    if (!lines.length || lines.length > 160) return [];
+    const w = Math.max(4, Math.round(size * 0.085 * DS().w));
+    return lines.map(L => ({ who: "c", color: t.color, w, pts: L.filter((p, i) => i % 3 === 0 || i === L.length - 1).map(p => [x0 + (p[0] - 4) / SC, y0 + (p[1] - H2 / 2) / SC]) }));
+  };
   const drawOne = async sk => {
     if (closed) return;
     if (sk.text) {
-      penAt(sk.x, sk.y);
-      await wait(120 + Math.random() * 180);
-      for (let k = 1; k <= sk.text.length; k++) { if (closed) return; redraw(); drawStroke(sk, k); penAt(sk.x + k * sk.size * 0.9, sk.y); await wait(70 + Math.random() * 90); }
-      strokes.push(sk); redraw();
-    } else {
-      humanize(sk);
-      const total = sk.pts.length, vmax = 4 + Math.random() * 4;
-      penAt(sk.pts[0][0], sk.pts[0][1]);
-      await wait(50 + Math.random() * 110);
-      let k = 1;
-      if (total === 1) seg(sk, sk.pts[0], [sk.pts[0][0] + 0.1, sk.pts[0][1]]);
-      while (k < total) {
-        if (closed) return;
-        const e = Math.sin(Math.PI * k / total), nk = Math.min(total, k + Math.max(1, Math.round(vmax * (0.35 + 0.65 * e))));
-        for (let q = k; q < nk; q++) seg(sk, sk.pts[q - 1], sk.pts[q]);
-        k = nk; penAt(sk.pts[k - 1][0], sk.pts[k - 1][1]);
-        await frame();
+      let list = [];
+      try { list = await textToStrokes(sk); } catch (e) { list = []; }
+      if (list.length) {
+        penAt(list[0].pts[0][0], list[0].pts[0][1]); await wait(120 + Math.random() * 160);
+        for (const s2 of list) { if (closed) return; await animStroke(s2, 0.5 * DS().amp, 2.2); await wait(20 + Math.random() * 60); }
+      } else {
+        penAt(sk.x, sk.y);
+        for (let k = 1; k <= sk.text.length; k++) { if (closed) return; redraw(); drawStroke(sk, k); penAt(sk.x + k * sk.size * 0.9, sk.y); await wait(70 + Math.random() * 90); }
+        strokes.push(sk); redraw();
       }
-      strokes.push(sk);
+    } else {
+      sk.w = Math.max(4, Math.min(34, Math.round(sk.w * DS().w)));
+      await animStroke(sk, DS().amp);
     }
-    await wait(Math.random() < 0.1 ? 300 + Math.random() * 350 : 70 + Math.random() * 150);
+    await wait((Math.random() < 0.1 ? 300 + Math.random() * 350 : 70 + Math.random() * 150) * DS().pause);
   };
   const parse = txt => {
     const t = String(txt || "").replace(/```(?:json)?/g, "");
@@ -3810,43 +3931,42 @@ function drawTogether() {
     (j.texts || []).slice(0, 3).forEach(x => { if (x && x.text) out.push({ who: "c", text: String(x.text).slice(0, 20), x: cl(x.x), y: cl(x.y), size: Math.max(30, Math.min(120, +x.size || 60)), color: /^#[0-9a-f]{3,8}$/i.test(x.color || "") ? x.color : "#2a2227", pts: [] }); });
     return { list: out, desc: String(j.desc || "").slice(0, 120) };
   };
-  $$(".dw-pass").onclick = async () => {
-    if (busyD) return;
-    busyD = true; ov.classList.add("wait"); status(nm + "가 그리는 중…");
-    const img = snapshot(512, 0.8);
+  // ---- 캐릭터에게 보내기 (미리 보내두기 포함) ----
+  const TASKS = {
+    finish: `${u}가 그리다 만 것이나 덜 채워진 부분을 찾아서 마저 그려 준다. 빠진 부분 채우기, 색칠하듯 선 더하기, 어울리는 배경 넣기 같은 식이다.`,
+    together: `${u}가 그린 것에 이어서 같은 장면을 넓혀 간다. 그 그림 옆이나 주변에 함께 있을 법한 것을 그려서 둘이 한 장면을 만든다.`,
+    fresh: `도화지 빈 곳에 새로운 것을 하나 그린다. 지금 대화나 두 사람 사이에 어울리는 물건·음식·장소·날씨 같은 것에서 고른다.`,
+    prank: `${u}의 그림에 장난을 친다. 수염이나 안경 그려 넣기, 웃긴 표정으로 바꾸기, 엉뚱한 걸 덧붙이기처럼 귀여운 장난이다. 망가뜨리지는 않는다.`,
+    cuddle: `${u}에게 마음을 담은 장난을 친다. 먼저 설정과 최근 대화로 두 사람이 어떤 사이인지 본다. 연인이나 썸이면 꽁냥꽁냥하게 한다: 하트나 작은 선물, 둘이 나란히 있거나 손잡은 모습, 좋아한다는 말이나 애칭 같은 짧은 손글씨. 친구·가족·동료처럼 연애 사이가 아니면 연애 표현은 쓰지 않고 그 관계다운 다정한 장난으로 한다: 엄지척, 응원 한마디, 같이 노는 모습, 칭찬 스티커 같은 것. 사이가 안 좋거나 티격태격하는 사이면 투닥거리는 장난으로 한다. ${nm}이 까칠한 성격이면 티 안 내는 척 슬쩍, 능글맞으면 대놓고 한다.`,
+    start: `빈 도화지에 먼저 그림을 시작한다. ${u}가 이어 그리기 좋게 무언가를 그린다.`
+  };
+  const sigOf = () => strokes.length + ":" + strokes.reduce((a, x) => a + (x.pts ? x.pts.length : 0), 0);
+  const ptsNow = () => strokes.reduce((a, x) => a + (x.who === "u" && x.pts ? x.pts.length : 0), 0);
+  let req = null, prefN = 0, idleT = 0;
+  const buildRequest = () => {
+    const img = snapshot(448, 0.8);
     const fresh = strokes.filter(x => x.who === "u" && !x.er && !x.sent);
-    fresh.forEach(x => { x.sent = true; });
     let freshImg = "";
     if (fresh.length) {
-      const o = document.createElement("canvas"); o.width = o.height = 384; const x2 = o.getContext("2d");
-      x2.fillStyle = "#fff"; x2.fillRect(0, 0, 384, 384); x2.setTransform(0.384, 0, 0, 0.384, 0, 0);
+      const o = document.createElement("canvas"); o.width = o.height = 320; const x2 = o.getContext("2d");
+      x2.fillStyle = "#fff"; x2.fillRect(0, 0, 320, 320); x2.setTransform(0.32, 0, 0, 0.32, 0, 0);
       fresh.forEach(sk => { const p = sk.pts; x2.strokeStyle = sk.color; x2.lineWidth = sk.w; x2.lineCap = x2.lineJoin = "round"; x2.beginPath(); x2.moveTo(p[0][0], p[0][1]); if (p.length === 1) x2.lineTo(p[0][0] + 0.1, p[0][1]); for (let i = 1; i < p.length; i++) x2.lineTo(p[i][0], p[i][1]); x2.stroke(); });
       freshImg = o.toDataURL("image/jpeg", 0.8);
     }
-    const TASKS = {
-      finish: `${u}가 그리다 만 것이나 덜 채워진 부분을 찾아서 마저 그려 준다. 빠진 부분 채우기, 색칠하듯 선 더하기, 어울리는 배경 넣기 같은 식이다.`,
-      together: `${u}가 그린 것에 이어서 같은 장면을 넓혀 간다. 그 그림 옆이나 주변에 함께 있을 법한 것을 그려서 둘이 한 장면을 만든다.`,
-      fresh: `도화지 빈 곳에 새로운 것을 하나 그린다. 지금 대화나 두 사람 사이에 어울리는 물건·음식·장소·날씨 같은 것에서 고른다.`,
-      prank: `${u}의 그림에 장난을 친다. 수염이나 안경 그려 넣기, 웃긴 표정으로 바꾸기, 엉뚱한 걸 덧붙이기처럼 귀여운 장난이다. 망가뜨리지는 않는다.`,
-      cuddle: `${u}에게 마음을 담은 장난을 친다. 먼저 설정과 최근 대화로 두 사람이 어떤 사이인지 본다. 연인이나 썸이면 꽁냥꽁냥하게 한다: 하트나 작은 선물, 둘이 나란히 있거나 손잡은 모습, 좋아한다는 말이나 애칭 같은 짧은 손글씨. 친구·가족·동료처럼 연애 사이가 아니면 연애 표현은 쓰지 않고 그 관계다운 다정한 장난으로 한다: 엄지척, 응원 한마디, 같이 노는 모습, 칭찬 스티커 같은 것. 사이가 안 좋거나 티격태격하는 사이면 투닥거리는 장난으로 한다. ${nm}이 까칠한 성격이면 티 안 내는 척 슬쩍, 능글맞으면 대놓고 한다.`,
-      start: `빈 도화지에 먼저 그림을 시작한다. ${u}가 이어 그리기 좋게 무언가를 그린다.`
-    };
     let task;
     if (!strokes.some(x => x.who === "u" && !x.er)) task = "start";
-    else {
-      const pool = ["finish", "together", "fresh", "prank", "cuddle", "together", "finish", "cuddle"].filter(x => x !== lastTask);
-      task = pool[Math.floor(Math.random() * pool.length)];
-    }
-    lastTask = task;
-    const recent = msgs().slice(-8).map(m => (m.role === "user" ? u : nm) + ": " + sub(m.text || "", c).slice(0, 300)).join("\n");
+    else { const pool = ["finish", "together", "fresh", "prank", "cuddle", "together", "finish", "cuddle"].filter(x => x !== lastTask); task = pool[Math.floor(Math.random() * pool.length)]; }
+    const recent = msgs().slice(-4).map(m => (m.role === "user" ? u : nm) + ": " + sub(m.text || "", c).slice(0, 200)).join("\n");
+    const ds = DS();
     const prompt = `너는 ${nm}이다. 지금 ${u}와 폰으로 같은 도화지 하나에 번갈아 그림을 그리며 놀고 있다. 첫 번째 이미지는 지금까지의 도화지 전체다.${freshImg ? ` 두 번째 이미지는 ${u}가 방금 새로 그린 선만 따로 떼어 놓은 것이다.` : ""}
-${notes.length ? `지난 차례들에 네가 그린 것: ${notes.join(" / ")}\n` : ""}
+${notes.length ? `지난 차례들에 네가 그린 것: ${notes.slice(-4).join(" / ")}\n` : ""}
 먼저 ${u}가 그린 것이 무엇인지 모양·색·위치를 보고 알아본다. 그림 속 글씨와 화살표도 꼼꼼히 읽는다.
 [가장 먼저] ${u}가 너(${nm})나 ${u} 자신을 그렸는지, 너한테 하는 말을 썼는지 본다. 너를 돼지·강아지처럼 놀리듯 그렸거나 약 올리는 글씨를 썼으면, 이번 할 일보다 그 반응이 먼저다. ${nm}의 성격대로 반응한다: 발끈해서 반박하는 글씨, 그림을 제대로 고쳐 그리기, ${u}를 똑같이 놀리는 반격 낙서, 삐진 표시 같은 것. 칭찬이나 애정 표현이면 ${nm}답게 받아친다. 이런 게 없을 때만 아래 할 일을 한다.
 [이번 차례에 할 일] ${TASKS[task]}
-이 일을 ${nm}의 말투·성격과 지금 두 사람 분위기 그대로 한다. 글씨를 쓰면 ${nm}이 평소 쓰는 말투로 쓴다. ${task === "together" || task === "cuddle" ? "자기 자신(설정 속 외모나 동물 모습)을 그려 넣어도 되지만 장면의 일부로 작게만 그린다." : "이번엔 자기 자신의 모습(설정 속 외모나 동물 모습)을 그리지 않는다."} 지난 차례에 그린 것을 또 그리지 않는다. 이미 있는 그림의 위치와 크기를 보고 거기에 맞춰 그린다.
-사람이 손가락으로 쓱쓱 그리는 것처럼 그린다. 윤곽 먼저, 그다음 안쪽, 마지막에 꾸밈 순서로 선을 놓는다. 한 획은 끊기지 않는 한 번의 손놀림이다. 손그림다운 모양이 좋다.
-좌표는 도화지 왼쪽 위가 0,0 오른쪽 아래가 1000,1000이고 정수만 쓴다. 선은 5~14개, 선 하나에 점 6~24개.
+[${nm}의 그림체] ${ds.hint}${ds.colors.length ? ` 즐겨 쓰는 색은 ${ds.colors.join(" ")}이다.` : ""}
+이 일을 ${nm}의 말투·성격과 지금 두 사람 분위기 그대로 한다. 글씨를 쓰면 ${nm}이 평소 쓰는 말투로 쓴다. ${task === "together" || task === "cuddle" ? "자기 자신(설정 속 외모나 동물 모습)을 그려 넣어도 되지만 장면의 일부로 작게만 그린다." : "이번엔 자기 자신의 모습(설정 속 외모나 동물 모습)을 그리지 않는다."} 지난 차례에 그린 것을 또 그리지 않는다. 이미 있는 그림의 위치와 크기를 보고 빈 곳이나 맞닿는 곳에 맞춰 그린다.
+사람이 손가락으로 그리는 것처럼 윤곽 먼저, 그다음 안쪽, 마지막에 꾸밈 순서로 선을 놓는다. 한 획은 끊기지 않는 한 번의 손놀림이다.
+좌표는 도화지 왼쪽 위가 0,0 오른쪽 아래가 1000,1000이고 정수만 쓴다. 선은 ${ds.n}개, 선 하나에 점 6~24개.
 아래 줄 형식으로만 출력한다. 한 줄에 하나씩 쓰고, 설명·코드블록·다른 글은 쓰지 않는다.
 SAW ${u}가 방금 그린 것이 무엇으로 보이는지 짧게
 S 색 굵기 x,y x,y x,y ...
@@ -3855,26 +3975,72 @@ DESC 이번에 무엇을 그렸는지 짧게
 예시:
 SAW 노란 꽃
 S #5cc27a 10 400,620 410,700 405,780 398,860
-T #ff6fae 55 120,150 고마워
+T #ff6fae 60 120,150 고마워
 DESC 꽃에 줄기를 달고 고맙다고 씀
-S 줄은 여러 개, T 줄은 없어도 되고 최대 2개(글씨 10자 이내). 색은 #2a2227 #ff6fae #6fb6ff #ffc94d #5cc27a #b48cff 중에서 고른다. 굵기는 6~24, 글씨 크기는 40~110.
+T 줄은 없어도 되고 최대 2개(글씨 10자 이내, x,y는 글씨의 왼쪽 가운데). 색은 #2a2227 #ff6fae #6fb6ff #ffc94d #5cc27a #b48cff 중에서 고른다. 굵기는 6~24, 글씨 크기는 50~110.
 
 [${nm} 설정]
-${sub(c.prompt || "", c).slice(0, 2500)}
+${sub(c.prompt || "", c).slice(0, 900)}
 
 [최근 대화]
 ${recent || "(없음)"}`;
-    // 받는 대로 바로 그리기
+    const imgs = [img].concat(freshImg ? [freshImg] : []);
+    const ac = new AbortController();
+    const r = { sig: sigOf(), pts: ptsNow(), fresh, task, text: "", onUpdate: null, err: null, aborted: false };
+    r.abort = () => { r.aborted = true; try { ac.abort(); } catch (e) {} };
+    const onText = full => { r.text = String(full || ""); if (r.onUpdate) r.onUpdate(r.text); };
+    const content = [{ type: "text", text: prompt }].concat(imgs.map(u2 => ({ type: "image_url", image_url: { url: u2 } })));
+    const run = async () => {
+      if (ai.prov !== "builtin") {
+        const to = setTimeout(() => ac.abort(), 120000);
+        const base = Object.assign({}, ai, { max: Math.max(ai.max || 0, 6000), temp: Math.min(ai.temp ?? 0.9, 0.8) });
+        try {
+          try { return await callApi(Object.assign({}, base, { extra: { reasoning_effort: "low" } }), [{ role: "user", content }], onText, ac.signal); }
+          catch (e) { if (!r.aborted && /400|reasoning/i.test((e && e.message) || "")) return await callApi(base, [{ role: "user", content }], onText, ac.signal); throw e; }
+        } catch (e) { if (e && e.name === "AbortError" && !r.aborted) throw new Error("답이 너무 오래 걸려요"); throw e; }
+        finally { clearTimeout(to); }
+      }
+      if (sample) return (await sample([{ role: "user", content: imgs.map(u2 => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: u2.split(",")[1] } })).concat([{ type: "text", text: prompt }]) }], { cache: false, signal: ac.signal, onText: ({ text }) => onText(text) })).text;
+      throw new Error("AI에 연결되지 않았어요.");
+    };
+    r.promise = run().then(t => { r.text = String(t || r.text || ""); if (r.onUpdate) r.onUpdate(r.text); return r.text; }, e => { r.err = e; if (r.onUpdate) r.onUpdate(r.text); return r.text; });
+    return r;
+  };
+  const prefetch = () => {
+    if (busyD || closed || prefN >= 2) return;
+    const unsentPts = strokes.reduce((a, x) => a + (x.who === "u" && !x.er && !x.sent && x.pts ? x.pts.length : 0), 0);
+    if (unsentPts < 12) return;
+    if (req && !req.err && !req.aborted && req.sig === sigOf()) return;
+    if (req) req.abort();
+    req = buildRequest(); prefN++;
+  };
+  const afterUserStroke = () => {
+    clearTimeout(idleT);
+    if (busyD) return;
+    if (req && !req.aborted && ptsNow() - req.pts >= 12) { req.abort(); req = null; }
+    idleT = setTimeout(prefetch, 3000);
+  };
+  paper.addEventListener("pointerup", () => { if (!fingers.size) afterUserStroke(); });
+  paper.addEventListener("pointerdown", () => clearTimeout(idleT));
+  $$(".dw-pass").onclick = async () => {
+    if (busyD) return;
+    clearTimeout(idleT);
+    busyD = true; ov.classList.add("wait"); status(nm + "가 그리는 중…");
+    let r = req;
+    const usable = r && !r.aborted && !(r.err && !r.text) && strokes.length >= Number(r.sig.split(":")[0]) && ptsNow() - r.pts < 12;
+    if (!usable) { if (r) r.abort(); r = buildRequest(); }
+    req = null; prefN = 0;
+    r.fresh.forEach(x => { x.sent = true; }); lastTask = r.task;
     const COLS = /^#[0-9a-fA-F]{3,8}$/;
     const cl = v => Math.max(0, Math.min(1000, Math.round(+v || 0)));
-    const queue = []; let wake = null, streamDone = false, got = 0, desc = "";
+    const queue = []; let wake = null, streamDone = false, got = 0, desc = "", seen = 0;
     const push = sk => { queue.push(sk); got++; if (wake) { const w = wake; wake = null; w(); } };
     const parseLine = line => {
       const l = line.trim().replace(/^[-*•]\s*/, "");
       let m;
       if ((m = l.match(/^DESC\s*[:：]?\s*(.+)$/i))) { desc = m[1].slice(0, 120); return; }
       if ((m = l.match(/^T\s+(#[0-9a-fA-F]{3,8})\s+(\d+)\s+(-?\d+)\s*,\s*(-?\d+)\s+(.+)$/))) {
-        push({ who: "c", text: m[5].trim().slice(0, 20), x: cl(m[3]), y: cl(m[4]), size: Math.max(30, Math.min(120, +m[2] || 60)), color: m[1], pts: [] }); return;
+        push({ who: "c", text: m[5].trim().slice(0, 20), x: cl(m[3]), y: cl(m[4]), size: Math.max(40, Math.min(120, +m[2] || 60)), color: m[1], pts: [] }); return;
       }
       if ((m = l.match(/^S\s+(#[0-9a-fA-F]{3,8})\s+(\d+)\s+(.+)$/))) {
         const v = (m[3].match(/-?\d+(?:\.\d+)?/g) || []).map(Number), pts = [];
@@ -3882,56 +4048,43 @@ ${recent || "(없음)"}`;
         if (pts.length >= 2) push({ who: "c", color: COLS.test(m[1]) ? m[1] : "#2a2227", w: Math.max(6, Math.min(30, +m[2] || 10)), pts });
       }
     };
-    let seen = 0;
-    const onText = full => {
-      const lines = String(full || "").split("\n");
-      for (; seen < lines.length - 1; seen++) parseLine(lines[seen]);
-    };
+    const feed = (full, final) => { const lines = String(full || "").split("\n"); const lim = final ? lines.length : lines.length - 1; for (; seen < lim; seen++) parseLine(lines[seen]); };
+    // 고민하는 펜: 첫 선이 올 때까지 도화지 위를 맴돎
+    const us = strokes.filter(x => x.who === "u" && x.pts && x.pts.length);
+    let cx0 = 500, cy0 = 500;
+    if (us.length) { const all = us.flatMap(x => x.pts); cx0 = all.reduce((a, p) => a + p[0], 0) / all.length; cy0 = all.reduce((a, p) => a + p[1], 0) / all.length; }
+    let thinking = true;
+    pen.classList.add("on", "think");
+    (async () => { let t = Math.random() * 6; while (thinking && !closed) { t += 0.045; penAt(cx0 + Math.cos(t) * 140 + Math.sin(t * 2.3) * 40, cy0 + Math.sin(t * 1.3) * 90); await frame(); } })();
     const player = (async () => {
-      pen.classList.add("on");
       while (!closed) {
-        if (queue.length) await drawOne(queue.shift());
+        if (queue.length) { if (thinking) { thinking = false; pen.classList.remove("think"); } await drawOne(queue.shift()); }
         else if (streamDone) break;
-        else await new Promise(r => { wake = r; });
+        else await new Promise(res => { wake = res; });
       }
-      pen.classList.remove("on");
+      thinking = false; pen.classList.remove("on", "think");
     })();
-    const imgs = [img].concat(freshImg ? [freshImg] : []);
-    const ask = async (lite) => {
-      seen = 0;
-      if (ai.prov !== "builtin") {
-        const ac = new AbortController(), to = setTimeout(() => ac.abort(), 120000);
-        const cfg = Object.assign({}, ai, { max: Math.max(ai.max || 0, 6000), temp: Math.min(ai.temp ?? 0.9, 0.8) });
-        if (lite) cfg.extra = { reasoning_effort: "low" };
-        try { return await callApi(cfg, [{ role: "user", content: [{ type: "text", text: prompt }].concat(imgs.map(u2 => ({ type: "image_url", image_url: { url: u2 } }))) }], onText, ac.signal); }
-        catch (e) { if (e && e.name === "AbortError") throw new Error("답이 너무 오래 걸려요"); throw e; }
-        finally { clearTimeout(to); }
-      }
-      if (sample) return (await sample([{ role: "user", content: imgs.map(u2 => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: u2.split(",")[1] } })).concat([{ type: "text", text: prompt }]) }], { cache: false, onText: ({ text }) => onText(text) })).text;
-      throw new Error("AI에 연결되지 않았어요.");
-    };
-    let errMsg = "";
-    try {
-      let out = "";
-      try { out = await ask(true); }
-      catch (e) { if (/400|reasoning/i.test((e && e.message) || "")) out = await ask(false); else throw e; }
-      if (closed) return;
-      const lines = String(out || "").split("\n"); for (; seen < lines.length; seen++) parseLine(lines[seen]);
-      if (!got) { try { const r = parse(out); r.list.forEach(push); if (r.desc) desc = r.desc; } catch (e) {} }
-      if (!got && !closed) {
-        const out2 = await ask(false); if (closed) return;
-        const l2 = String(out2 || "").split("\n"); for (seen = 0; seen < l2.length; seen++) parseLine(l2[seen]);
-        if (!got) { try { const r = parse(out2); r.list.forEach(push); } catch (e) {} }
-      }
-      if (!got) errMsg = "그림을 제대로 못 받았어요";
-    } catch (e) { errMsg = (e && e.message) || "그림을 못 받았어요"; }
+    r.onUpdate = t => feed(t, false);
+    feed(r.text, false);
+    let out = await r.promise;
+    if (closed) return;
+    feed(out, true);
+    if (!got) { try { const pr = parse(out); pr.list.forEach(push); if (pr.desc) desc = pr.desc; } catch (e) {} }
+    let errMsg = r.err && !got ? ((r.err && r.err.message) || "그림을 못 받았어요") : "";
+    if (!got && !closed) {
+      const r2 = buildRequest(); seen = 0; r2.onUpdate = t => feed(t, false);
+      out = await r2.promise; if (closed) return; feed(out, true);
+      if (!got) { try { const pr = parse(out); pr.list.forEach(push); } catch (e) {} }
+      if (!got) errMsg = (r2.err && r2.err.message) || errMsg || "그림을 제대로 못 받았어요";
+    }
     streamDone = true; if (wake) { const w = wake; wake = null; w(); }
     await player;
     if (closed) return;
     if (desc) notes.push(desc);
-    if (errMsg && !got) status(errMsg + " · 다시 넘겨봐"); else { turns++; status("네 차례야"); }
+    if (!got) status(errMsg + " · 다시 넘겨봐"); else { turns++; status("네 차례야"); }
     busyD = false; ov.classList.remove("wait");
   };
+  
   $$(".dw-done").onclick = () => {
     if (busyD) return;
     if (!strokes.length) { close(); return; }
@@ -4090,7 +4243,7 @@ $("#fVoiceTry").onclick = () => {
 ["sTtsKey", "sTtsModel", "sTtsUrl", "sTtsOKey"].forEach(id => $("#" + id).addEventListener("input", () => { ai.ttsKey = $("#sTtsKey").value.trim(); ai.ttsModel = $("#sTtsModel").value.trim(); ai.ttsUrl = $("#sTtsUrl").value.trim(); ai.ttsOKey = $("#sTtsOKey").value.trim(); saveAi(); }));
 $("#sTtsAuto").onchange = () => { ai.ttsAuto = $("#sTtsAuto").checked; saveAi(); };
 $("#sTtsOn").onchange = () => { ai.ttsOn = $("#sTtsOn").checked; saveAi(); };
-$("#sTtsVia").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { setTimeout(() => { ai.ttsVia = segGet($("#sTtsVia")); $("#sTtsKeyWrap").hidden = ai.ttsVia !== "google"; $("#sTtsOtherWrap").hidden = ai.ttsVia !== "other"; saveAi(); }, 0); }));
+$("#sTtsVia").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { segSet($("#sTtsVia"), b.dataset.v); setTimeout(() => { ai.ttsVia = segGet($("#sTtsVia")); $("#sTtsKeyWrap").hidden = ai.ttsVia !== "google"; $("#sTtsOtherWrap").hidden = ai.ttsVia !== "other"; saveAi(); }, 0); }));
 
 $("#qCmd").onclick = () => {
   const list = Object.keys(CMDS);
