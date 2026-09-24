@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"2.54","items":[]}
+  {"v":"2.58","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -808,6 +808,9 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .drw .dw-top{display:flex;align-items:center;gap:10px;padding:8px 10px}
 .drw .dw-x,.drw .dw-done{min-width:44px;min-height:44px;border:0;background:none;color:inherit;font-size:15px}
 .drw .dw-done{color:#c2357e}
+.drw .dw-cm{min-height:36px;padding:0 10px;border:1px solid #e3d9df;border-radius:18px;background:#fff;color:#7a6a78;font-size:12.5px;white-space:nowrap}
+.drw .dw-cm.off{background:#f1ebef;color:#a99aa6;text-decoration:line-through}
+:root[data-skin="tk"] .drw .dw-cm{border-radius:0}
 .drw .dw-av{width:36px;height:36px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:#fff;flex:none;font-size:15px}
 .drw .dw-av img{width:100%;height:100%;object-fit:cover}
 .drw .dw-st{flex:1;font-size:13.5px;color:#7a6a78;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -3648,7 +3651,7 @@ function drawTogether() {
   const ov = document.createElement("div");
   ov.className = "drw";
   const av = c.avatar ? `<img src="${c.avatar}" alt="">` : esc(nm.slice(0, 1));
-  ov.innerHTML = `<div class="dw-top"><button class="dw-x" aria-label="닫기">✕</button><div class="dw-av">${av}</div><div class="dw-st"></div><button class="dw-done">완성</button></div>
+  ov.innerHTML = `<div class="dw-top"><button class="dw-x" aria-label="닫기">✕</button><div class="dw-av">${av}</div><div class="dw-st"></div><button class="dw-cm" type="button"></button><button class="dw-done">완성</button></div>
   <div class="dw-paper"><canvas></canvas><div class="dw-zm"><button class="dw-zo" aria-label="축소">－</button><button class="dw-zi" aria-label="확대">＋</button><button class="dw-fit" hidden>원래 크기</button></div></div>
   <div class="dw-tools"><div class="dw-cols">${COLORS.map((k, i) => `<button class="dw-c${i ? "" : " on"}" data-c="${k}" style="background:${k}" aria-label="색"></button>`).join("")}<button class="dw-c dw-er" data-c="er" aria-label="지우개">지우개</button></div>
   <div class="dw-row"><button class="dw-w" aria-label="굵기">굵게</button><button class="dw-undo">되돌리기</button><button class="dw-clear">전부 지우기</button><button class="dw-pass">${esc(nm)}에게 넘기기</button></div></div>`;
@@ -3657,6 +3660,9 @@ function drawTogether() {
   const cv = $$("canvas"), ctx = cv.getContext("2d"), paper = $$(".dw-paper"), stEl = $$(".dw-st");
   const strokes = []; let color = COLORS[0], wide = false, cur2 = null, busyD = false, turns = 0, closed = false;
   const notes = []; let lastTask = "";
+  const cmBtn = ov.querySelector(".dw-cm");
+  const paintCm = () => { cmBtn.textContent = ai.drawNoText ? "코멘트 끔" : "코멘트 켬"; cmBtn.classList.toggle("off", !!ai.drawNoText); };
+  paintCm();
   let S = 300;
   const fit = () => {
     const cs = getComputedStyle(paper); const w = paper.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), h = paper.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom); S = Math.max(120, Math.floor(Math.min(w, h)));
@@ -3963,7 +3969,7 @@ ${sub(c.prompt || "", c).slice(0, 1500)}`;
 ${notes.length ? `지난 차례들에 네가 그린 것: ${notes.slice(-4).join(" / ")}\n` : ""}
 먼저 ${u}가 그린 것이 무엇인지 모양·색·위치를 보고 알아본다. 그림 속 글씨와 화살표도 꼼꼼히 읽는다.
 [가장 먼저] ${u}가 너(${nm})나 ${u} 자신을 그렸는지, 너한테 하는 말을 썼는지 본다. 너를 돼지·강아지처럼 놀리듯 그렸거나 약 올리는 글씨를 썼으면, 이번 할 일보다 그 반응이 먼저다. ${nm}의 성격대로 반응한다: 발끈해서 반박하는 글씨, 그림을 제대로 고쳐 그리기, ${u}를 똑같이 놀리는 반격 낙서, 삐진 표시 같은 것. 칭찬이나 애정 표현이면 ${nm}답게 받아친다.
-[말을 걸었을 때] ${u}가 도화지에 질문이나 말을 썼으면(예: "사귈래?", "보고 싶어") 그 말에 대답하는 게 먼저다. 꼭 그림을 그리지 않아도 된다. ${nm}의 성격과 지금 관계대로 고른다: 글씨로 대답만 하기, 대답하고 그림을 곁들이기, 말 대신 그림으로 대답하기(하트, 끄덕이는 모습, 엑스 표시 같은 것). 대답은 ${nm}이 실제로 할 법한 말이어야 하고, 관계나 분위기상 받아주기 어려우면 받아주지 않는다.
+${ai.drawNoText ? `[코멘트 없이] ${u}가 그림에 집중하고 싶어 한다. 네가 먼저 그림에 코멘트나 설명 글씨를 달지는 않는다. 단, ${u}가 이번에 글씨로 말을 걸었으면(그림이 같이 있든 없든) 대답은 한다. 짧은 글씨로 대답만 하기, 대답하고 그림 그리기, 그림으로만 대답하기 중에서 ${nm}의 성격과 지금 흐름대로 고른다.\n` : ""}[말을 걸었을 때] ${u}가 도화지에 질문이나 말을 썼으면(예: "사귈래?", "보고 싶어") 그 말에 대답하는 게 먼저다. 꼭 그림을 그리지 않아도 된다. ${nm}의 성격과 지금 관계대로 고른다: 글씨로 대답만 하기, 대답하고 그림을 곁들이기, 말 대신 그림으로 대답하기(하트, 끄덕이는 모습, 엑스 표시 같은 것). 대답은 ${nm}이 실제로 할 법한 말이어야 하고, 관계나 분위기상 받아주기 어려우면 받아주지 않는다.
 위의 반응할 거리가 없을 때만 아래 할 일을 한다.
 [이번 차례에 할 일] ${TASKS[task]}
 [${nm}의 그림체] ${ds.hint}${ds.colors.length ? ` 즐겨 쓰는 색은 ${ds.colors.join(" ")}이다.` : ""}
@@ -4009,6 +4015,7 @@ ${recent || "(없음)"}`;
     r.promise = run().then(t => { r.text = String(t || r.text || ""); if (r.onUpdate) r.onUpdate(r.text); return r.text; }, e => { r.err = e; if (r.onUpdate) r.onUpdate(r.text); return r.text; });
     return r;
   };
+  cmBtn.onclick = () => { ai.drawNoText = !ai.drawNoText; saveAi(); paintCm(); if (req) { req.abort(); req = null; } };
   const prefetch = () => {
     if (busyD || closed || prefN >= 2) return;
     const unsentPts = strokes.reduce((a, x) => a + (x.who === "u" && !x.er && !x.sent && x.pts ? x.pts.length : 0), 0);
@@ -4142,17 +4149,42 @@ async function ttsViaProxy(text, voice, style, model, name) {
   const hd = Object.assign({ "Content-Type": "application/json" }, k2 ? { Authorization: "Bearer " + k2 } : {});
   let res, errTxt = "";
   // 1) OpenAI 방식 음성 주소
-  try {
-    res = await fetch(base + "/audio/speech", { method: "POST", headers: hd, body: JSON.stringify({ model, input: text, voice, response_format: "wav", instructions: style ? `${name}의 대사다. ${style} 말투로 연기하듯 읽는다.` : `${name}의 대사다. 연기하듯 자연스럽게 읽는다.` }) });
+  const inst = style ? `${name}의 대사다. ${style} 말투로 연기하듯 읽는다.` : `${name}의 대사다. 연기하듯 자연스럽게 읽는다.`;
+  const decode = async (ab, ct) => {
+    ttsUnlock();
+    if (/pcm|l16/i.test(ct)) return pcmBuf(ab, +((ct.match(/rate=(\d+)/) || [])[1]) || 24000);
+    try { return await ttsCtx.decodeAudioData(ab.buffer.slice(0)); }
+    catch (e) { return await new Promise((ok, no) => ttsCtx.decodeAudioData(ab.buffer.slice(0), ok, () => no(new Error("소리 파일을 읽지 못했어요 (" + (ct || "형식 모름") + ")")))); }
+  };
+  const tries = [
+    { model, input: text, voice, response_format: "mp3", instructions: inst },
+    { model, input: text, voice, response_format: "mp3" },
+    { model, input: text, voice }
+  ];
+  let speechStatus = 0;
+  for (const body of tries) {
+    try {
+      res = await fetch(base + "/audio/speech", { method: "POST", headers: hd, body: JSON.stringify(body) });
+    } catch (e) { errTxt = "음성 주소에 연결하지 못했어요"; speechStatus = -1; break; }
+    speechStatus = res.status;
     if (res.ok) {
       const ct = res.headers.get("content-type") || "";
-      const ab = new Uint8Array(await res.arrayBuffer());
-      ttsUnlock();
-      if (/pcm|l16/i.test(ct)) return pcmBuf(ab, +((ct.match(/rate=(\d+)/) || [])[1]) || 24000);
-      return await ttsCtx.decodeAudioData(ab.buffer);
+      if (/json/i.test(ct)) {
+        const j = await res.json().catch(() => ({}));
+        const b64 = j.audio || j.data || (j.audio && j.audio.data);
+        if (typeof b64 === "string" && b64.length > 100) return await decode(b64buf(b64.replace(/^data:[^,]+,/, "")), j.mimeType || j.contentType || "");
+        const url = j.audioUrl || j.audio_url || j.url;
+        if (url) { const r2 = await fetch(url); if (!r2.ok) throw new Error("소리 파일을 받지 못했어요 (" + r2.status + ")"); return await decode(new Uint8Array(await r2.arrayBuffer()), r2.headers.get("content-type") || ""); }
+        throw new Error("음성 주소가 소리 대신 다른 답을 줬어요: " + JSON.stringify(j).slice(0, 120));
+      }
+      return await decode(new Uint8Array(await res.arrayBuffer()), ct);
     }
-    try { const j = await res.json(); errTxt = (j.error && j.error.message) || ""; } catch (e) {}
-  } catch (e) {}
+    try { const j = await res.json(); errTxt = (j.error && (j.error.message || j.error)) || j.message || ""; } catch (e) { errTxt = ""; }
+    errTxt = String(errTxt || "");
+    if (res.status !== 400) break;
+  }
+  // 음성 주소가 있긴 한데 거절한 경우엔 그 이유를 그대로 보여줌
+  if (speechStatus && speechStatus !== 404 && speechStatus !== 405 && speechStatus !== -1) throw new Error("목소리 요청이 거절됐어요 (" + speechStatus + (errTxt ? ": " + errTxt.slice(0, 140) : "") + ")");
   // 2) 대화 주소에 음성으로 답해 달라고 하기
   const prompt = (style ? `${name}의 대사다. ${style} 말투로, 대본을 연기하듯 자연스럽게 읽는다. 아래 대사만 소리 내어 읽는다:\n` : `${name}의 대사다. 대본을 연기하듯 자연스럽게 읽는다. 아래 대사만 소리 내어 읽는다:\n`) + text;
   try {
@@ -4160,7 +4192,7 @@ async function ttsViaProxy(text, voice, style, model, name) {
   } catch (e) { throw new Error("목소리 서버에 연결하지 못했어요."); }
   if (!res.ok) {
     let msg = ""; try { const j = await res.json(); msg = (j.error && j.error.message) || j.message || ""; } catch (e) {}
-    throw new Error("중계 서버가 목소리를 지원하지 않는 것 같아요 (" + res.status + (msg || errTxt ? ": " + (msg || errTxt).slice(0, 100) : "") + ")");
+    throw new Error("목소리를 못 받았어요 · 음성 주소: " + (speechStatus === -1 ? "연결 안 됨" : speechStatus || "?") + (errTxt ? " " + errTxt.slice(0, 80) : "") + " / 대화 주소: " + res.status + (msg ? " " + String(msg).slice(0, 80) : ""));
   }
   const j = await res.json();
   const m = j.choices && j.choices[0] && j.choices[0].message;
