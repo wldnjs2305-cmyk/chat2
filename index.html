@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"2.61","items":[]}
+  {"v":"2.63","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -808,7 +808,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .drw .dw-top{display:flex;align-items:center;gap:10px;padding:8px 10px}
 .drw .dw-x,.drw .dw-done{min-width:44px;min-height:44px;border:0;background:none;color:inherit;font-size:15px}
 .drw .dw-done{color:#c2357e}
-.drw .dw-cm{min-height:36px;padding:0 10px;border:1px solid #e3d9df;border-radius:18px;background:#fff;color:#7a6a78;font-size:12.5px;white-space:nowrap}
+.drw .dw-cm{min-height:34px;padding:0 8px;flex:none;border:1px solid #e3d9df;border-radius:18px;background:#fff;color:#7a6a78;font-size:12.5px;white-space:nowrap}
 .drw .dw-cm.off{background:#f1ebef;color:#a99aa6;text-decoration:line-through}
 :root[data-skin="tk"] .drw .dw-cm{border-radius:0}
 .drw .dw-av{width:36px;height:36px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:#fff;flex:none;font-size:15px}
@@ -823,6 +823,17 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .drw .dw-pen{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:rgba(255,111,174,.35);box-shadow:0 0 0 2px rgba(255,111,174,.55);opacity:0;pointer-events:none;transition:opacity .2s}
 .drw .dw-pen.on{opacity:1}
 .drw .dw-pen.think{opacity:.55;transition:opacity .2s}
+.drw .dw-pal{position:relative;background:conic-gradient(#ff6fae,#ffc94d,#5cc27a,#6fb6ff,#b48cff,#ff6fae) !important}
+.drw .dw-pal::after{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--pc,#ff6fae);box-shadow:0 0 0 2px #fff;pointer-events:none}
+.drw .dw-pal input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;padding:0;margin:0;cursor:pointer}
+.drw .dw-palbox{margin:0 0 4px;padding:10px;border-radius:12px;background:#fff;box-shadow:0 2px 14px rgba(60,40,55,.16)}
+.drw .dw-palbox[hidden]{display:none}
+.drw .dw-pgrid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}
+.drw .dw-pgrid button{aspect-ratio:1;border:0;border-radius:50%;box-shadow:0 0 0 1px #e3d9df;padding:0;min-width:0}
+.drw .dw-pick{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:8px;font-size:13px;color:#7a6a78}
+.drw .dw-pick input{width:44px;height:32px;border:0;padding:0;background:none}
+.drw .dw-ar{font-size:12.5px !important}
+:root[data-skin="tk"] .drw .dw-palbox{border-radius:0}
 .drw .dw-zm{position:absolute;right:18px;top:12px;display:flex;gap:6px;z-index:1}
 .drw .dw-zm button{min-width:36px;min-height:36px;padding:0 10px;border:0;border-radius:18px;background:rgba(58,50,56,.72);color:#fff;font-size:15px}
 .drw .dw-fit{font-size:13px !important}
@@ -837,7 +848,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .drw .dw-row{display:flex;gap:8px}
 .drw .dw-row button{min-height:44px;border:0;border-radius:10px;background:#fff;color:#3a3238;font-size:14px;padding:0 12px}
 .drw .dw-pass{flex:1;background:#ffd6ea !important;color:#2a1520 !important}
-.drw.wait .dw-undo,.drw.wait .dw-clear,.drw.wait .dw-pass,.drw.wait .dw-done{opacity:.45;pointer-events:none}
+.drw.wait .dw-undo,.drw.wait .dw-clear,.drw.wait .dw-pass,.drw.wait .dw-done,.drw.wait .dw-ar{opacity:.45;pointer-events:none}
 :root[data-skin="tk"] .drw .dw-row button,:root[data-skin="tk"] .drw canvas,:root[data-skin="tk"] .drw .dw-av{border-radius:0}
 .draw-card img{display:block;width:100%;border-radius:6px;margin:2px 0 4px;background:#fff}
 :root[data-skin="tk"] .draw-card img{border-radius:0}
@@ -3652,8 +3663,9 @@ function drawTogether() {
   ov.className = "drw";
   const av = c.avatar ? `<img src="${c.avatar}" alt="">` : esc(nm.slice(0, 1));
   ov.innerHTML = `<div class="dw-top"><button class="dw-x" aria-label="닫기">✕</button><div class="dw-av">${av}</div><div class="dw-st"></div><button class="dw-cm" type="button"></button><button class="dw-done">완성</button></div>
-  <div class="dw-paper"><canvas></canvas><div class="dw-zm"><button class="dw-fit" hidden>원래 크기</button></div></div>
-  <div class="dw-tools"><div class="dw-cols">${COLORS.map((k, i) => `<button class="dw-c${i ? "" : " on"}" data-c="${k}" style="background:${k}" aria-label="색"></button>`).join("")}<button class="dw-c dw-er" data-c="er" aria-label="지우개">지우개</button></div>
+  <div class="dw-paper"><canvas></canvas><div class="dw-zm"><button class="dw-ar" type="button"></button><button class="dw-fit" hidden>원래 크기</button></div></div>
+  <div class="dw-tools"><div class="dw-cols">${COLORS.map((k, i) => `<button class="dw-c${i ? "" : " on"}" data-c="${k}" style="background:${k}" aria-label="색"></button>`).join("")}<label class="dw-c dw-pal" aria-label="팔레트"><input type="color" value="#ff6fae"></label><button class="dw-c dw-er" data-c="er" aria-label="지우개">지우개</button></div>
+
   <div class="dw-row"><button class="dw-w" aria-label="굵기">굵게</button><button class="dw-undo">되돌리기</button><button class="dw-clear">전부 지우기</button><button class="dw-pass">넘기기</button></div></div>`;
   document.body.appendChild(ov);
   const $$ = q => ov.querySelector(q);
@@ -3664,11 +3676,14 @@ function drawTogether() {
   const paintCm = () => { cmBtn.textContent = ai.drawNoText ? "코멘트 끔" : "코멘트 켬"; cmBtn.classList.toggle("off", !!ai.drawNoText); };
   paintCm();
   let S = 300;
+  const ASPECTS = { sq: [1000, "정사각형"], wide: [700, "가로로 길게"], tall: [1400, "세로로 길게"] };
+  let aKey = ASPECTS[ai.drawAspect] ? ai.drawAspect : "sq", AH = ASPECTS[aKey][0];
   const fit = () => {
-    const cs = getComputedStyle(paper); const w = paper.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), h = paper.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom); S = Math.max(120, Math.floor(Math.min(w, h)));
+    const cs = getComputedStyle(paper); const w = paper.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), h = paper.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    const r = AH / 1000; S = Math.max(120, Math.floor(Math.min(w, h / r)));
     const dpr = window.devicePixelRatio || 1;
-    cv.style.width = cv.style.height = S + "px"; cv.width = cv.height = Math.round(S * dpr);
-    ctx.setTransform(cv.width / 1000, 0, 0, cv.height / 1000, 0, 0); redraw();
+    cv.style.width = S + "px"; cv.style.height = Math.round(S * r) + "px"; cv.width = Math.round(S * dpr); cv.height = Math.round(S * r * dpr);
+    ctx.setTransform(cv.width / 1000, 0, 0, cv.height / AH, 0, 0); redraw();
   };
   const drawStroke = (sk, upto) => {
     const p = sk.pts, n = upto == null ? p.length : upto;
@@ -3682,14 +3697,25 @@ function drawTogether() {
     ctx.stroke();
   };
   const seg = (sk, a, b) => { ctx.strokeStyle = sk.er ? "#ffffff" : sk.color; ctx.lineWidth = sk.w; ctx.lineCap = ctx.lineJoin = "round"; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); };
-  const redraw = () => { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, 1000, 1000); strokes.forEach(sk => drawStroke(sk)); };
-  const status = t => { stEl.textContent = t; };
-  status("같이 그림 그리자 · 먼저 그려봐");
+  const redraw = () => { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, 1000, AH); strokes.forEach(sk => drawStroke(sk)); };
+  let dotT = 0;
+  const status = t => { clearInterval(dotT); stEl.textContent = t; };
+  const busyStatus = base => { clearInterval(dotT); let k = 0; const tick = () => { stEl.textContent = base + " " + ["·", "··", "···"][k++ % 3]; }; tick(); dotT = setInterval(tick, 420); };
+  status(nm);
   requestAnimationFrame(fit); addEventListener("resize", fit);
-  const pos = e => { const r = cv.getBoundingClientRect(); return [Math.round((e.clientX - r.left) / r.width * 1000), Math.round((e.clientY - r.top) / r.height * 1000)]; };
+  const pos = e => { const r = cv.getBoundingClientRect(); return [Math.round((e.clientX - r.left) / r.width * 1000), Math.round((e.clientY - r.top) / r.height * AH)]; };
   // 확대: 두 손가락으로 벌리기·옮기기
   const fingers = new Map(); let zoom = 1, tx = 0, ty = 0, g = null, blockDraw = false;
-  const fitBtn = $$(".dw-fit");
+  const fitBtn = $$(".dw-fit"), arBtn = $$(".dw-ar");
+  const paintAr = () => { arBtn.textContent = ASPECTS[aKey][1]; };
+  paintAr();
+  arBtn.onclick = () => {
+    if (busyD) return;
+    if (strokes.length && !confirm("도화지 모양을 바꾸면 그림이 지워져요. 바꿀까요?")) return;
+    const order = ["sq", "wide", "tall"]; aKey = order[(order.indexOf(aKey) + 1) % 3]; AH = ASPECTS[aKey][0];
+    ai.drawAspect = aKey; saveAi(); strokes.length = 0; zoom = 1; tx = ty = 0; applyZoom(); paintAr(); fit();
+    if (req) { req.abort(); req = null; }
+  };
   const applyZoom = () => { cv.style.transform = `translate(${tx}px,${ty}px) scale(${zoom})`; fitBtn.hidden = zoom <= 1.01; };
   const gInfo = () => { const p = [...fingers.values()]; return { d: Math.hypot(p[0][0] - p[1][0], p[0][1] - p[1][1]) || 1, mx: (p[0][0] + p[1][0]) / 2, my: (p[0][1] + p[1][1]) / 2 }; };
   fitBtn.onclick = () => { zoom = 1; tx = ty = 0; applyZoom(); };
@@ -3726,12 +3752,19 @@ function drawTogether() {
   const upD = e => { fingers.delete(e.pointerId); cur2 = null; if (fingers.size < 2) g = null; if (!fingers.size) blockDraw = false; };
   paper.addEventListener("pointerup", upD); paper.addEventListener("pointercancel", upD);
   $$(".dw-clear").onclick = () => { if (busyD || !strokes.length) return; if (!confirm("그림을 전부 지울까요?")) return; strokes.length = 0; redraw(); };
-  ov.querySelectorAll(".dw-c").forEach(b => b.onclick = () => { ov.querySelectorAll(".dw-c").forEach(x => x.classList.remove("on")); b.classList.add("on"); color = b.dataset.c; });
+  const palBtn = $$(".dw-pal"), palIn = palBtn.querySelector("input");
+  const selPal = () => { ov.querySelectorAll(".dw-c").forEach(x => x.classList.remove("on")); palBtn.classList.add("on"); color = palIn.value; };
+  palIn.value = ai.drawPal || "#ff6fae"; palBtn.style.setProperty("--pc", palIn.value);
+  const onPal = () => { palBtn.style.setProperty("--pc", palIn.value); ai.drawPal = palIn.value; saveAi(); selPal(); };
+  palIn.addEventListener("input", onPal); palIn.addEventListener("change", onPal);
+  palBtn.addEventListener("click", selPal);
+  ov.querySelectorAll(".dw-c:not(.dw-pal)").forEach(b => b.onclick = () => { ov.querySelectorAll(".dw-c").forEach(x => x.classList.remove("on")); b.classList.add("on"); color = b.dataset.c; });
+
   $$(".dw-w").onclick = () => { wide = !wide; $$(".dw-w").textContent = wide ? "가늘게" : "굵게"; };
   $$(".dw-undo").onclick = () => { if (busyD) return; for (let i = strokes.length - 1; i >= 0; i--) if (strokes[i].who === "u") { strokes.splice(i, 1); break; } redraw(); if (req) { req.abort(); req = null; } };
-  const close = () => { closed = true; try { clearTimeout(idleT); if (req) req.abort(); } catch (e) {} removeEventListener("resize", fit); ov.remove(); };
+  const close = () => { closed = true; clearInterval(dotT); try { clearTimeout(idleT); if (req) req.abort(); } catch (e) {} removeEventListener("resize", fit); ov.remove(); };
   $$(".dw-x").onclick = () => { if (strokes.length && !confirm("그림을 버리고 나갈까요?")) return; close(); };
-  const snapshot = (px, q) => { const o = document.createElement("canvas"); o.width = o.height = px; const x = o.getContext("2d"); x.drawImage(cv, 0, 0, px, px); return o.toDataURL("image/jpeg", q); };
+  const snapshot = (px, q) => { const o = document.createElement("canvas"); o.width = px; o.height = Math.round(px * AH / 1000); const x = o.getContext("2d"); x.drawImage(cv, 0, 0, o.width, o.height); return o.toDataURL("image/jpeg", q); };
   // 사람 손처럼: 선을 부드럽게 잇고, 손떨림을 살짝 넣고, 빠르기·쉬는 틈을 들쭉날쭉하게
   const humanize = (sk, ampIn) => {
     const p = sk.pts;
@@ -3758,7 +3791,8 @@ function drawTogether() {
     return sk;
   };
   const pen = document.createElement("div"); pen.className = "dw-pen"; paper.appendChild(pen);
-  const penAt = (x, y) => { const r = cv.getBoundingClientRect(), pr = paper.getBoundingClientRect(); pen.style.transform = `translate(${r.left - pr.left + x / 1000 * r.width}px,${r.top - pr.top + y / 1000 * r.height}px)`; };
+  const penAt = (x, y) => { const r = cv.getBoundingClientRect(), pr = paper.getBoundingClientRect(); pen.style.transform = `translate(${r.left - pr.left + x / 1000 * r.width}px,${r.top - pr.top + y / AH * r.height}px)`; lastPen = [x, y]; };
+  let lastPen = null;
   const wait = ms => new Promise(r => setTimeout(r, ms));
   const frame = () => new Promise(r => requestAnimationFrame(r));
   // ---- 그림체 (캐릭터마다 자동) ----
@@ -3836,7 +3870,7 @@ ${sub(c.prompt || "", c).slice(0, 1500)}`;
     m.font = `${fs}px ${hand}`;
     let wU = m.measureText(t.text).width / SC;
     if (wU > 940) { size = size * 940 / wU; fs = Math.max(14, Math.round(size * SC)); m.font = `${fs}px ${hand}`; wU = m.measureText(t.text).width / SC; }
-    const x0 = Math.max(24, Math.min(t.x, 976 - wU)), y0 = Math.max(size * 0.7 + 10, Math.min(t.y, 990 - size * 0.7));
+    const x0 = Math.max(24, Math.min(t.x, 976 - wU)), y0 = Math.max(size * 0.7 + 10, Math.min(t.y, AH - 10 - size * 0.7));
     t.x = x0; t.y = y0; t.size = size;
     const W2 = Math.ceil(wU * SC) + 8, H2 = Math.ceil(fs * 1.6) + 8;
     const oc = document.createElement("canvas"); oc.width = W2; oc.height = H2;
@@ -3927,12 +3961,12 @@ ${sub(c.prompt || "", c).slice(0, 1500)}`;
       const dm = t.match(/"desc"\s*:\s*"([^"]*)"/); if (dm) j.desc = dm[1];
     }
     const out = [];
-    const cl = v => Math.max(0, Math.min(1000, Math.round(+v || 0)));
+    const cl = v => Math.max(0, Math.min(1000, Math.round(+v || 0))), cy = v => Math.max(0, Math.min(AH, Math.round(+v || 0)));
     (j.strokes || []).slice(0, 30).forEach(s2 => {
-      const pts = (s2.points || s2.pts || []).filter(p => Array.isArray(p) && p.length >= 2).slice(0, 120).map(p => [cl(p[0]), cl(p[1])]);
+      const pts = (s2.points || s2.pts || []).filter(p => Array.isArray(p) && p.length >= 2).slice(0, 120).map(p => [cl(p[0]), cy(p[1])]);
       if (pts.length) out.push({ who: "c", color: /^#[0-9a-f]{3,8}$/i.test(s2.color || "") ? s2.color : "#2a2227", w: Math.max(6, Math.min(30, +s2.width || 10)), pts });
     });
-    (j.texts || []).slice(0, 3).forEach(x => { if (x && x.text) out.push({ who: "c", text: String(x.text).slice(0, 20), x: cl(x.x), y: cl(x.y), size: Math.max(30, Math.min(120, +x.size || 60)), color: /^#[0-9a-f]{3,8}$/i.test(x.color || "") ? x.color : "#2a2227", pts: [] }); });
+    (j.texts || []).slice(0, 3).forEach(x => { if (x && x.text) out.push({ who: "c", text: String(x.text).slice(0, 20), x: cl(x.x), y: cy(x.y), size: Math.max(30, Math.min(120, +x.size || 60)), color: /^#[0-9a-f]{3,8}$/i.test(x.color || "") ? x.color : "#2a2227", pts: [] }); });
     return { list: out, desc: String(j.desc || "").slice(0, 120) };
   };
   // ---- 캐릭터에게 보내기 (미리 보내두기 포함) ----
@@ -3952,8 +3986,8 @@ ${sub(c.prompt || "", c).slice(0, 1500)}`;
     const fresh = strokes.filter(x => x.who === "u" && !x.er && !x.sent);
     let freshImg = "";
     if (fresh.length) {
-      const o = document.createElement("canvas"); o.width = o.height = 320; const x2 = o.getContext("2d");
-      x2.fillStyle = "#fff"; x2.fillRect(0, 0, 320, 320); x2.setTransform(0.32, 0, 0, 0.32, 0, 0);
+      const o = document.createElement("canvas"); o.width = 320; o.height = Math.round(320 * AH / 1000); const x2 = o.getContext("2d");
+      x2.fillStyle = "#fff"; x2.fillRect(0, 0, o.width, o.height); x2.setTransform(0.32, 0, 0, 0.32, 0, 0);
       fresh.forEach(sk => { const p = sk.pts; x2.strokeStyle = sk.color; x2.lineWidth = sk.w; x2.lineCap = x2.lineJoin = "round"; x2.beginPath(); x2.moveTo(p[0][0], p[0][1]); if (p.length === 1) x2.lineTo(p[0][0] + 0.1, p[0][1]); for (let i = 1; i < p.length; i++) x2.lineTo(p[i][0], p[i][1]); x2.stroke(); });
       freshImg = o.toDataURL("image/jpeg", 0.8);
     }
@@ -3972,7 +4006,7 @@ ${ai.drawNoText ? `[코멘트 끔] ${u}가 그림에만 집중하고 싶어 한�
 [${nm}의 그림체] ${ds.hint}${ds.colors.length ? ` 즐겨 쓰는 색은 ${ds.colors.join(" ")}이다.` : ""}
 이 일을 ${nm}의 말투·성격과 지금 두 사람 분위기 그대로 한다. 글씨를 쓰면 ${nm}이 평소 쓰는 말투로 쓴다. ${task === "together" || task === "cuddle" ? "자기 자신(설정 속 외모나 동물 모습)을 그려 넣어도 되지만 장면의 일부로 작게만 그린다." : "이번엔 자기 자신의 모습(설정 속 외모나 동물 모습)을 그리지 않는다."} 지난 차례에 그린 것을 또 그리지 않는다. 이미 있는 그림의 위치와 크기를 보고 빈 곳이나 맞닿는 곳에 맞춰 그린다.
 사람이 손가락으로 그리는 것처럼 윤곽 먼저, 그다음 안쪽, 마지막에 꾸밈 순서로 선을 놓는다. 한 획은 끊기지 않는 한 번의 손놀림이다.
-좌표는 도화지 왼쪽 위가 0,0 오른쪽 아래가 1000,1000이고 정수만 쓴다. 그림을 그릴 때 선은 ${ds.n}개, 선 하나에 점 6~24개. ${ai.drawNoText ? "" : "대답만 할 때는 S 줄 없이 T 줄만 써도 된다."}
+도화지는 ${ASPECTS[aKey][1]} 모양이고, 좌표는 왼쪽 위가 0,0 오른쪽 아래가 1000,${AH}이다. 정수만 쓴다. 그림을 그릴 때 선은 ${ds.n}개, 선 하나에 점 6~24개. ${ai.drawNoText ? "" : "대답만 할 때는 S 줄 없이 T 줄만 써도 된다."}
 아래 줄 형식으로만 출력한다. 한 줄에 하나씩 쓰고, 설명·코드블록·다른 글은 쓰지 않는다.
 SAW ${u}가 방금 그린 것이 무엇으로 보이는지 짧게
 S 색 굵기 x,y x,y x,y ...
@@ -4032,14 +4066,14 @@ ${recent || "(없음)"}`;
   $$(".dw-pass").onclick = async () => {
     if (busyD) return;
     clearTimeout(idleT);
-    busyD = true; ov.classList.add("wait"); status(nm + "가 그리는 중…");
+    busyD = true; ov.classList.add("wait"); busyStatus("생각 중");
     let r = req;
     const usable = r && !r.aborted && !(r.err && !r.text) && strokes.length >= Number(r.sig.split(":")[0]) && ptsNow() - r.pts < 12;
     if (!usable) { if (r) r.abort(); r = buildRequest(); }
     req = null; prefN = 0;
     r.fresh.forEach(x => { x.sent = true; }); lastTask = r.task;
     const COLS = /^#[0-9a-fA-F]{3,8}$/;
-    const cl = v => Math.max(0, Math.min(1000, Math.round(+v || 0)));
+    const cl = v => Math.max(0, Math.min(1000, Math.round(+v || 0))), cy = v => Math.max(0, Math.min(AH, Math.round(+v || 0)));
     const queue = []; let wake = null, streamDone = false, got = 0, desc = "", seen = 0;
     const push = sk => { queue.push(sk); got++; if (wake) { const w = wake; wake = null; w(); } };
     const parseLine = line => {
@@ -4048,11 +4082,11 @@ ${recent || "(없음)"}`;
       if ((m = l.match(/^DESC\s*[:：]?\s*(.+)$/i))) { desc = m[1].slice(0, 120); return; }
       if ((m = l.match(/^T\s+(#[0-9a-fA-F]{3,8})\s+(\d+)\s+(-?\d+)\s*,\s*(-?\d+)\s+(.+)$/))) {
         if (ai.drawNoText) return;
-        push({ who: "c", text: m[5].trim().slice(0, 14), x: cl(m[3]), y: cl(m[4]), size: Math.max(40, Math.min(120, +m[2] || 60)), color: m[1], pts: [] }); return;
+        push({ who: "c", text: m[5].trim().slice(0, 14), x: cl(m[3]), y: cy(m[4]), size: Math.max(40, Math.min(120, +m[2] || 60)), color: m[1], pts: [] }); return;
       }
       if ((m = l.match(/^S\s+(#[0-9a-fA-F]{3,8})\s+(\d+)\s+(.+)$/))) {
         const v = (m[3].match(/-?\d+(?:\.\d+)?/g) || []).map(Number), pts = [];
-        for (let k = 0; k + 1 < v.length && pts.length < 120; k += 2) pts.push([cl(v[k]), cl(v[k + 1])]);
+        for (let k = 0; k + 1 < v.length && pts.length < 120; k += 2) pts.push([cl(v[k]), cy(v[k + 1])]);
         if (pts.length >= 2) push({ who: "c", color: COLS.test(m[1]) ? m[1] : "#2a2227", w: Math.max(6, Math.min(30, +m[2] || 10)), pts });
       }
     };
@@ -4062,14 +4096,14 @@ ${recent || "(없음)"}`;
     let cx0 = 500, cy0 = 500;
     if (us.length) { const all = us.flatMap(x => x.pts); cx0 = all.reduce((a, p) => a + p[0], 0) / all.length; cy0 = all.reduce((a, p) => a + p[1], 0) / all.length; }
     let thinking = true;
-    status(nm + "가 생각하는 중…");
+    pen.classList.add("on", "think"); penAt(lastPen ? lastPen[0] : cx0, lastPen ? lastPen[1] : cy0);
     const player = (async () => {
       while (!closed) {
-        if (queue.length) { if (thinking) { thinking = false; status(nm + "가 그리는 중…"); pen.classList.add("on"); } await drawOne(queue.shift()); }
+        if (queue.length) { if (thinking) { thinking = false; busyStatus("그림 그리는 중"); pen.classList.remove("think"); } await drawOne(queue.shift()); }
         else if (streamDone) break;
         else await new Promise(res => { wake = res; });
       }
-      thinking = false; pen.classList.remove("on");
+      thinking = false; pen.classList.remove("think");
     })();
     r.onUpdate = t => feed(t, false);
     feed(r.text, false);
@@ -4088,7 +4122,7 @@ ${recent || "(없음)"}`;
     await player;
     if (closed) return;
     if (desc) notes.push(desc);
-    if (!got) status(errMsg + " · 다시 넘겨봐"); else { turns++; status("네 차례야"); }
+    if (!got) status(errMsg + " · 다시 넘겨봐"); else { turns++; status(nm); }
     busyD = false; ov.classList.remove("wait");
   };
   
