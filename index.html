@@ -3657,6 +3657,32 @@ function drawCardHTML(dw, c) {
   const dt = d.getFullYear() + "." + String(d.getMonth() + 1).padStart(2, "0") + "." + String(d.getDate()).padStart(2, "0") + " " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
   return `<div class="kiss-card draw-card"><div class="kc-hd">같이 그린 그림</div><img src="${dw.img}" alt="같이 그린 그림"><div class="kc-ft">${esc((c && c.uname) || "나")} &amp; ${esc((c && c.name) || "")} · ${dt}</div></div>`;
 }
+const PRE_TXT = "가나다라마바사아자차카타파하거너더러머버서어저처커터퍼허고노도로모보소오조초코토포호구누두루무부수우주추쿠투푸후그느드르므브스으즈츠크트프흐기니디리미비시이지치키티피히개내대래매배새애재해게네데레메베세에제케테페헤요야여유녀뇨니냐뭐왜안못잘했했어요니다네요지죠까봐줘거야냐나도너나우리내누나언니오빠형동생진짜완전너무정말왜그래이게저게뭐야귀엽다예쁘다그림그려다시지워미워좋아싫어고양이강아지공주왕자하트별ㅋㅎㅠ!?~";
+// 쓸 글자까지 넘겨서, 그 글자들이 전부 받아질 때까지 기다려요 (글자마다 글씨체가 섞이지 않게)
+const fontReady = async (f, txt) => {
+  const t0 = Date.now();
+  while (Date.now() - t0 < 12000) {
+    try { await document.fonts.load(f, txt); } catch (e) {}
+    try { if (document.fonts.check(f, txt)) return true; } catch (e) { return false; }
+    await new Promise(r => setTimeout(r, 150));
+  }
+  return false;
+};
+// 손글씨 글꼴에 없는 한글 글자가 있는지 (없으면 그 글자만 다른 글꼴로 나와서 섞여 보여요)
+const glyphMissing = (f, txt) => {
+  const fam = f.split(",").map(x => x.trim()).filter(x => /^['"]/.test(x));
+  if (fam.length < 2) return false;
+  const rest = fam.slice(1).join(",") + ",cursive";
+  const cv = document.createElement("canvas"); cv.width = cv.height = 64; const x = cv.getContext("2d", { willReadFrequently: true });
+  const draw = (font, ch) => { x.clearRect(0, 0, 64, 64); x.font = "48px " + font; x.textBaseline = "middle"; x.fillText(ch, 4, 32); return x.getImageData(0, 0, 64, 64).data; };
+  for (const ch of new Set(String(txt).replace(/\s/g, ""))) {
+    if (!/[가-힣]/.test(ch)) continue;
+    const a = draw(f, ch), b = draw(rest, ch); let same = true;
+    for (let i = 3; i < a.length; i += 4) if (a[i] !== b[i]) { same = false; break; }
+    if (same) return true;
+  }
+  return false;
+};
 const DRAW_HANDS = () => Object.keys(HANDS).map(k => [k, k + " 느낌의 글씨", HANDS[k]]);
 function drawTogether() {
   const c = char() || {};
@@ -3703,6 +3729,7 @@ function drawTogether() {
     const p = sk.pts, n = upto == null ? p.length : upto;
     if (sk.text) { ctx.fillStyle = sk.color; ctx.font = `${sk.size || 60}px ${hand}`; ctx.textBaseline = "middle"; ctx.fillText(sk.text.slice(0, upto == null ? sk.text.length : upto), sk.x, sk.y); return; }
     if (!n) return;
+    if (sk.ws && n > 1) { for (let i = 1; i < n; i++) seg(sk, p[i - 1], p[i], (sk.ws[i - 1] + sk.ws[i]) / 2); return; }
     ctx.strokeStyle = sk.er ? "#ffffff" : sk.color; ctx.lineWidth = sk.w; ctx.lineCap = ctx.lineJoin = "round";
     ctx.beginPath(); ctx.moveTo(p[0][0], p[0][1]);
     if (n === 1) ctx.lineTo(p[0][0] + 0.1, p[0][1]);
@@ -3710,7 +3737,7 @@ function drawTogether() {
     if (n > 1) ctx.lineTo(p[n - 1][0], p[n - 1][1]);
     ctx.stroke();
   };
-  const seg = (sk, a, b) => { ctx.strokeStyle = sk.er ? "#ffffff" : sk.color; ctx.lineWidth = sk.w; ctx.lineCap = ctx.lineJoin = "round"; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); };
+  const seg = (sk, a, b, wm) => { ctx.strokeStyle = sk.er ? "#ffffff" : sk.color; ctx.lineWidth = sk.w * (wm || 1); ctx.lineCap = ctx.lineJoin = "round"; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); };
   const redraw = () => { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, 1000, AH); strokes.forEach(sk => drawStroke(sk)); };
   let dotT = 0, lastReport = "";
   const status = t => { clearInterval(dotT); stEl.textContent = t; stEl.dataset.full = t; };
@@ -3824,10 +3851,18 @@ function drawTogether() {
   const hr = k => ((Math.imul(hh ^ (k * 2654435761), 1597334677) >>> 0) % 10000) / 10000;
   const HAND = { f1: 0.14 + hr(1) * 0.12, f2: 0.035 + hr(2) * 0.04, a: 0.85 + hr(3) * 0.3, w: 0.9 + hr(4) * 0.2, v: 0.9 + hr(5) * 0.2 };
   { const hh2 = dsX && dsX.hand && DRAW_HANDS().find(h => h[0] === dsX.hand); if (hh2) hand = hh2[2]; }
+  fontReady(`60px ${hand}`, PRE_TXT + nm + u);
   const DS = () => {
     const b = DSTYLES[dsKey], x = dsX || {};
     return { hint: b.hint, n: x.n || b.n, w: (x.w || b.w) * HAND.w, amp: (x.amp || b.amp) * HAND.a, speed: (x.speed || b.speed) * HAND.v, pause: x.pause || b.pause, colors: x.colors || [], skill: x.skill || "mid" };
   };
+  // 글씨 실력 (상·중·하에 따라 글씨가 달라짐)
+  const TSKILL = {
+    hi: { amp: 0.22, sz: 0.035, rot: 0.02, base: 0.025, slope: 0.01, taper: 0.9, wn: 0.04, hes: 0.02, fast: 2.3 },
+    mid: { amp: 0.5, sz: 0.08, rot: 0.05, base: 0.06, slope: 0.03, taper: 0.6, wn: 0.1, hes: 0.07, fast: 2.1 },
+    lo: { amp: 0.65, sz: 0.1, rot: 0.065, base: 0.08, slope: 0.035, taper: 0.4, wn: 0.13, hes: 0.13, fast: 1.95 }
+  };
+  const TS = () => TSKILL[DS().skill] || TSKILL.mid;
   if (!DSTYLES[c.drawStyle] || !c.drawStyleX || !c.drawStyleX.skill || !c.drawStyleX.v2 || c.drawStyleP !== (c.prompt || "").length) {
     (async () => {
       const DH = DRAW_HANDS();
@@ -3859,7 +3894,7 @@ ${recentS || "(없음)"}`;
           const cols = (String(out).match(/#[0-9a-fA-F]{6}/g) || []).slice(0, 2);
         const sk2 = /\s상(\s|$)/.test(String(out).replace(/#[0-9a-fA-F]{3,8}/g, " ")) ? "hi" : /\s하(\s|$)/.test(String(out).replace(/#[0-9a-fA-F]{3,8}/g, " ")) ? "lo" : "mid";
           const x = { w: clamp(nums[0], 0.6, 1.8, DSTYLES[k].w), amp: clamp(nums[1], 0.4, 3.6, DSTYLES[k].amp), speed: clamp(nums[2], 0.6, 1.6, DSTYLES[k].speed), pause: clamp(nums[3], 0.5, 1.5, DSTYLES[k].pause), n: det, colors: cols, skill: sk2, hand: (DH.find(h => String(out).includes(h[0])) || [])[0] || "", v2: 1 };
-          dsKey = k; dsX = x; const hh2 = DH.find(h => h[0] === x.hand); if (hh2) hand = hh2[2];
+          dsKey = k; dsX = x; const hh2 = DH.find(h => h[0] === x.hand); if (hh2) { hand = hh2[2]; fontReady(`60px ${hand}`, PRE_TXT + nm + u); }
           const real = store.chars.find(y => y.id === c.id);
           if (real) { real.drawStyle = k; real.drawStyleX = x; real.drawStyleP = (real.prompt || "").length; save(null); }
         }
@@ -3869,6 +3904,14 @@ ${recentS || "(없음)"}`;
   // ---- 선 긋기 ----
   const animStroke = async (sk, amp, fast) => {
     humanize(sk, amp);
+    if (sk.pr != null && sk.pts.length > 2) {
+      const n = sk.pts.length, ramp = Math.max(2, Math.round(n * 0.22)), ph = Math.random() * 6;
+      sk.ws = sk.pts.map((_, i) => {
+        const edge = Math.min(1, (i + 1) / ramp, (n - i) / ramp);
+        const v = (1 - sk.pr * 0.6 * (1 - edge)) * (1 + sk.pr * 0.12 * Math.sin(Math.PI * i / (n - 1))) * (1 + (sk.wn || 0) * Math.sin(i * 0.35 + ph));
+        return Math.max(0.35, v);
+      });
+    }
     const total = sk.pts.length, vmax = (4 + Math.random() * 4) * DS().speed * (fast || 1);
     penAt(sk.pts[0][0], sk.pts[0][1]);
     await wait((50 + Math.random() * 110) * DS().pause / (fast || 1));
@@ -3877,7 +3920,7 @@ ${recentS || "(없음)"}`;
     while (k < total) {
       if (closed) return;
       const e = Math.sin(Math.PI * k / total), nk = Math.min(total, k + Math.max(1, Math.round(vmax * (0.35 + 0.65 * e))));
-      for (let q = k; q < nk; q++) seg(sk, sk.pts[q - 1], sk.pts[q]);
+      for (let q = k; q < nk; q++) seg(sk, sk.pts[q - 1], sk.pts[q], sk.ws ? (sk.ws[q - 1] + sk.ws[q]) / 2 : 1);
       k = nk; penAt(sk.pts[k - 1][0], sk.pts[k - 1][1]);
       await frame();
     }
@@ -3887,12 +3930,19 @@ ${recentS || "(없음)"}`;
   const textToStrokes = async t => {
     const SC = 1.3;
     let size = t.size, fs = Math.max(14, Math.round(size * SC));
-    try { await document.fonts.load(`${fs}px ${hand}`); } catch (e) {}
+    const okF = await fontReady(`${fs}px ${hand}`, t.text);
+    // 한 문장 안에서 글씨체가 섞이지 않게: 없는 글자가 있으면 문장 전체를 다른 손글씨 글꼴로
+    let hf = hand;
+    const fine = f => { try { return document.fonts.check(`${fs}px ${f}`, t.text) && !glyphMissing(f, t.text); } catch (e) { return false; } };
+    if (!okF || glyphMissing(hand, t.text)) {
+      const alt = Object.values(HANDS).find(fine);
+      hf = alt || "'Nanum Pen Script',cursive";
+    }
     const m = document.createElement("canvas").getContext("2d");
-    m.font = `${fs}px ${hand}`;
+    m.font = `${fs}px ${hf}`;
     let wU = m.measureText(t.text).width / SC;
-    if (wU > 940) { size = size * 940 / wU; fs = Math.max(14, Math.round(size * SC)); m.font = `${fs}px ${hand}`; wU = m.measureText(t.text).width / SC; }
-    const x0 = Math.max(24, Math.min(t.x, 976 - wU)), y0 = Math.max(size * 0.7 + 10, Math.min(t.y, AH - 10 - size * 0.7));
+    if (wU > 940) { size = size * 940 / wU; fs = Math.max(14, Math.round(size * SC)); m.font = `${fs}px ${hf}`; wU = m.measureText(t.text).width / SC; }
+    const x0 = Math.max(24, Math.min(t.x, 976 - wU * (1 + TS().sz) - 8)), y0 = Math.max(size * 0.7 + 10, Math.min(t.y, AH - 10 - size * 0.7));
     // 이미 그려진 곳을 피해서 빈 자리 찾기
     let bx = x0, by = y0;
     try {
@@ -3921,7 +3971,7 @@ ${recentS || "(없음)"}`;
     t.x = bx; t.y = by; t.size = size;
     const W2 = Math.ceil(wU * SC) + 8, H2 = Math.ceil(fs * 1.6) + 8;
     const oc = document.createElement("canvas"); oc.width = W2; oc.height = H2;
-    const cx = oc.getContext("2d"); cx.font = `${fs}px ${hand}`; cx.textBaseline = "middle"; cx.fillStyle = "#000"; cx.fillText(t.text, 4, H2 / 2);
+    const cx = oc.getContext("2d"); cx.font = `${fs}px ${hf}`; cx.textBaseline = "middle"; cx.fillStyle = "#000"; cx.fillText(t.text, 4, H2 / 2);
     const d = cx.getImageData(0, 0, W2, H2).data, G = new Uint8Array(W2 * H2);
     for (let i = 0; i < W2 * H2; i++) G[i] = d[i * 4 + 3] > 110 ? 1 : 0;
       // 점(느낌표·물음표 아래 점, 마침표)처럼 작은 덩어리는 따로 기억해 두기
@@ -3981,16 +4031,29 @@ ${recentS || "(없음)"}`;
     lines.sort((a, b) => charOf(a) - charOf(b) || Math.min(...a.map(p => p[1])) - Math.min(...b.map(p => p[1])) || Math.min(...a.map(p => p[0])) - Math.min(...b.map(p => p[0])));
     if (!lines.length || lines.length > 220) return [];
     const w = Math.max(5, Math.round(size * 0.09 * DS().w));
-    return lines.map(L => L.dot ? ({ who: "c", color: t.color, w: Math.round(w * 1.5), pts: [[x0 + dx + (L[0][0] - 4) / SC, y0 + dy + (L[0][1] - H2 / 2) / SC]] }) : ({ who: "c", color: t.color, w, pts: L.filter((p, i) => i % 3 === 0 || i === L.length - 1).map(p => [x0 + dx + (p[0] - 4) / SC, y0 + dy + (p[1] - H2 / 2) / SC]) }));
+    { const ts = TS(), rr = () => Math.random() * 2 - 1, slope = rr() * ts.slope, cs = [];
+      for (let i = 0; i < t.text.length; i++) cs.push({ cx: ((i ? bounds[i - 1] : 4) + bounds[i]) / 2, s: 1 + rr() * ts.sz, r: rr() * ts.rot, o: rr() * ts.base * fs });
+      lines.forEach(L => {
+        const k = cs[charOf(L)]; if (!k) return;
+        const co = Math.cos(k.r), si = Math.sin(k.r), cy0 = H2 / 2;
+        for (let j = 0; j < L.length; j++) {
+          const ux = (L[j][0] - k.cx) * k.s, uy = (L[j][1] - cy0) * k.s;
+          L[j] = [k.cx + ux * co - uy * si, cy0 + ux * si + uy * co + k.o + (k.cx - 4) * slope];
+        }
+      });
+    }
+    const pr = TS().taper, wn = TS().wn;
+    return lines.map(L => L.dot ? ({ who: "c", color: t.color, w: Math.round(w * 1.5), pts: [[x0 + dx + (L[0][0] - 4) / SC, y0 + dy + (L[0][1] - H2 / 2) / SC]] }) : ({ who: "c", color: t.color, w, pr, wn, pts: L.filter((p, i) => i % 3 === 0 || i === L.length - 1).map(p => [x0 + dx + (p[0] - 4) / SC, y0 + dy + (p[1] - H2 / 2) / SC]) }));
   };
   const drawOne = async sk => {
     if (closed) return;
     if (sk.text) {
+      sk.size = Math.round(sk.size * 0.9);
       let list = [];
       try { list = await textToStrokes(sk); } catch (e) { list = []; }
       if (list.length) {
         penAt(list[0].pts[0][0], list[0].pts[0][1]); await wait(120 + Math.random() * 160);
-        for (const s2 of list) { if (closed) return; await animStroke(s2, 0.5 * DS().amp, 2.2); await wait(20 + Math.random() * 60); }
+        for (const s2 of list) { if (closed) return; const ts = TS(); await animStroke(s2, Math.min(1.5, ts.amp * DS().amp), ts.fast); await wait(20 + Math.random() * 60 + (Math.random() < ts.hes ? 250 + Math.random() * 450 : 0)); }
       } else {
         penAt(sk.x, sk.y);
         for (let k = 1; k <= sk.text.length; k++) { if (closed) return; redraw(); drawStroke(sk, k); penAt(sk.x + k * sk.size * 0.9, sk.y); await wait(70 + Math.random() * 90); }
@@ -4094,7 +4157,7 @@ SAW 노란 꽃
 S #5cc27a 10 400,620 410,700 405,780 398,860
 T #ff6fae 60 120,150 고마워
 DESC 꽃에 줄기를 달고 고맙다고 씀
-글씨는 지금 도화지 위 그림에 대한 반응(감탄, 칭찬, 놀림, 질문 등)이나 ${u}가 도화지에 쓴 말에 대한 대답만 쓰고, 그림 옆에 끄적이는 낙서처럼 가볍게 쓴다. 글씨 끝에 마침표(.)는 찍지 않는다. !, ?, ~, …는 써도 된다. T 줄은 없어도 되고, 쓰면 짧은 한마디로 최대 2줄(한 줄 10자 안팎, 길어도 14자. x,y는 글씨의 왼쪽 가운데). 한 차례에 쓰는 글씨는 모두 같은 색으로, 이미 있는 그림이나 글씨와 겹치지 않는 빈 곳에 쓴다. 색은 #2a2227 #ff6fae #6fb6ff #ffc94d #5cc27a #b48cff 중에서 고른다. 굵기는 6~24, 글씨 크기는 55~85.
+글씨는 지금 도화지 위 그림에 대한 반응(감탄, 칭찬, 놀림, 질문 등)이나 ${u}가 도화지에 쓴 말에 대한 대답만 쓰고, 그림 옆에 끄적이는 낙서처럼 가볍게 쓴다. 글씨 끝에 마침표(.)는 찍지 않는다. !, ?, ~, …는 써도 된다. T 줄은 없어도 되고, 쓰면 딱 1줄만 쓴다. 카톡으로 핑퐁하듯 한마디만 쓴다. 길이는 그때그때 자연스럽게, 짧으면 3자부터 길어도 20자 안쪽(예: 누나 미워! / 공주야 나야? / 몸통은 왜 안 그렸냐? / 야! 이거 당장 안 지워 / 이게 어딜 봐서 저예요 다시 그려요). 설명하거나 문장을 길게 이어 쓰지 않는다. x,y는 글씨의 왼쪽 가운데. 한 차례에 쓰는 글씨는 모두 같은 색으로, 이미 있는 그림이나 글씨와 겹치지 않는 빈 곳에 쓴다. 색은 #2a2227 #ff6fae #6fb6ff #ffc94d #5cc27a #b48cff 중에서 고른다. 굵기는 6~24, 글씨 크기는 55~85.
 
 [${nm} 설정]
 ${sub(c.prompt || "", c).slice(0, 900) || "(없음)"}
@@ -4174,9 +4237,17 @@ ${recent || "(없음)"}`;
       if ((m = l.match(/^T\s+(#[0-9a-fA-F]{3,8})\s+(\d+)\s+(-?\d+)\s*,\s*(-?\d+)\s+(.+)$/))) {
         if (ai.drawNoText) return;
         if (!tColor) tColor = m[1];
-      if (++tN > 2) return;
+      if (++tN > 1) return;
       nT++;
-      push({ who: "c", text: m[5].trim().replace(/([^.])\.+$/, (a, b) => (a.endsWith("...") ? a : b)).replace(/^\.$/, "").slice(0, 14), x: cl(m[3]), y: cy(m[4]), size: Math.max(55, Math.min(90, +m[2] || 65)), color: tColor, pts: [] }); return;
+      { const full = m[5].trim().replace(/([^.])\.+$/, (a, b) => (a.endsWith("...") ? a : b)).replace(/^\.$/, "");
+        const sz = Math.max(55, Math.min(90, +m[2] || 65)), parts = [];
+        // 자르지 않고, 14자가 넘으면 띄어쓰기 자리에서 줄을 바꿔요
+        let rest = full;
+        while (rest.length > 14) { let cut = rest.lastIndexOf(" ", 14); if (cut < 4) cut = 14; parts.push(rest.slice(0, cut).trim()); rest = rest.slice(cut).trim(); }
+        if (rest) parts.push(rest);
+        fontReady(`60px ${hand}`, full);
+        parts.forEach((pt, i) => { if (pt) push({ who: "c", text: pt, x: cl(m[3]), y: cy(+m[4] + i * sz * 1.25), size: sz, color: tColor, pts: [] }); });
+      } return;
       }
       if ((m = l.match(/^S\s+(#[0-9a-fA-F]{3,8})\s+(\d+)\s+(.+)$/))) {
         const v = (m[3].match(/-?\d+(?:\.\d+)?/g) || []).map(Number), pts = [];
