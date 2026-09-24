@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"2.67","items":[]}
+  {"v":"2.71","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -754,6 +754,8 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root[data-skin="tk"] body:not([data-novelbg]) #chat header.bar h2{line-height:1.25}
 :root[data-skin="tk"] body:not([data-novelbg]) #chat #chName::after{font:12px/1.3 "NeoDunggeunmo","DotGothic16",monospace;letter-spacing:0;margin:2px 0 0;padding:0;text-indent:0}
 :root[data-skin="tk"] body:not([data-novelbg]) #home .homebar::before{content:none;display:none}
+/* 대화방 세로글씨 없애기 */
+:root[data-skin="tk"] body:not([data-novelbg]) #chat::after,:root[data-skin="tk"] body:not([data-novelbg]) #chat[data-oshi]::after{content:none !important;display:none !important}
 </style>
 <style id="thumb-kiss">
 .tkiss{position:fixed;inset:0;z-index:9999;background:#fff;color:#3a3238;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overflow:hidden;font-family:var(--font-body)}
@@ -832,7 +834,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .drw .dw-pgrid button{aspect-ratio:1;border:0;border-radius:50%;box-shadow:0 0 0 1px #e3d9df;padding:0;min-width:0}
 .drw .dw-pick{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:8px;font-size:13px;color:#7a6a78}
 .drw .dw-pick input{width:44px;height:32px;border:0;padding:0;background:none}
-.drw .dw-ar{font-size:12.5px !important}
+.drw .dw-ar{font-size:22px !important;line-height:1;padding:0 !important;width:40px;min-width:40px !important}
 :root[data-skin="tk"] .drw .dw-palbox{border-radius:0}
 .drw .dw-zm{display:flex;justify-content:flex-end;gap:6px;padding:0 12px 2px;flex:none}
 .drw .dw-zm button{min-width:36px;min-height:34px;padding:0 12px;border:1px solid #e3d9df;border-radius:17px;background:#fff;color:#7a6a78;font-size:13px}
@@ -841,7 +843,8 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .drw .dw-row button{padding:0 10px !important}
 .drw.wait canvas{box-shadow:0 0 0 2px rgba(255,111,174,.5),0 2px 12px rgba(60,40,55,.12)}
 .drw .dw-tools{display:flex;flex-direction:column;gap:8px;padding:8px 12px 14px}
-.drw .dw-cols{display:flex;justify-content:center;gap:10px}
+.drw .dw-cols{display:flex;justify-content:center;align-items:center;gap:10px}
+.drw .dw-pal{display:block;flex:none;margin:0}
 .drw .dw-c{width:32px;height:32px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #d8cdd4;padding:0}
 .drw .dw-c.on{box-shadow:0 0 0 3px #3a3238}
 .drw .dw-er{width:auto;border-radius:16px;padding:0 10px;background:#fff;color:#7a6a78;font-size:12.5px}
@@ -3709,7 +3712,7 @@ function drawTogether() {
   // 확대: 두 손가락으로 벌리기·옮기기
   const fingers = new Map(); let zoom = 1, tx = 0, ty = 0, g = null, blockDraw = false;
   const fitBtn = $$(".dw-fit"), arBtn = $$(".dw-ar");
-  const paintAr = () => { arBtn.textContent = ASPECTS[aKey][1]; };
+  const paintAr = () => { arBtn.textContent = "›"; arBtn.setAttribute("aria-label", "도화지 모양 바꾸기 (지금: " + ASPECTS[aKey][1] + ")"); };
   paintAr();
   arBtn.onclick = () => {
     if (busyD) return;
@@ -4046,7 +4049,7 @@ SAW 노란 꽃
 S #5cc27a 10 400,620 410,700 405,780 398,860
 T #ff6fae 60 120,150 고마워
 DESC 꽃에 줄기를 달고 고맙다고 씀
-T 줄은 없어도 되고 최대 3개(한 줄에 글씨 12자 이내, x,y는 글씨의 왼쪽 가운데). 한 차례에 쓰는 글씨는 모두 같은 색으로 쓴다. 글씨는 이미 있는 그림이나 글씨와 겹치지 않는 빈 곳에 쓰고, 여러 줄이면 위아래로 띄운다. 색은 #2a2227 #ff6fae #6fb6ff #ffc94d #5cc27a #b48cff 중에서 고른다. 굵기는 6~24, 글씨 크기는 50~110.
+T 줄은 없어도 되고, 쓰면 짧은 한마디로 최대 2줄(한 줄 10자 안팎, 길어도 14자. x,y는 글씨의 왼쪽 가운데). 문장으로 길게 늘어놓지 않고 말풍선에 쓸 법한 짧은 말만 쓴다. 한 차례에 쓰는 글씨는 모두 같은 색으로 쓴다. 글씨는 이미 있는 그림이나 글씨와 겹치지 않는 빈 곳에 쓰고, 여러 줄이면 위아래로 띄운다. 색은 #2a2227 #ff6fae #6fb6ff #ffc94d #5cc27a #b48cff 중에서 고른다. 굵기는 6~24, 글씨 크기는 45~75.
 
 [${nm} 설정]
 ${sub(c.prompt || "", c).slice(0, 900)}
@@ -4103,7 +4106,7 @@ ${recent || "(없음)"}`;
     r.fresh.forEach(x => { x.sent = true; }); lastTask = r.task;
     const COLS = /^#[0-9a-fA-F]{3,8}$/;
     const cl = v => Math.max(0, Math.min(1000, Math.round(+v || 0))), cy = v => Math.max(0, Math.min(AH, Math.round(+v || 0)));
-    const queue = []; let wake = null, streamDone = false, got = 0, desc = "", seen = 0, tColor = "";
+    const queue = []; let wake = null, streamDone = false, got = 0, desc = "", seen = 0, tColor = "", tN = 0;
     const push = sk => { queue.push(sk); got++; if (wake) { const w = wake; wake = null; w(); } };
     const parseLine = line => {
       const l = line.trim().replace(/^[-*•]\s*/, "");
@@ -4112,7 +4115,8 @@ ${recent || "(없음)"}`;
       if ((m = l.match(/^T\s+(#[0-9a-fA-F]{3,8})\s+(\d+)\s+(-?\d+)\s*,\s*(-?\d+)\s+(.+)$/))) {
         if (ai.drawNoText) return;
         if (!tColor) tColor = m[1];
-      push({ who: "c", text: m[5].trim().slice(0, 14), x: cl(m[3]), y: cy(m[4]), size: Math.max(40, Math.min(120, +m[2] || 60)), color: tColor, pts: [] }); return;
+      if (++tN > 2) return;
+      push({ who: "c", text: m[5].trim().slice(0, 14), x: cl(m[3]), y: cy(m[4]), size: Math.max(40, Math.min(80, +m[2] || 60)), color: tColor, pts: [] }); return;
       }
       if ((m = l.match(/^S\s+(#[0-9a-fA-F]{3,8})\s+(\d+)\s+(.+)$/))) {
         const v = (m[3].match(/-?\d+(?:\.\d+)?/g) || []).map(Number), pts = [];
