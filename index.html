@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"2.63","items":[]}
+  {"v":"2.64","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4096,14 +4096,14 @@ ${recent || "(없음)"}`;
     let cx0 = 500, cy0 = 500;
     if (us.length) { const all = us.flatMap(x => x.pts); cx0 = all.reduce((a, p) => a + p[0], 0) / all.length; cy0 = all.reduce((a, p) => a + p[1], 0) / all.length; }
     let thinking = true;
-    pen.classList.add("on", "think"); penAt(lastPen ? lastPen[0] : cx0, lastPen ? lastPen[1] : cy0);
+    pen.classList.add("on", "think"); penAt(lastPen ? lastPen[0] : 950, lastPen ? lastPen[1] : AH - 50);
     const player = (async () => {
       while (!closed) {
         if (queue.length) { if (thinking) { thinking = false; busyStatus("그림 그리는 중"); pen.classList.remove("think"); } await drawOne(queue.shift()); }
         else if (streamDone) break;
         else await new Promise(res => { wake = res; });
       }
-      thinking = false; pen.classList.remove("think");
+      thinking = false; pen.classList.remove("think", "on");
     })();
     r.onUpdate = t => feed(t, false);
     feed(r.text, false);
