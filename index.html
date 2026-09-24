@@ -820,6 +820,12 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .drw .dw-paper{flex:1;min-height:0;min-width:0;display:grid;place-items:center;padding:6px 12px;overflow:hidden}
 .drw canvas{background:#fff;border-radius:6px;box-shadow:0 2px 12px rgba(60,40,55,.12);touch-action:none;transform-origin:center center}
 .drw .dw-paper{position:relative}
+.drw .dw-ask{position:absolute;inset:0;z-index:5;background:rgba(40,30,38,.4);display:flex;align-items:center;justify-content:center;padding:24px}
+.drw .dw-askbox{width:min(320px,100%);background:#fff;border-radius:14px;padding:18px 16px 12px;color:#3a3238;box-shadow:0 8px 30px rgba(40,30,38,.25)}
+.drw .dw-askbox p{margin:0 0 14px;font-size:15px;line-height:1.5;text-align:left}
+.drw .dw-askbox div{display:flex;gap:8px;justify-content:flex-end}
+.drw .dw-askbox button{min-height:44px;padding:0 16px;border:0;border-radius:10px;background:#f1ebef;color:#3a3238;font-size:15px}
+.drw .dw-askbox [data-y]{background:#ffd6ea;color:#2a1520}
 .drw{touch-action:none;-webkit-user-select:none;user-select:none}
 .drw .dw-paper{touch-action:none}
 .drw .dw-pen{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:rgba(255,111,174,.35);box-shadow:0 0 0 2px rgba(255,111,174,.55);opacity:0;pointer-events:none;transition:opacity .2s}
