@@ -2,11 +2,11 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"2.64","items":[]}
+  {"v":"2.67","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -336,7 +336,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .composer .quick button{flex:none}
 .composer .quick button{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 12px;font-size:13px;color:var(--soft);white-space:nowrap}
 .composer .in{display:flex;gap:8px;align-items:flex-end}
-.composer textarea{font-size:max(var(--font-size),16px);min-height:44px;max-height:160px;resize:none;border-radius:14px}
+.composer textarea{font-size:var(--font-size);min-height:44px;max-height:160px;resize:none;border-radius:14px}
 .composer .btn{padding:10px 14px;border-radius:14px;flex:none}
 .banner{margin:12px 16px 0;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:13px;color:var(--soft);background:var(--panel)}
 /* ---- 예전 앱(v46g) 카드 ---- */
@@ -834,8 +834,8 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .drw .dw-pick input{width:44px;height:32px;border:0;padding:0;background:none}
 .drw .dw-ar{font-size:12.5px !important}
 :root[data-skin="tk"] .drw .dw-palbox{border-radius:0}
-.drw .dw-zm{position:absolute;right:18px;top:12px;display:flex;gap:6px;z-index:1}
-.drw .dw-zm button{min-width:36px;min-height:36px;padding:0 10px;border:0;border-radius:18px;background:rgba(58,50,56,.72);color:#fff;font-size:15px}
+.drw .dw-zm{display:flex;justify-content:flex-end;gap:6px;padding:0 12px 2px;flex:none}
+.drw .dw-zm button{min-width:36px;min-height:34px;padding:0 12px;border:1px solid #e3d9df;border-radius:17px;background:#fff;color:#7a6a78;font-size:13px}
 .drw .dw-fit{font-size:13px !important}
 .drw .dw-fit[hidden]{display:none}
 .drw .dw-row button{padding:0 10px !important}
@@ -3663,7 +3663,8 @@ function drawTogether() {
   ov.className = "drw";
   const av = c.avatar ? `<img src="${c.avatar}" alt="">` : esc(nm.slice(0, 1));
   ov.innerHTML = `<div class="dw-top"><button class="dw-x" aria-label="닫기">✕</button><div class="dw-av">${av}</div><div class="dw-st"></div><button class="dw-cm" type="button"></button><button class="dw-done">완성</button></div>
-  <div class="dw-paper"><canvas></canvas><div class="dw-zm"><button class="dw-ar" type="button"></button><button class="dw-fit" hidden>원래 크기</button></div></div>
+  <div class="dw-zm"><button class="dw-fit" hidden>원래 크기</button><button class="dw-ar" type="button"></button></div>
+  <div class="dw-paper"><canvas></canvas></div>
   <div class="dw-tools"><div class="dw-cols">${COLORS.map((k, i) => `<button class="dw-c${i ? "" : " on"}" data-c="${k}" style="background:${k}" aria-label="색"></button>`).join("")}<label class="dw-c dw-pal" aria-label="팔레트"><input type="color" value="#ff6fae"></label><button class="dw-c dw-er" data-c="er" aria-label="지우개">지우개</button></div>
 
   <div class="dw-row"><button class="dw-w" aria-label="굵기">굵게</button><button class="dw-undo">되돌리기</button><button class="dw-clear">전부 지우기</button><button class="dw-pass">넘기기</button></div></div>`;
@@ -3699,7 +3700,8 @@ function drawTogether() {
   const seg = (sk, a, b) => { ctx.strokeStyle = sk.er ? "#ffffff" : sk.color; ctx.lineWidth = sk.w; ctx.lineCap = ctx.lineJoin = "round"; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); };
   const redraw = () => { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, 1000, AH); strokes.forEach(sk => drawStroke(sk)); };
   let dotT = 0;
-  const status = t => { clearInterval(dotT); stEl.textContent = t; };
+  const status = t => { clearInterval(dotT); stEl.textContent = t; stEl.dataset.full = t; };
+  stEl.addEventListener("click", () => { const t = stEl.dataset.full || ""; if (t && t !== nm) alert(t); });
   const busyStatus = base => { clearInterval(dotT); let k = 0; const tick = () => { stEl.textContent = base + " " + ["·", "··", "···"][k++ % 3]; }; tick(); dotT = setInterval(tick, 420); };
   status(nm);
   requestAnimationFrame(fit); addEventListener("resize", fit);
@@ -3810,17 +3812,17 @@ function drawTogether() {
   const HAND = { f1: 0.14 + hr(1) * 0.12, f2: 0.035 + hr(2) * 0.04, a: 0.85 + hr(3) * 0.3, w: 0.9 + hr(4) * 0.2, v: 0.9 + hr(5) * 0.2 };
   const DS = () => {
     const b = DSTYLES[dsKey], x = dsX || {};
-    return { hint: b.hint, n: x.n || b.n, w: (x.w || b.w) * HAND.w, amp: (x.amp || b.amp) * HAND.a, speed: (x.speed || b.speed) * HAND.v, pause: x.pause || b.pause, colors: x.colors || [] };
+    return { hint: b.hint, n: x.n || b.n, w: (x.w || b.w) * HAND.w, amp: (x.amp || b.amp) * HAND.a, speed: (x.speed || b.speed) * HAND.v, pause: x.pause || b.pause, colors: x.colors || [], skill: x.skill || "mid" };
   };
-  if (!DSTYLES[c.drawStyle] || !c.drawStyleX || c.drawStyleP !== (c.prompt || "").length) {
+  if (!DSTYLES[c.drawStyle] || !c.drawStyleX || !c.drawStyleX.skill || c.drawStyleP !== (c.prompt || "").length) {
     (async () => {
       const p = `아래 캐릭터 설정을 보고, ${nm}이(가) 손가락으로 그림을 그리면 어떤 그림체일지 하나만 고른다.
 종류: 꼼꼼(가는 선으로 디테일까지 차근차근) / 털털(대충 쓱쓱 빠르고 과감하게) / 동글(동글동글 귀엽게 꾸미기 좋아함) / 삐뚤(초등학생처럼 단순하고 삐뚤빼뚤) / 만화(굵고 과장된 만화체)
 그리고 같은 종류라도 사람마다 다르게, 이 인물만의 세부 값을 정한다.
-굵기 0.6~1.8 (1이 보통) / 떨림 0.4~3.6 (손이 얼마나 삐뚤빼뚤한지) / 속도 0.6~1.6 (1이 보통) / 쉼 0.5~1.5 (획 사이에 얼마나 뜸 들이는지) / 디테일 적음·보통·많음 / 좋아하는 색 2개 (#2a2227 #ff6fae #6fb6ff #ffc94d #5cc27a #b48cff 중)
+굵기 0.6~1.8 (1이 보통) / 떨림 0.4~3.6 (손이 얼마나 삐뚤빼뚤한지) / 속도 0.6~1.6 (1이 보통) / 쉼 0.5~1.5 (획 사이에 얼마나 뜸 들이는지) / 디테일 적음·보통·많음 / 좋아하는 색 2개 (#2a2227 #ff6fae #6fb6ff #ffc94d #5cc27a #b48cff 중) / 그림 실력 상·중·하 (설정상 그림을 잘 그리는지. 모르면 성격·나이로 짐작)
 성격·나이·취향·직업으로 판단한다. 아래 한 줄 형식으로만 출력한다.
-STYLE 종류 굵기 떨림 속도 쉼 디테일 색1 색2
-예: STYLE 털털 1.3 2.6 1.4 0.7 적음 #2a2227 #6fb6ff
+STYLE 종류 굵기 떨림 속도 쉼 디테일 실력 색1 색2
+예: STYLE 털털 1.3 2.6 1.4 0.7 적음 하 #2a2227 #6fb6ff
 
 [설정]
 ${sub(c.prompt || "", c).slice(0, 1500)}`;
@@ -3836,7 +3838,8 @@ ${sub(c.prompt || "", c).slice(0, 1500)}`;
           const clamp = (v, a, b, d) => (isFinite(v) && v > 0 ? Math.max(a, Math.min(b, v)) : d);
           const det = /많음/.test(out) ? "9~18" : /적음/.test(out) ? "4~8" : "6~12";
           const cols = (String(out).match(/#[0-9a-fA-F]{6}/g) || []).slice(0, 2);
-          const x = { w: clamp(nums[0], 0.6, 1.8, DSTYLES[k].w), amp: clamp(nums[1], 0.4, 3.6, DSTYLES[k].amp), speed: clamp(nums[2], 0.6, 1.6, DSTYLES[k].speed), pause: clamp(nums[3], 0.5, 1.5, DSTYLES[k].pause), n: det, colors: cols };
+        const sk2 = /\s상(\s|$)/.test(String(out).replace(/#[0-9a-fA-F]{3,8}/g, " ")) ? "hi" : /\s하(\s|$)/.test(String(out).replace(/#[0-9a-fA-F]{3,8}/g, " ")) ? "lo" : "mid";
+          const x = { w: clamp(nums[0], 0.6, 1.8, DSTYLES[k].w), amp: clamp(nums[1], 0.4, 3.6, DSTYLES[k].amp), speed: clamp(nums[2], 0.6, 1.6, DSTYLES[k].speed), pause: clamp(nums[3], 0.5, 1.5, DSTYLES[k].pause), n: det, colors: cols, skill: sk2 };
           dsKey = k; dsX = x;
           const real = store.chars.find(y => y.id === c.id);
           if (real) { real.drawStyle = k; real.drawStyleX = x; real.drawStyleP = (real.prompt || "").length; save(null); }
@@ -3871,7 +3874,32 @@ ${sub(c.prompt || "", c).slice(0, 1500)}`;
     let wU = m.measureText(t.text).width / SC;
     if (wU > 940) { size = size * 940 / wU; fs = Math.max(14, Math.round(size * SC)); m.font = `${fs}px ${hand}`; wU = m.measureText(t.text).width / SC; }
     const x0 = Math.max(24, Math.min(t.x, 976 - wU)), y0 = Math.max(size * 0.7 + 10, Math.min(t.y, AH - 10 - size * 0.7));
-    t.x = x0; t.y = y0; t.size = size;
+    // 이미 그려진 곳을 피해서 빈 자리 찾기
+    let bx = x0, by = y0;
+    try {
+      const sx = cv.width / 1000, sy = cv.height / AH, hU = size * 1.1;
+      const ink = (xx, yy) => {
+        const px0 = Math.max(0, Math.floor(xx * sx)), py0 = Math.max(0, Math.floor((yy - hU / 2) * sy));
+        const pw = Math.min(cv.width - px0, Math.ceil(wU * sx)), ph = Math.min(cv.height - py0, Math.ceil(hU * sy));
+        if (pw <= 0 || ph <= 0) return 1e9;
+        const dd = ctx.getImageData(px0, py0, pw, ph).data; let n = 0;
+        for (let i = 0; i < dd.length; i += 4 * 5) if (dd[i] < 235 || dd[i + 1] < 235 || dd[i + 2] < 235) n++;
+        return n;
+      };
+      let best = ink(x0, y0) * 0.6;
+      if (best > 0) {
+        const minY = size * 0.7 + 10, maxY = AH - 10 - size * 0.7;
+        for (const k of [1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6]) {
+          const yy = y0 + k * size * 1.2; if (yy < minY || yy > maxY) continue;
+          for (const xx of [x0, 24, Math.max(24, 976 - wU)]) {
+            const v = ink(xx, yy) + Math.abs(k) * 2; if (v < best) { best = v; bx = xx; by = yy; }
+          }
+          if (best === 0) break;
+        }
+      }
+    } catch (e) {}
+    const dx = bx - x0, dy = by - y0;
+    t.x = bx; t.y = by; t.size = size;
     const W2 = Math.ceil(wU * SC) + 8, H2 = Math.ceil(fs * 1.6) + 8;
     const oc = document.createElement("canvas"); oc.width = W2; oc.height = H2;
     const cx = oc.getContext("2d"); cx.font = `${fs}px ${hand}`; cx.textBaseline = "middle"; cx.fillStyle = "#000"; cx.fillText(t.text, 4, H2 / 2);
@@ -3919,7 +3947,7 @@ ${sub(c.prompt || "", c).slice(0, 1500)}`;
     lines.sort((a, b) => charOf(a) - charOf(b) || Math.min(...a.map(p => p[1])) - Math.min(...b.map(p => p[1])) || Math.min(...a.map(p => p[0])) - Math.min(...b.map(p => p[0])));
     if (!lines.length || lines.length > 160) return [];
     const w = Math.max(4, Math.round(size * 0.085 * DS().w));
-    return lines.map(L => ({ who: "c", color: t.color, w, pts: L.filter((p, i) => i % 3 === 0 || i === L.length - 1).map(p => [x0 + (p[0] - 4) / SC, y0 + (p[1] - H2 / 2) / SC]) }));
+    return lines.map(L => ({ who: "c", color: t.color, w, pts: L.filter((p, i) => i % 3 === 0 || i === L.length - 1).map(p => [x0 + dx + (p[0] - 4) / SC, y0 + dy + (p[1] - H2 / 2) / SC]) }));
   };
   const drawOne = async sk => {
     if (closed) return;
@@ -4004,7 +4032,8 @@ ${notes.length ? `지난 차례들에 네가 그린 것: ${notes.slice(-4).join(
 ${ai.drawNoText ? `[코멘트 끔] ${u}가 그림에만 집중하고 싶어 한다. 너는 글씨를 한 글자도 쓰지 않는다. T 줄은 절대 쓰지 않는다. ${u}가 글씨로 말을 걸어도 글로 대답하지 않고, 필요하면 그림으로만 반응한다.\n` : ""}${ai.drawNoText ? "" : `[말을 걸었을 때] ${u}가 도화지에 질문이나 말을 썼으면(예: "사귈래?", "보고 싶어") 그 말에 대답하는 게 먼저다. 꼭 그림을 그리지 않아도 된다. ${nm}의 성격과 지금 관계대로 고른다: 글씨로 대답만 하기, 대답하고 그림을 곁들이기, 말 대신 그림으로 대답하기(하트, 끄덕이는 모습, 엑스 표시 같은 것). 대답은 ${nm}이 실제로 할 법한 말이어야 하고, 관계나 분위기상 받아주기 어려우면 받아주지 않는다.\n`}위의 반응할 거리가 없을 때만 아래 할 일을 한다.
 [이번 차례에 할 일] ${TASKS[task]}
 [${nm}의 그림체] ${ds.hint}${ds.colors.length ? ` 즐겨 쓰는 색은 ${ds.colors.join(" ")}이다.` : ""}
-이 일을 ${nm}의 말투·성격과 지금 두 사람 분위기 그대로 한다. 글씨를 쓰면 ${nm}이 평소 쓰는 말투로 쓴다. ${task === "together" || task === "cuddle" ? "자기 자신(설정 속 외모나 동물 모습)을 그려 넣어도 되지만 장면의 일부로 작게만 그린다." : "이번엔 자기 자신의 모습(설정 속 외모나 동물 모습)을 그리지 않는다."} 지난 차례에 그린 것을 또 그리지 않는다. 이미 있는 그림의 위치와 크기를 보고 빈 곳이나 맞닿는 곳에 맞춰 그린다.
+[${nm}의 그림 실력] ${ds.skill === "hi" ? `그림을 잘 그린다. ${u}가 공들여 그렸으면 그 수준에 맞춰 형태와 비율을 제대로 잡아 선을 충분히 써서 그린다.` : ds.skill === "lo" ? `그림을 못 그린다. ${u}가 잘 그렸으면 따라 그리려고 애쓰지만 비율이 어긋나고 삐뚤빼뚤해진다. 그래도 뭘 그렸는지는 알아볼 수 있게 한다.` : `그림 실력은 보통이다. ${u}가 공들여 그렸으면 조금 더 신경 써서 그린다.`}
+이 일을 ${nm}의 말투·성격과 지금 두 사람 분위기 그대로 한다. 글씨를 쓰면 ${nm}이 평소 쓰는 말투로 쓴다. 상대의 이름은 ${u}이다. 대화에 다른 이름이 보여도 ${u}로 안다. ${u}를 부를 때는 최근 대화에서 ${nm}이 실제로 부르는 호칭(누나, 형, 애칭, 존댓말·반말 등)을 그대로 쓴다. ${task === "together" || task === "cuddle" ? "자기 자신(설정 속 외모나 동물 모습)을 그려 넣어도 되지만 장면의 일부로 작게만 그린다." : "이번엔 자기 자신의 모습(설정 속 외모나 동물 모습)을 그리지 않는다."} 지난 차례에 그린 것을 또 그리지 않는다. 이미 있는 그림의 위치와 크기를 보고 빈 곳이나 맞닿는 곳에 맞춰 그린다.
 사람이 손가락으로 그리는 것처럼 윤곽 먼저, 그다음 안쪽, 마지막에 꾸밈 순서로 선을 놓는다. 한 획은 끊기지 않는 한 번의 손놀림이다.
 도화지는 ${ASPECTS[aKey][1]} 모양이고, 좌표는 왼쪽 위가 0,0 오른쪽 아래가 1000,${AH}이다. 정수만 쓴다. 그림을 그릴 때 선은 ${ds.n}개, 선 하나에 점 6~24개. ${ai.drawNoText ? "" : "대답만 할 때는 S 줄 없이 T 줄만 써도 된다."}
 아래 줄 형식으로만 출력한다. 한 줄에 하나씩 쓰고, 설명·코드블록·다른 글은 쓰지 않는다.
@@ -4017,7 +4046,7 @@ SAW 노란 꽃
 S #5cc27a 10 400,620 410,700 405,780 398,860
 T #ff6fae 60 120,150 고마워
 DESC 꽃에 줄기를 달고 고맙다고 씀
-T 줄은 없어도 되고 최대 3개(한 줄에 글씨 12자 이내, x,y는 글씨의 왼쪽 가운데. 여러 줄이면 위아래로 겹치지 않게). 색은 #2a2227 #ff6fae #6fb6ff #ffc94d #5cc27a #b48cff 중에서 고른다. 굵기는 6~24, 글씨 크기는 50~110.
+T 줄은 없어도 되고 최대 3개(한 줄에 글씨 12자 이내, x,y는 글씨의 왼쪽 가운데). 한 차례에 쓰는 글씨는 모두 같은 색으로 쓴다. 글씨는 이미 있는 그림이나 글씨와 겹치지 않는 빈 곳에 쓰고, 여러 줄이면 위아래로 띄운다. 색은 #2a2227 #ff6fae #6fb6ff #ffc94d #5cc27a #b48cff 중에서 고른다. 굵기는 6~24, 글씨 크기는 50~110.
 
 [${nm} 설정]
 ${sub(c.prompt || "", c).slice(0, 900)}
@@ -4074,7 +4103,7 @@ ${recent || "(없음)"}`;
     r.fresh.forEach(x => { x.sent = true; }); lastTask = r.task;
     const COLS = /^#[0-9a-fA-F]{3,8}$/;
     const cl = v => Math.max(0, Math.min(1000, Math.round(+v || 0))), cy = v => Math.max(0, Math.min(AH, Math.round(+v || 0)));
-    const queue = []; let wake = null, streamDone = false, got = 0, desc = "", seen = 0;
+    const queue = []; let wake = null, streamDone = false, got = 0, desc = "", seen = 0, tColor = "";
     const push = sk => { queue.push(sk); got++; if (wake) { const w = wake; wake = null; w(); } };
     const parseLine = line => {
       const l = line.trim().replace(/^[-*•]\s*/, "");
@@ -4082,7 +4111,8 @@ ${recent || "(없음)"}`;
       if ((m = l.match(/^DESC\s*[:：]?\s*(.+)$/i))) { desc = m[1].slice(0, 120); return; }
       if ((m = l.match(/^T\s+(#[0-9a-fA-F]{3,8})\s+(\d+)\s+(-?\d+)\s*,\s*(-?\d+)\s+(.+)$/))) {
         if (ai.drawNoText) return;
-        push({ who: "c", text: m[5].trim().slice(0, 14), x: cl(m[3]), y: cy(m[4]), size: Math.max(40, Math.min(120, +m[2] || 60)), color: m[1], pts: [] }); return;
+        if (!tColor) tColor = m[1];
+      push({ who: "c", text: m[5].trim().slice(0, 14), x: cl(m[3]), y: cy(m[4]), size: Math.max(40, Math.min(120, +m[2] || 60)), color: tColor, pts: [] }); return;
       }
       if ((m = l.match(/^S\s+(#[0-9a-fA-F]{3,8})\s+(\d+)\s+(.+)$/))) {
         const v = (m[3].match(/-?\d+(?:\.\d+)?/g) || []).map(Number), pts = [];
