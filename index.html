@@ -967,6 +967,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .ph-dimg{height:120px;border-radius:12px;background:#f3d9e3;display:grid;place-items:center;font-size:36px;font-weight:700;color:#c2466f}
 .ph-dnm{display:flex;align-items:baseline;gap:6px}.ph-dnm b{font-size:17px}.ph-dnm span{font-size:14px;color:#6f6169}
 .ph-dpro p{margin:0;font-size:12.5px;line-height:1.5;color:#3a3036}
+.ph-dmain{height:230px;border-radius:14px;background:#ecd9e1;padding:14px;display:flex;align-items:flex-end;font-size:12px;line-height:1.5;color:#5a3a48;overflow:hidden}
 .ph-dphotos{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -2px}
 .ph-dphotos::-webkit-scrollbar{display:none}
 .ph-dphotos span{flex:0 0 108px;height:140px;border-radius:12px;padding:8px;display:flex;align-items:flex-end;font-size:10.5px;line-height:1.35;color:#5a3a48;overflow:hidden}
@@ -3840,8 +3841,8 @@ posts는 ${"${c}"}@이 익명으로 직접 쓴 글 4~6개(고민, 연애 상담,
 {"app":"앱 이름(ChatGPT, Gemini 등 실제로 있는 것)","chats":[{"title":"대화 제목(앱이 자동으로 붙인 것처럼 짧게)","when":"오늘/어제/9월 20일","msgs":[{"q":"${"${c}"}@이 쓴 질문 그대로","a":"AI 답변"}]}]}
 chats마다 msgs 1~4개. 최근 것이 위로. 질문은 ${"${c}"}의 말투·맞춤법·버릇 그대로, 요약하지 않고 실제로 입력한 문장처럼. 연애 고민, ${"${u}"}에 대한 것, 숨기는 것, 일·공부, 아주 사소하거나 엉뚱한 것을 섞는다. 답이 마음에 안 들어 다시 묻거나, 말투를 바꿔 되묻거나, 따지는 흔적도 넣는다. AI 답변은 AI 말투로 담백하게 2~4문장. 질문과 같은 언어로 답한다.`,
   date: `데이팅 앱 화면. 여기 기록은 전부 ${"${c}"}@이 ${"${u}"}를 만나기 전의 것이다. ${"${u}"}는 어디에도 나오지 않고, ${"${u}"}를 알기 전 ${"${c}"}의 모습(그때의 생활, 외로움, 허세, 연애관)이 드러나게 한다. 앱을 열심히 썼는지, 친구가 깔아 줘서 대충 했는지, 몇 번 해 보다 접었는지는 설정을 보고 정한다.
-{"app":"앱 이름(틴더 등 실제로 있는 것, 사는 나라에 맞게)","status":"상태 한 줄(예: 마지막 접속 5개월 전)","profile":{"name":"프로필 이름","age":"나이","photos":["올린 사진 묘사 3~5개"],"bio":"자기소개 그대로","tags":["관심사 3~5개"]},"likes":0,"matches":[{"name":"상대 이름","note":"짧은 메모(예: 매칭 후 대화 없음)","last":"마지막 메시지(없으면 빈칸)","when":"때","msgs":[{"from":"me 또는 상대 이름","text":"내용","time":"오후 11:20"}]}]}
-photos는 프로필에 올린 사진을 순서대로 짧게 묘사한다: 어떤 사진인지(셀카, 거울 셀카, 복근·운동 사진, 얼굴 가린 사진, 뒷모습, 여행지 풍경, 반려동물, 친구가 찍어 준 사진, 잘린 단체사진 등)와 구도·분위기. 이 인물이 자기를 어떻게 보이고 싶어 하는지 드러나게. 자기소개에 이상형을 적어 두는 사람이면 소개글 안에 자연스럽게 섞어 쓴다(그때의 취향대로, 안 적는 사람이면 안 쓴다). likes는 받은 좋아요 수. msgs는 그 사람과 앱에서 나눈 대화 그대로, 대화했으면 3~10개(오래된 것부터, 마지막은 last와 같게), 매칭만 하고 말 안 했으면 빈 배열. 떠보기, 읽씹, 흐지부지 끊긴 대화처럼 진짜 데이팅 앱 같게. matches는 2~6개. 자기소개는 ${"${c}"}@이 직접 쓴 것처럼 말투 그대로.`,
+{"app":"앱 이름(틴더 등 실제로 있는 것, 사는 나라에 맞게)","status":"상태 한 줄(예: 마지막 접속 5개월 전)","profile":{"name":"프로필 이름","age":"나이","photo":"대표 사진 묘사","bio":"자기소개 그대로","tags":["관심사 3~5개"]},"likes":0,"matches":[{"name":"상대 이름","note":"짧은 메모(예: 매칭 후 대화 없음)","last":"마지막 메시지(없으면 빈칸)","when":"때","msgs":[{"from":"me 또는 상대 이름","text":"내용","time":"오후 11:20"}]}]}
+photo는 프로필 맨 앞에 건 대표 사진 한 장을 2~3문장으로 묘사한다: 어떤 사진인지(셀카, 거울 셀카, 복근·운동 사진, 얼굴 가린 사진, 뒷모습, 여행지 풍경, 반려동물, 친구가 찍어 준 사진, 잘린 단체사진 등)와 구도·분위기. 이 인물이 자기를 어떻게 보이고 싶어 하는지 드러나게. 자기소개에 이상형을 적어 두는 사람이면 소개글 안에 자연스럽게 섞어 쓴다(그때의 취향대로, 안 적는 사람이면 안 쓴다). likes는 받은 좋아요 수. msgs는 그 사람과 앱에서 나눈 대화 그대로, 대화했으면 3~10개(오래된 것부터, 마지막은 last와 같게), 매칭만 하고 말 안 했으면 빈 배열. 떠보기, 읽씹, 흐지부지 끊긴 대화처럼 진짜 데이팅 앱 같게. matches는 2~6개. 자기소개는 ${"${c}"}@이 직접 쓴 것처럼 말투 그대로.`,
   review: `${"${c}"}@이 여러 곳에 남긴 후기 6~8개.
 {"items":[{"site":"후기를 남긴 곳(쿠팡, 배달의민족, 네이버 지도, 알라딘, 왓챠처럼 실제로 있는 곳, 사는 나라에 맞게)","name":"상품·가게·작품 이름","opt":"옵션(예: 블랙 / L, 2인분, 없으면 빈칸)","star":4,"date":"9월 21일","text":"후기 본문 그대로","help":0}]}
 최근 것이 위로. 곳과 종류를 서로 다르게 섞고, 전부 음식이나 전부 책으로 채우지 않는다. ${"${c}"}@이 실제로 돈이나 시간을 쓴 것에서 고른다. 본문은 대화할 때 말투가 아니라 모르는 사람에게 쓰는 말투지만 버릇은 드러나게, 말이 짧은 사람이면 한 줄로 끝낸다. 별점을 전부 높게 주지 않고, 낮으면 본문에 이유가 드러나야 한다. ${"${u}"}와 같이 간 곳이나 ${"${u}"} 주려고 산 것이 있으면 은근히 티 나게. help는 다른 사람이 누른 도움돼요 수.`,
@@ -4259,7 +4260,7 @@ function phApp(c, ph) {
     }
     title = D.app ? phTx(D.app, "orig") : title;
     inner = (D.status ? `<div class="ph-dst">${phTx(D.status, tr)}</div>` : "")
-      + `<div class="ph-dpro">${(P.photos || []).length ? `<div class="ph-dphotos">${P.photos.map((ph, i) => `<span style="background:hsl(${(i * 53 + 330) % 360} 30% 88%)">${phTx(ph, tr === "both" ? "tr" : tr)}</span>`).join("")}</div>` : `<div class="ph-dimg">${esc(phPlain(P.name || c.name).slice(0, 1))}</div>`}<div class="ph-dnm"><b>${phTx(P.name, "orig")}</b>${P.age ? `<span>${esc(P.age)}</span>` : ""}</div>${P.bio ? `<p>${phTx(P.bio, tr)}</p>` : ""}${(P.tags || []).length ? `<div class="ph-dtags">${P.tags.map(t => `<em>${phTx(t, "orig")}</em>`).join("")}</div>` : ""}</div>`
+      + `<div class="ph-dpro">${(P.photo || (P.photos || [])[0]) ? `<div class="ph-dmain">${phTx(P.photo || P.photos[0], tr === "both" ? "tr" : tr)}</div>` : `<div class="ph-dimg">${esc(phPlain(P.name || c.name).slice(0, 1))}</div>`}<div class="ph-dnm"><b>${phTx(P.name, "orig")}</b>${P.age ? `<span>${esc(P.age)}</span>` : ""}</div>${P.bio ? `<p>${phTx(P.bio, tr)}</p>` : ""}${(P.tags || []).length ? `<div class="ph-dtags">${P.tags.map(t => `<em>${phTx(t, "orig")}</em>`).join("")}</div>` : ""}</div>`
       + `<div class="ph-sec">받은 좋아요 ${esc(D.likes ?? 0)}개 · 매칭 ${(D.matches || []).length}</div>`
       + (D.matches || []).map((x, i) => `<button type="button" class="ph-row" data-ph="memo" data-v="${i}"><span class="ph-av pink">${esc(phPlain(x.name).slice(0, 1))}</span><span class="ph-mid"><b>${phTx(x.name, "orig")}</b><small>${x.last ? phTx(x.last, tr === "both" ? "paren" : tr) : phTx(x.note, tr)}</small>${x.last && x.note ? `<small class="ph-dn">${phTx(x.note, tr)}</small>` : ""}</span><small>${esc(x.when || "")}</small></button>`).join("");
   } else if (k === "review") {
