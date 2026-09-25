@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"2.83","items":["핸드폰: 은행·구독 화면이 찌그러지던 것 고침","핸드폰: 구독 목록이 그 인물다운 것 위주로, 합계는 자동 계산","핸드폰: 메시지 화면 색을 바꿈 (연회색 바탕, 파란 말풍선)"]},
   {"v":"2.82","items":["핸드폰: 캐릭터 폰을 몰래 볼 수 있어요 (전화, 검색, 메시지·단톡, 음악, 인스타, 캘린더, 갤러리, 메모, 쇼핑, 구독, 시청기록, 삭제기록)","핸드폰: 폰 속 날짜와 시간은 대화를 보고 정해요","핸드폰: 지우개 버튼으로 앱 하나 또는 폰 전체를 처음부터 다시 볼 수 있어요","핸드폰: 스크린타임, 은행, 알람, 커뮤 앱이 생겼어요","핸드폰: 폰 속 기록은 캐릭터도 알고 있어요 (엿본 건 몰라요)","핸드폰: 외국어 캐릭터는 원문과 번역을 같이 보여줘요","같이 그리기: 글씨체가 섞이지 않게, 캐릭터마다 글씨 실력이 달라요","같이 그리기: 코멘트 줄바꿈과 자리 잡기를 자연스럽게 고쳤어요"]},
   {"v":"2.81","items":[]}
 ]
@@ -834,6 +835,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .ph-grab::after{content:"";width:64px;height:5px;border-radius:3px;background:#cdbfc7}
 .ph-dev{flex:1;min-height:0;width:100%;box-sizing:border-box;padding:9px;border-radius:44px;background:#1f1a1d;box-shadow:0 18px 44px rgba(40,20,32,.38)}
 .ph-scr{position:relative;height:100%;border-radius:36px;overflow:hidden;background:#fff;display:flex;flex-direction:column}
+.ph-scr{line-height:1.35;font-size:14px;letter-spacing:0}
 .ph-scr *{box-sizing:border-box}
 .ph-scr button{font:inherit;color:inherit;cursor:pointer}
 .ph-sb{flex:none;height:32px;padding:0 24px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;font-size:12px;font-weight:700}
@@ -845,6 +847,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .ph-foot button::after{content:"";width:110px;height:5px;border-radius:3px;background:#2a2227}
 .ph-scr.dark .ph-foot button::after{background:rgba(255,255,255,.85)}
 .ph-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column}
+.ph-body>*{flex-shrink:0}
 .ph-home{padding:14px 14px 6px;gap:16px;color:#fff}
 .ph-clock{text-align:center;font-size:13px;color:#e7d9e0}
 .ph-clock strong{display:block;font-family:"GounBatang","Gowun Batang",serif;font-size:52px;font-weight:400;line-height:1.1;color:#fff}
@@ -863,7 +866,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .ph-head h4{flex:1;min-width:0;margin:0;font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ph-head h4 em{font-style:normal;font-weight:400;color:#6f6169}
 .ph-head h4.ig{font-family:"GounBatang","Gowun Batang",serif;font-size:21px}
-.ph-head.chat{background:#b9cfe4;border-bottom:0}
+.ph-head.chat{background:#eef1f5;border-bottom:0}
 .ph-ib{width:44px;height:44px;border:0;background:none;display:grid;place-items:center;flex:none;padding:0}
 .ph-ib:disabled{opacity:.6}
 .ph-pill{flex:none;height:28px;padding:0 10px;border:0;border-radius:14px;background:#2a2227;color:#fff !important;font-size:11px;font-weight:600;white-space:nowrap}
@@ -874,6 +877,9 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .ph-mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .ph-mid b{font-size:14px;font-weight:600;color:#2a2227}
 .ph-mid small{font-size:12px;color:#6f6169}
+.ph-row .ph-mid,.ph-row .ph-right{gap:1px;line-height:1.3}
+.ph-row .ph-mid>*,.ph-row .ph-right>*{line-height:1.3}
+.ph-row.sub{padding-top:9px;padding-bottom:9px}
 .ph-l1{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .ph-l1 small{flex:none;font-size:11px;color:#6f6169}
 .ph-l1 b em{font-style:normal;font-weight:400;color:#6f6169}
@@ -992,6 +998,8 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .ph-row.sub{border-bottom:1px solid #f3eef1}
 .ph-subd{margin:0 14px 8px 64px;padding:8px 11px;border-radius:10px;background:#f6f2f5;display:flex;flex-direction:column;gap:5px;font-size:12.5px;line-height:1.5;color:#3a3238}
 .ph-subd .ph-tr{display:inline;margin-left:4px}
+.ph-sdp{color:#5f525a !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ph-sdp em{font-style:normal;color:#a02a67}
 .ph-stories{flex:none;display:flex;gap:6px;padding:4px 10px 10px;border-bottom:1px solid #eee6ea;overflow-x:auto}
 .ph-story{width:58px;flex:none;display:flex;flex-direction:column;align-items:center;gap:4px}
 .ph-story i{width:54px;height:54px;border-radius:50%;border:2px solid #c2466f;padding:2px}
@@ -1026,16 +1034,16 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .ph-hls i{width:50px;height:50px;border-radius:50%;border:1px solid #d8ccd3;background:#e9e1e6;background-clip:content-box;padding:3px}
 .ph-cells{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px;border-top:1px solid #eee6ea}
 .ph-cell{aspect-ratio:1/1;display:grid;place-items:center;padding:6px;font-size:10px;line-height:1.3;color:#5f5249;text-align:center;overflow:hidden}
-.ph-body.chat{background:#b9cfe4;padding:12px;gap:8px}
+.ph-body.chat{background:#eef1f5;padding:12px;gap:8px}
 .ph-b{display:flex;gap:6px;align-items:flex-end;max-width:100%}
 .ph-b .ph-bc{display:flex;flex-direction:column;gap:3px;max-width:190px}
-.ph-b .ph-bc small{font-size:11px;color:#4a5a6a}
-.ph-bt{padding:8px 11px;border-radius:4px 14px 14px 14px;background:#fff;font-size:13px;line-height:1.45;word-break:break-word}
+.ph-b .ph-bc small{font-size:11px;color:#7a6e76}
+.ph-bt{padding:8px 12px;border-radius:18px;background:#fff;color:#111;box-shadow:none;font-size:13px;line-height:1.45;word-break:break-word}
 .ph-b.me{justify-content:flex-end}
-.ph-b.me .ph-bt{max-width:190px;background:#f6dd7a;border-radius:14px 4px 14px 14px}
-.ph-b small.t{flex:none;font-size:10px;color:#4a5a6a}
+.ph-b.me .ph-bt{max-width:190px;background:#1a8cff;color:#fff !important;border-radius:18px}
+.ph-b small.t{flex:none;font-size:10px;color:#8a7f86}
 .ph-b.cont{margin-top:-4px}
-.ph-b.cont .ph-bt{border-radius:14px}
+.ph-b.cont .ph-bt{border-radius:18px}
 .ph-avs{width:28px;flex:none}
 .ph-lockbar{flex:none;padding:8px 12px;display:flex;align-items:center;gap:8px;background:#fff;border-top:1px solid #e6e0e4;font-size:12px;color:#6f6169}
 .ph-sic{display:flex;align-items:center;gap:5px}
@@ -1394,7 +1402,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
         <button id="resetChat">초기화</button>
       </div>
       <div class="in">
-        <textarea id="input" rows="1" placeholder=""></textarea>
+        <textarea id="input" rows="1" placeholder="" spellcheck="false" autocorrect="off" autocapitalize="off"></textarea>
         <button class="btn" id="send">보내기</button>
       </div>
     </div>
@@ -3753,9 +3761,12 @@ follower_list와 following_list는 각각 8~12개. 친구, 설정에 나온 인�
   shop: `쇼핑 앱 주문 내역 5~7개.
 {"items":[{"date":"9월 24일","name":"상품명","opt":"옵션","price":"24,800원","status":"배송 중|배송 완료|구매 확정|취소","gift":"선물로 보냈으면 '받는 사람: 이름' 또는 '받는 사람 비공개', 아니면 빈칸"}]}
 최근 것이 위로.`,
-  subs: `구독·정기결제 목록 3~5개. 이 인물의 설정, 성격, 취미, 생활, 최근 대화를 보고 진짜로 돈 내고 쓰고 있을 것 같은 것만 고른다. 남들이 흔히 하는 구독이라고 넣지 않고, 이 인물이라서 구독했을 법한 것 위주로. 영상, 음악, 책·웹툰, 데이팅, 쇼핑·배달 멤버십, 게임, 클라우드, 운동, 공부 등 구독할 수 있는 건 뭐든 되고, 서비스 이름은 세계관과 시대에 맞게 실제로 있을 법한 이름으로 정한다.
-{"total":"이번 달 합계 금액","next":"다음 결제일","items":[{"name":"서비스 이름","plan":"요금제·등급","day":"매월 1일","price":"13,500원","status":"이용 중|해지 예정|무료 체험 중","detail":["그 서비스 안에서 한 일 2~4개"]}]}
-detail에는 그 서비스 안에서 엿보면 재밌는 구체적인 내용을 쓴다(책이면 산 책 제목과 진도, 데이팅이면 등급과 최근 활동, 영상이면 최근 본 작품, 게임이면 레벨이나 결제한 아이템처럼).`,
+  subs: `구독·정기결제 목록 5~6개. 다른 인물의 폰과 겹치지 않는, ${"${c}"}의 폰에만 있을 법한 목록이어야 한다. 폰을 몰래 연 사람이 "얘 이런 데 돈 쓰네?" 할 만한 것 위주로, 성격·취미·직업·관계·숨기는 것·최근 대화를 보고 고른다.
+- 영상 스트리밍, 클라우드 저장공간, 음악 앱처럼 누구나 쓰는 무난한 구독은 최대 1개(없어도 된다).
+- 나머지는 이 인물이 드러나는 구독: 웹툰·웹소설 이용권이나 코인 충전, 전자책·만화 앱, 배달앱 멤버십, 쇼핑 멤버십, 데이팅 앱 유료 등급, 게임 월정액·시즌 패스, 아이돌·스트리머 팬 멤버십이나 후원, 운동·식단 앱, 어학·자격증 앱, 취미 정기배송, 편집·그림 앱 유료판 같은 결. 이 목록에서 고르라는 게 아니라 이런 결이라는 뜻이다. 이 인물이 진짜 돈 낼 것만.
+- 같은 종류는 하나만. 실제로 있는 서비스 이름과 실제에 가까운 요금제·가격으로 쓰고, 이 인물이 사는 나라·세계관·시대에 맞는 서비스로 정한다(일본에 살면 일본 서비스).
+{"next":"다음 결제일","items":[{"name":"서비스 이름","plan":"요금제·등급","day":"매월 1일","price":"13,500원","status":"이용 중|해지 예정|무료 체험 중","detail":["그 서비스 안에서 한 일 2~4개"]}]}
+detail은 항목마다 꼭 2~4개 쓴다. 그 앱을 열면 보이는 구체적인 기록이다. 웹툰이면 보고 있는 작품 제목과 몇 화까지·코인 얼마 썼는지, 전자책이면 산 책 제목과 진도, 배달이면 자주 시킨 가게·메뉴와 최근 주문 시각, 데이팅이면 등급·최근 활동, 게임이면 레벨·랭크·결제한 아이템, 팬 멤버십이면 누구의 팬인지·최근 남긴 글처럼. 작품·책·가게 이름은 실제로 있는 것이어도 된다.`,
   music: `음악 앱. 지금 재생 중인 곡, 최근 들은 곡 6~8개, 플레이리스트 2~3개.
 {"now":{"title":"곡 제목","artist":"가수","mode":"한 곡 반복|셔플|순서대로"},"recent":[{"title":"곡 제목","artist":"가수","note":"오늘 12번/어제/이번 주 자주"}],"lists":[{"name":"플레이리스트 이름","count":18,"note":"수정 2시간 전"}]}
 ${"${c}"}의 취향과 요즘 기분이 드러나게. 실제로 있는 노래를 써도 된다.`,
@@ -4093,9 +4104,13 @@ function phApp(c, ph) {
     inner += (D.items || []).filter(x => PH.tab === 0 || (PH.tab === 1 ? /배송 중|준비/.test(x.status) : /확정|완료/.test(x.status))).map(x => `<div class="ph-order"><div class="ph-l1"><small>${esc(x.date || "")}</small><span class="ph-st">${esc(x.status || "")}</span></div><div class="ph-oi"><span class="ph-thumb"></span><span class="ph-mid"><b>${phTx(x.name, tr)}</b><small>${phTx(x.opt, "orig")}</small><strong>${esc(x.price || "")}</strong>${x.gift ? `<em>선물하기 · ${phTx(x.gift, tr)}</em>` : ""}</span></div></div>`).join("");
   } else if (k === "subs") {
     // 누르면 그 서비스 안에서 한 일(산 책, 등급, 최근 활동 등)이 펼쳐져요
-    inner = `<div class="ph-sum"><small>이번 달 구독료</small><strong>${esc(D.total || "")}</strong><small>구독 ${(D.items || []).length}개${D.next ? " · 다음 결제 " + esc(D.next) : ""}</small></div>`
+    const subN = s => { const m = String(s || "").replace(/,/g, "").match(/\d+(\.\d+)?/); return m ? +m[0] : NaN; };
+    const subL = (D.items || []).filter(x => !/해지됨|무료/.test(x.status || "")), subT = subL.reduce((a, x) => a + subN(x.price), 0);
+    const subP = String(((D.items || [])[0] || {}).price || ""), subU = (subP.match(/[^\d.,\s]+\s*$/) || [""])[0], subF = (subP.match(/^\s*[^\d.,\s]+/) || [""])[0];
+    const subTotal = subL.length && isFinite(subT) ? subF + subT.toLocaleString("ko-KR") + subU : (D.total || "");
+    inner = `<div class="ph-sum"><small>이번 달 구독료</small><strong>${esc(subTotal)}</strong><small>구독 ${(D.items || []).length}개${D.next ? " · 다음 결제 " + esc(D.next) : ""}</small></div>`
       + (D.items || []).map((x, i) => { const open = PH.memo === i, det = Array.isArray(x.detail) ? x.detail : (x.detail ? [x.detail] : []);
-        return `<button type="button" class="ph-row sub" data-ph="memo" data-v="${open ? -1 : i}"><span class="ph-sq" style="background:${PH_WALLS[i % PH_WALLS.length]}">${esc(phPlain(x.name).slice(0, 1))}</span><span class="ph-mid"><b>${phTx(x.name, "orig")}</b><small>${x.plan ? phTx(x.plan, "orig") + " · " : ""}${esc(x.day || "")}</small></span><span class="ph-right"><b>${esc(x.price || "")}</b><small class="${/해지/.test(x.status) ? "miss" : "ok"}">${esc(x.status || "")}</small></span></button>`
+        return `<button type="button" class="ph-row sub" data-ph="memo" data-v="${open ? -1 : i}"><span class="ph-sq" style="background:${PH_WALLS[i % PH_WALLS.length]}">${esc(phPlain(x.name).slice(0, 1))}</span><span class="ph-mid"><b>${phTx(x.name, "orig")}</b><small>${x.plan ? phTx(x.plan, "orig") + " · " : ""}${esc(x.day || "")}</small>${!open && det.length ? `<small class="ph-sdp">${phTx(det[0], tr === "both" ? "orig" : tr)}${det.length > 1 ? ` <em>외 ${det.length - 1}개</em>` : ""}</small>` : ""}</span><span class="ph-right"><b>${esc(x.price || "")}</b><small class="${/해지/.test(x.status) ? "miss" : "ok"}">${esc(x.status || "")}</small></span></button>`
           + (open && det.length ? `<div class="ph-subd">${det.map(d => `<div>${phTx(d, tr)}</div>`).join("")}</div>` : ""); }).join("");
   } else if (k === "music") {
     const n = D.now;
