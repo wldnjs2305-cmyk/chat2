@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"2.83","items":["핸드폰: 은행·구독 화면이 찌그러지던 것 고침","핸드폰: 구독 목록이 그 인물다운 것 위주로, 합계는 자동 계산","핸드폰: 메시지 화면 색을 바꿈 (연회색 바탕, 파란 말풍선)"]},
+  {"v":"2.83","items":["핸드폰: 은행·구독 화면이 찌그러지던 것 고침","핸드폰: 구독 목록이 그 인물다운 것 위주로, 합계는 자동 계산","핸드폰: 메시지에 날짜가 바뀔 때마다 날짜 표시","핸드폰: 메시지 화면 색을 바꿈 (연회색 바탕, 파란 말풍선)"]},
   {"v":"2.82","items":["핸드폰: 캐릭터 폰을 몰래 볼 수 있어요 (전화, 검색, 메시지·단톡, 음악, 인스타, 캘린더, 갤러리, 메모, 쇼핑, 구독, 시청기록, 삭제기록)","핸드폰: 폰 속 날짜와 시간은 대화를 보고 정해요","핸드폰: 지우개 버튼으로 앱 하나 또는 폰 전체를 처음부터 다시 볼 수 있어요","핸드폰: 스크린타임, 은행, 알람, 커뮤 앱이 생겼어요","핸드폰: 폰 속 기록은 캐릭터도 알고 있어요 (엿본 건 몰라요)","핸드폰: 외국어 캐릭터는 원문과 번역을 같이 보여줘요","같이 그리기: 글씨체가 섞이지 않게, 캐릭터마다 글씨 실력이 달라요","같이 그리기: 코멘트 줄바꿈과 자리 잡기를 자연스럽게 고쳤어요"]},
   {"v":"2.81","items":[]}
 ]
@@ -1038,12 +1038,14 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .ph-b{display:flex;gap:6px;align-items:flex-end;max-width:100%}
 .ph-b .ph-bc{display:flex;flex-direction:column;gap:3px;max-width:190px}
 .ph-b .ph-bc small{font-size:11px;color:#7a6e76}
-.ph-bt{padding:8px 12px;border-radius:18px;background:#fff;color:#111;box-shadow:none;font-size:13px;line-height:1.45;word-break:break-word}
+.ph-bt{padding:8px 11px;border-radius:4px 14px 14px 14px;background:#fff;color:#111;box-shadow:none;font-size:13px;line-height:1.45;word-break:break-word}
 .ph-b.me{justify-content:flex-end}
-.ph-b.me .ph-bt{max-width:190px;background:#1a8cff;color:#fff !important;border-radius:18px}
+.ph-b.me .ph-bt{max-width:190px;background:#1a8cff;color:#fff !important;border-radius:14px 4px 14px 14px}
 .ph-b small.t{flex:none;font-size:10px;color:#8a7f86}
 .ph-b.cont{margin-top:-4px}
-.ph-b.cont .ph-bt{border-radius:18px}
+.ph-dsep{display:flex;justify-content:center;margin:6px 0 2px}
+.ph-dsep span{padding:4px 12px;border-radius:12px;background:rgba(42,34,39,.08);font-size:11.5px;color:#5f5560}
+.ph-b.cont .ph-bt{border-radius:14px}
 .ph-avs{width:28px;flex:none}
 .ph-lockbar{flex:none;padding:8px 12px;display:flex;align-items:center;gap:8px;background:#fff;border-top:1px solid #e6e0e4;font-size:12px;color:#6f6169}
 .ph-sic{display:flex;align-items:center;gap:5px}
@@ -3837,7 +3839,8 @@ ${josa(c.name, "이", "가")} 안 읽은 메시지: ${t.unread || 0}개
 - ${c.name}의 설정, 관계, 최근 대화와 이어지게. 카톡처럼 짧게 짧게, 한 사람이 여러 번 연달아 보내도 된다.${withUser ? `\n- ${u}와의 대화방이다. 최근 대화에 나온 문자(*[내용]* 표기)가 있으면 그 내용을 그대로 옮기고, 없으면 짧은 일상 문자만 쓴다. 대화에서 있었던 일과 어긋나지 않게 한다.` : ""}${langRule}
 ${old ? `\n[이미 있는 메시지]\n${JSON.stringify(old).slice(0, 3000)}\n이 메시지들은 그대로 두고, 그 뒤에 새로 온 메시지만 쓴다.\n` : ""}
 [형식]
-{"msgs":[{"from":"me 또는 보낸 사람 이름","text":"내용","time":"오후 11:20"}]}
+{"msgs":[{"from":"me 또는 보낸 사람 이름","text":"내용","date":"2026-09-25","time":"오후 11:20"}]}
+- date는 그 메시지를 보낸 날(YYYY-MM-DD), time은 시각만 쓴다("오늘", "어제"는 붙이지 않는다). 폰 속 지금 날짜를 넘지 않게, 오래된 것부터 순서대로. 대화 흐름에 맞게 며칠에 걸쳐 이어져도 되고 하루 안에 다 있어도 된다.
 메시지 ${old ? "2~8" : "10~16"}개. JSON 하나만 출력한다. 설명이나 코드블록은 쓰지 않는다.`;
 }
 function phoneMerge(k, old, nw) {
@@ -4246,17 +4249,24 @@ function phThread(c, ph) {
   if (!th || !th.msgs || !th.msgs.length) inner = err ? `<div class="ph-msg">${esc(err)}<button type="button" data-ph="tmore">다시 불러오기</button></div>` : `<div class="ph-msg"><span class="ph-spin"></span>대화 보는 중...</div>`;
   else {
     // 같은 사람이 연달아 보내면 프로필·이름은 처음에만, 시간은 묶음의 마지막에만 (카톡처럼)
-    const L = th.msgs;
+    const L = th.msgs, WD = ["일", "월", "화", "수", "목", "금", "토"];
+    const dLab = v => { const g = String(v || "").match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/); if (!g) return esc(v); const d = new Date(+g[1], +g[2] - 1, +g[3]); return `${+g[1]}년 ${+g[2]}월 ${+g[3]}일 ${WD[d.getDay()]}요일`; };
+    let lastDate = "";
     inner = L.map((m, i) => {
+      const dk = String(m.date || "").trim(), sep = dk && dk !== lastDate ? `<div class="ph-dsep"><span>${dLab(dk)}</span></div>` : "";
+      if (dk) lastDate = dk;
+      return sep + phMsgRow(m, i);
+    }).join("");
+    function phMsgRow(m, i) {
       const me = m.from === "me", pv = L[i - 1], nx = L[i + 1];
-      const first = !pv || pv.from !== m.from;
-      const lastRun = !nx || nx.from !== m.from || String(nx.time || "") !== String(m.time || "");
+      const first = !pv || pv.from !== m.from || (m.date && pv.date && m.date !== pv.date);
+      const lastRun = !nx || nx.from !== m.from || String(nx.time || "") !== String(m.time || "") || String(nx.date || "") !== String(m.date || "");
       const time = lastRun ? `<small class="t">${esc(m.time || "")}</small>` : "";
       const bt = phTx(m.text, tr === "both" ? "paren" : tr);
       if (me) return `<div class="ph-b me${first ? "" : " cont"}">${time}<span class="ph-bt">${bt}</span></div>`;
       const nm = phPlain(m.from);
       return `<div class="ph-b${first ? "" : " cont"}">${first ? `<span class="ph-av xs">${esc(nm.slice(0, 1))}</span>` : `<span class="ph-avs"></span>`}<span class="ph-bc">${first ? `<small>${esc(nm)}</small>` : ""}<span class="ph-bt">${bt}</span></span>${time}</div>`;
-    }).join("");
+    }
     if (err) inner += `<div class="ph-err">${esc(err)}</div>`;
   }
   return head + `<div class="ph-body chat">${inner}</div><div class="ph-lockbar">${phIc("lock", 15)}몰래 보는 중이라 답장은 못 보내요</div>`;
