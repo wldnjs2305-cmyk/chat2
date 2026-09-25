@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"2.83","items":["핸드폰: 은행·구독 화면이 찌그러지던 것 고침","핸드폰: 구독 목록이 그 인물다운 것 위주로, 합계는 자동 계산","핸드폰: 메시지에 날짜가 바뀔 때마다 날짜 표시","핸드폰: 메시지 화면 색을 바꿈 (연회색 바탕, 파란 말풍선)"]},
+  {"v":"2.83","items":["핸드폰: 은행·구독 화면이 찌그러지던 것 고침","핸드폰: 구독 목록이 그 인물다운 것 위주로, 합계는 자동 계산","핸드폰: 메시지에 날짜가 바뀔 때마다 날짜 표시","핸드폰: 외국어 캐릭터는 날짜·시간 표시도 그 나라 말로","핸드폰: AI 챗봇, 데이팅 앱이 생겼어요","핸드폰: 저장된 이름 옆에 누구인지 같이 떠요","핸드폰: 대화에 날짜 단서가 없으면 설정에 맞는 날짜로 시작해요","핸드폰: 메시지 화면 색을 바꿈 (연회색 바탕, 파란 말풍선)"]},
   {"v":"2.82","items":["핸드폰: 캐릭터 폰을 몰래 볼 수 있어요 (전화, 검색, 메시지·단톡, 음악, 인스타, 캘린더, 갤러리, 메모, 쇼핑, 구독, 시청기록, 삭제기록)","핸드폰: 폰 속 날짜와 시간은 대화를 보고 정해요","핸드폰: 지우개 버튼으로 앱 하나 또는 폰 전체를 처음부터 다시 볼 수 있어요","핸드폰: 스크린타임, 은행, 알람, 커뮤 앱이 생겼어요","핸드폰: 폰 속 기록은 캐릭터도 알고 있어요 (엿본 건 몰라요)","핸드폰: 외국어 캐릭터는 원문과 번역을 같이 보여줘요","같이 그리기: 글씨체가 섞이지 않게, 캐릭터마다 글씨 실력이 달라요","같이 그리기: 코멘트 줄바꿈과 자리 잡기를 자연스럽게 고쳤어요"]},
   {"v":"2.81","items":[]}
 ]
@@ -864,6 +864,8 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .ph-lb{font-size:11px;color:#f4ecf0 !important}
 .ph-head{flex:none;height:48px;padding:0 6px;display:flex;align-items:center;gap:2px;border-bottom:1px solid #eee6ea}
 .ph-head h4{flex:1;min-width:0;margin:0;font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ph-head h4 .ph-who{display:block;font-size:11px;font-weight:400;color:#6f6169;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.ph-whoin{margin-left:6px;font-size:11px;font-weight:400;color:#8a7f86}
 .ph-head h4 em{font-style:normal;font-weight:400;color:#6f6169}
 .ph-head h4.ig{font-family:"GounBatang","Gowun Batang",serif;font-size:21px}
 .ph-head.chat{background:#eef1f5;border-bottom:0}
@@ -948,6 +950,20 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .ph-dthumb{width:54px;height:54px;flex:none;border-radius:8px}
 .ph-delp p{margin:2px 0}
 .ph-par{color:#6f6169;font-size:.9em}
+.ph-body.ai{background:#fff;padding:12px 14px;gap:10px}
+.ph-aiq{align-self:flex-end;max-width:82%;padding:8px 12px;border-radius:16px;background:#f0eef0;font-size:13px;line-height:1.45;word-break:break-word}
+.ph-aia{display:flex;gap:8px;font-size:13px;line-height:1.55;color:#2a2227}
+.ph-aic{flex:none;width:22px;height:22px;border-radius:50%;border:1px solid #d7ece6;display:grid;place-items:center}
+.ph-row.ai{border-bottom:1px solid #f3eef1}
+.ph-dst{margin:10px 14px 0;padding:8px 12px;border-radius:10px;background:#fdecf2;color:#a02a57;font-size:12px}
+.ph-dpro{margin:10px 14px;padding:14px;border-radius:16px;background:#fff;box-shadow:0 0 0 1px #f0e6eb;display:flex;flex-direction:column;gap:8px}
+.ph-dimg{height:120px;border-radius:12px;background:#f3d9e3;display:grid;place-items:center;font-size:36px;font-weight:700;color:#c2466f}
+.ph-dnm{display:flex;align-items:baseline;gap:6px}.ph-dnm b{font-size:17px}.ph-dnm span{font-size:14px;color:#6f6169}
+.ph-dpro p{margin:0;font-size:12.5px;line-height:1.5;color:#3a3036}
+.ph-dtags{display:flex;flex-wrap:wrap;gap:5px}.ph-dtags em{font-style:normal;font-size:11px;padding:3px 9px;border-radius:10px;background:#f6eef2;color:#7a4a60}
+.ph-av.pink{background:#fbe1ea;color:#c2466f}
+.ph-dn{color:#a02a57 !important}
+.ph-b.me .ph-par,.ph-b.me .ph-tr{color:rgba(255,255,255,.78) !important}
 .ph-ico.xs{width:32px;height:32px;border-radius:9px}
 .ph-cl{width:100%;border:0;border-bottom:1px solid #f3eef1;background:#fff;padding:11px 14px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left}
 .ph-cl b{font-size:14px;font-weight:600;line-height:1.4;color:#2a2227}
@@ -3632,7 +3648,8 @@ const PH_IC = {
   hour: '<path d="M6 3h12M6 21h12M7 3c0 5 10 5 10 9s-10 4-10 9M17 3c0 5-10 5-10 9"/>',
   bank: '<path d="M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/>',
   alarm: '<circle cx="12" cy="13" r="7"/><path d="M12 9v4l3 2M5 4L2 7M19 4l3 3"/>',
-  comm: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h10M7 17h6"/>'
+  comm: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h10M7 17h6"/>',
+  ai: '<path d="M11 3l1.9 5.1L18 10l-5.1 1.9L11 17l-1.9-5.1L4 10l5.1-1.9z"/><path d="M18.5 14.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/>'
 };
 const phIc = (k, sz = 22, col = "currentColor", sw = 1.8) => `<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="${col}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PH_IC[k] || ""}</svg>`;
 const PH_LANGS = { ja: "일본어", en: "영어", zh: "중국어(간체)" };
@@ -3652,9 +3669,11 @@ const PH_APPS = {
   screen: { n: "스크린타임", ic: "hour", bg: "#5b4bb8" },
   bank: { n: "은행", ic: "bank", bg: "#1f7a6a" },
   alarm: { n: "알람", ic: "alarm", bg: "#3a3438" },
-  comm: { n: "커뮤", ic: "comm", bg: "#5f7f2e" }
+  comm: { n: "커뮤", ic: "comm", bg: "#5f7f2e" },
+  ai: { n: "AI 챗봇", ic: "ai", bg: "#1f8f73" },
+  date: { n: "데이팅", ic: "heart", bg: "#e0457b" }
 };
-const PH_DOCK = ["call", "search", "msg", "music"], PH_GRID = ["insta", "comm", "cal", "gallery", "memo", "screen", "bank", "alarm", "shop", "subs", "watch", "trash"];
+const PH_DOCK = ["call", "search", "msg", "music"], PH_GRID = ["insta", "comm", "cal", "gallery", "memo", "screen", "bank", "alarm", "shop", "subs", "watch", "trash", "ai", "date"];
 const PH_DOW = "일월화수목금토";
 // 폰 속 지금 (대화 기준으로 정한 날짜·시각, 없으면 기기 시간)
 function phNow(ph) {
@@ -3665,6 +3684,14 @@ function phNow(ph) {
   }
   const n = new Date();
   return { y: n.getFullYear(), m: n.getMonth() + 1, d: n.getDate(), hh: n.getHours(), mm: n.getMinutes(), dow: PH_DOW[n.getDay()], iso: `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, "0")}-${String(n.getDate()).padStart(2, "0")}`, dev: true };
+}
+// 폰 날짜 표시를 캐릭터 언어에 맞게
+function phDateLab(y, m, d, lang, year) {
+  const dw = new Date(y, m - 1, d).getDay();
+  if (lang === "ja") return `${year ? y + "年" : ""}${m}月${d}日 ${"日月火水木金土"[dw]}曜日`;
+  if (lang === "zh") return `${year ? y + "年" : ""}${m}月${d}日 星期${"日一二三四五六"[dw]}`;
+  if (lang === "en") return `${["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][dw]}, ${["January","February","March","April","May","June","July","August","September","October","November","December"][m - 1]} ${d}${year ? ", " + y : ""}`;
+  return `${year ? y + "년 " : ""}${m}월 ${d}일 ${PH_DOW[dw]}요일`;
 }
 const phHM = t => `${t.hh}:${String(t.mm).padStart(2, "0")}`;
 const phNowText = t => `${t.y}년 ${t.m}월 ${t.d}일 (${t.dow}요일) ${t.hh < 12 ? "오전" : "오후"} ${t.hh % 12 || 12}:${String(t.mm).padStart(2, "0")}`;
@@ -3713,6 +3740,8 @@ function phoneBrief(c, skip) {
   if (d("cal")) { const t = phNow(ph).iso; (d("cal").events || []).filter(x => String(x.date || "") >= t).sort((a, b) => String(a.date).localeCompare(String(b.date))).slice(0, 4).forEach(x => out.push(`- 일정 ${cut(x.date, 10)}${x.time ? " " + cut(x.time, 5) : ""}: ${cut(x.title, 30)}`)); }
   if (d("gallery")) (d("gallery").photos || []).slice(0, 3).forEach(x => out.push(`- 사진 (${cut(x.when, 10)}): ${cut(x.desc, 40)}${x.hidden ? " (숨김)" : ""}`));
   if (d("search")) (d("search").items || []).slice(0, 4).forEach(x => out.push(`- 검색: ${cut(x.q, 30)}`));
+  if (d("ai")) (d("ai").chats || []).slice(0, 3).forEach(x => out.push(`- AI 챗봇에 물어본 것: ${cut(x.title, 30)}`));
+  if (d("date")) out.push(`- 데이팅 앱(${cut(d("date").app, 12)}): ${cut(d("date").status, 30)}`);
   if (d("comm")) (d("comm").posts || []).slice(0, 3).forEach(x => out.push(`- 커뮤(${cut(d("comm").site, 16)})에 익명으로 쓴 글: ${cut(x.title, 40)}`));
   if (d("bank")) { out.push(`- 통장 잔고: ${cut(d("bank").balance, 16)}`); (d("bank").items || []).slice(0, 3).forEach(x => out.push(`- 거래 ${cut(x.name, 16)} ${cut(x.amt, 14)}${x.memo ? " (" + cut(x.memo, 20) + ")" : ""}`)); }
   if (d("alarm")) out.push(`- 알람: ${(d("alarm").items || []).filter(x => x.on !== false).slice(0, 5).map(x => cut((x.ampm || "") + " " + x.time, 10) + (x.label ? " " + cut(x.label, 14) : "")).join(", ")}`);
@@ -3738,7 +3767,7 @@ function phoneCtx(c) {
 }
 const PH_SCHEMA = {
   msg: `메시지 앱의 대화방 목록. 개인 대화방과 단체 대화방(단톡)을 섞어서 6~9개.
-{"threads":[{"name":"대화방 이름(개인이면 저장된 이름, 단톡이면 방 이름)","group":false,"members":["단톡일 때 참여자 이름들"],"last":"마지막 메시지(단톡이면 '보낸 사람: 내용')","when":"방금/오후 3:10/어제/9월 22일","unread":0}]}
+{"threads":[{"name":"대화방 이름(개인이면 저장된 이름, 단톡이면 방 이름)","who":"누구인지 한국어로 짧게(개인이면 실제 이름 한국어 읽기 · 관계, 예: 칸자키 렌 · 소꿉친구 / 단톡이면 어떤 모임인지)","group":false,"members":["단톡일 때 참여자 이름들"],"last":"마지막 메시지(단톡이면 '보낸 사람: 내용')","when":"방금/오후 3:10/어제/9월 22일","unread":0}]}
 unread는 ${"${c}"}@이 아직 안 읽은 개수. 최근 것이 위로.`,
   call: `전화 앱. 최근 통화 기록 8~10개와 연락처 8~12개.
 {"items":[{"name":"저장된 이름 또는 번호","type":"부재중|수신|발신|취소","dur":"통화 시간(부재중·취소면 빈칸)","when":"오후 9:12/어제/9월 23일","n":1}],"contacts":[{"name":"저장된 이름","fav":false,"note":"저장할 때 붙인 메모(없으면 빈칸)"}]}
@@ -3787,6 +3816,12 @@ hours는 0시~23시 각 시간에 쓴 분(0~60) 24개이고, 지금 시각 이�
   comm: `인터넷 커뮤니티 앱. ${"${c}"}@이 자주 들어가는 익명 커뮤니티 하나. 사이트는 이 세계관에 실제로 있을 법한 곳으로 정한다(학생이면 학교 익명 게시판, 회사원이면 직장인 익명 앱, 군대·길드처럼 조직이 있으면 그 내부 게시판, 아니면 이 인물이 할 법한 커뮤니티). 조직 이름은 설정과 대화에 이미 나온 것을 그대로 쓴다.
 {"site":"사이트 이름","posts":[{"board":"게시판 이름","title":"제목","body":"본문(줄바꿈은 \n)","when":"12분 전","views":3842,"likes":12,"cmts":[{"u":"댓글 닉네임","t":"댓글","re":false}]}],"commented":[{"board":"게시판","title":"남의 글 제목","my":"${"${c}"}@이 단 댓글","when":"어제"}],"scraps":[{"board":"게시판","title":"스크랩한 글 제목","when":"9월 20일"}]}
 posts는 ${"${c}"}@이 익명으로 직접 쓴 글 4~6개(고민, 연애 상담, 자랑, 뒷담, 질문 등). 본문은 줄바꿈 없이 한 덩어리로 이어 쓴다. 이야기가 넘어가도 줄을 바꾸지 않고 자연스럽게 이어 쓴다. 본인이라고 티 안 나게 쓰지만 읽으면 누구 얘기인지 알 수 있게. 글마다 다른 사람들 댓글 5~8개, re가 true면 바로 위 댓글에 단 대댓글. 글쓴이가 댓글에 답하면 u를 "글쓴이"로. commented는 남의 글에 단 댓글 4~6개, scraps는 3~5개. 닉네임은 그 사이트에 맞게(익명1, 익명2 같은 식이면 그대로). 괄호나 꺾쇠로 태그를 만들지 않는다.`,
+  ai: `AI 챗봇 앱(ChatGPT 같은 것)의 대화 기록 5~7개. ${"${c}"}@이 사람한테는 차마 못 물어보고 AI한테 몰래 물어본 것들이다.
+{"app":"앱 이름(ChatGPT, Gemini 등 실제로 있는 것)","chats":[{"title":"대화 제목(앱이 자동으로 붙인 것처럼 짧게)","when":"오늘/어제/9월 20일","msgs":[{"q":"${"${c}"}@이 쓴 질문 그대로","a":"AI 답변"}]}]}
+chats마다 msgs 1~4개. 최근 것이 위로. 질문은 ${"${c}"}의 말투·맞춤법·버릇 그대로, 요약하지 않고 실제로 입력한 문장처럼. 연애 고민, ${"${u}"}에 대한 것, 숨기는 것, 일·공부, 아주 사소하거나 엉뚱한 것을 섞는다. 답이 마음에 안 들어 다시 묻거나, 말투를 바꿔 되묻거나, 따지는 흔적도 넣는다. AI 답변은 AI 말투로 담백하게 2~4문장.`,
+  date: `데이팅 앱 화면. ${"${c}"}@이 이 앱을 지금 쓰는지, 깔아만 두고 방치했는지, 지우려다 만 건지는 설정·관계·최근 대화를 보고 정한다. ${"${u}"}와의 관계가 드러나게(예: 몰래 계속 쓰는 중, ${"${u}"} 만난 뒤로 접속 안 함, 프로필을 ${"${u}"} 취향으로 고쳐 둠).
+{"app":"앱 이름(틴더 등 실제로 있는 것, 사는 나라에 맞게)","status":"상태 한 줄(예: 마지막 접속 3개월 전)","profile":{"name":"프로필 이름","age":"나이","bio":"자기소개 그대로","tags":["관심사 3~5개"]},"likes":0,"matches":[{"name":"상대 이름","note":"짧은 메모(예: 매칭 후 대화 없음)","last":"마지막 메시지(없으면 빈칸)","when":"때"}]}
+likes는 받은 좋아요 수. matches는 2~6개, 앱을 안 쓰면 적고 오래된 것 위주로. 자기소개는 ${"${c}"}@이 직접 쓴 것처럼 말투 그대로.`,
   trash: `휴대폰의 최근 삭제된 항목. 메시지 6개(보내려고 쓰다가 지운 메시지, 보낸 뒤 삭제한 메시지): 그중 3개는 ${"${u}"}에게, 3개는 다른 사람(친구, 가족, 동료, 단톡방 등 설정과 대화에 나온 사람)에게. 사진 3~5개, 메모 2~4개.
 {"items":[{"tab":"메시지|사진|메모","kind":"보내지 않은 메시지 · 받는 사람 / 보낸 뒤 삭제 · 대화방 이름 / 삭제한 메모 / 삭제한 사진","text":"지운 내용 그대로(사진이면 무엇이 찍혔는지 설명)","when":"지운 때(예: 오늘 오전 2:14)","left":"29일 남음"}]}
 text는 요약하지 말고 실제로 썼던 글 그대로 쓴다. 쓰다 만 문장, 여러 번 고쳐 쓴 흔적, 새벽에 쓴 감정적인 글처럼 진짜 폰에서 지운 것 같은 느낌으로. left는 지운 때에 맞게 1~30일 사이.
@@ -3794,7 +3829,7 @@ ${"${c}"}@이 숨기고 싶었던 마음이 드러나게.`
 };
 function phonePrompt(c, k, mode, old) {
   const u = c.uname || "유저", L = PH_LANGS[c.lang];
-  const langRule = L ? `\n- ${josa(c.name, "은", "는")} 평소 ${L}를 쓴다. 메시지·메모·캡션·댓글·지운 글 같은 글 내용은 ${L}로 쓰고, 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다(예: 先に寝てて[[먼저 자]]). 사람·가게 이름도 그 나라에 맞게 쓴다.` : "";
+  const langRule = L ? `\n- ${josa(c.name, "은", "는")} 평소 ${L}를 쓴다. 메시지·메모·캡션·댓글·지운 글 같은 글 내용은 ${L}로 쓰고, 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다(예: 先に寝てて[[먼저 자]]). 사람·가게 이름도 그 나라에 맞게 쓴다. 번역에서 웃음·감탄 소리(ふふ, 笑, w, haha 등)는 후후처럼 소리 나는 대로 옮기지 말고 ㅎㅎ, ㅋㅋ처럼 한국 문자에서 쓰는 말로 바꾸거나 뺀다.` : "";
   const schema = PH_SCHEMA[k].split("${c}@이").join(josa(c.name, "이", "가")).split("${c}").join(c.name).split("${u}").join(u);
   const oldTxt = old ? JSON.stringify(old).slice(0, 3500) : "";
   return `너는 ${c.name}의 휴대폰 속 [${PH_APPS[k].n}] 앱 화면에 들어갈 기록을 만든다. ${josa(c.name, "이", "가")} 실제로 쓰는 휴대폰이다.
@@ -3812,7 +3847,7 @@ ${(() => { const b = phoneBrief(c, k); return b ? `\n[이미 폰에 있는 다�
 ${mode === "more" ? `
 [이미 이 앱에 있는 기록]
 ${oldTxt}
-이 기록은 이미 폰에 있다. 다시 쓰지 않는다. 그 뒤로 새로 생긴 것만 같은 형식으로 쓴다. 최근 대화에서 새로 생길 만한 게 없으면 목록을 비운다.${k === "msg" ? " 이미 있는 대화방에 새 메시지가 왔으면 같은 name으로 last, when, unread를 새로 쓴다." : ""}${k === "bank" ? " 새 거래만 items에 쓰고, balance는 지금 잔고로 쓴다." : ""}${k === "screen" || k === "alarm" ? " 이 앱은 지금 상태 전체를 다시 쓴다(이미 있던 것과 자연스럽게 이어지게)." : ""}${k === "subs" ? " 구독은 지금 상태 전체를 다시 쓰되, 이미 있는 항목의 이름과 가격은 그대로 둔다." : ""}${k === "insta" ? " feed에는 새 게시물만, 계정 정보(posts, followers 등)는 지금 숫자로 쓴다." : ""}
+이 기록은 이미 폰에 있다. 다시 쓰지 않는다. 그 뒤로 새로 생긴 것만 같은 형식으로 쓴다. 최근 대화에서 새로 생길 만한 게 없으면 목록을 비운다.${k === "msg" ? " 이미 있는 대화방에 새 메시지가 왔으면 같은 name으로 last, when, unread를 새로 쓴다." : ""}${k === "bank" ? " 새 거래만 items에 쓰고, balance는 지금 잔고로 쓴다." : ""}${k === "screen" || k === "alarm" ? " 이 앱은 지금 상태 전체를 다시 쓴다(이미 있던 것과 자연스럽게 이어지게)." : ""}${k === "ai" ? " 새로 나눈 대화만 chats에 쓴다." : ""}${k === "date" ? " app·status·profile·likes는 지금 상태로 다시 쓰고, matches에는 새 매칭만 쓴다." : ""}${k === "subs" ? " 구독은 지금 상태 전체를 다시 쓰되, 이미 있는 항목의 이름과 가격은 그대로 둔다." : ""}${k === "insta" ? " feed에는 새 게시물만, 계정 정보(posts, followers 등)는 지금 숫자로 쓴다." : ""}
 ` : ""}
 [형식]
 ${schema}
@@ -3820,7 +3855,7 @@ JSON 하나만 출력한다. 설명이나 코드블록은 쓰지 않는다.`;
 }
 function phoneThreadPrompt(c, t, old) {
   const u = c.uname || "유저", L = PH_LANGS[c.lang];
-  const langRule = L ? `\n- 메시지는 ${L}로 쓰고 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다.` : "";
+  const langRule = L ? `\n- 메시지는 ${L}로 쓰고 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다. 번역은 한국 사람이 실제로 보내는 문자처럼 옮긴다. 웃음·감탄 소리(ふふ, 笑, w, haha, lol 등)를 소리 나는 대로 옮기지 않는다(후후 같은 번역 금지). ㅎㅎ, ㅋㅋ처럼 한국 문자에서 쓰는 말로 바꾸거나 뺀다.\n- time은 그 나라 폰에 뜨는 모양으로 쓴다(일본어: 16:15, 영어: 4:15 PM, 중국어: 16:15).` : "";
   const withUser = !t.group && phPlain(t.name) && (phPlain(t.name) === u || (c.uname && phPlain(t.name).includes(c.uname)));
   return `너는 ${c.name}의 휴대폰 메시지 앱에서 대화방 하나의 내용을 만든다. ${josa(c.name, "이", "가")} 실제로 쓰는 휴대폰이다.
 
@@ -3868,6 +3903,8 @@ function phoneMerge(k, old, nw) {
   if (k === "screen") return nw.total ? nw : old;
   if (k === "comm") return { site: nw.site || old.site, posts: pre(nw.posts, old.posts, 30), commented: pre(nw.commented, old.commented, 30), scraps: pre(nw.scraps, old.scraps, 30) };
   if (k === "alarm") return nw.items && nw.items.length ? nw : old;
+  if (k === "ai") return { app: nw.app || old.app, chats: pre(nw.chats, old.chats, 25) };
+  if (k === "date") return Object.assign({}, old, nw, { profile: nw.profile || old.profile, matches: pre(nw.matches, old.matches, 20) });
   if (k === "bank") return Object.assign({}, old, nw.balance ? { bank: nw.bank || old.bank, acct: nw.acct || old.acct, balance: nw.balance } : {}, { items: pre(nw.items, old.items, 60) });
   return { items: pre(nw.items, old.items) };
 }
@@ -3904,7 +3941,7 @@ ${phoneCtx(c)}
 ${prev ? `\n[지난번에 정한 시각] ${prev}\n` : ""}
 [규칙]
 - 설정과 최근 대화에 드러난 날짜, 요일, 계절, 시간대(새벽, 아침, 밤 등), 시간 경과를 보고 지금 이야기 속 날짜와 시각을 정한다.
-- 날짜 단서가 없으면 날짜는 ${n.getFullYear()}년 ${n.getMonth() + 1}월 ${n.getDate()}일로 하고, 시각은 대화 분위기에 맞게 정한다.${prev ? "\n- 지난번 시각보다 되돌리지 않는다. 대화에서 흐른 만큼만 흐르게 한다." : ""}
+- 날짜 단서가 없으면 실제 오늘 날짜를 쓰지 말고, 설정의 시대·계절·분위기에 맞는 날짜를 하나 정한다(현대 배경이면 연도는 ${n.getFullYear()}년 전후). 시각은 대화 분위기에 맞게 정한다.${prev ? "\n- 지난번 시각보다 되돌리지 않는다. 대화에서 흐른 만큼만 흐르게 한다." : ""}
 
 [형식]
 {"y":2026,"m":9,"d":25,"hh":23,"mm":40}
@@ -3975,7 +4012,7 @@ function phoneClick(e) {
   else if (a === "app") phoneOpenApp(v);
   else if (a === "back") {
     if (PH.view === "thread") { PH.view = "app"; PH.app = "msg"; }
-    else if (PH.view === "app" && PH.memo >= 0 && (PH.app === "memo" || PH.app === "comm")) PH.memo = -1;
+    else if (PH.view === "app" && PH.memo >= 0 && (PH.app === "memo" || PH.app === "comm" || PH.app === "ai")) PH.memo = -1;
     else if (PH.view === "app" && PH.photo >= 0) PH.photo = -1;
     else if (PH.view === "app" && PH.app === "insta" && PH.tab >= 2) PH.tab = 1;
     else if (PH.view === "app" && PH.app === "insta" && PH.tab === 1) PH.tab = 0;
@@ -4050,7 +4087,7 @@ function phHome(c, ph) {
   const hasAny = Object.keys(A).some(k => A[k] && A[k].data);
   return `<div class="ph-body ph-home">
 ${hasAny ? `<button type="button" class="ph-rall" data-ph="resetall" aria-label="폰 초기화">${phIc("eraser", 17, "#fff", 1.9)}</button>` : ""}
-<div class="ph-clock"><div>${t.m}월 ${t.d}일 ${t.dow}요일</div><strong>${PH.clockBusy && !ph.clock ? "··:··" : phHM(t)}</strong></div>
+<div class="ph-clock"><div>${phDateLab(t.y, t.m, t.d, c && c.lang, false)}</div><strong>${PH.clockBusy && !ph.clock ? "··:··" : phHM(t)}</strong></div>
 ${noti ? `<button type="button" class="ph-noti" data-ph="thread" data-v="${esc(phPlain(noti.name))}"><span class="ph-ico sm" style="background:#4b8fd6">${phIc("msg", 16, "#fff", 2)}</span><span><b>${phTx(noti.name, "orig")}</b> · ${esc(noti.when || "")}<br>${phTx(noti.last, tr === "both" ? "paren" : tr)}</span></button>` : `<div class="ph-noti ghost">${esc(c.name)}의 폰이에요. 앱을 눌러서 몰래 봐요</div>`}
 <div class="ph-grid">${PH_GRID.map(k => phTile(k, badge(k))).join("")}</div>
 <div class="ph-fill"></div>
@@ -4086,7 +4123,7 @@ function phApp(c, ph) {
   if (k === "msg") {
     const tabs = ["전체", "개인", "단톡"], f = PH.tab;
     const list = (D.threads || []).filter(t => f === 0 || (f === 1 ? !t.group : t.group));
-    inner = phTabs(tabs) + list.map(t => `<button type="button" class="ph-row" data-ph="thread" data-v="${esc(phPlain(t.name))}">${t.group ? `<span class="ph-gav"><i></i><i></i></span>` : `<span class="ph-av blue">${esc(phPlain(t.name).slice(0, 1))}</span>`}<span class="ph-mid"><span class="ph-l1"><b>${phTx(t.name, tr === "both" ? "orig" : tr)}${t.group && t.members ? ` <em>${t.members.length + 1}</em>` : ""}</b><small>${esc(t.when || "")}</small></span><span class="ph-l2"><span class="ph-cut">${phTx(t.last, tr === "both" ? "paren" : tr)}</span>${+t.unread ? `<b class="ph-badge">${+t.unread}</b>` : ""}</span></span></button>`).join("") || `<div class="ph-msg">대화방이 없어요</div>`;
+    inner = phTabs(tabs) + list.map(t => `<button type="button" class="ph-row" data-ph="thread" data-v="${esc(phPlain(t.name))}">${t.group ? `<span class="ph-gav"><i></i><i></i></span>` : `<span class="ph-av blue">${esc(phPlain(t.name).slice(0, 1))}</span>`}<span class="ph-mid"><span class="ph-l1"><b>${phTx(t.name, tr === "both" ? "orig" : tr)}${t.group && t.members ? ` <em>${t.members.length + 1}</em>` : ""}${t.who ? `<span class="ph-whoin">${esc(t.who)}</span>` : ""}</b><small>${esc(t.when || "")}</small></span><span class="ph-l2"><span class="ph-cut">${phTx(t.last, tr === "both" ? "paren" : tr)}</span>${+t.unread ? `<b class="ph-badge">${+t.unread}</b>` : ""}</span></span></button>`).join("") || `<div class="ph-msg">대화방이 없어요</div>`;
   } else if (k === "call") {
     const f = PH.tab;
     inner = phTabs(["최근 기록", "연락처", "즐겨찾기"]);
@@ -4169,6 +4206,21 @@ function phApp(c, ph) {
       + list.map(x => { const h = x.date && x.date !== lastD ? `<div class="ph-day">${esc(x.date)}</div>` : ""; lastD = x.date || lastD; const pin = isIn(x);
         return h + `<div class="ph-row"><span class="ph-av sm${pin ? " grn" : ""}">${esc(phPlain(x.name).slice(0, 1))}</span><span class="ph-mid"><b>${phTx(x.name, "orig")}</b><small>${esc(x.time || "")}${x.memo ? " · " + phTx(x.memo, tr === "both" ? "paren" : tr) : ""}</small></span><span class="ph-right"><b class="${pin ? "ph-plus" : ""}">${esc(x.amt || "")}</b><small>${esc(x.bal || "")}</small></span></div>`; }).join("")
       + (list.length ? "" : `<div class="ph-msg">내역이 없어요</div>`);
+  } else if (k === "ai") {
+    const chats = D.chats || [];
+    if (PH.memo >= 0 && chats[PH.memo]) {
+      const x = chats[PH.memo];
+      return phHead(phTx(x.title, "orig")) + `<div class="ph-body ai">${(x.msgs || []).map(m => `<div class="ph-aiq">${phTx(m.q, tr)}</div><div class="ph-aia"><span class="ph-aic">${phIc("ai", 14, "#1f8f73", 2)}</span><div>${phTx(m.a, tr)}</div></div>`).join("")}</div><div class="ph-lockbar">${phIc("lock", 15)}몰래 보는 중이라 입력은 못 해요</div>`;
+    }
+    title = D.app ? phTx(D.app, "orig") : title;
+    inner = `<div class="ph-sec">최근 대화</div>` + chats.map((x, i) => `<button type="button" class="ph-row ai" data-ph="memo" data-v="${i}"><span class="ph-mid"><b>${phTx(x.title, tr === "both" ? "orig" : tr)}</b><small class="ph-cut">${phTx(((x.msgs || [])[0] || {}).q, tr === "both" ? "orig" : tr)}</small></span><small>${esc(x.when || "")}</small></button>`).join("") || `<div class="ph-msg">대화가 없어요</div>`;
+  } else if (k === "date") {
+    const P = D.profile || {};
+    title = D.app ? phTx(D.app, "orig") : title;
+    inner = (D.status ? `<div class="ph-dst">${phTx(D.status, tr)}</div>` : "")
+      + `<div class="ph-dpro"><div class="ph-dimg">${esc(phPlain(P.name || c.name).slice(0, 1))}</div><div class="ph-dnm"><b>${phTx(P.name, "orig")}</b>${P.age ? `<span>${esc(P.age)}</span>` : ""}</div>${P.bio ? `<p>${phTx(P.bio, tr)}</p>` : ""}${(P.tags || []).length ? `<div class="ph-dtags">${P.tags.map(t => `<em>${phTx(t, "orig")}</em>`).join("")}</div>` : ""}</div>`
+      + `<div class="ph-sec">받은 좋아요 ${esc(D.likes ?? 0)}개 · 매칭 ${(D.matches || []).length}</div>`
+      + (D.matches || []).map(x => `<div class="ph-row"><span class="ph-av pink">${esc(phPlain(x.name).slice(0, 1))}</span><span class="ph-mid"><b>${phTx(x.name, "orig")}</b><small>${x.last ? phTx(x.last, tr === "both" ? "paren" : tr) : phTx(x.note, tr)}</small>${x.last && x.note ? `<small class="ph-dn">${phTx(x.note, tr)}</small>` : ""}</span><small>${esc(x.when || "")}</small></div>`).join("");
   } else if (k === "alarm") {
     inner = (D.items || []).map(x => `<div class="ph-alm${x.on === false ? " off" : ""}"><span class="ph-mid"><span><small>${esc(x.ampm || "")}</small> <strong>${esc(x.time || "")}</strong></span><small>${phTx(x.label || "알람", tr === "both" ? "paren" : tr)}${x.rep ? " · " + esc(x.rep) : ""}</small></span><span class="ph-tog"><i></i></span></div>`).join("") || `<div class="ph-msg">알람이 없어요</div>`;
   } else if (k === "trash") {
@@ -4244,13 +4296,13 @@ function phThread(c, ph) {
   const name = PH.tid, key = "t:" + name, tr = PH.tr;
   const tl = ((ph.apps.msg && ph.apps.msg.data && ph.apps.msg.data.threads) || []).find(x => phPlain(x.name) === name) || { name };
   const th = ph.threads[name], busy = PH.busy[key], err = PH.err[key];
-  const head = `<div class="ph-head chat"><button type="button" class="ph-ib" data-ph="back" aria-label="뒤로">${phIc("back", 22)}</button><h4>${esc(name)}${tl.group && tl.members ? ` <em>${tl.members.length + 1}</em>` : ""}</h4>${c && PH_LANGS[c.lang] ? `<button type="button" class="ph-pill" data-ph="tr">${PH.tr === "both" ? "원문+번역" : PH.tr === "orig" ? "원문만" : "번역만"}</button>` : ""}${th && th.msgs && th.msgs.length ? `<button type="button" class="ph-ib" data-ph="tmore" aria-label="새 메시지 확인" ${busy ? "disabled" : ""}>${busy ? '<span class="ph-spin"></span>' : phIc("refresh", 19)}</button>` : ""}</div>`;
+  const head = `<div class="ph-head chat"><button type="button" class="ph-ib" data-ph="back" aria-label="뒤로">${phIc("back", 22)}</button><h4>${esc(name)}${tl.group && tl.members ? ` <em>${tl.members.length + 1}</em>` : ""}${tl.who ? `<small class="ph-who">${esc(tl.who)}</small>` : ""}</h4>${c && PH_LANGS[c.lang] ? `<button type="button" class="ph-pill" data-ph="tr">${PH.tr === "both" ? "원문+번역" : PH.tr === "orig" ? "원문만" : "번역만"}</button>` : ""}${th && th.msgs && th.msgs.length ? `<button type="button" class="ph-ib" data-ph="tmore" aria-label="새 메시지 확인" ${busy ? "disabled" : ""}>${busy ? '<span class="ph-spin"></span>' : phIc("refresh", 19)}</button>` : ""}</div>`;
   let inner = "";
   if (!th || !th.msgs || !th.msgs.length) inner = err ? `<div class="ph-msg">${esc(err)}<button type="button" data-ph="tmore">다시 불러오기</button></div>` : `<div class="ph-msg"><span class="ph-spin"></span>대화 보는 중...</div>`;
   else {
     // 같은 사람이 연달아 보내면 프로필·이름은 처음에만, 시간은 묶음의 마지막에만 (카톡처럼)
     const L = th.msgs, WD = ["일", "월", "화", "수", "목", "금", "토"];
-    const dLab = v => { const g = String(v || "").match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/); if (!g) return esc(v); const d = new Date(+g[1], +g[2] - 1, +g[3]); return `${+g[1]}년 ${+g[2]}월 ${+g[3]}일 ${WD[d.getDay()]}요일`; };
+    const dLab = v => { const g = String(v || "").match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/); return g ? esc(phDateLab(+g[1], +g[2], +g[3], c && c.lang, true)) : esc(v); };
     let lastDate = "";
     inner = L.map((m, i) => {
       const dk = String(m.date || "").trim(), sep = dk && dk !== lastDate ? `<div class="ph-dsep"><span>${dLab(dk)}</span></div>` : "";
@@ -4264,7 +4316,7 @@ function phThread(c, ph) {
       const time = lastRun ? `<small class="t">${esc(m.time || "")}</small>` : "";
       const bt = phTx(m.text, tr === "both" ? "paren" : tr);
       if (me) return `<div class="ph-b me${first ? "" : " cont"}">${time}<span class="ph-bt">${bt}</span></div>`;
-      const nm = phPlain(m.from);
+      const nm = (!tl.group && phPlain(tl.name)) || phPlain(m.from);
       return `<div class="ph-b${first ? "" : " cont"}">${first ? `<span class="ph-av xs">${esc(nm.slice(0, 1))}</span>` : `<span class="ph-avs"></span>`}<span class="ph-bc">${first ? `<small>${esc(nm)}</small>` : ""}<span class="ph-bt">${bt}</span></span>${time}</div>`;
     }
     if (err) inner += `<div class="ph-err">${esc(err)}</div>`;
