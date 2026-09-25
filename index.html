@@ -3773,8 +3773,8 @@ hours는 0시~23시 각 시간에 쓴 분(0~60) 24개이고, 지금 시각 이�
 시간순으로. 이름에 성격과 생활이 드러나게(예: 일어나 → 진짜 일어나 → 제발). 꺼진 알람도 한두 개, 수상한 알람도 하나쯤.`,
   comm: `인터넷 커뮤니티 앱. ${"${c}"}@이 자주 들어가는 익명 커뮤니티 하나. 사이트는 이 세계관에 실제로 있을 법한 곳으로 정한다(학생이면 학교 익명 게시판, 회사원이면 직장인 익명 앱, 군대·길드처럼 조직이 있으면 그 내부 게시판, 아니면 이 인물이 할 법한 커뮤니티). 조직 이름은 설정과 대화에 이미 나온 것을 그대로 쓴다.
 {"site":"사이트 이름","posts":[{"board":"게시판 이름","title":"제목","body":"본문(줄바꿈은 \n)","when":"12분 전","views":3842,"likes":12,"cmts":[{"u":"댓글 닉네임","t":"댓글","re":false}]}],"commented":[{"board":"게시판","title":"남의 글 제목","my":"${"${c}"}@이 단 댓글","when":"어제"}],"scraps":[{"board":"게시판","title":"스크랩한 글 제목","when":"9월 20일"}]}
-posts는 ${"${c}"}@이 익명으로 직접 쓴 글 4~6개(고민, 연애 상담, 자랑, 뒷담, 질문 등). 본문은 2~4문단으로 쓰고, 문장마다 줄을 바꾸지 않는다. 한 문단에 여러 문장을 이어 쓰고, 문단을 바꿀 때만 \n을 쓴다. 본인이라고 티 안 나게 쓰지만 읽으면 누구 얘기인지 알 수 있게. 글마다 다른 사람들 댓글 5~8개, re가 true면 바로 위 댓글에 단 대댓글. 글쓴이가 댓글에 답하면 u를 "글쓴이"로. commented는 남의 글에 단 댓글 4~6개, scraps는 3~5개. 닉네임은 그 사이트에 맞게(익명1, 익명2 같은 식이면 그대로). 괄호나 꺾쇠로 태그를 만들지 않는다.`,
-  trash: `휴대폰의 최근 삭제된 항목. 메시지 5~8개(보내려고 쓰다가 지운 메시지, 보낸 뒤 삭제한 메시지), 사진 3~5개, 메모 2~4개. 전부 합쳐 10~15개.
+posts는 ${"${c}"}@이 익명으로 직접 쓴 글 4~6개(고민, 연애 상담, 자랑, 뒷담, 질문 등). 본문은 줄바꿈 없이 한 덩어리로 이어 쓴다. 이야기가 넘어가도 줄을 바꾸지 않고 자연스럽게 이어 쓴다. 본인이라고 티 안 나게 쓰지만 읽으면 누구 얘기인지 알 수 있게. 글마다 다른 사람들 댓글 5~8개, re가 true면 바로 위 댓글에 단 대댓글. 글쓴이가 댓글에 답하면 u를 "글쓴이"로. commented는 남의 글에 단 댓글 4~6개, scraps는 3~5개. 닉네임은 그 사이트에 맞게(익명1, 익명2 같은 식이면 그대로). 괄호나 꺾쇠로 태그를 만들지 않는다.`,
+  trash: `휴대폰의 최근 삭제된 항목. 메시지 6개(보내려고 쓰다가 지운 메시지, 보낸 뒤 삭제한 메시지): 그중 3개는 ${"${u}"}에게, 3개는 다른 사람(친구, 가족, 동료, 단톡방 등 설정과 대화에 나온 사람)에게. 사진 3~5개, 메모 2~4개.
 {"items":[{"tab":"메시지|사진|메모","kind":"보내지 않은 메시지 · 받는 사람 / 보낸 뒤 삭제 · 대화방 이름 / 삭제한 메모 / 삭제한 사진","text":"지운 내용 그대로(사진이면 무엇이 찍혔는지 설명)","when":"지운 때(예: 오늘 오전 2:14)","left":"29일 남음"}]}
 text는 요약하지 말고 실제로 썼던 글 그대로 쓴다. 쓰다 만 문장, 여러 번 고쳐 쓴 흔적, 새벽에 쓴 감정적인 글처럼 진짜 폰에서 지운 것 같은 느낌으로. left는 지운 때에 맞게 1~30일 사이.
 ${"${c}"}@이 숨기고 싶었던 마음이 드러나게.`
@@ -3782,7 +3782,7 @@ ${"${c}"}@이 숨기고 싶었던 마음이 드러나게.`
 function phonePrompt(c, k, mode, old) {
   const u = c.uname || "유저", L = PH_LANGS[c.lang];
   const langRule = L ? `\n- ${josa(c.name, "은", "는")} 평소 ${L}를 쓴다. 메시지·메모·캡션·댓글·지운 글 같은 글 내용은 ${L}로 쓰고, 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다(예: 先に寝てて[[먼저 자]]). 사람·가게 이름도 그 나라에 맞게 쓴다.` : "";
-  const schema = PH_SCHEMA[k].split("${c}@이").join(josa(c.name, "이", "가")).split("${c}").join(c.name);
+  const schema = PH_SCHEMA[k].split("${c}@이").join(josa(c.name, "이", "가")).split("${c}").join(c.name).split("${u}").join(u);
   const oldTxt = old ? JSON.stringify(old).slice(0, 3500) : "";
   return `너는 ${c.name}의 휴대폰 속 [${PH_APPS[k].n}] 앱 화면에 들어갈 기록을 만든다. ${josa(c.name, "이", "가")} 실제로 쓰는 휴대폰이다.
 
@@ -4122,7 +4122,7 @@ function phApp(c, ph) {
     const posts = D.posts || [], fmtN = v => phK(v || 0);
     if (PH.memo >= 0 && posts[PH.memo]) {
       const x = posts[PH.memo];
-      return phHead(phTx(D.site || "커뮤", "orig")) + `<div class="ph-body"><div class="ph-cpost"><span class="ph-ctag">${phTx(x.board || "자유", "orig")}</span><h5>${phTx(x.title, tr)}</h5><small>익명 · ${esc(x.when || "")} · 조회 ${fmtN(x.views)}</small><p>${phTx(x.body, tr).replace(/\n/g, "<br>")}</p><div class="ph-cstat">♥ 공감 ${fmtN(x.likes)} · 댓글 ${(x.cmts || []).length}</div></div>`
+      return phHead(phTx(D.site || "커뮤", "orig")) + `<div class="ph-body"><div class="ph-cpost"><span class="ph-ctag">${phTx(x.board || "자유", "orig")}</span><h5>${phTx(x.title, tr)}</h5><small>익명 · ${esc(x.when || "")} · 조회 ${fmtN(x.views)}</small><p>${phTx(String(x.body || "").replace(/\s*(?:\\n|\n)+\s*/g, " "), tr)}</p><div class="ph-cstat">♥ 공감 ${fmtN(x.likes)} · 댓글 ${(x.cmts || []).length}</div></div>`
         + (x.cmts || []).map(m => `<div class="ph-cmt${m.re ? " re" : ""}${/글쓴이/.test(m.u || "") ? " op" : ""}">${m.re ? "<i>ㄴ</i>" : ""}<span class="ph-mid"><b>${phTx(m.u, "orig")}</b><span>${phTx(m.t, tr === "both" ? "paren" : tr)}</span></span></div>`).join("") + `</div>`;
     }
     const f = PH.tab;
