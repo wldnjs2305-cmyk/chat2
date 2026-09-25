@@ -3742,10 +3742,36 @@ const phK = v => { const n = +String(v == null ? "" : v).replace(/[^0-9.]/g, "")
 const phPlain = s => String(s == null ? "" : s).replace(/\[\[([^\]]*)\]\]/g, "").trim();
 function phJSON(t) {
   let x = String(t || "").replace(/```(?:json)?/gi, "");
-  const a = x.indexOf("{"), b = x.lastIndexOf("}");
-  if (a < 0 || b < a) throw new Error("폰 내용을 읽지 못했어요. 다시 시도해주세요.");
-  x = x.slice(a, b + 1);
-  try { return JSON.parse(x); } catch (e) { return JSON.parse(x.replace(/,\s*([}\]])/g, "$1")); }
+  const a = x.indexOf("{");
+  if (a < 0) throw new Error("폰 내용을 읽지 못했어요. 다시 시도해주세요.");
+  x = x.slice(a);
+  const b = x.lastIndexOf("}"), whole = b >= 0 ? x.slice(0, b + 1) : x;
+  try { return JSON.parse(whole); } catch (e) {}
+  try { return JSON.parse(whole.replace(/,\s*([}\]])/g, "$1")); } catch (e) {}
+  // 고쳐서 읽기: 글 안의 따옴표·줄바꿈을 살리고, 중간에 끊겼으면 마지막으로 완성된 곳까지만 닫는다
+  let out = "", inS = false, esc = false, safe = 0, safeStack = [];
+  const st = [];
+  for (let i = 0; i < x.length; i++) {
+    const ch = x[i];
+    if (inS) {
+      if (esc) { out += ch; esc = false; continue; }
+      if (ch === "\\") { out += ch; esc = true; continue; }
+      if (ch === "\n") { out += "\\n"; continue; }
+      if (ch === "\r" || ch === "\t") { out += " "; continue; }
+      if (ch === '"') {
+        const nx = (x.slice(i + 1).match(/^\s*(.)/) || [])[1];
+        if (nx && !",}]:".includes(nx)) { out += '\\"'; continue; }
+        inS = false; out += ch; continue;
+      }
+      out += ch; continue;
+    }
+    if (ch === '"') { inS = true; out += ch; continue; }
+    if (ch === "{" || ch === "[") st.push(ch === "{" ? "}" : "]");
+    else if (ch === "}" || ch === "]") { if (!st.length) break; st.pop(); out += ch; safe = out.length; safeStack = st.slice(); if (!st.length) break; continue; }
+    out += ch;
+  }
+  const fixed = (st.length || inS ? out.slice(0, safe) + safeStack.slice().reverse().join("") : out).replace(/,\s*([}\]])/g, "$1");
+  try { return JSON.parse(fixed); } catch (e) { throw new Error("폰 내용이 중간에 끊겼어요. 다시 불러오기를 눌러주세요."); }
 }
 async function phoneAsk(p, signal) {
   if (ai.prov !== "builtin") return await callApi(ai, [{ role: "user", content: p }], null, signal);
