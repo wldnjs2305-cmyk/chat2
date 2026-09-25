@@ -3796,10 +3796,10 @@ function phoneCtx(c) {
 }
 const PH_SCHEMA = {
   msg: `메시지 앱의 대화방 목록. 개인 대화방과 단체 대화방(단톡)을 섞어서 6~9개.
-{"threads":[{"name":"대화방 이름(개인이면 저장된 이름, 단톡이면 방 이름)","group":false,"members":["단톡일 때 참여자 이름들"],"last":"마지막 메시지(단톡이면 '보낸 사람: 내용')","when":"방금/오후 3:10/어제/9월 22일","unread":0}]}
+{"threads":[{"name":"대화방 이름(개인이면 저장된 이름, 단톡이면 방 이름). 외국어 폰이면 뒤에 [[한국어 번역]]","group":false,"members":["단톡일 때 참여자 이름들"],"last":"마지막 메시지(단톡이면 '보낸 사람: 내용')","when":"방금/오후 3:10/어제/9월 22일","unread":0}]}
 unread는 ${"${c}"}@이 아직 안 읽은 개수. 최근 것이 위로.`,
   call: `전화 앱. 최근 통화 기록 8~10개와 연락처 8~12개.
-{"items":[{"name":"저장된 이름 또는 번호","type":"부재중|수신|발신|취소","dur":"통화 시간(부재중·취소면 빈칸)","when":"오후 9:12/어제/9월 23일","n":1}],"contacts":[{"name":"저장된 이름","fav":false,"note":"저장할 때 붙인 메모(없으면 빈칸)"}]}
+{"items":[{"name":"저장된 이름 또는 번호(외국어 폰이면 이름 뒤에 [[한국어 번역]])","type":"부재중|수신|발신|취소","dur":"통화 시간(부재중·취소면 빈칸)","when":"오후 9:12/어제/9월 23일","n":1}],"contacts":[{"name":"저장된 이름(외국어 폰이면 뒤에 [[한국어 번역]])","fav":false,"note":"저장할 때 붙인 메모(없으면 빈칸)"}]}
 n은 같은 사람에게 연달아 온 횟수. 부재중과 아주 짧은 통화를 섞는다. 최근 것이 위로.`,
   insta: `인스타그램 같은 사진 SNS. 본인 계정 정보, 스토리 올린 사람들, 피드 게시물 5~7개(본인 게시물과 친구 게시물 섞기).
 {"user":"본인 아이디","name":"프로필 이름","bio":"소개글","private":false,"posts":24,"followers":312,"following":198,"highlights":["하이라이트 이름 3~4개"],"stories":["스토리 올린 계정 아이디 4~6개"],"follower_list":[{"u":"아이디","name":"이름","note":"누구인지 짧게"}],"following_list":[{"u":"아이디","name":"이름","note":"누구인지 짧게"}],"feed":[{"author":"게시한 계정 아이디","loc":"위치(없으면 빈칸)","img":"사진에 찍힌 것 한 줄 설명","cap":"캡션","likes":128,"comments":[{"u":"아이디","t":"댓글"}],"when":"3시간 전"}]}
@@ -3861,7 +3861,7 @@ ${"${c}"}@이 숨기고 싶었던 마음이 드러나게.`
 };
 function phonePrompt(c, k, mode, old) {
   const u = c.uname || "유저", L = PH_LANGS[c.lang];
-  const langRule = L ? `\n- ${josa(c.name, "은", "는")} 평소 ${L}를 쓴다. 메시지·메모·캡션·댓글·지운 글·리뷰·자기소개 같은 글 내용은 ${L}로 쓰고, 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다(예: 先に寝てて[[먼저 자]]). AI 챗봇 앱이면 질문(q)뿐 아니라 AI 답변(a)도 ${L}로 쓰고 문장마다 번역을 붙인다. 번역 없이 남는 문장이 없게 한다. 사람·가게 이름도 그 나라에 맞게 쓴다. 번역에서 웃음·감탄 소리(ふふ, 笑, w, haha 등)는 후후처럼 소리 나는 대로 옮기지 말고 ㅎㅎ, ㅋㅋ처럼 한국 문자에서 쓰는 말로 바꾸거나 뺀다.` : "";
+  const langRule = L ? `\n- ${josa(c.name, "은", "는")} 평소 ${L}를 쓴다. 메시지·메모·캡션·댓글·지운 글·리뷰·자기소개 같은 글 내용은 ${L}로 쓰고, 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다(예: 先に寝てて[[먼저 자]]). 번역은 직역하지 않는다. 같은 사람이 한국어로 같은 곳(문자, 리뷰, 메모, 댓글 등)에 직접 썼다면 어떻게 썼을지로 옮긴다. 성격과 말투 온도는 살리되 어순, 단어, 끝맺음은 한국 사람이 실제로 쓰는 말로 바꾼다(리뷰면 한국 리뷰에 흔한 말투, 문자면 한국 문자 말투). "~에게 ~해 줬더니 ~하더라" 같은 번역투, 딱딱한 문어체 "~이다/~한다" 남발은 쓰지 않는다. AI 챗봇 앱이면 질문(q)뿐 아니라 AI 답변(a)도 ${L}로 쓰고 문장마다 번역을 붙인다. 번역 없이 남는 문장이 없게 한다. 사람·가게 이름도 그 나라에 맞게 쓴다. 메시지 대화방 이름(저장명)에도 바로 뒤에 [[한국어 번역]]만 붙인다(예: 西麻布 BAR 霞町[[니시아자부 바 카스미초]], 先生♡[[선생님♡]]). 누구인지 설명은 붙이지 않는다. 번역에서 웃음·감탄 소리(ふふ, 笑, w, haha 등)는 후후처럼 소리 나는 대로 옮기지 말고 ㅎㅎ, ㅋㅋ처럼 한국 문자에서 쓰는 말로 바꾸거나 뺀다.` : "";
   const schema = PH_SCHEMA[k].split("${c}@이").join(josa(c.name, "이", "가")).split("${c}").join(c.name).split("${u}").join(u);
   const oldTxt = old ? JSON.stringify(old).slice(0, 3500) : "";
   return `너는 ${c.name}의 휴대폰 속 [${PH_APPS[k].n}] 앱 화면에 들어갈 기록을 만든다. ${josa(c.name, "이", "가")} 실제로 쓰는 휴대폰이다.
@@ -3887,7 +3887,7 @@ JSON 하나만 출력한다. 설명이나 코드블록은 쓰지 않는다.`;
 }
 function phoneThreadPrompt(c, t, old) {
   const u = c.uname || "유저", L = PH_LANGS[c.lang];
-  const langRule = L ? `\n- 메시지는 ${L}로 쓰고 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다. 번역은 한국 사람이 실제로 보내는 문자처럼 옮긴다. 웃음·감탄 소리(ふふ, 笑, w, haha, lol 등)를 소리 나는 대로 옮기지 않는다(후후 같은 번역 금지). ㅎㅎ, ㅋㅋ처럼 한국 문자에서 쓰는 말로 바꾸거나 뺀다.\n- time은 그 나라 폰에 뜨는 모양으로 쓴다(일본어: 16:15, 영어: 4:15 PM, 중국어: 16:15).` : "";
+  const langRule = L ? `\n- 메시지는 ${L}로 쓰고 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다. 번역은 직역하지 않고, 같은 사람이 한국어로 문자를 보냈다면 어떻게 썼을지로 옮긴다. 성격과 말투는 살리고 표현은 한국 문자답게. 웃음·감탄 소리(ふふ, 笑, w, haha, lol 등)를 소리 나는 대로 옮기지 않는다(후후 같은 번역 금지). ㅎㅎ, ㅋㅋ처럼 한국 문자에서 쓰는 말로 바꾸거나 뺀다.\n- time은 그 나라 폰에 뜨는 모양으로 쓴다(일본어: 16:15, 영어: 4:15 PM, 중국어: 16:15).` : "";
   const withUser = !t.group && phPlain(t.name) && (phPlain(t.name) === u || (c.uname && phPlain(t.name).includes(c.uname)));
   return `너는 ${c.name}의 휴대폰 메시지 앱에서 대화방 하나의 내용을 만든다. ${josa(c.name, "이", "가")} 실제로 쓰는 휴대폰이다.
 
@@ -4167,12 +4167,12 @@ function phApp(c, ph) {
   if (k === "msg") {
     const tabs = ["전체", "개인", "단톡"], f = PH.tab;
     const list = (D.threads || []).filter(t => f === 0 || (f === 1 ? !t.group : t.group));
-    inner = phTabs(tabs) + list.map(t => `<button type="button" class="ph-row" data-ph="thread" data-v="${esc(phPlain(t.name))}">${t.group ? `<span class="ph-gav"><i></i><i></i></span>` : `<span class="ph-av blue">${esc(phPlain(t.name).slice(0, 1))}</span>`}<span class="ph-mid"><span class="ph-l1"><b>${phTx(t.name, tr === "both" ? "orig" : tr)}${t.group && t.members ? ` <em>${t.members.length + 1}</em>` : ""}</b><small>${esc(t.when || "")}</small></span><span class="ph-l2"><span class="ph-cut">${phTx(t.last, tr === "both" ? "paren" : tr)}</span>${+t.unread ? `<b class="ph-badge">${+t.unread}</b>` : ""}</span></span></button>`).join("") || `<div class="ph-msg">대화방이 없어요</div>`;
+    inner = phTabs(tabs) + list.map(t => `<button type="button" class="ph-row" data-ph="thread" data-v="${esc(phPlain(t.name))}">${t.group ? `<span class="ph-gav"><i></i><i></i></span>` : `<span class="ph-av blue">${esc(phPlain(t.name).slice(0, 1))}</span>`}<span class="ph-mid"><span class="ph-l1"><b>${phTx(t.name, tr === "both" ? "paren" : tr)}${t.group && t.members ? ` <em>${t.members.length + 1}</em>` : ""}</b><small>${esc(t.when || "")}</small></span><span class="ph-l2"><span class="ph-cut">${phTx(t.last, tr === "both" ? "paren" : tr)}</span>${+t.unread ? `<b class="ph-badge">${+t.unread}</b>` : ""}</span></span></button>`).join("") || `<div class="ph-msg">대화방이 없어요</div>`;
   } else if (k === "call") {
     const f = PH.tab;
     inner = phTabs(["최근 기록", "연락처", "즐겨찾기"]);
-    if (f === 0) inner += (D.items || []).map(x => `<div class="ph-row"><span class="ph-av">${esc(phPlain(x.name).slice(0, 1))}</span><span class="ph-mid"><b class="${/부재/.test(x.type) ? "miss" : ""}">${phTx(x.name, "orig")}${+x.n > 1 ? ` (${+x.n})` : ""}</b><small>${esc(x.type || "")}${x.dur ? " · " + esc(x.dur) : ""}</small></span><small>${esc(x.when || "")}</small></div>`).join("");
-    else inner += (D.contacts || []).filter(x => f === 1 || x.fav).map(x => `<div class="ph-row"><span class="ph-av">${esc(phPlain(x.name).slice(0, 1))}</span><span class="ph-mid"><b>${phTx(x.name, "orig")}${x.fav ? " ★" : ""}</b>${x.note ? `<small>${phTx(x.note, tr)}</small>` : ""}</span></div>`).join("") || `<div class="ph-msg">없어요</div>`;
+    if (f === 0) inner += (D.items || []).map(x => `<div class="ph-row"><span class="ph-av">${esc(phPlain(x.name).slice(0, 1))}</span><span class="ph-mid"><b class="${/부재/.test(x.type) ? "miss" : ""}">${phTx(x.name, tr === "both" ? "paren" : tr)}${+x.n > 1 ? ` (${+x.n})` : ""}</b><small>${esc(x.type || "")}${x.dur ? " · " + esc(x.dur) : ""}</small></span><small>${esc(x.when || "")}</small></div>`).join("");
+    else inner += (D.contacts || []).filter(x => f === 1 || x.fav).map(x => `<div class="ph-row"><span class="ph-av">${esc(phPlain(x.name).slice(0, 1))}</span><span class="ph-mid"><b>${phTx(x.name, tr === "both" ? "paren" : tr)}${x.fav ? " ★" : ""}</b>${x.note ? `<small>${phTx(x.note, tr)}</small>` : ""}</span></div>`).join("") || `<div class="ph-msg">없어요</div>`;
   } else if (k === "insta") {
     return phInstaFeed(c, D, tr, refresh, note);
   } else if (k === "memo") {
@@ -4349,7 +4349,7 @@ function phThread(c, ph) {
   const name = PH.tid, key = "t:" + name, tr = PH.tr;
   const tl = ((ph.apps.msg && ph.apps.msg.data && ph.apps.msg.data.threads) || []).find(x => phPlain(x.name) === name) || { name };
   const th = ph.threads[name], busy = PH.busy[key], err = PH.err[key];
-  const head = `<div class="ph-head chat"><button type="button" class="ph-ib" data-ph="back" aria-label="뒤로">${phIc("back", 22)}</button><h4>${esc(name)}${tl.group && tl.members ? ` <em>${tl.members.length + 1}</em>` : ""}</h4>${c && PH_LANGS[c.lang] ? `<button type="button" class="ph-pill" data-ph="tr">${PH.tr === "both" ? "원문+번역" : PH.tr === "orig" ? "원문만" : "번역만"}</button>` : ""}${th && th.msgs && th.msgs.length ? `<button type="button" class="ph-ib" data-ph="tmore" aria-label="새 메시지 확인" ${busy ? "disabled" : ""}>${busy ? '<span class="ph-spin"></span>' : phIc("refresh", 19)}</button>` : ""}</div>`;
+  const head = `<div class="ph-head chat"><button type="button" class="ph-ib" data-ph="back" aria-label="뒤로">${phIc("back", 22)}</button><h4>${tl.name ? phTx(tl.name, tr === "both" ? "paren" : tr) : esc(name)}${tl.group && tl.members ? ` <em>${tl.members.length + 1}</em>` : ""}</h4>${c && PH_LANGS[c.lang] ? `<button type="button" class="ph-pill" data-ph="tr">${PH.tr === "both" ? "원문+번역" : PH.tr === "orig" ? "원문만" : "번역만"}</button>` : ""}${th && th.msgs && th.msgs.length ? `<button type="button" class="ph-ib" data-ph="tmore" aria-label="새 메시지 확인" ${busy ? "disabled" : ""}>${busy ? '<span class="ph-spin"></span>' : phIc("refresh", 19)}</button>` : ""}</div>`;
   let inner = "";
   if (!th || !th.msgs || !th.msgs.length) inner = err ? `<div class="ph-msg">${esc(err)}<button type="button" data-ph="tmore">다시 불러오기</button></div>` : `<div class="ph-msg"><span class="ph-spin"></span>대화 보는 중...</div>`;
   else {
