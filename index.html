@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"2.98","items":[]},
   {"v":"2.97","items":[]},
   {"v":"2.96","items":[]},
   {"v":"2.95","items":[]},
@@ -4887,6 +4888,7 @@ function upClick(e) {
   if (a === "app") {
     PH.view = "app"; PH.app = v; PH.memo = -1; PH.tid = null; PH.tab = 0; PH.upPost = null; PH.upWrite = false; PH.igv = "feed";
     if ((v === "call" || v === "date" || v === "ai") && !(U.apps && U.apps[v] && (U.apps[v].data || U.apps[v].cleared))) { phoneRender(); upGenApp(c, v, "new"); return; }
+    if (v === "uinsta") { const I = upIg(c); if (!I.filled && !I.follower_list.length && !I.following_list.length) { phoneRender(); upIgFill(c); return; } }
   }
   else if (a === "igv") { if (v === "post") return; PH.igv = v; }
   else if (a === "igopen") {
@@ -5108,8 +5110,8 @@ ${phoneCtx(c)}
 
 [규칙]
 - ${u}의 설정과 최근 대화에 맞게. 설정에 없는 큰 사건은 지어내지 않는다.
-- follower_list, following_list는 각각 8~12개. ${u}의 친구, 가족, 동기, 동료, 좋아하는 가게·브랜드처럼 실제로 있을 법한 계정. ${c.name}${C && C.user ? `(@${C.user})` : ""}는 넣지 않는다(따로 들어간다).
-- feed는 ${u}가 팔로우하는 친구·계정들이 올린 게시물 4~6개. 사진은 설명만.
+- follower_list, following_list는 각각 10~15개. 친구, 친한 친구, 가족, 친척, 동기·동창, 동료, 동네 사람, 전 애인이나 썸, 단골 가게, 좋아하는 브랜드·연예인·유튜버, 모르는 팔로워(스팸·홍보 계정 한두 개)처럼 여러 부류를 섞는다. 아이디는 사람마다 개성 있게, 겹치지 않게. 맞팔인 사람과 한쪽만 팔로우하는 사람이 섞이게. ${c.name}${C && C.user ? `(@${C.user})` : ""}는 넣지 않는다(따로 들어간다).
+- feed는 ${josa(u, "이", "가")} 팔로우하는 계정들이 올린 게시물 5~7개. 올린 사람과 주제(일상, 음식, 여행, 운동, 광고, 밈 등)가 겹치지 않게. 사진은 설명만. 댓글은 게시물마다 1~3개.
 - followers, following 숫자는 ${u}의 성격과 처지에 맞게.${I.user ? "" : `\n- user(아이디), name, bio도 ${u}답게 정한다.`}
 
 [형식]
@@ -5125,6 +5127,7 @@ JSON 하나만 출력한다.`;
     if (Array.isArray(j.following_list) && j.following_list.length) I.following_list = j.following_list;
     if (Array.isArray(j.feed)) I.feed = j.feed.concat(I.feed).slice(0, 20);
     if (+j.followers) I.followers = +j.followers; if (+j.following) I.following = +j.following;
+    I.filled = 1;
     save(c.id);
   } catch (e) { if (e.name !== "AbortError" && PH) PH.err[key] = e.message || "못 채웠어요."; }
   if (PH) { delete PH.busy[key]; delete PH.ctl[key]; phoneRender(); }
