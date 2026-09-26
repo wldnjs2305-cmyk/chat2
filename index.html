@@ -6,6 +6,8 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"3.06","items":[]},
+  {"v":"3.05","items":[]},
   {"v":"3.04","items":[]},
   {"v":"3.03","items":[]},
   {"v":"3.02","items":[]},
@@ -992,6 +994,17 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .ph-cmt.up-hold{background:#f6eef2}
 .up-igc{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .up-igc.up-hold{background:#f6eef2}
+.up-banner,.up-gnoti{display:flex;align-items:center;gap:10px;text-align:left;border:0;padding:10px 12px;border-radius:16px;background:rgba(250,248,249,.97);box-shadow:0 8px 24px rgba(20,10,16,.22);color:#2a2227;font-family:"Pretendard Variable","Pretendard","Apple SD Gothic Neo",system-ui,sans-serif}
+.up-banner{position:absolute;left:10px;right:10px;top:40px;z-index:7;animation:upDrop .25s ease}
+.up-gnoti{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));width:min(360px,calc(100vw - 24px));transform:translate(-50%,-140%);transition:transform .25s ease;z-index:2147483001}
+.up-gnoti.on{transform:translate(-50%,0)}
+@keyframes upDrop{from{transform:translateY(-120%)}to{transform:none}}
+.up-nav{width:34px;height:34px;flex:none;border-radius:50%;overflow:hidden;background:#efe7ec;display:grid;place-items:center;font-size:13px;font-weight:700;color:#6a5563}
+.up-nav img{width:100%;height:100%;object-fit:cover}
+.up-nmid{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.up-nmid b{font-size:13px}
+.up-nmid small{font-size:12.5px;color:#4a4048;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.up-nnow{flex:none;font-size:11px;color:#8a7f86;align-self:flex-start}
 .ph-b[data-mi]{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .ph-b.up-sel .ph-bt{outline:2px solid #e0457b;outline-offset:2px}
 .ph-row.up-sel{background:#fdf0f5}
@@ -4914,7 +4927,7 @@ function upClick(e) {
     Dt.profile = { name: g("#upDN"), age: g("#upDA"), photo: g("#upDP"), bio: g("#upDB"), tags: g("#upDT").split(/[,，]/).map(x => x.trim()).filter(Boolean) };
     save(c.id); PH.dv = null;
   }
-  else if (a === "mnew") { const n = (($("#upMN") || {}).value || "").trim(); if (!n) { alert("상대 이름을 적어주세요."); return; } const Dt = upDate(c); Dt.matches.unshift({ name: n, note: (($("#upMD") || {}).value || "").trim(), msgs: [] }); save(c.id); PH.dm = 0; PH.dv = "chat"; }
+  else if (a === "dmnew") { const n = (($("#upMN") || {}).value || "").trim(); if (!n) { alert("상대 이름을 적어주세요."); return; } const Dt = upDate(c); Dt.matches.unshift({ name: n, note: (($("#upMD") || {}).value || "").trim(), msgs: [] }); save(c.id); PH.dm = 0; PH.dv = "chat"; }
   else if (a === "dopen") { PH.dm = +v; PH.dv = "chat"; PH.msgSel = null; }
   else if (a === "dsend") { const t = (($("#upDM") || {}).value || "").trim(); if (!t) return; const m = upDate(c).matches[PH.dm]; if (!m) return; m.msgs.push({ from: "me", text: t, time: upTime(c) }); save(c.id); $("#upDM").value = ""; phoneRender(); const i = PH.dm; clearTimeout(PH.upTimer); PH.upTimer = setTimeout(() => { if (PH && PH.owner === "user") upDateReply(c, i); }, 2600); return; }
   else if (a === "dreply") { upDateReply(c, PH.dm); return; }
@@ -4940,6 +4953,7 @@ function upClick(e) {
   }
   else if (a === "uresetall") { if (!confirm("내 폰을 통째로 초기화할까요? 쓴 글, 문자, 메모, 인스타가 다 지워지고, 설기가 엿본 기억도 사라져요.")) return; Object.keys(UP_APPS).forEach(k => upResetApp(c, k)); c.uphone = {}; c.peeks = []; save(c.id); }
   else if (a === "igunreply") PH.igReply = null;
+  else if (a === "banner") { PH.banner = null; PH.view = "app"; PH.app = "umsg"; PH.tid = 0; PH.msgSel = null; const th = U.threads[0]; if (th) th.unread = 0; save(c.id); }
   else if (a === "igdel") { const x = upIgPost(c, PH.igp); if (x && x.p.comments && PH.igReply != null) { upCutThread(x.p.comments, PH.igReply); save(c.id); } PH.igReply = null; clearTimeout(PH.igTimer); }
   else if (a === "igopen") {
     PH.igReply = null; PH.igFrom = PH.igv || "feed"; PH.igv = "post"; PH.igp = v; phoneRender();
@@ -5148,8 +5162,10 @@ ${fresh.length && fresh[fresh.length - 1].toU ? `\n[방금 ${josa(u, "이", "가
 ${first && x.src === "m" ? `- ${u}가 방금 올린 게시물이다. ${u}의 친구들(${friends || "지인들"})이 댓글을 단다. ${c.name}도 볼 수 있다. 관계와 성격에 맞게 댓글을 달지, 좋아요만 누를지, 그냥 넘길지 정한다. 단다면 u를 "${ch}"로.` : `- ${josa(u, "이", "가")} 새로 단 댓글에 게시물 주인(${owner})이나 다른 사람이 답글을 달 수도, 안 달 수도 있다. 성격과 관계대로 정한다. 답글은 re를 true로.`}
 - ${u}(@${me})의 댓글은 쓰지 않는다.${upWhenRule(p.when)} 0~6개. 달 게 없으면 빈 배열. 한 사람(게시물 주인 포함)은 이번에 댓글을 하나만 단다. 여러 개로 나눠 쓰고 싶은 말은 그 한 댓글에 합친다. 길이는 그 사람 성격과 할 말대로(짧게 끝내도 된다).
 
+- 따로, ${josa(c.name, "은", "는")} 이 게시물에서 ${u}(@${me})가 한 댓글·답글(누구한테 뭐라고 했는지)을 볼 수 있다. 그걸 보고 ${u}에게 인스타 밖에서 문자를 보낼지 정한다. 보낼 만할 때만 보낸다(시비, 질투, 궁금함, 놀림, 걱정 등 ${c.name}의 성격과 관계상 가만히 못 있을 때). 별일 아니면 안 보낸다. 보낸다면 dm에 문자 1~3개, 안 보내면 빈 배열.
+
 [형식]
-{"likes":0,"cmts":[{"u":"아이디","t":"댓글","re":false}]}
+{"likes":0,"cmts":[{"u":"아이디","t":"댓글","re":false}],"dm":["문자"]}
 likes는 지금 좋아요 수(모르면 0). JSON 하나만 출력한다.`;
   const k = "ig:" + key, ctl = new AbortController(); PH.ctl[k] = ctl; PH.busy[k] = 1; PH.err[k] = ""; phoneRender();
   try {
@@ -5162,6 +5178,8 @@ likes는 지금 좋아요 수(모르면 0). JSON 하나만 출력한다.`;
     if (+j.likes > (p.likes || 0)) p.likes = +j.likes;
     if (first) p.reacted = 1;
     save(c.id);
+    const dm = (Array.isArray(j.dm) ? j.dm : j.dm ? [j.dm] : []).map(x => phPlain(typeof x === "string" ? x : (x && x.text) || "")).filter(Boolean);
+    if (dm.length && (fresh.length || first)) upCharDM(c, dm.slice(0, 3));
   } catch (e) { if (e.name !== "AbortError" && PH) PH.err[k] = e.message || "댓글을 못 불러왔어요."; }
   if (PH) { delete PH.busy[k]; delete PH.ctl[k]; phoneRender(); }
 }
@@ -5280,7 +5298,7 @@ function upDateView(c, note) {
 <button type="button" class="up-add" data-up="dsave">저장</button></div>`;
   }
   if (PH.dv === "new") {
-    return upHead("매칭 추가") + `<div class="ph-body up-form"><input type="text" class="up-in" id="upMN" placeholder="상대 이름"><textarea class="up-ta" id="upMD" style="min-height:90px;flex:none" placeholder="어떤 사람인지 (예: 27살 회사원, 말수 적음, 강아지 키움)"></textarea><button type="button" class="up-add" data-up="mnew">매칭</button></div>`;
+    return upHead("매칭 추가") + `<div class="ph-body up-form"><input type="text" class="up-in" id="upMN" placeholder="상대 이름"><textarea class="up-ta" id="upMD" style="min-height:90px;flex:none" placeholder="어떤 사람인지 (예: 27살 회사원, 말수 적음, 강아지 키움)"></textarea><button type="button" class="up-add" data-up="dmnew">매칭</button></div>`;
   }
   if (PH.dv === "chat" && Dt.matches[PH.dm]) {
     const m = Dt.matches[PH.dm], L = m.msgs || (m.msgs = []), key = "ud:" + PH.dm;
@@ -5366,6 +5384,32 @@ function upCutThread(list, i) {
   let end = i + 1; while (end < list.length && list[end].re) end++;
   if (!m.re) { list.splice(i, end - i); return; }
   list.splice(i, end - i);
+}
+// 캐릭터가 먼저 보내는 문자: 몇 초 뒤 내 폰 메시지에 도착하고 알림이 떠요
+function upCharDM(c, texts) {
+  const cid = c.id;
+  setTimeout(() => {
+    const cc = store.chars.find(x => x.id === cid); if (!cc) return;
+    upEnsureCharThread(cc);
+    const th = upOf(cc).threads[0], tm = upTime(cc);
+    texts.forEach(t => th.msgs.push({ from: cc.name, text: t, time: tm }));
+    const viewing = PH && PH.owner === "user" && PH.cid === cid && PH.view === "app" && PH.app === "umsg" && PH.tid === 0;
+    if (!viewing) th.unread = (th.unread || 0) + texts.length;
+    save(cid);
+    if (!viewing) upNotify(cc, texts[texts.length - 1]);
+    else phoneRender();
+  }, 3500 + Math.random() * 3000);
+}
+function upNotify(c, text) {
+  try { if (navigator.vibrate) navigator.vibrate([20, 60, 20]); } catch (e) {}
+  const av = c.avatar ? `<img src="${esc(c.avatar)}" alt="">` : esc(String(c.name).slice(0, 1));
+  const html = `<span class="up-nav">${av}</span><span class="up-nmid"><b>${esc(c.name)}</b><small>${esc(text)}</small></span><small class="up-nnow">지금</small>`;
+  if (PH && PH.owner === "user" && PH.cid === c.id) { PH.banner = html; phoneRender(); clearTimeout(PH.bannerT); PH.bannerT = setTimeout(() => { if (PH) { PH.banner = null; phoneRender(); } }, 4200); return; }
+  const old = document.querySelector(".up-gnoti"); if (old) old.remove();
+  const d = document.createElement("button"); d.type = "button"; d.className = "up-gnoti"; d.innerHTML = html;
+  d.onclick = () => { d.remove(); if (cur !== c.id) return; if (PH && PH.owner !== "user") closeCharPhone(); if (!PH) openCharPhone("user"); setTimeout(() => { if (!PH) return; PH.view = "app"; PH.app = "umsg"; PH.tid = 0; const th = upOf(c).threads[0]; if (th) th.unread = 0; save(c.id); phoneRender(); }, 60); };
+  document.body.appendChild(d); requestAnimationFrame(() => d.classList.add("on"));
+  setTimeout(() => { d.classList.remove("on"); setTimeout(() => d.remove(), 300); }, 5000);
 }
 // 오래된 게시물이면, 댓글도 그 무렵에 오간 걸로 (지금 장면과 잇지 않기)
 function upWhenRule(when) {
@@ -5519,7 +5563,7 @@ function phoneRender() {
   try { body = PH.owner === "user" ? upRender(c) : home ? phHome(c, ph) : PH.view === "thread" ? phThread(c, ph) : phApp(c, ph); }
   catch (e) { body = `<div class="ph-msg">화면을 그리지 못했어요.<button type="button" data-ph="retry">다시 불러오기</button></div>`; }
   const uask = PH.owner === "user" && PH.uask ? `<div class="ph-ask"><div><p>${esc(c.name)}에게 이걸 보게 할까요?</p><span class="up-askb"><button type="button" data-up="peek-no">취소</button><button type="button" data-up="peek-sneak">몰래 보게</button><button type="button" data-up="peek-caught" class="y">보다가 들키게</button></span></div></div>` : "";
-  const toast = PH.owner === "user" && PH.toast ? `<div class="up-toast">${esc(PH.toast)}</div>` : "";
+  const toast = (PH.owner === "user" && PH.toast ? `<div class="up-toast">${esc(PH.toast)}</div>` : "") + (PH.owner === "user" && PH.banner ? `<button type="button" class="up-banner" data-up="banner">${PH.banner}</button>` : "");
   const ask = PH.ask ? `<div class="ph-ask"><div><p>${esc(PH.ask.msg)}</p><span><button type="button" data-ph="ask-no">취소</button><button type="button" data-ph="ask-ok" class="y">지우기</button></span></div></div>` : "";
   // 화면마다 어디까지 내렸는지 기억해 뒀다가, 돌아오면 그 자리로 (구독 펼치기는 같은 화면으로 봐요)
   const sig = [PH.owner, PH.view, PH.app, PH.tid, PH.tab, PH.app === "subs" ? "" : PH.memo, PH.photo, PH.calOff, PH.calD, PH.upPost, PH.upWrite, PH.igv, PH.igp, PH.dv, PH.dm, PH.gc].join("|");
