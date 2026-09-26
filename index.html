@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"3.00","items":[]},
   {"v":"2.99","items":[]},
   {"v":"2.98","items":[]},
   {"v":"2.97","items":[]},
@@ -4917,7 +4918,16 @@ function upClick(e) {
     ch.msgs.push({ q }); save(c.id); $("#upGQ").value = ""; phoneRender(); upGptAsk(c, PH.gc); return;
   }
   else if (a === "gdel") { if (!confirm("이 채팅을 지울까요?")) return; upGpt(c).chats.splice(PH.gc, 1); PH.gc = null; save(c.id); }
-  else if (a === "ureset") { const nm = (UP_APPS[v] || {}).n || "이 앱"; if (!confirm(nm + " 내용을 다 지우고 처음으로 돌릴까요?")) return; upResetApp(c, v); PH.dv = null; PH.gc = null; PH.tid = null; PH.upPost = null; PH.igv = "feed"; PH.memo = -1; }
+  else if (a === "ureset") {
+    const nm = (UP_APPS[v] || {}).n || "이 앱";
+    const auto = v === "uinsta" || v === "call";
+    if (!confirm(nm + " 내용을 다 지우고 처음으로 돌릴까요?" + (auto ? " 새로 다시 채워요." : ""))) return;
+    upResetApp(c, v); PH.dv = null; PH.gc = null; PH.tid = null; PH.upPost = null; PH.igv = "feed"; PH.memo = -1;
+    PH.toast = nm + " 초기화했어요"; setTimeout(() => { if (PH && PH.toast) { PH.toast = null; phoneRender(); } }, 1800);
+    phoneRender();
+    if (v === "uinsta") upIgFill(c); else if (v === "call") upGenApp(c, "call", "new");
+    return;
+  }
   else if (a === "uresetall") { if (!confirm("내 폰을 통째로 초기화할까요? 쓴 글, 문자, 메모, 인스타가 다 지워지고, 설기가 엿본 기억도 사라져요.")) return; Object.keys(UP_APPS).forEach(k => upResetApp(c, k)); c.uphone = {}; c.peeks = []; save(c.id); }
   else if (a === "igopen") {
     PH.igFrom = PH.igv || "feed"; PH.igv = "post"; PH.igp = v; phoneRender();
