@@ -6,12 +6,13 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"2.87","items":["핸드폰: 커뮤 댓글은 글을 열 때 따로 불러와요 (글·댓글이 잘리지 않게)"]},
-  {"v":"2.86","items":["핸드폰: 시간·날짜·금액 칸에는 번역이 붙지 않아요 (18分前만)"]},
-  {"v":"2.85","items":["핸드폰: 글을 보고 나오거나 구독을 펼쳐도 보던 자리 그대로예요","핸드폰: 구독 가격은 번역 없이, 서비스 이름·요금제는 번역이 같이 떠요","핸드폰: 저장명·게시판 이름 번역은 괄호 없이 옆에 회색으로","핸드폰: 상단바 시간·아이콘을 아이폰처럼 정렬","외국어 대사: 중간에 한국어 대사가 섞이지 않게 매번 다시 알려줘요"]},
-  {"v":"2.84","items":["핸드폰: 대사 언어와 따로 핸드폰 언어를 정할 수 있어요 (캐릭터 설정)","핸드폰: 폰 내용이 빈 답이나 깨진 형식으로 오면 알아서 다시 불러와요","핸드폰: 불러오기 실패하면 이유(검열, 서버 불안정, 길이 한도)를 알려줘요"]},
-  {"v":"2.83","items":["핸드폰: 은행·구독 화면이 찌그러지던 것 고침","핸드폰: 구독 목록이 그 인물다운 것 위주로, 합계는 자동 계산","핸드폰: 메시지에 날짜가 바뀔 때마다 날짜 표시","핸드폰: 외국어 캐릭터는 날짜·시간 표시도 그 나라 말로","핸드폰: 외국어 캐릭터 폰은 앱 이름도 그 나라 말로","핸드폰: AI 챗봇, 데이팅, 리뷰 앱이 생겼어요 (홈 화면 두 번째 장)","핸드폰: 데이팅 매칭을 누르면 나눈 대화를 볼 수 있어요","핸드폰: 지우개는 지우기만 하고, 불러오기를 눌러야 새로 불러와요","핸드폰: 홈 화면을 옆으로 넘길 수 있어요","핸드폰: 대화에 날짜 단서가 없으면 설정에 맞는 날짜로 시작해요","핸드폰: 메시지 화면 색을 바꿈 (연회색 바탕, 파란 말풍선)"]},
-  {"v":"2.82","items":["핸드폰: 캐릭터 폰을 몰래 볼 수 있어요 (전화, 검색, 메시지·단톡, 음악, 인스타, 캘린더, 갤러리, 메모, 쇼핑, 구독, 시청기록, 삭제기록)","핸드폰: 폰 속 날짜와 시간은 대화를 보고 정해요","핸드폰: 지우개 버튼으로 앱 하나 또는 폰 전체를 처음부터 다시 볼 수 있어요","핸드폰: 스크린타임, 은행, 알람, 커뮤 앱이 생겼어요","핸드폰: 폰 속 기록은 캐릭터도 알고 있어요 (엿본 건 몰라요)","핸드폰: 외국어 캐릭터는 원문과 번역을 같이 보여줘요","같이 그리기: 글씨체가 섞이지 않게, 캐릭터마다 글씨 실력이 달라요","같이 그리기: 코멘트 줄바꿈과 자리 잡기를 자연스럽게 고쳤어요"]},
+  {"v":"2.88","items":[]},
+  {"v":"2.87","items":[]},
+  {"v":"2.86","items":[]},
+  {"v":"2.85","items":[]},
+  {"v":"2.84","items":[]},
+  {"v":"2.83","items":[]},
+  {"v":"2.82","items":[]},
   {"v":"2.81","items":[]}
 ]
 </script>
@@ -1046,6 +1047,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .ph-row.sub{border-bottom:1px solid #f3eef1}
 .ph-subd{margin:0 14px 8px 64px;padding:8px 11px;border-radius:10px;background:#f6f2f5;display:flex;flex-direction:column;gap:5px;font-size:12.5px;line-height:1.5;color:#3a3238}
 .ph-subd .ph-tr{display:inline;margin-left:4px}
+.ph-subp{font-weight:600;color:#2a2227;padding-bottom:5px;border-bottom:1px solid #e9e1e6}
 .ph-sdp{color:#5f525a !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ph-sdp em{font-style:normal;color:#a02a67}
 .ph-stories{flex:none;display:flex;gap:6px;padding:4px 10px 10px;border-bottom:1px solid #eee6ea;overflow-x:auto}
@@ -4330,8 +4332,9 @@ function phApp(c, ph) {
     const subTotal = subL.length && isFinite(subT) ? subF + subT.toLocaleString("ko-KR") + subU : (D.total || "");
     inner = `<div class="ph-sum"><small>이번 달 구독료</small><strong>${esc(subTotal)}</strong><small>구독 ${(D.items || []).length}개${D.next ? " · 다음 결제 " + esc(D.next) : ""}</small></div>`
       + (D.items || []).map((x, i) => { const open = PH.memo === i, det = Array.isArray(x.detail) ? x.detail : (x.detail ? [x.detail] : []);
-        return `<button type="button" class="ph-row sub" data-ph="memo" data-v="${open ? -1 : i}"><span class="ph-sq" style="background:${PH_WALLS[i % PH_WALLS.length]}">${esc(phPlain(x.name).slice(0, 1))}</span><span class="ph-mid"><b>${phNm(x.name)}</b><small>${x.plan ? phNm(x.plan) + " · " : ""}${esc(x.day || "")}</small>${!open && det.length ? `<small class="ph-sdp">${phTx(det[0], tr === "both" ? "orig" : tr)}${det.length > 1 ? ` <em>외 ${det.length - 1}개</em>` : ""}</small>` : ""}</span><span class="ph-right"><b>${phPrice(x.price)}</b><small class="${/해지/.test(x.status) ? "miss" : "ok"}">${esc(x.status || "")}</small></span></button>`
-          + (open && det.length ? `<div class="ph-subd">${det.map(d => `<div>${phTx(d, tr)}</div>`).join("")}</div>` : ""); }).join("");
+        const stx = x.status || "", bad = /해지|解約|キャンセル|cancel/i.test(phPlain(stx) + stx);
+        return `<button type="button" class="ph-row sub" data-ph="memo" data-v="${open ? -1 : i}"><span class="ph-sq" style="background:${PH_WALLS[i % PH_WALLS.length]}">${esc(phPlain(x.name).slice(0, 1))}</span><span class="ph-mid"><b>${phNm(x.name)}</b><small>${esc(x.day || "")}</small></span><span class="ph-right"><b>${phPrice(x.price)}</b><small class="${bad ? "miss" : "ok"}">${phTx(stx, tr === "both" ? "orig" : tr)}</small></span></button>`
+          + (open && (det.length || x.plan) ? `<div class="ph-subd">${x.plan ? `<div class="ph-subp">${phTx(x.plan, tr)}</div>` : ""}${det.map(d => `<div>${phTx(d, tr)}</div>`).join("")}</div>` : ""); }).join("");
   } else if (k === "music") {
     const n = D.now;
     inner = `<div class="ph-sec">최근 들은 곡</div>` + (D.recent || []).map((x, i) => `<div class="ph-row song"><span class="ph-art" style="background:hsl(${(i * 47) % 360} 30% 78%)"></span><span class="ph-mid"><b>${phTx(x.title, "orig")}</b><small>${esc(phPlain(x.artist))}</small></span><small class="vio">${esc(x.note || "")}</small></div>`).join("")
