@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"2.84","items":["핸드폰: 폰 내용이 빈 답이나 깨진 형식으로 오면 알아서 다시 불러와요","핸드폰: 불러오기 실패하면 이유(검열, 서버 불안정, 길이 한도)를 알려줘요"]},
   {"v":"2.83","items":["핸드폰: 은행·구독 화면이 찌그러지던 것 고침","핸드폰: 구독 목록이 그 인물다운 것 위주로, 합계는 자동 계산","핸드폰: 메시지에 날짜가 바뀔 때마다 날짜 표시","핸드폰: 외국어 캐릭터는 날짜·시간 표시도 그 나라 말로","핸드폰: 외국어 캐릭터 폰은 앱 이름도 그 나라 말로","핸드폰: AI 챗봇, 데이팅, 리뷰 앱이 생겼어요 (홈 화면 두 번째 장)","핸드폰: 데이팅 매칭을 누르면 나눈 대화를 볼 수 있어요","핸드폰: 지우개는 지우기만 하고, 불러오기를 눌러야 새로 불러와요","핸드폰: 홈 화면을 옆으로 넘길 수 있어요","핸드폰: 대화에 날짜 단서가 없으면 설정에 맞는 날짜로 시작해요","핸드폰: 메시지 화면 색을 바꿈 (연회색 바탕, 파란 말풍선)"]},
   {"v":"2.82","items":["핸드폰: 캐릭터 폰을 몰래 볼 수 있어요 (전화, 검색, 메시지·단톡, 음악, 인스타, 캘린더, 갤러리, 메모, 쇼핑, 구독, 시청기록, 삭제기록)","핸드폰: 폰 속 날짜와 시간은 대화를 보고 정해요","핸드폰: 지우개 버튼으로 앱 하나 또는 폰 전체를 처음부터 다시 볼 수 있어요","핸드폰: 스크린타임, 은행, 알람, 커뮤 앱이 생겼어요","핸드폰: 폰 속 기록은 캐릭터도 알고 있어요 (엿본 건 몰라요)","핸드폰: 외국어 캐릭터는 원문과 번역을 같이 보여줘요","같이 그리기: 글씨체가 섞이지 않게, 캐릭터마다 글씨 실력이 달라요","같이 그리기: 코멘트 줄바꿈과 자리 잡기를 자연스럽게 고쳤어요"]},
   {"v":"2.81","items":[]}
@@ -1760,7 +1761,7 @@ async function callApi(cfg, messages, onText, signal, maxOverride) {
   if (cfg.prov === "custom" && !cfg.url) throw new Error("API 주소를 입력해주세요.");
   if (!cfg.model) throw new Error("모델 이름을 입력해주세요.");
   const body = { model: cfg.model, messages, stream: true, temperature: cfg.temp };
-  const mt = cfg.max || 0;
+  const mt = maxOverride && cfg.max ? Math.max(cfg.max, maxOverride) : (cfg.max || 0);
   if (cfg.prov === "openai" && /^(o\d|gpt-5)/.test(cfg.model)) { delete body.temperature; if (mt) body.max_completion_tokens = mt; }
   else if (mt) body.max_tokens = mt;
   if (/gemini/i.test(cfg.model)) applyGeminiSafety(body);
@@ -1783,7 +1784,8 @@ async function callApi(cfg, messages, onText, signal, maxOverride) {
     throw new Error((m || "오류 " + res.status) + (msg ? " (" + msg.slice(0, 120) + ")" : ""));
   }
   const reader = res.body.getReader(), dec = new TextDecoder();
-  let buf = "", text = "";
+  let buf = "", text = "", streamErr = "";
+  callApi.last = { finish: "", err: "" };
   while (true) {
     const { value, done } = await reader.read();
     if (done) break;
@@ -1796,11 +1798,16 @@ async function callApi(cfg, messages, onText, signal, maxOverride) {
       if (data === "[DONE]") continue;
       try {
         const j = JSON.parse(data);
+        if (j.error) streamErr = (j.error.message || j.error.status || String(j.error)).toString();
+        const fr = j.choices?.[0]?.finish_reason || j.candidates?.[0]?.finishReason || j.promptFeedback?.blockReason;
+        if (fr) callApi.last.finish = String(fr);
         const delta = j.choices?.[0]?.delta?.content || "";
         if (delta) { text += delta; onText && onText(text); }
       } catch(e) {}
     }
   }
+  callApi.last.err = streamErr;
+  if (!text && streamErr) throw new Error("AI 서버 오류 (" + streamErr.slice(0, 120) + ")");
   return text;
 }
 // 최근에 같이 그린 그림이 있으면 그 턴에 그림을 붙여서 보냄 (카드 뒤 6개 메시지까지)
@@ -3766,6 +3773,13 @@ function phJSON(t) {
       out += ch; continue;
     }
     if (ch === '"') { inS = true; out += ch; continue; }
+    const lit = x.slice(i, i + 6).match(/^(true|false|null)\b/);
+    if (lit) { out += lit[1]; i += lit[1].length - 1; continue; }
+    if (!/[\s{}\[\],:0-9.\-eE+]/.test(ch)) {
+      // 따옴표 없이 쓴 글(예: "name": 연락처)은 따옴표로 감싸서 읽는다
+      let j = i; while (j < x.length && !/[,}\]\n]/.test(x[j])) j++;
+      out += JSON.stringify(x.slice(i, j).trim()); i = j - 1; continue;
+    }
     if (ch === "{" || ch === "[") st.push(ch === "{" ? "}" : "]");
     else if (ch === "}" || ch === "]") { if (!st.length) break; st.pop(); out += ch; safe = out.length; safeStack = st.slice(); if (!st.length) break; continue; }
     out += ch;
@@ -3773,10 +3787,34 @@ function phJSON(t) {
   const fixed = (st.length || inS ? out.slice(0, safe) + safeStack.slice().reverse().join("") : out).replace(/,\s*([}\]])/g, "$1");
   try { return JSON.parse(fixed); } catch (e) { throw new Error("폰 내용이 중간에 끊겼어요. 다시 불러오기를 눌러주세요."); }
 }
-async function phoneAsk(p, signal) {
-  if (ai.prov !== "builtin") return await callApi(ai, [{ role: "user", content: p }], null, signal);
+async function phoneAskOnce(p, signal) {
+  if (ai.prov !== "builtin") return await callApi(ai, [{ role: "user", content: p }], null, signal, 8192);
   if (!sample) throw new Error("AI가 연결돼 있지 않아요. 홈의 AI 설정에서 API를 연결해주세요.");
   return (await sample([{ role: "user", content: p }], { cache: false, signal })).text;
+}
+// 폰 내용은 형식(JSON)이 맞아야 해서, 빈 답·깨진 답이면 알아서 두 번 더 다시 물어봐요
+async function phoneAsk(p, signal) {
+  let last = "", lastErr = null;
+  for (let i = 0; i < 3; i++) {
+    if (signal && signal.aborted) throw Object.assign(new Error("취소됨"), { name: "AbortError" });
+    try {
+      const out = await phoneAskOnce(p, signal);
+      last = out || "";
+      if (last.indexOf("{") >= 0) { try { phJSON(last); return last; } catch (e) { lastErr = e; } }
+    } catch (e) {
+      if (e.name === "AbortError") throw e;
+      lastErr = e;
+      if (/API 키|권한|모델 이름|주소|연결돼 있지/.test(e.message || "")) throw e;
+    }
+    await new Promise(r => setTimeout(r, 700 + i * 800));
+  }
+  const fin = ((callApi.last || {}).finish || "").toUpperCase();
+  if (/SAFETY|BLOCK|PROHIBIT|CONTENT_FILTER|RECITATION|SPII/.test(fin)) throw new Error("AI가 이 내용을 막았어요(검열). 다시 불러오기를 눌러 보거나, 대화가 너무 수위 높은 장면이면 조금 지나서 다시 해 보세요.");
+  if (/LENGTH|MAX_TOKENS/.test(fin) && !last.trim()) throw new Error("AI가 생각하다가 답 길이 한도를 다 써 버렸어요. AI 설정에서 최대 답변 길이를 늘려 주세요.");
+  if (lastErr && !last.trim()) throw lastErr;
+  if (!last.trim()) throw new Error("AI가 빈 답을 보냈어요. 서버가 불안정할 때 자주 그래요. 조금 뒤에 다시 불러오기를 눌러주세요.");
+  if (last.indexOf("{") < 0) throw new Error("AI가 폰 내용 대신 다른 말을 했어요: " + last.replace(/\s+/g, " ").slice(0, 60));
+  return last;
 }
 // 대화 프롬프트에 넣을 "캐릭터가 아는 자기 폰 내용" 요약
 function phoneBrief(c, skip) {
