@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"3.01","items":[]},
   {"v":"3.00","items":[]},
   {"v":"2.99","items":[]},
   {"v":"2.98","items":[]},
@@ -985,6 +986,8 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .up-replying button{border:0;background:none;color:#a02a57;font-size:16px;padding:0 4px}
 .ph-cmt[data-ci]{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .ph-cmt.up-hold{background:#f6eef2}
+.up-igc{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.up-igc.up-hold{background:#f6eef2}
 .ph-b[data-mi]{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .ph-b.up-sel .ph-bt{outline:2px solid #e0457b;outline-offset:2px}
 .ph-row.up-sel{background:#fdf0f5}
@@ -4419,13 +4422,14 @@ function openCharPhone(owner) {
   // 커뮤 댓글을 꾹 누르면 그 댓글에 답글
   let holdT = null, holdXY = null;
   el.addEventListener("pointerdown", e => {
-    const hit = PH && PH.owner === "user" && e.target.closest(".ph-cmt[data-ci],[data-mi],[data-ti]"); if (!hit) return;
+    const hit = PH && PH.owner === "user" && e.target.closest(".ph-cmt[data-ci],[data-mi],[data-ti],[data-igi]"); if (!hit) return;
     holdXY = [e.clientX, e.clientY]; clearTimeout(holdT);
     holdT = setTimeout(() => {
       if (!PH) return; PH.held = Date.now();
-      PH.heldKey = hit.dataset.mi != null ? "mi:" + hit.dataset.mi : hit.dataset.ti != null ? "ti:" + hit.dataset.ti : "ci:" + hit.dataset.ci;
+      PH.heldKey = hit.dataset.mi != null ? "mi:" + hit.dataset.mi : hit.dataset.ti != null ? "ti:" + hit.dataset.ti : hit.dataset.igi != null ? "igi:" + hit.dataset.igi : "ci:" + hit.dataset.ci;
       if (navigator.vibrate) try { navigator.vibrate(15); } catch (x) {}
-      if (hit.dataset.ci != null) { PH.replyTo = +hit.dataset.ci; phoneRender(); const inp = PH.el.querySelector("#upCmt"); if (inp) inp.focus(); }
+      if (hit.dataset.igi != null) { PH.igReply = +hit.dataset.igi; phoneRender(); const inp = PH.el.querySelector("#upIgC"); if (inp) inp.focus(); }
+      else if (hit.dataset.ci != null) { PH.replyTo = +hit.dataset.ci; phoneRender(); const inp = PH.el.querySelector("#upCmt"); if (inp) inp.focus(); }
       else if (hit.dataset.mi != null) { PH.msgSel = +hit.dataset.mi; phoneRender(); }
       else { PH.thSel = +hit.dataset.ti; phoneRender(); }
     }, 450);
@@ -4433,7 +4437,7 @@ function openCharPhone(owner) {
   const holdEnd = () => { clearTimeout(holdT); holdT = null; };
   el.addEventListener("pointerup", holdEnd); el.addEventListener("pointercancel", holdEnd);
   el.addEventListener("pointermove", e => { if (holdT && holdXY && Math.hypot(e.clientX - holdXY[0], e.clientY - holdXY[1]) > 10) holdEnd(); });
-  el.addEventListener("contextmenu", e => { if (e.target.closest(".ph-cmt[data-ci],[data-mi],[data-ti]")) e.preventDefault(); });
+  el.addEventListener("contextmenu", e => { if (e.target.closest(".ph-cmt[data-ci],[data-mi],[data-ti],[data-igi]")) e.preventDefault(); });
   el.addEventListener("scroll", e => {
     const pg = e.target; if (!PH || !pg.classList || !pg.classList.contains("ph-pages") || !pg.clientWidth) return;
     const p = Math.round(pg.scrollLeft / pg.clientWidth); if (p === PH.page) return;
@@ -4884,8 +4888,8 @@ function upClick(e) {
   // 꾹 누르고 손 뗄 때 생기는 클릭은 무시
   if (PH && PH.heldKey) {
     const k = PH.heldKey, t0 = PH.held; PH.heldKey = null;
-    const h = e.target.closest(".ph-cmt[data-ci],[data-mi],[data-ti]");
-    const key = h ? (h.dataset.mi != null ? "mi:" + h.dataset.mi : h.dataset.ti != null ? "ti:" + h.dataset.ti : "ci:" + h.dataset.ci) : "";
+    const h = e.target.closest(".ph-cmt[data-ci],[data-mi],[data-ti],[data-igi]");
+    const key = h ? (h.dataset.mi != null ? "mi:" + h.dataset.mi : h.dataset.ti != null ? "ti:" + h.dataset.ti : h.dataset.igi != null ? "igi:" + h.dataset.igi : "ci:" + h.dataset.ci) : "";
     if (key === k && Date.now() - t0 < 1500) return;
   }
   const b = e.target.closest("[data-up]"); if (!b || !PH || PH.owner !== "user") return;
@@ -4929,15 +4933,22 @@ function upClick(e) {
     return;
   }
   else if (a === "uresetall") { if (!confirm("내 폰을 통째로 초기화할까요? 쓴 글, 문자, 메모, 인스타가 다 지워지고, 설기가 엿본 기억도 사라져요.")) return; Object.keys(UP_APPS).forEach(k => upResetApp(c, k)); c.uphone = {}; c.peeks = []; save(c.id); }
+  else if (a === "igunreply") PH.igReply = null;
   else if (a === "igopen") {
-    PH.igFrom = PH.igv || "feed"; PH.igv = "post"; PH.igp = v; phoneRender();
+    PH.igReply = null; PH.igFrom = PH.igv || "feed"; PH.igv = "post"; PH.igp = v; phoneRender();
     const x = upIgPost(c, v); if (x) upIgReact(c, v, x.src === "m" && !x.p.reacted);
     return;
   }
   else if (a === "igcmt") {
     const t = (($("#upIgC") || {}).value || "").trim(); if (!t) return;
     const x = upIgPost(c, PH.igp); if (!x) return;
-    (x.p.comments = x.p.comments || []).push({ u: myHandle(c), t, byUser: true }); save(c.id); $("#upIgC").value = ""; phoneRender();
+    const cm = x.p.comments = x.p.comments || [], ri = PH.igReply, tg = ri != null ? cm[ri] : null;
+    if (tg) {
+      let at = ri + 1; while (at < cm.length && cm[at].re) at++;
+      const tu = phPlain(tg.u);
+      cm.splice(at, 0, { u: myHandle(c), t: (t.startsWith("@") ? t : "@" + tu + " " + t), re: true, byUser: true, toU: tu, toT: phPlain(tg.t) });
+    } else cm.push({ u: myHandle(c), t, byUser: true });
+    PH.igReply = null; save(c.id); $("#upIgC").value = ""; phoneRender();
     const key = PH.igp; clearTimeout(PH.igTimer); PH.igTimer = setTimeout(() => { if (PH && PH.owner === "user") upIgReact(c, key, false); }, 2600);
     return;
   }
@@ -5060,7 +5071,7 @@ function upIgCard(c, x, idx, full) {
   const p = x.p, tr = PH.tr === "both" ? "paren" : PH.tr, isMe = x.src === "m", isChar = x.src === "c";
   const av = isMe && c.uavatar ? `<img src="${esc(c.uavatar)}" alt="">` : isChar && c.avatar ? `<img src="${esc(c.avatar)}" alt="">` : esc(phPlain(x.who).slice(0, 1));
   const cm = p.comments || [];
-  const cmts = full ? cm.map(m => `<div class="up-igc${m.re ? " re" : ""}"><b>${esc(phPlain(m.u))}</b> ${phTx(m.t, tr)}</div>`).join("")
+  const cmts = full ? cm.map((m, ci) => `<div data-igi="${ci}" class="up-igc${m.re ? " re" : ""}${PH.igReply === ci ? " up-hold" : ""}"><b>${esc(phPlain(m.u))}</b> ${phTx(m.t, tr)}</div>`).join("")
     : (cm.length ? `<br><button type="button" class="up-igmore" data-up="igopen" data-v="${x.src}:${x.i}">댓글 ${cm.length}개 모두 보기</button>` + cm.slice(-2).map(m => `<br><b>${esc(phPlain(m.u))}</b> ${phTx(m.t, tr)}`).join("") : `<br><button type="button" class="up-igmore" data-up="igopen" data-v="${x.src}:${x.i}">댓글 달기</button>`);
   return `<div class="ph-post"><div class="ph-ph"><span class="ph-av sm">${av}</span><span class="ph-mid"><b>${esc(phPlain(x.who))}</b>${p.loc ? `<small>${esc(phPlain(p.loc))}</small>` : ""}</span><span>···</span></div>
 <div class="ph-img" style="background:hsl(${(idx * 53 + 25) % 360} 20% 80%)"><span>${phTx(p.img, PH.tr === "both" ? "tr" : PH.tr)}</span></div>
@@ -5075,7 +5086,7 @@ function upInsta(c, note) {
   if (v === "post") {
     const x = upIgPost(c, PH.igp); if (!x) { PH.igv = "feed"; return upInsta(c, note); }
     const key = "ig:" + PH.igp, busy = PH.busy[key];
-    return upHead(esc(phPlain(x.who))) + `<div class="ph-body">${upIgCard(c, Object.assign({}, x, { i: +PH.igp.split(":")[1] }), 0, true)}${busy ? `<div class="ph-msg sm"><span class="ph-spin"></span>댓글 확인 중...</div>` : ""}${PH.err[key] ? `<div class="ph-err">${esc(PH.err[key])}</div>` : ""}</div><div class="up-send"><input type="text" class="up-in" id="upIgC" placeholder="댓글 달기..."><button type="button" data-up="igcmt">게시</button></div>`;
+    return upHead(esc(phPlain(x.who))) + `<div class="ph-body">${upIgCard(c, Object.assign({}, x, { i: +PH.igp.split(":")[1] }), 0, true)}${busy ? `<div class="ph-msg sm"><span class="ph-spin"></span>댓글 확인 중...</div>` : ""}${PH.err[key] ? `<div class="ph-err">${esc(PH.err[key])}</div>` : ""}</div>${PH.igReply != null && (x.p.comments || [])[PH.igReply] ? `<div class="up-replying"><span>ㄴ @${esc(phPlain(x.p.comments[PH.igReply].u))}에게 답글 다는 중</span><button type="button" data-up="igunreply" aria-label="답글 취소">×</button></div>` : ""}<div class="up-send"><input type="text" class="up-in" id="upIgC" placeholder="${PH.igReply != null ? "답글 달기" : "댓글 달기 · 꾹 누르면 답글"}"><button type="button" data-up="igcmt">게시</button></div>`;
   }
   if (v === "new") {
     return upHead("새 게시물") + `<div class="ph-body up-form"><textarea class="up-ta" id="upIgImg" style="min-height:90px;flex:none" placeholder="사진 설명 (무엇이 찍혔는지)"></textarea><textarea class="up-ta" id="upIgCap" style="min-height:90px;flex:none" placeholder="문구 입력..."></textarea><input type="text" class="up-in" id="upIgLoc" placeholder="위치 추가 (선택)"><button type="button" class="up-add" data-up="igpost">공유</button></div>`;
@@ -5121,8 +5132,8 @@ ${phoneCtx(c)}
 문구: ${phPlain(p.cap)}
 
 [지금까지 댓글]
-${cm.slice(-15).map(m => `@${phPlain(m.u)}: ${phPlain(m.t)}`).join("\n") || "(없음)"}
-
+${cm.slice(-15).map(m => `${m.re ? "  ㄴ " : ""}@${phPlain(m.u)}: ${phPlain(m.t)}`).join("\n") || "(없음)"}
+${fresh.length && fresh[fresh.length - 1].toU ? `\n[방금 ${josa(u, "이", "가")} 단 답글]\n@${me}: ${phPlain(fresh[fresh.length - 1].t)} (@${fresh[fresh.length - 1].toU}의 댓글 "${String(fresh[fresh.length - 1].toT || "").slice(0, 80)}"에 단 답글. @${fresh[fresh.length - 1].toU}가 다시 답할 수도, 안 할 수도 있다. 답한다면 그 사람 말투로, re는 true)\n` : ""}
 [규칙]
 - ${u}의 인스타 아이디는 @${me}, ${c.name}의 아이디는 @${ch}다. 서로 맞팔이라 누구 계정인지 안다.
 ${first && x.src === "m" ? `- ${u}가 방금 올린 게시물이다. ${u}의 친구들(${friends || "지인들"})이 댓글을 단다. ${c.name}도 볼 수 있다. 관계와 성격에 맞게 댓글을 달지, 좋아요만 누를지, 그냥 넘길지 정한다. 단다면 u를 "${ch}"로.` : `- ${josa(u, "이", "가")} 새로 단 댓글에 게시물 주인(${owner})이나 다른 사람이 답글을 달 수도, 안 달 수도 있다. 성격과 관계대로 정한다. 답글은 re를 true로.`}
@@ -5135,7 +5146,10 @@ likes는 지금 좋아요 수(모르면 0). JSON 하나만 출력한다.`;
   try {
     const j = await upAsk(prompt, ctl.signal);
     fresh.forEach(m => { m.seen = 1; });
-    (j.cmts || []).filter(m => m && m.t && phPlain(m.u) !== me).forEach(m => cm.push({ u: phPlain(m.u), t: m.t, re: !!m.re, char: phPlain(m.u) === phPlain(ch) }));
+    const add = (j.cmts || []).filter(m => m && m.t && phPlain(m.u) !== me).map(m => ({ u: phPlain(m.u), t: m.t, re: !!m.re, char: phPlain(m.u) === phPlain(ch) }));
+    const lastF = fresh[fresh.length - 1];
+    if (lastF && lastF.re && cm.indexOf(lastF) >= 0) { let at = cm.indexOf(lastF) + 1; while (at < cm.length && cm[at].re && !cm[at].byUser) at++; add.forEach(m => { m.re = true; }); cm.splice(at, 0, ...add); }
+    else add.forEach(m => cm.push(m));
     if (+j.likes > (p.likes || 0)) p.likes = +j.likes;
     if (first) p.reacted = 1;
     save(c.id);
