@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"2.84","items":["핸드폰: 폰 내용이 빈 답이나 깨진 형식으로 오면 알아서 다시 불러와요","핸드폰: 불러오기 실패하면 이유(검열, 서버 불안정, 길이 한도)를 알려줘요"]},
+  {"v":"2.84","items":["핸드폰: 대사 언어와 따로 핸드폰 언어를 정할 수 있어요 (캐릭터 설정)","핸드폰: 폰 내용이 빈 답이나 깨진 형식으로 오면 알아서 다시 불러와요","핸드폰: 불러오기 실패하면 이유(검열, 서버 불안정, 길이 한도)를 알려줘요"]},
   {"v":"2.83","items":["핸드폰: 은행·구독 화면이 찌그러지던 것 고침","핸드폰: 구독 목록이 그 인물다운 것 위주로, 합계는 자동 계산","핸드폰: 메시지에 날짜가 바뀔 때마다 날짜 표시","핸드폰: 외국어 캐릭터는 날짜·시간 표시도 그 나라 말로","핸드폰: 외국어 캐릭터 폰은 앱 이름도 그 나라 말로","핸드폰: AI 챗봇, 데이팅, 리뷰 앱이 생겼어요 (홈 화면 두 번째 장)","핸드폰: 데이팅 매칭을 누르면 나눈 대화를 볼 수 있어요","핸드폰: 지우개는 지우기만 하고, 불러오기를 눌러야 새로 불러와요","핸드폰: 홈 화면을 옆으로 넘길 수 있어요","핸드폰: 대화에 날짜 단서가 없으면 설정에 맞는 날짜로 시작해요","핸드폰: 메시지 화면 색을 바꿈 (연회색 바탕, 파란 말풍선)"]},
   {"v":"2.82","items":["핸드폰: 캐릭터 폰을 몰래 볼 수 있어요 (전화, 검색, 메시지·단톡, 음악, 인스타, 캘린더, 갤러리, 메모, 쇼핑, 구독, 시청기록, 삭제기록)","핸드폰: 폰 속 날짜와 시간은 대화를 보고 정해요","핸드폰: 지우개 버튼으로 앱 하나 또는 폰 전체를 처음부터 다시 볼 수 있어요","핸드폰: 스크린타임, 은행, 알람, 커뮤 앱이 생겼어요","핸드폰: 폰 속 기록은 캐릭터도 알고 있어요 (엿본 건 몰라요)","핸드폰: 외국어 캐릭터는 원문과 번역을 같이 보여줘요","같이 그리기: 글씨체가 섞이지 않게, 캐릭터마다 글씨 실력이 달라요","같이 그리기: 코멘트 줄바꿈과 자리 잡기를 자연스럽게 고쳤어요"]},
   {"v":"2.81","items":[]}
@@ -1335,6 +1335,8 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
         <div class="seg" id="fLen"><button data-v="auto">자동</button><button data-v="short">짧게</button><button data-v="mid">보통</button><button data-v="long">길게</button></div>
         <label>대사 언어</label>
         <div class="seg" id="fLang"><button data-v="ko">한국어</button><button data-v="ja">일본어</button><button data-v="en">영어</button><button data-v="zh">중국어</button></div>
+        <label>핸드폰 언어</label>
+        <div class="seg" id="fPLang"><button data-v="same">대사와 같게</button><button data-v="ko">한국어</button><button data-v="ja">일본어</button><button data-v="en">영어</button><button data-v="zh">중국어</button></div>
         <label>시제</label>
         <div class="seg" id="fTense"><button data-v="past">과거</button><button data-v="present">현재</button></div>
         <label>나레이션</label>
@@ -3107,7 +3109,7 @@ function renderSub() {
 }
 function segSet(el, v) { el.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === v)); }
 function segGet(el) { return el.querySelector("button.on")?.dataset.v; }
-["#fLen", "#fTense", "#fFormat", "#fLang", "#fNarr"].forEach(s => $(s).onclick = e => { if (e.target.dataset.v) segSet($(s), e.target.dataset.v); });
+["#fLen", "#fTense", "#fFormat", "#fLang", "#fPLang", "#fNarr"].forEach(s => $(s).onclick = e => { if (e.target.dataset.v) segSet($(s), e.target.dataset.v); });
 
 function openEditor(id) {
   editing = id ? store.chars.find(c => c.id === id) : null;
@@ -3126,7 +3128,7 @@ function openEditor(id) {
   $("#fChar").value = c.prompt || "";
   $("#fWorld").value = c.world || "";
   $("#fUName").value = c.uname || ""; $("#fUser").value = c.upersona || "";
-  segSet($("#fLen"), c.len || "mid"); segSet($("#fTense"), c.tense || "present"); segSet($("#fFormat"), c.format || "bubble"); segSet($("#fLang"), c.lang || "ko"); segSet($("#fNarr"), c.narr || "off");
+  segSet($("#fLen"), c.len || "mid"); segSet($("#fTense"), c.tense || "present"); segSet($("#fFormat"), c.format || "bubble"); segSet($("#fLang"), c.lang || "ko"); segSet($("#fPLang"), c.plang || "same"); segSet($("#fNarr"), c.narr || "off");
   if (!$("#fHand").options.length) $("#fHand").innerHTML = Object.keys(HANDS).map(n => `<option>${n}</option>`).join("");
   $("#fHand").value = HANDS[c.hand] ? c.hand : "단정";
   if (!$("#fVoice").options.length) $("#fVoice").innerHTML = TTS_VOICES.map(v => `<option value="${v[0]}">${v[0]} · ${v[1]}</option>`).join("");
@@ -3142,7 +3144,7 @@ let draftTimer = 0, draftOff = false;
 function draftKey() { return DRAFT_PRE + (editing ? editing.id : "new"); }
 function readDraftForm() {
   return { at: Date.now(), name: $("#fName").value, prompt: $("#fChar").value, world: $("#fWorld").value, uname: $("#fUName").value, upersona: $("#fUser").value,
-    samples: editSamples, greetings: editGreets, cast: editCast, len: segGet($("#fLen")), tense: segGet($("#fTense")), format: segGet($("#fFormat")), lang: segGet($("#fLang")), narr: segGet($("#fNarr")), hand: $("#fHand").value };
+    samples: editSamples, greetings: editGreets, cast: editCast, len: segGet($("#fLen")), tense: segGet($("#fTense")), format: segGet($("#fFormat")), lang: segGet($("#fLang")), plang: segGet($("#fPLang")), narr: segGet($("#fNarr")), hand: $("#fHand").value };
 }
 function writeDraft() { if (draftOff) return false; try { localStorage.setItem(draftKey(), JSON.stringify(readDraftForm())); return true; } catch (e) { return false; } }
 function draftSoon() { clearTimeout(draftTimer); draftTimer = setTimeout(writeDraft, 600); }
@@ -3154,7 +3156,7 @@ function applyDraft(d) {
   if (Array.isArray(d.greetings)) editGreets = d.greetings.length ? d.greetings : [""];
   if (Array.isArray(d.cast)) { editCast = d.cast; renderCastList(); }
   if (d.len) segSet($("#fLen"), d.len); if (d.tense) segSet($("#fTense"), d.tense); if (d.format) segSet($("#fFormat"), d.format);
-  if (d.lang) segSet($("#fLang"), d.lang); if (d.narr) segSet($("#fNarr"), d.narr); if (d.hand && HANDS[d.hand]) $("#fHand").value = d.hand;
+  if (d.lang) segSet($("#fLang"), d.lang); if (d.plang) segSet($("#fPLang"), d.plang); if (d.narr) segSet($("#fNarr"), d.narr); if (d.hand && HANDS[d.hand]) $("#fHand").value = d.hand;
   renderStyleList(); renderIntroList(); setAvPreview();
 }
 function offerDraft() {
@@ -3194,7 +3196,7 @@ function editorData() {
     samples: editSamples.filter(sm => (sm.lines || []).some(l => l.t.trim())), greetings: editGreets.filter(t => t.trim()), styles: [], intros: [],
     cast: editCast.filter(x => (x.name || "").trim()).map(x => Object.assign({}, x, { name: x.name.trim(), samples: (x.samples || []).filter(sm => (sm.lines || []).some(l => l.t.trim())) })),
     uname: $("#fUName").value.trim(), upersona: $("#fUser").value,
-    len: segGet($("#fLen")), tense: segGet($("#fTense")), format: segGet($("#fFormat")), lang: segGet($("#fLang")), narr: segGet($("#fNarr")), hand: $("#fHand").value,
+    len: segGet($("#fLen")), tense: segGet($("#fTense")), format: segGet($("#fFormat")), lang: segGet($("#fLang")), plang: segGet($("#fPLang")), narr: segGet($("#fNarr")), hand: $("#fHand").value,
     voice: $("#fVoice").value, voiceStyle: $("#fVoiceStyle").value.trim(), voiceId: $("#fVoiceId").value.trim()
   };
 }
@@ -3708,7 +3710,9 @@ const PH_APP_I18N = {
   en: { msg: "Messages", insta: "Instagram", call: "Phone", music: "Music", memo: "Notes", shop: "Shopping", subs: "Subscriptions", watch: "History", trash: "Deleted", search: "Search", cal: "Calendar", gallery: "Photos", screen: "Screen Time", bank: "Bank", alarm: "Alarm", comm: "Forum", ai: "AI Chat", date: "Dating", review: "Reviews" },
   zh: { msg: "信息", insta: "Instagram", call: "电话", music: "音乐", memo: "备忘录", shop: "购物", subs: "订阅", watch: "观看记录", trash: "最近删除", search: "搜索", cal: "日历", gallery: "照片", screen: "屏幕使用时间", bank: "银行", alarm: "闹钟", comm: "论坛", ai: "AI聊天", date: "交友", review: "评价" }
 };
-const phAppName = (k, c) => { const L = PH_APP_I18N[(c || char() || {}).lang]; return (L && L[k]) || PH_APPS[k].n; };
+// 핸드폰 언어: 따로 정했으면 그걸, 아니면 대사 언어를 따라가요
+const phLang = c => { c = c || char() || {}; return c.plang && c.plang !== "same" ? c.plang : c.lang; };
+const phAppName = (k, c) => { const L = PH_APP_I18N[phLang(c)]; return (L && L[k]) || PH_APPS[k].n; };
 const PH_DOCK = ["call", "search", "msg", "music"], PH_GRID = ["insta", "comm", "cal", "gallery", "memo", "screen", "bank", "alarm", "shop", "subs", "watch", "trash"], PH_GRID2 = ["ai", "date", "review"];
 const PH_DOW = "일월화수목금토";
 // 폰 속 지금 (대화 기준으로 정한 날짜·시각, 없으면 기기 시간)
@@ -3924,7 +3928,7 @@ text는 요약하지 말고 실제로 썼던 글 그대로 쓴다. 쓰다 만 �
 ${"${c}"}@이 숨기고 싶었던 마음이 드러나게.`
 };
 function phonePrompt(c, k, mode, old) {
-  const u = c.uname || "유저", L = PH_LANGS[c.lang];
+  const u = c.uname || "유저", L = PH_LANGS[phLang(c)];
   const langRule = L ? `\n- ${josa(c.name, "은", "는")} 평소 ${L}를 쓴다. 메시지·메모·캡션·댓글·지운 글·리뷰·자기소개 같은 글 내용은 ${L}로 쓰고, 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다(예: 先に寝てて[[먼저 자]]). 번역은 직역하지 않는다. 같은 사람이 한국어로 같은 곳(문자, 리뷰, 메모, 댓글 등)에 직접 썼다면 어떻게 썼을지로 옮긴다. 성격과 말투 온도는 살리되 어순, 단어, 끝맺음은 한국 사람이 실제로 쓰는 말로 바꾼다(리뷰면 한국 리뷰에 흔한 말투, 문자면 한국 문자 말투). "~에게 ~해 줬더니 ~하더라" 같은 번역투, 딱딱한 문어체 "~이다/~한다" 남발은 쓰지 않는다. AI 챗봇 앱이면 질문(q)뿐 아니라 AI 답변(a)도 ${L}로 쓰고 문장마다 번역을 붙인다. 번역 없이 남는 문장이 없게 한다. 사람·가게 이름도 그 나라에 맞게 쓴다. 메시지 대화방 이름(저장명)에도 바로 뒤에 [[한국어 번역]]만 붙인다(예: 西麻布 BAR 霞町[[니시아자부 바 카스미초]], 先生♡[[선생님♡]]). 누구인지 설명은 붙이지 않는다. 번역에서 웃음·감탄 소리(ふふ, 笑, w, haha 등)는 후후처럼 소리 나는 대로 옮기지 말고 ㅎㅎ, ㅋㅋ처럼 한국 문자에서 쓰는 말로 바꾸거나 뺀다.` : "";
   const schema = PH_SCHEMA[k].split("${c}@이").join(josa(c.name, "이", "가")).split("${c}").join(c.name).split("${u}").join(u);
   const oldTxt = old ? JSON.stringify(old).slice(0, 3500) : "";
@@ -3950,7 +3954,7 @@ ${schema}
 JSON 하나만 출력한다. 설명이나 코드블록은 쓰지 않는다.`;
 }
 function phoneThreadPrompt(c, t, old) {
-  const u = c.uname || "유저", L = PH_LANGS[c.lang];
+  const u = c.uname || "유저", L = PH_LANGS[phLang(c)];
   const langRule = L ? `\n- 메시지는 ${L}로 쓰고 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다. 번역은 직역하지 않고, 같은 사람이 한국어로 문자를 보냈다면 어떻게 썼을지로 옮긴다. 성격과 말투는 살리고 표현은 한국 문자답게. 웃음·감탄 소리(ふふ, 笑, w, haha, lol 등)를 소리 나는 대로 옮기지 않는다(후후 같은 번역 금지). ㅎㅎ, ㅋㅋ처럼 한국 문자에서 쓰는 말로 바꾸거나 뺀다.\n- time은 그 나라 폰에 뜨는 모양으로 쓴다(일본어: 16:15, 영어: 4:15 PM, 중국어: 16:15).` : "";
   const withUser = !t.group && phPlain(t.name) && (phPlain(t.name) === u || (c.uname && phPlain(t.name).includes(c.uname)));
   return `너는 ${c.name}의 휴대폰 메시지 앱에서 대화방 하나의 내용을 만든다. ${josa(c.name, "이", "가")} 실제로 쓰는 휴대폰이다.
@@ -4191,7 +4195,7 @@ function phHome(c, ph) {
   return `<div class="ph-body ph-home">
 ${hasAny ? `<button type="button" class="ph-rall" data-ph="resetall" aria-label="폰 초기화">${phIc("eraser", 17, "#fff", 1.9)}</button>` : ""}
 <div class="ph-pages"><div class="ph-page">
-<div class="ph-clock"><div>${phDateLab(t.y, t.m, t.d, c && c.lang, false)}</div><strong>${PH.clockBusy && !ph.clock ? "··:··" : phHM(t)}</strong></div>
+<div class="ph-clock"><div>${phDateLab(t.y, t.m, t.d, phLang(c), false)}</div><strong>${PH.clockBusy && !ph.clock ? "··:··" : phHM(t)}</strong></div>
 ${noti ? `<button type="button" class="ph-noti" data-ph="thread" data-v="${esc(phPlain(noti.name))}"><span class="ph-ico sm" style="background:#4b8fd6">${phIc("msg", 16, "#fff", 2)}</span><span><b>${phTx(noti.name, "orig")}</b> · ${esc(noti.when || "")}<br>${phTx(noti.last, tr === "both" ? "paren" : tr)}</span></button>` : `<div class="ph-noti ghost">${esc(c.name)}의 폰이에요. 앱을 눌러서 몰래 봐요</div>`}
 <div class="ph-grid">${PH_GRID.map(k => phTile(k, badge(k))).join("")}</div>
 </div>
@@ -4208,7 +4212,7 @@ function phTools(k, hasData) {
 }
 function phHead(title, extra) {
   const c = char();
-  const trBtn = c && PH_LANGS[c.lang] ? `<button type="button" class="ph-pill" data-ph="tr">${PH.tr === "both" ? "원문+번역" : PH.tr === "orig" ? "원문만" : "번역만"}</button>` : "";
+  const trBtn = c && PH_LANGS[phLang(c)] ? `<button type="button" class="ph-pill" data-ph="tr">${PH.tr === "both" ? "원문+번역" : PH.tr === "orig" ? "원문만" : "번역만"}</button>` : "";
   return `<div class="ph-head"><button type="button" class="ph-ib" data-ph="back" aria-label="뒤로">${phIc("back", 22)}</button><h4>${title}</h4>${trBtn}${extra || ""}</div>`;
 }
 
@@ -4363,7 +4367,7 @@ function phInstaFeed(c, D, tr, refresh, note) {
 ${(p.comments || []).length ? `<br><span class="dim">댓글 ${p.comments.length}개 모두 보기</span>` + p.comments.slice(0, 2).map(x => `<br><b>${esc(phPlain(x.u))}</b> ${phTx(x.t, tr)}`).join("") : ""}
 <br><small class="dim">${esc(p.when || "")}</small></div></div>`;
   }).join("");
-  return `<div class="ph-head ig"><button type="button" class="ph-ib" data-ph="back" aria-label="뒤로">${phIc("back", 22)}</button><h4 class="ig">인스타</h4>${c && PH_LANGS[c.lang] ? `<button type="button" class="ph-pill" data-ph="tr">${PH.tr === "both" ? "원문+번역" : PH.tr === "orig" ? "원문만" : "번역만"}</button>` : ""}${refresh}</div>${note}
+  return `<div class="ph-head ig"><button type="button" class="ph-ib" data-ph="back" aria-label="뒤로">${phIc("back", 22)}</button><h4 class="ig">인스타</h4>${c && PH_LANGS[phLang(c)] ? `<button type="button" class="ph-pill" data-ph="tr">${PH.tr === "both" ? "원문+번역" : PH.tr === "orig" ? "원문만" : "번역만"}</button>` : ""}${refresh}</div>${note}
 <div class="ph-body"><div class="ph-stories">${stories}</div>${feed}</div>
 <div class="ph-igbar"><button type="button" data-ph="tab" data-v="0" aria-label="홈">${phIc("home", 22, "#1f1a1d", 2.2)}</button><span>${phIc("search", 22)}</span><span>${phIc("grid", 22)}</span><button type="button" data-ph="tab" data-v="1" aria-label="프로필">${phIc("user", 22)}</button></div>`;
 }
@@ -4413,13 +4417,13 @@ function phThread(c, ph) {
   const name = PH.tid, key = "t:" + name, tr = PH.tr;
   const tl = ((ph.apps.msg && ph.apps.msg.data && ph.apps.msg.data.threads) || []).find(x => phPlain(x.name) === name) || { name };
   const th = ph.threads[name], busy = PH.busy[key], err = PH.err[key];
-  const head = `<div class="ph-head chat"><button type="button" class="ph-ib" data-ph="back" aria-label="뒤로">${phIc("back", 22)}</button><h4>${tl.name ? phTx(tl.name, tr === "both" ? "paren" : tr) : esc(name)}${tl.group && tl.members ? ` <em>${tl.members.length + 1}</em>` : ""}</h4>${c && PH_LANGS[c.lang] ? `<button type="button" class="ph-pill" data-ph="tr">${PH.tr === "both" ? "원문+번역" : PH.tr === "orig" ? "원문만" : "번역만"}</button>` : ""}${th && th.msgs && th.msgs.length ? `<button type="button" class="ph-ib" data-ph="tmore" aria-label="새 메시지 확인" ${busy ? "disabled" : ""}>${busy ? '<span class="ph-spin"></span>' : phIc("refresh", 19)}</button>` : ""}</div>`;
+  const head = `<div class="ph-head chat"><button type="button" class="ph-ib" data-ph="back" aria-label="뒤로">${phIc("back", 22)}</button><h4>${tl.name ? phTx(tl.name, tr === "both" ? "paren" : tr) : esc(name)}${tl.group && tl.members ? ` <em>${tl.members.length + 1}</em>` : ""}</h4>${c && PH_LANGS[phLang(c)] ? `<button type="button" class="ph-pill" data-ph="tr">${PH.tr === "both" ? "원문+번역" : PH.tr === "orig" ? "원문만" : "번역만"}</button>` : ""}${th && th.msgs && th.msgs.length ? `<button type="button" class="ph-ib" data-ph="tmore" aria-label="새 메시지 확인" ${busy ? "disabled" : ""}>${busy ? '<span class="ph-spin"></span>' : phIc("refresh", 19)}</button>` : ""}</div>`;
   let inner = "";
   if (!th || !th.msgs || !th.msgs.length) inner = err ? `<div class="ph-msg">${esc(err)}<button type="button" data-ph="tmore">다시 불러오기</button></div>` : `<div class="ph-msg"><span class="ph-spin"></span>대화 보는 중...</div>`;
   else {
     // 같은 사람이 연달아 보내면 프로필·이름은 처음에만, 시간은 묶음의 마지막에만 (카톡처럼)
     const L = th.msgs, WD = ["일", "월", "화", "수", "목", "금", "토"];
-    const dLab = v => { const g = String(v || "").match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/); return g ? esc(phDateLab(+g[1], +g[2], +g[3], c && c.lang, true)) : esc(v); };
+    const dLab = v => { const g = String(v || "").match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/); return g ? esc(phDateLab(+g[1], +g[2], +g[3], phLang(c), true)) : esc(v); };
     let lastDate = "";
     inner = L.map((m, i) => {
       const dk = String(m.date || "").trim(), sep = dk && dk !== lastDate ? `<div class="ph-dsep"><span>${dLab(dk)}</span></div>` : "";
