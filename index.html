@@ -6,6 +6,10 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"2.92","items":[]},
+  {"v":"2.91","items":[]},
+  {"v":"2.90","items":[]},
+  {"v":"2.89","items":[]},
   {"v":"2.88","items":[]},
   {"v":"2.87","items":[]},
   {"v":"2.86","items":[]},
@@ -305,6 +309,15 @@ body[data-novelbg] .log .sms{color:var(--saycol,#F4F4F8)}
 .spkn{font-size:13px;color:var(--soft);font-weight:600;margin:10px 0 2px}
 .sumbox span{display:block;font-size:13px;color:var(--soft);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .addbtn{width:100%}
+.psrow{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 8px}
+.psrow>button:first-child{flex:1;min-width:0;text-align:left;background:none;border:0;padding:0;color:var(--ink)}
+.psrow b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.psrow span{display:block;font-size:13px;color:var(--soft);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.psrow.off b{opacity:.45}
+.pstog{flex:none;min-width:48px;padding:6px 10px;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--soft);font-size:13px;font-weight:700}
+.pstog.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.psbtns{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.psbtns .btn{width:100%}
 .sublabel{font-size:13px;color:var(--soft);margin:18px 0 8px;font-weight:600}
 .sublog{display:flex;flex-direction:column;gap:6px}
 .subline{display:flex;flex-direction:column;align-items:flex-start}
@@ -856,16 +869,23 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .ph-body>*{flex-shrink:0}
 .ph-home{padding:14px 14px 6px;gap:16px;color:#fff}
 .ph-clock{text-align:center;font-size:13px;color:#e7d9e0}
-.ph-clock strong{display:block;font-family:"GounBatang","Gowun Batang",serif;font-size:52px;font-weight:400;line-height:1.1;color:#fff}
+.ph-clock strong{display:block;font-family:"GounBatang","Gowun Batang",serif;font-size:48px;font-weight:400;line-height:1.1;color:#fff}
 .ph-noti{width:100%;padding:10px 12px;border:0;border-radius:14px;background:rgba(255,255,255,.14);display:flex;gap:10px;align-items:center;text-align:left;font-size:12px;line-height:1.45;color:#f4ecf0 !important}
 .ph-noti>span:last-child{min-width:0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.ph-noti>.ph-nb{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
+.ph-nl1{display:flex;gap:6px;align-items:baseline;min-width:0}.ph-nl1 b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ph-nl1 small{flex:none;margin-left:auto;font-size:11px;opacity:.7}
+.ph-nl2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ph-noti.ghost{justify-content:center;text-align:center;color:#e7d9e0}
-.ph-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));row-gap:14px}
+.ph-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));row-gap:12px}
 .ph-dock{padding:10px 4px;border-radius:22px;background:rgba(255,255,255,.16);display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
 .ph-fill{flex:1}
 .ph-pages{flex:1 1 0;min-height:0;margin:0 -14px;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior-x:contain}
 .ph-pages::-webkit-scrollbar{display:none}
-.ph-page{flex:0 0 100%;box-sizing:border-box;padding:0 14px;scroll-snap-align:start;scroll-snap-stop:always;display:flex;flex-direction:column;gap:16px;overflow:hidden}
+.ph-pages{container-type:size}
+.ph-page{overflow-y:auto;scrollbar-width:none}.ph-page::-webkit-scrollbar{display:none}
+@container (max-height:400px){.ph-pages .ph-page{gap:8px}.ph-pages .ph-clock strong{font-size:40px}.ph-pages .ph-grid{row-gap:8px}.ph-pages .ph-grid .ph-ico{width:46px;height:46px;border-radius:13px}.ph-pages .ph-noti{padding:8px 10px}}
+@container (max-height:320px){.ph-pages .ph-page{gap:6px}.ph-pages .ph-noti{padding:6px 10px}.ph-pages .ph-clock{font-size:12px}.ph-pages .ph-clock strong{font-size:30px;line-height:1}.ph-pages .ph-grid .ph-ico{width:40px;height:40px;border-radius:11px}.ph-pages .ph-grid .ph-ico svg{width:21px;height:21px}.ph-pages .ph-grid .ph-lb{font-size:10px}.ph-pages .ph-grid{row-gap:5px}.ph-pages .ph-grid .ph-app{gap:3px;min-height:0}}
+.ph-page{flex:0 0 100%;box-sizing:border-box;padding:0 14px;scroll-snap-align:start;scroll-snap-stop:always;display:flex;flex-direction:column;gap:12px;overflow:hidden}
 .ph-dots{display:flex;justify-content:center;gap:2px;margin:-8px 0 -6px}
 .ph-dots button{width:18px;height:18px;border:0;background:none;padding:0;display:grid;place-items:center}
 .ph-dots button::after{content:"";width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.35);transition:background .2s}
@@ -874,7 +894,8 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .ph-ico{position:relative;width:52px;height:52px;border-radius:15px;display:grid;place-items:center;flex:none}
 .ph-ico.sm{width:30px;height:30px;border-radius:9px}
 .ph-ico b{position:absolute;right:-5px;top:-5px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#e0457b;color:#fff;font-size:11px;display:grid;place-items:center;border:2px solid rgba(0,0,0,.25)}
-.ph-lb{font-size:11px;color:#f4ecf0 !important}
+.ph-lb{font-size:11px;color:#f4ecf0 !important;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25}
+.ph-app{min-width:0}
 .ph-head{flex:none;height:48px;padding:0 6px;display:flex;align-items:center;gap:2px;border-bottom:1px solid #eee6ea}
 .ph-head .ph-ib[data-ph="back"]{width:36px;margin-right:-2px}
 .ph-head h4{flex:1;min-width:0;margin:0;font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -919,6 +940,32 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .dim{color:#6f6169}
 .ph-tr{display:block;margin-top:2px;font-size:.86em;color:#6f6169;font-weight:400}
 .ph-msg.sm{flex:none;min-height:0;padding:18px 14px}
+.up-form{padding:12px 14px;gap:8px;background:#fff}
+.ph-body.memo.up-form{background:#f6f1e7}
+.up-in{width:100%;box-sizing:border-box;height:38px;border:1px solid #e6dde2;border-radius:10px;padding:0 11px;font-size:13.5px;background:#fff;color:#2a2227}
+.up-ta{width:100%;box-sizing:border-box;min-height:180px;flex:1;border:1px solid #e6dde2;border-radius:10px;padding:10px 11px;font-size:13.5px;line-height:1.55;background:#fff;color:#2a2227;resize:none;font-family:inherit}
+.up-when{font-size:11px;color:#8a7f86}
+.up-del{align-self:flex-start;border:0;background:none;color:#b8285a;font-size:12.5px;padding:6px 0}
+.up-add{margin:12px 14px;height:40px;border:0;border-radius:11px;background:#2a2227;color:#fff !important;font-size:13.5px;font-weight:600;flex:none}
+.up-form .up-add{margin:4px 0 0}
+.up-sadd{display:flex;gap:6px;padding:10px 14px;flex:none}
+.up-sadd button,.up-send button{flex:none;height:38px;padding:0 13px;border:0;border-radius:10px;background:#2a2227;color:#fff !important;font-size:13px;font-weight:600}
+.up-send{flex:none;display:flex;gap:6px;padding:8px 10px;background:#fff;border-top:1px solid #e6e0e4}
+.up-send .up-who{background:#f1ebef;color:#2a2227 !important}
+.up-x{flex:none;border:0;background:none;color:#a2959d;font-size:18px;width:28px;height:28px}
+.up-peek{background:#e0457b !important}
+.up-rev{border:0;background:none;padding:0;color:#2f5fb0;font-size:12px;text-decoration:underline}
+.ph-cmt.up-charc{background:#fff4f8}
+.up-tag{font-style:normal;font-size:10.5px;font-weight:600;color:#fff;background:#e0457b;border-radius:6px;padding:1px 6px;margin-left:4px}
+.ph-dock.up-dock{grid-template-columns:repeat(2,minmax(0,1fr));padding:10px 40px}
+.up-typing{display:inline-flex;gap:4px;align-items:center;height:18px}
+.up-typing i{width:6px;height:6px;border-radius:50%;background:#a79ca3;animation:upDot 1s infinite}
+.up-typing i:nth-child(2){animation-delay:.15s}.up-typing i:nth-child(3){animation-delay:.3s}
+@keyframes upDot{0%,80%,100%{opacity:.3}40%{opacity:1}}
+.up-askb{flex-wrap:wrap}
+.up-askb button{flex:1 1 auto}
+.up-toast{position:absolute;left:14px;right:14px;bottom:40px;z-index:6;padding:10px 12px;border-radius:12px;background:rgba(42,34,39,.92);color:#fff;font-size:12.5px;text-align:center}
+
 .ph-msg{flex:1;min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;text-align:center;font-size:13px;color:#6f6169}
 .ph-msg button{height:40px;padding:0 16px;border:0;border-radius:12px;background:#2a2227;color:#fff !important;font-size:13px}
 .ph-err{flex:none;padding:6px 14px;font-size:11.5px;color:#b8285a;background:#fdf0f4}
@@ -1260,6 +1307,12 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
     <div class="form"><textarea id="lb" style="min-height:320px"></textarea><button class="btn" id="lbgo" type="button" style="width:100%;margin-top:10px">넣기</button></div>
   </section>
 
+  <!-- 프리셋 -->
+  <section class="screen" id="presets">
+    <header class="bar"><div class="phone-status" aria-hidden="true"><span class="phone-signal"><i></i><i></i><i></i><i></i></span><span class="phone-envelope"></span><span class="phone-battery"></span></div><button class="icon back" id="psBack" aria-label="뒤로">‹</button><div class="hcol"><h2 id="psTitle">프리셋</h2><div class="hsub" id="psSub"></div></div></header>
+    <div class="form" id="psBody"></div>
+  </section>
+
   <!-- AI 설정 -->
   <section class="screen" id="settings">
     <header class="bar"><div class="phone-status" aria-hidden="true"><span class="phone-signal"><i></i><i></i><i></i><i></i></span><span class="phone-envelope"></span><span class="phone-battery"></span></div><button class="icon back" data-back aria-label="뒤로">‹</button><h2>설정</h2></header>
@@ -1288,6 +1341,12 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
       <fieldset>
         <legend>문단 정리</legend>
         <label style="display:flex;gap:10px;align-items:center;color:var(--ink);font-size:15px;margin:0"><input type="checkbox" id="sMerge" style="width:20px;height:20px"> 대사만 있는 줄을 지문 문단에 붙이기</label>
+      </fieldset>
+      <fieldset>
+        <legend>프리셋</legend>
+        <label for="sPreset">기본 프리셋</label>
+        <select id="sPreset"></select>
+        <button class="btn ghost addbtn" id="sPresetMan" type="button" style="margin-top:10px">프리셋 관리</button>
       </fieldset>
       <fieldset id="sApi" hidden>
         <legend>연결 정보</legend>
@@ -1428,6 +1487,13 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
         <legend>로어북</legend>
         <button class="btn ghost addbtn" id="loreOpen" type="button">로어북 열기 (0개)</button>
       </fieldset>
+
+      <fieldset>
+        <legend>프리셋</legend>
+        <label for="fPreset">이 캐릭터에 쓸 프리셋</label>
+        <select id="fPreset"></select>
+        <button class="btn ghost addbtn" id="fPresetMan" type="button" style="margin-top:10px">프리셋 관리</button>
+      </fieldset>
     </div>
     <div class="actions">
       <button class="btn danger" id="delChar" hidden>삭제</button>
@@ -1453,6 +1519,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
         <button id="qMob">모브</button>
         <button id="qMem">기억<span class="mdot" id="memDot" hidden></span></button>
         <button id="qPhone">핸드폰</button>
+        <button id="qUPhone">내 폰</button>
         <button id="qCmd">명령어</button>
         <button id="resetChat">초기화</button>
       </div>
@@ -1577,6 +1644,7 @@ async function flush() {
       else await col().doc(`castav_${id}`).delete().catch(() => {});
       dirtyAvatars.delete(id);
     }
+    if (doMeta) await col().doc("presets").set({ list: presetList(), def: store.presetDef || "" });
     if (doMeta || chats.length) await col().doc("meta").set({ chars: store.chars.map(c => { const o = Object.assign({}, c); delete o.avatar; delete o.nbg; if (Array.isArray(o.cast)) o.cast = o.cast.map(x => { const y = Object.assign({}, x); delete y.avatar; return y; }); return o; }), theme: store.theme || null, pages });
     setSync("");
   } catch (e) {
@@ -1607,7 +1675,8 @@ async function initDb() {
         try { const nb = await col().doc(`nbg_${c.id}`).get(); if (nb.exists) c.nbg = nb.data().img; } catch (e) {}
         if (Array.isArray(c.cast) && c.cast.length) { try { const ca = await col().doc(`castav_${c.id}`).get(); if (ca.exists) { const im = ca.data().imgs || {}; c.cast.forEach(x => { if (x && im[x.id]) x.avatar = im[x.id]; }); } } catch (e) {} }
       }));
-      store = { chars: m.chars || [], chats, theme: m.theme || store.theme };
+      let psDoc = null; try { const pd = await col().doc("presets").get(); if (pd.exists) psDoc = pd.data(); } catch (e) {}
+      store = { chars: m.chars || [], chats, theme: m.theme || store.theme, presets: (psDoc && psDoc.list) || store.presets || [], presetDef: (psDoc && psDoc.def) || store.presetDef || "" };
       try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e) {}
       try { applyLook(); } catch (e) {}
       dbReady = true;
@@ -1627,7 +1696,7 @@ document.addEventListener("visibilitychange", () => { if (document.hidden && dbR
 
 // ---- 백업 ----
 $("#exportBtn").onclick = async () => {
-  const data = JSON.stringify({ app: "bampyeonji", v: 1, chars: store.chars, chats: store.chats });
+  const data = JSON.stringify({ app: "bampyeonji", v: 1, chars: store.chars, chats: store.chats, presets: presetList(), presetDef: store.presetDef || "" });
   const name = "bampyeonji_backup_" + new Date().toISOString().slice(0, 10) + ".json";
   try {
     const dl = window.claude ? await claude.use("downloads") : null;
@@ -1655,8 +1724,10 @@ $("#importFile").onchange = async e => {
       if (have.has(c.id)) return;
       store.chars.push(c); store.chats[c.id] = (j.chats || {})[c.id] || []; dirtyChats.add(c.id); added++;
     });
+    let pAdd = 0;
+    if (Array.isArray(j.presets)) { const hp = new Set(presetList().map(x => x.id)); j.presets.forEach(x => { if (x && x.id && !hp.has(x.id)) { presetList().push(x); pAdd++; } }); if (j.presetDef && !store.presetDef && presetById(j.presetDef)) store.presetDef = j.presetDef; }
     save(null); renderHome();
-    alert(added ? `캐릭터 ${added}개를 불러왔어요.` : "이미 모두 있는 캐릭터예요.");
+    alert((added ? `캐릭터 ${added}개를 불러왔어요.` : "이미 모두 있는 캐릭터예요.") + (pAdd ? ` 프리셋 ${pAdd}개도 불러왔어요.` : ""));
   } catch (err) { alert("백업 파일을 읽지 못했어요. 밤편지에서 내보낸 .json 파일인지 확인해주세요."); }
 };
 
@@ -1743,7 +1814,7 @@ $("#setBtn").onclick = () => {
   $("#sCfs").value = ai.cfs || 14; $("#sCfsLabel").textContent = "카드 글자 크기 · " + (ai.cfs || 14) + "px";
   $("#sFs").value = ai.fs || 15; $("#sFsLabel").textContent = "글자 크기 · " + (ai.fs || 15) + "px";
   $("#sVer").textContent = "지금 버전 v" + APP_VERSION; $("#sUpdOut").textContent = ""; $("#sTestOut").textContent = "";
-  syncProvUI(); show("settings");
+  syncProvUI(); psRefreshSelects(); show("settings");
 };
 $("#sSave").onclick = () => {
   ai = readSettings();
@@ -2873,6 +2944,125 @@ function updLoreBtn() { $("#loreOpen").textContent = "로어북 열기 (" + allL
 $("#loreOpen").onclick = () => { editBooks = normBooks(editBooks); renderLore(); show("lore"); $("#loreBody").scrollTop = 0; };
 $("#loreBack").onclick = () => { updLoreBtn(); show("editor"); };
 $("#lbBack").onclick = () => { renderLore(); show("lore"); };
+// ---------- 프리셋 화면 (목록 → 프리셋 → 블록) ----------
+let psView = "list", psCur = null, psBlk = 0, psFrom = "settings";
+function psOptions(sel, withFollow) {
+  const L = presetList(), def = store.presetDef ? presetById(store.presetDef) : null;
+  return (withFollow ? `<option value="">기본값 따라가기 · ${esc(def ? def.name : "없음")}</option><option value="none">안 쓰기</option>` : `<option value="">안 씀</option>`)
+    + L.map(x => `<option value="${esc(x.id)}">${esc(x.name || "이름 없음")}</option>`).join("");
+}
+function psRefreshSelects() {
+  const sp = $("#sPreset"); if (sp) { sp.innerHTML = psOptions("", false); sp.value = store.presetDef && presetById(store.presetDef) ? store.presetDef : ""; }
+  const fp = $("#fPreset"); if (fp) { const v = fp.dataset.v || ""; fp.innerHTML = psOptions(v, true); fp.value = v === "none" || presetById(v) ? v : ""; }
+  const n = presetList().length;
+  ["#sPresetMan", "#fPresetMan"].forEach(q => { if ($(q)) $(q).textContent = "프리셋 관리 (" + n + "개)"; });
+}
+function psSave() { save(null); }
+function openPresets(from) { psFrom = from; psView = "list"; renderPresets(); show("presets"); $("#psBody").scrollTop = 0; }
+$("#sPresetMan").onclick = () => openPresets("settings");
+$("#fPresetMan").onclick = () => openPresets("editor");
+$("#sPreset").onchange = e => { store.presetDef = e.target.value; psSave(); psRefreshSelects(); };
+$("#fPreset").onchange = e => { e.target.dataset.v = e.target.value; };
+$("#psBack").onclick = () => {
+  if (psView === "block") { psView = "edit"; renderPresets(); return; }
+  if (psView === "edit") { psView = "list"; renderPresets(); return; }
+  psRefreshSelects(); show(psFrom);
+};
+function psPickFile(done) {
+  const inp = document.createElement("input");
+  inp.type = "file"; inp.accept = ".json,.txt,.md,.text,.risupreset,.preset,application/json,text/plain"; inp.style.cssText = "position:fixed;left:-9999px";
+  document.body.appendChild(inp);
+  inp.onchange = () => {
+    const f = inp.files && inp.files[0]; if (!f) { inp.remove(); return; }
+    const fr = new FileReader();
+    fr.onload = () => { inp.remove(); done(String(fr.result || ""), f.name || ""); };
+    fr.onerror = () => { inp.remove(); alert("파일을 읽지 못했어요."); };
+    fr.readAsText(f);
+  };
+  inp.click();
+}
+function psAdd(list) {
+  if (!list.length) { alert("읽을 수 있는 내용이 없어요. 파일 안에 지침 글이 들어 있는지 확인해주세요."); return; }
+  presetList().push(...list); psSave(); renderPresets();
+  alert(list.length + "개 올렸어요.");
+}
+function renderPresets() {
+  const V = $("#psBody"), L = presetList();
+  let h = "";
+  if (psView === "list") {
+    $("#psTitle").textContent = "프리셋"; $("#psSub").textContent = L.length ? L.length + "개" : "";
+    L.forEach(x => {
+      const bs = psBlocksOf(x), onN = bs.filter(b => b.on !== false).length;
+      const tag = (store.presetDef === x.id ? "기본 · " : "") + (x.mode === "replace" ? "기본 지침 대신" : "기본 지침에 더하기");
+      h += `<div class="psrow"><button type="button" data-psopen="${esc(x.id)}"><b>${esc(x.name || "이름 없음")}</b><span>${esc(tag + " · " + (bs.length ? "블록 " + onN + "/" + bs.length + "개 켬 · " + psLen(x, true).toLocaleString() + "자" : "비어 있음"))}</span></button></div>`;
+    });
+    h += `<div class="psbtns"><button class="btn" id="psFile" type="button">파일에서 올리기</button></div>`;
+    h += `<label for="psPaste">붙여넣어서 올리기</label><textarea id="psPaste" style="min-height:120px" placeholder="프리셋 JSON이나 지침 글"></textarea>`;
+    h += `<div class="psbtns"><button class="btn ghost" id="psPasteGo" type="button">붙여넣은 걸로 만들기</button><button class="btn ghost" id="psNew" type="button">빈 프리셋 만들기</button></div>`;
+    V.innerHTML = h;
+    V.querySelectorAll("[data-psopen]").forEach(el => el.onclick = () => { psCur = el.dataset.psopen; psView = "edit"; renderPresets(); V.scrollTop = 0; });
+    $("#psFile").onclick = () => psPickFile((raw, nm) => psAdd(parsePresets(raw, nm)));
+    $("#psPasteGo").onclick = () => { const raw = $("#psPaste").value.trim(); if (raw) psAdd(parsePresets(raw, "붙여넣은 프리셋")); };
+    $("#psNew").onclick = () => { const x = mkPreset("새 프리셋", [{ name: "본문", text: "", on: true }]); L.push(x); psSave(); psCur = x.id; psView = "edit"; renderPresets(); V.scrollTop = 0; };
+    return;
+  }
+  const x = presetById(psCur); if (!x) { psView = "list"; return renderPresets(); }
+  const bs = psBlocksOf(x);
+  if (psView === "block") {
+    const b = bs[psBlk]; if (!b) { psView = "edit"; return renderPresets(); }
+    $("#psTitle").textContent = "블록"; $("#psSub").textContent = x.name || "";
+    h += `<label for="psBn">이름</label><input type="text" id="psBn" value="${esc(b.name || "")}">`;
+    h += `<label class="swl" style="margin-top:12px"><input type="checkbox" id="psBon"${b.on === false ? "" : " checked"}> 이 블록 보내기</label>`;
+    h += `<label for="psBt">내용</label><textarea id="psBt" class="tall" style="min-height:360px">${esc(b.text || "")}</textarea>`;
+    h += `<div class="hint" id="psBlen">${String(b.text || "").length.toLocaleString()}자 · {{char}}, {{user}}는 캐릭터 이름과 내 이름으로 바뀌어요.</div>`;
+    h += `<div class="psbtns"><button class="btn" id="psBdone" type="button">저장</button><button class="btn danger" id="psBdel" type="button">이 블록 삭제</button></div>`;
+    V.innerHTML = h;
+    $("#psBn").oninput = e => { b.name = e.target.value; psSave(); };
+    $("#psBon").onchange = e => { b.on = e.target.checked; psSave(); };
+    $("#psBt").oninput = e => { b.text = e.target.value; $("#psBlen").textContent = e.target.value.length.toLocaleString() + "자 · {{char}}, {{user}}는 캐릭터 이름과 내 이름으로 바뀌어요."; psSave(); };
+    $("#psBdone").onclick = () => { psSave(); psView = "edit"; renderPresets(); };
+    $("#psBdel").onclick = () => { if (!confirm((b.name || "이 블록") + " 삭제할까요?")) return; bs.splice(psBlk, 1); psSave(); psView = "edit"; renderPresets(); };
+    return;
+  }
+  $("#psTitle").textContent = "프리셋"; $("#psSub").textContent = x.name || "";
+  const onN = bs.filter(b => b.on !== false).length;
+  h += `<label for="psName">이름</label><input type="text" id="psName" value="${esc(x.name || "")}">`;
+  h += `<label for="psMode">쓰는 방식</label><select id="psMode"><option value="add"${x.mode === "replace" ? "" : " selected"}>기본 지침에 더하기</option><option value="replace"${x.mode === "replace" ? " selected" : ""}>기본 지침 대신 쓰기</option></select>`;
+  h += `<label style="margin-top:18px">지침 블록</label><div class="hint" style="margin:0 0 8px">켜짐 ${onN} / ${bs.length}개 · 보내는 글자 ${psLen(x, true).toLocaleString()}자 (전체 ${psLen(x, false).toLocaleString()}자)</div>`;
+  bs.forEach((b, i) => {
+    const on = b.on !== false;
+    h += `<div class="psrow${on ? "" : " off"}"><button type="button" data-bopen="${i}"><b>${esc(b.name || "블록 " + (i + 1))}</b><span>${String(b.text || "").length.toLocaleString()}자</span></button><button type="button" class="pstog${on ? " on" : ""}" data-btog="${i}">${on ? "켬" : "끔"}</button></div>`;
+  });
+  h += `<button class="btn ghost addbtn" id="psBadd" type="button">블록 추가</button>`;
+  h += `<label style="margin-top:18px">생성 옵션 <span class="hint">(비워두면 AI 설정 그대로)</span></label>`;
+  h += `<label for="psTemp">온도</label><input type="text" id="psTemp" inputmode="decimal" value="${esc(x.temp)}" placeholder="예: 0.9">`;
+  h += `<label for="psTop">top_p</label><input type="text" id="psTop" inputmode="decimal" value="${esc(x.topP)}" placeholder="예: 0.95">`;
+  h += `<label for="psMax">최대 응답 길이</label><input type="text" id="psMax" inputmode="numeric" value="${esc(x.maxTokens)}" placeholder="예: 2600">`;
+  h += `<div class="psbtns"><button class="btn" id="psDone" type="button">저장</button><button class="btn ghost" id="psCopy" type="button">이 프리셋 복사하기</button><button class="btn danger" id="psDel" type="button">이 프리셋 삭제</button></div>`;
+  V.innerHTML = h;
+  $("#psName").oninput = e => { x.name = e.target.value; $("#psSub").textContent = x.name; psSave(); };
+  $("#psMode").onchange = e => { x.mode = e.target.value; psSave(); };
+  $("#psTemp").oninput = e => { x.temp = e.target.value.trim(); psSave(); };
+  $("#psTop").oninput = e => { x.topP = e.target.value.trim(); psSave(); };
+  $("#psMax").oninput = e => { x.maxTokens = e.target.value.trim(); psSave(); };
+  V.querySelectorAll("[data-btog]").forEach(el => el.onclick = () => { const b = bs[+el.dataset.btog]; b.on = b.on === false; psSave(); const top = V.scrollTop; renderPresets(); V.scrollTop = top; });
+  V.querySelectorAll("[data-bopen]").forEach(el => el.onclick = () => { psBlk = +el.dataset.bopen; psView = "block"; renderPresets(); V.scrollTop = 0; });
+  $("#psBadd").onclick = () => { bs.push({ name: "새 블록", text: "", on: true }); psSave(); psBlk = bs.length - 1; psView = "block"; renderPresets(); V.scrollTop = 0; };
+  $("#psDone").onclick = () => { psSave(); psView = "list"; renderPresets(); };
+  $("#psCopy").onclick = async () => {
+    const txt = JSON.stringify({ name: x.name, mode: x.mode, blocks: bs, temperature: x.temp, top_p: x.topP, max_tokens: x.maxTokens });
+    try { await navigator.clipboard.writeText(txt); alert("복사했어요. 메모장에 붙여넣어 두면 백업이 돼요."); } catch (e) { prompt("아래 글을 복사해 두세요.", txt); }
+  };
+  $("#psDel").onclick = () => {
+    if (!confirm((x.name || "이 프리셋") + " 삭제할까요?")) return;
+    store.presets = L.filter(y => y.id !== x.id);
+    if (store.presetDef === x.id) store.presetDef = "";
+    store.chars.forEach(c => { if (c.preset === x.id) c.preset = ""; });
+    const fp = $("#fPreset"); if (fp && fp.dataset.v === x.id) fp.dataset.v = "";
+    psSave(); psView = "list"; renderPresets();
+  };
+}
+
 function renderLore() {
   const bk = editBooks = normBooks(editBooks), b = bk[curBook];
   $("#loreSub").textContent = ($("#fName").value || "") + " · " + b.items.length + "/" + LORE_MAX;
@@ -3148,6 +3338,7 @@ function openEditor(id) {
   if (!$("#fVoice").options.length) $("#fVoice").innerHTML = TTS_VOICES.map(v => `<option value="${v[0]}">${v[0]} · ${v[1]}</option>`).join("");
   $("#fVoice").value = TTS_VOICES.some(v => v[0] === c.voice) ? c.voice : TTS_DEFAULT;
   $("#fVoiceStyle").value = c.voiceStyle || ""; $("#fVoiceId").value = c.voiceId || "";
+  $("#fPreset").dataset.v = (c && c.preset) || ""; psRefreshSelects();
   $("#delChar").hidden = !editing;
   show("editor");
   setTimeout(offerDraft, 60);
@@ -3211,7 +3402,8 @@ function editorData() {
     cast: editCast.filter(x => (x.name || "").trim()).map(x => Object.assign({}, x, { name: x.name.trim(), samples: (x.samples || []).filter(sm => (sm.lines || []).some(l => l.t.trim())) })),
     uname: $("#fUName").value.trim(), upersona: $("#fUser").value,
     len: segGet($("#fLen")), tense: segGet($("#fTense")), format: segGet($("#fFormat")), lang: segGet($("#fLang")), plang: segGet($("#fPLang")), narr: segGet($("#fNarr")), hand: $("#fHand").value,
-    voice: $("#fVoice").value, voiceStyle: $("#fVoiceStyle").value.trim(), voiceId: $("#fVoiceId").value.trim()
+    voice: $("#fVoice").value, voiceStyle: $("#fVoiceStyle").value.trim(), voiceId: $("#fVoiceId").value.trim(),
+    preset: $("#fPreset").dataset.v || ""
   };
 }
 $("#saveChar").onclick = () => {
@@ -3379,8 +3571,113 @@ function smsRule() {
   return "휴대폰 문자나 메신저 메시지를 보여줄 때는 메시지 하나를 한 줄에 [메시지 내용] 오후 9:32 처럼 쓴다. 대괄호 안에는 메시지 내용만 넣고, 뒤에 보낸 시각을 오전/오후 시:분으로 붙인다. 시각은 장면의 시간 흐름에 맞게 정한다. 유저나 대화에 이미 나온 시각이 있으면 그 시각을 기준으로 이어 가고 그보다 앞선 시각을 쓰지 않는다. 연달아 보낸 메시지는 같은 분이거나 조금씩 늘어난다.\n";
 }
 function myRule() { const t = MY_RULE.trim(); return t && t !== "여기에 쓰세요" ? t + "\n" : ""; }
+// ---------- 프리셋 ----------
+// 프리셋 = 지침 블록 여러 개(켜고 끌 수 있음) + 온도·top_p·최대 길이. 기본 프리셋은 설정에서, 캐릭터마다 따로 고를 수도 있어요.
+const PS_KEYS = ["system_prompt", "systemPrompt", "main_prompt", "mainPrompt", "prompt", "promptText", "text", "content", "instruction", "instructions", "guideline", "guidelines", "rules", "description", "note", "globalNote", "jailbreak", "jailbreak_prompt", "nsfw_prompt", "post_history_instructions", "postHistoryInstructions"];
+const PS_SKIP = { chatHistory: 1, worldInfoBefore: 1, worldInfoAfter: 1, charDescription: 1, charPersonality: 1, scenario: 1, dialogueExamples: 1, personaDescription: 1 };
+const PS_RISU = { plain: 1, jailbreak: 1, cot: 1, postEverything: 1 };
+const psNum = v => { if (v === undefined || v === null || v === "") return ""; const n = parseFloat(v); return isFinite(n) ? String(n) : ""; };
+const psTemp = v => { let n = parseFloat(v); if (!isFinite(n)) return ""; if (n > 2) n /= 100; return String(Math.round(n * 100) / 100); };
+const psTop = v => { let n = parseFloat(v); if (!isFinite(n)) return ""; if (n > 1) n /= 100; return String(Math.round(n * 100) / 100); };
+const presetList = () => (Array.isArray(store.presets) ? store.presets : (store.presets = []));
+const mkPreset = (name, blocks) => ({ id: newId(), name: String(name || "새 프리셋").slice(0, 40), mode: "add", blocks: blocks || [], temp: "", topP: "", maxTokens: "" });
+const presetById = id => presetList().find(x => x.id === id) || null;
+function presetOf(c) {
+  const sel = c ? (c.preset || "") : "";
+  if (sel === "none") return null;
+  if (sel) return presetById(sel) || (store.presetDef ? presetById(store.presetDef) : null);
+  return store.presetDef ? presetById(store.presetDef) : null;
+}
+const psBlocksOf = p => (p && Array.isArray(p.blocks) ? p.blocks : (p ? (p.blocks = []) : []));
+function presetText(p) {
+  return psBlocksOf(p).filter(b => b.on !== false && String(b.text || "").trim()).map(b => {
+    const nm = String(b.name || "").trim();
+    return (nm && nm !== "본문" && nm !== "머리말" ? "## " + nm + "\n" : "") + String(b.text).trim();
+  }).join("\n\n");
+}
+const psLen = (p, onlyOn) => psBlocksOf(p).reduce((n, b) => n + (onlyOn && b.on === false ? 0 : String(b.text || "").length), 0);
+// 이 캐릭터 대화에 쓸 연결 설정 (프리셋의 온도·top_p·길이를 덮어써요)
+function genCfg(c) {
+  const ps = presetOf(c); if (!ps) return ai;
+  const g = Object.assign({}, ai);
+  if (ps.temp !== "" && isFinite(+ps.temp)) g.temp = +ps.temp;
+  if (ps.maxTokens !== "" && isFinite(+ps.maxTokens) && +ps.maxTokens > 0) g.max = Math.max(200, Math.round(+ps.maxTokens));
+  if (ps.topP !== "" && isFinite(+ps.topP)) g.extra = Object.assign({}, ai.extra || {}, { top_p: +ps.topP });
+  return g;
+}
+// 어떤 모양으로 온 프리셋이든(실리태번·리수·그냥 JSON·글) 블록으로 쪼개요
+function psBlocks(o) {
+  const out = [], seen = {};
+  const add = (nm, body, on) => {
+    body = String(body == null ? "" : body).trim();
+    if (body.length < 8) return;
+    const key = body.slice(0, 300); if (seen[key]) return; seen[key] = 1;
+    nm = String(nm || "").trim().slice(0, 40);
+    out.push({ name: nm || ("블록 " + (out.length + 1)), text: body.slice(0, 60000), on: on !== false });
+  };
+  if (o && Array.isArray(o.blocks) && o.blocks.length) { o.blocks.forEach(b => { if (b) add(b.name, b.text, b.on !== false); }); if (out.length) return out; }
+  if (o && Array.isArray(o.prompts)) {
+    const byId = {}, used = {}; let order = null;
+    o.prompts.forEach(q => { if (q && q.identifier) byId[q.identifier] = q; });
+    if (Array.isArray(o.prompt_order) && o.prompt_order.length) { const last = o.prompt_order[o.prompt_order.length - 1]; if (last && Array.isArray(last.order)) order = last.order; }
+    const push = (q, on) => { if (!q || typeof q !== "object" || q.marker) return; if (q.identifier && PS_SKIP[q.identifier]) return; const body = q.content || q.text || q.prompt; if (body) add(q.name, body, on && q.enabled !== false); };
+    if (order) { order.forEach(it => { if (!it) return; used[it.identifier] = 1; push(byId[it.identifier], it.enabled !== false); }); o.prompts.forEach(q => { if (q && q.identifier && !used[q.identifier]) push(q, false); }); }
+    else o.prompts.forEach(q => push(q, true));
+  }
+  if (o && Array.isArray(o.promptTemplate)) o.promptTemplate.forEach(q => { if (!q || typeof q !== "object") return; if (q.type && !PS_RISU[q.type]) return; const body = q.text || q.content; if (body) add(q.name || q.type2 || q.type, body, true); });
+  PS_KEYS.forEach(k => { if (o && typeof o[k] === "string") add(k, o[k], true); });
+  if (!out.length) (function walk(v, d) {
+    if (d > 4 || v == null) return;
+    if (typeof v === "string") { if (v.trim().length >= 25) add("", v, true); return; }
+    if (Array.isArray(v)) { v.forEach(x => walk(x, d + 1)); return; }
+    if (typeof v === "object") for (const k in v) { if (/key|token|api|url|model/i.test(k)) continue; walk(v[k], d + 1); }
+  })(o, 0);
+  return out.slice(0, 60);
+}
+// 그냥 글만 있는 파일은 큰 제목(#, ##) 단위로 쪼개요
+function psTextBlocks(t) {
+  const lines = String(t || "").replace(/\r/g, "").split("\n");
+  if (lines.filter(L => /^#{1,2}\s+\S/.test(L)).length < 2) return [{ name: "본문", text: String(t || "").trim().slice(0, 60000), on: true }];
+  const out = []; let cur = null;
+  lines.forEach(L => {
+    const m = L.match(/^#{1,2}\s+(.+)$/);
+    if (m) { if (cur && cur.text.trim()) out.push(cur); cur = { name: m[1].trim().slice(0, 40), text: "", on: true }; return; }
+    if (!cur) cur = { name: "머리말", text: "", on: true };
+    cur.text += L + "\n";
+  });
+  if (cur && cur.text.trim()) out.push(cur);
+  out.forEach(b => { b.text = b.text.trim().slice(0, 60000); });
+  return out.length ? out.slice(0, 60) : [{ name: "본문", text: String(t || "").trim().slice(0, 60000), on: true }];
+}
+function parsePresets(raw, fname) {
+  const base = String(fname || "").replace(/\.[^.]+$/, "").trim() || "새 프리셋";
+  let d = null;
+  try { d = JSON.parse(raw); } catch (e) {}
+  if (d === null || typeof d !== "object") {
+    const t = String(raw || "").trim(); if (!t) return [];
+    const junk = (t.match(/[\u0000-\u0008\u000E-\u001F\uFFFD]/g) || []).length;
+    if (junk > t.length * 0.02) return [];
+    return [mkPreset(base, psTextBlocks(t))];
+  }
+  const list = Array.isArray(d) ? d : (Array.isArray(d.presets) ? d.presets : [d]), out = [];
+  list.forEach(o => {
+    if (typeof o === "string") { if (o.trim()) out.push(mkPreset(base, psTextBlocks(o))); return; }
+    if (!o || typeof o !== "object") return;
+    const bs = psBlocks(o); if (!bs.length) return;
+    const pr = mkPreset(o.name || o.title || o.preset_name || o.presetName || base, bs);
+    if (o.mode === "replace") pr.mode = "replace";
+    pr.temp = psTemp(o.temperature !== undefined ? o.temperature : o.temp);
+    pr.topP = psTop(o.top_p !== undefined ? o.top_p : o.topP);
+    pr.maxTokens = psNum(o.max_tokens !== undefined ? o.max_tokens : (o.openai_max_tokens !== undefined ? o.openai_max_tokens : (o.maxResponse !== undefined ? o.maxResponse : o.maxTokens)));
+    out.push(pr);
+  });
+  return out;
+}
+
 function buildRules(c, cmd) {
   const u = c.uname || "유저";
+  const ps = presetOf(c), psTxt = ps ? sub(presetText(ps), c).trim() : "", psReplace = !!(psTxt && ps.mode === "replace");
+  const psBlock = psTxt ? "\n[선택한 프리셋]\n" + (psReplace ? "이 프리셋이 위 작성 규칙의 문체·연기 방식을 대신한다." : "이 프리셋은 위 작성 규칙을 보완하며, 문체·연기 방식이 충돌하면 프리셋을 따른다.") + " 캐릭터 설정과 관계, 역할의 경계(" + u + "의 말·행동을 대신 정하지 않기), 선택된 시제·언어·길이·화면 형식, 이번 턴 명령은 그대로 지킨다.\n" + psTxt + "\n" : "";
   const lenMap = {
     short: "1~2문단 정도로 짧게. 장면에 따라 조금 더 길거나 짧아도 된다.",
     mid: "2~3문단 정도. 장면에 따라 조금 더 길거나 짧아도 된다.",
@@ -3451,15 +3748,15 @@ ${myRule()}${mobRule(c)}${smsRule()}
 ${(c.world || "").trim() ? "[상황 및 세계관]\n" + sub(c.world, c) + "\n\n" : ""}[캐릭터 설정]
 ${sub(c.prompt, c) || "(설정 없음)"}
 
-${castBlock}${loreBlock}${memBlock}${phoneBlock(c)}[유저 캐릭터: ${u}]
+${castBlock}${loreBlock}${memBlock}${phoneBlock(c)}${textBlock(c)}${commBlock(c)}${peekBlock(c)}[유저 캐릭터: ${u}]
 ${sub(c.upersona, c) || "(설정 없음)"}
 
 [작성 규칙]
 - 한국어로 쓴다.
 ${tense}
 ${fmtRules}${langRule}${narrRule}
-- 대사나 질문으로 끝내야 하는 건 아니다. 지문으로 끝나도 되고 대사로 끝나도 된다. 장면 흐름에 맞게 정한다.
-- 이전 응답의 형식을 그대로 따라 하지 않는다. 문단 수, 지문과 대사의 순서·비율·길이는 매번 새로 정한다. 지문으로 시작해도 되고 대사로 시작해도 된다. 어떤 응답은 지문이 많고 어떤 응답은 대사가 많아도 된다. 앞의 답과 모양이 비슷해지는 것을 경계한다.
+${psReplace ? "" : `- 대사나 질문으로 끝내야 하는 건 아니다. 지문으로 끝나도 되고 대사로 끝나도 된다. 장면 흐름에 맞게 정한다.
+- 이전 응답의 형식을 그대로 따라 하지 않는다. 문단 수, 지문과 대사의 순서·비율·길이는 매번 새로 정한다. 지문으로 시작해도 되고 대사로 시작해도 된다. 어떤 응답은 지문이 많고 어떤 응답은 대사가 많아도 된다. 앞의 답과 모양이 비슷해지는 것을 경계한다.`}
 - ${u}의 새 대사·행동·동의를 대신 정하지 않는다.
 - [멀리서] 카드의 장면은 실제로 있었던 일이지만 ${u}는 보지 못했다. ${u}가 그 일을 아는 것처럼 반응하지 않는다. 남은 흔적이나 결과는 이어질 수 있다.
 - 별표로 감싼 대괄호는 문자 메시지다. *[내용]* 형태로 오면 그것은 지문이나 소리 내어 한 말이 아니라 휴대폰으로 보낸 문자다. 답할 때도 같은 *[내용]* 표기로 돌려주고, 문자에 대사용 따옴표를 붙이지 않는다. 문자를 보내고 받는 동안에도 두 사람이 있는 장면은 계속 흐르므로, 필요하면 문자 앞뒤에 지문을 함께 쓴다. 한 번에 한두 마디씩만 주고받고, 여러 줄을 몰아서 늘어놓지 않는다. 세계관에 휴대폰이 없으면 그 시대에 짧은 말을 주고받는 수단으로 바꿔 쓰되 표기는 그대로 *[내용]* 을 쓴다.
@@ -3467,7 +3764,7 @@ ${fmtRules}${langRule}${narrRule}
 - 분량: ${cmd ? "정해진 분량 없음. 흐름에 맞게 알아서 정한다." : ((fmt === "bubble" ? lenMap : lenMapNovel)[c.len] || (fmt === "bubble" ? lenMap : lenMapNovel).mid)}
 - ${u}가 대화 중에 분량·문체·전개를 따로 요청하면 그 요청이 위 분량 설정보다 우선한다. 단, OOC에서 정한 분량은 그 OOC 턴에만 적용하고, 다음 답변부터는 위 분량 설정으로 돌아간다.
 ${(c.note || "").trim() ? "\n[추가 지시]\n" + sub(c.note, c) : ""}
-${styleBlock}
+${psBlock}${styleBlock}
 
 ${cmd ? "\n[이번 턴 지시 — 위 형식 규칙보다 우선한다]\n" + cmdText(c, cmd) + (commerceKind(cmd) ? commercePrompt(c, commerceKind(cmd)) : "") : ""}
 이제 롤플레이를 시작한다.`;
@@ -3528,11 +3825,11 @@ function paintLive() {
   if (old) old.replaceWith(el); else L.appendChild(el);
   if (nearBottom) L.scrollTop = L.scrollHeight;
 }
-async function generate(extraUser) {
+async function generate(extraUser, noCmd) {
   if (busy) return;
   const c = char();
   const lastU = [...msgs()].reverse().find(m => m.role === "user");
-  const cmd = lastU && lastU.cmd && CMDS[lastU.cmd] ? lastU.cmd : null;
+  const cmd = !noCmd && lastU && lastU.cmd && CMDS[lastU.cmd] ? lastU.cmd : null;
   const useApi = ai.prov !== "builtin";
   if (!useApi && !sample) { renderLog("내장 Claude를 쓸 수 없어요. 홈의 AI 설정에서 API를 연결해주세요."); return; }
   busy = true; setBusy(true);
@@ -3547,7 +3844,7 @@ async function generate(extraUser) {
       if (live && !live.cmd) { live.text = text; paintLive(); }
     };
     if (useApi) {
-      finalText = await callApi(ai, withDrawing(apiMessages(c, extraUser, cmd), c, "api"), paint, ctl.signal);
+      finalText = await callApi(genCfg(c), withDrawing(apiMessages(c, extraUser, cmd), c, "api"), paint, ctl.signal);
     } else {
       const r = await sample(withDrawing(buildTurns(c, extraUser, cmd), c, "builtin"), {
         cache: false, signal: ctl.signal, modelTier: c.tier || "default",
@@ -3665,6 +3962,7 @@ async function openZetaTalk() {
   btn.textContent = "핸드폰";
 }
 $("#qPhone").onclick = () => openCharPhone();
+$("#qUPhone").onclick = () => openCharPhone("user");
 
 // ---------- 캐릭터 폰 몰래 보기 ----------
 // 폰 속 기록은 캐릭터 본인의 실제 기록으로 저장돼요 (c.phone). 대화할 때 캐릭터도 알고 있지만, 유저가 엿본 건 몰라요.
@@ -4074,16 +4372,20 @@ function phoneMerge(k, old, nw) {
   return { items: pre(nw.items, old.items) };
 }
 var PH = null;
-function openCharPhone() {
+function openCharPhone(owner) {
   const c = char(); if (!c) return;
-  if (PH) { closeCharPhone(); return; }
+  owner = owner === "user" ? "user" : "char";
+  if (PH) { const same = PH.owner === owner; closeCharPhone(); if (same) return; }
   const ph = phoneOf(c);
   if (!ph.wall) { let h = 0; for (const ch of String(c.name || "")) h = (h * 31 + ch.charCodeAt(0)) >>> 0; ph.wall = PH_WALLS[h % PH_WALLS.length]; }
   const el = document.createElement("div"); el.className = "ph-wrap";
   el.innerHTML = `<button class="ph-grab" type="button" aria-label="핸드폰 닫기"></button><div class="ph-dev"><div class="ph-scr"></div></div>`;
   document.body.appendChild(el);
-  PH = { el, cid: c.id, view: "home", app: null, tid: null, memo: -1, photo: -1, calOff: 0, calD: null, tab: 0, tr: "both", busy: {}, err: {}, ctl: {}, ask: null };
+  PH = { el, owner, cid: c.id, view: "home", app: null, tid: null, memo: -1, photo: -1, calOff: 0, calD: null, tab: 0, tr: "both", busy: {}, err: {}, ctl: {}, ask: null };
   el.addEventListener("click", phoneClick);
+  el.addEventListener("click", upClick);
+  el.addEventListener("input", upInput);
+  el.addEventListener("keydown", upKey);
   el.addEventListener("scroll", e => {
     const pg = e.target; if (!PH || !pg.classList || !pg.classList.contains("ph-pages") || !pg.clientWidth) return;
     const p = Math.round(pg.scrollLeft / pg.clientWidth); if (p === PH.page) return;
@@ -4125,6 +4427,415 @@ JSON 하나만 출력한다.`;
     if (PH) { PH.clockBusy = false; PH.clockP = null; delete PH.ctl.clock; phoneRender(); }
   })();
 }
+
+// ---------- 내 폰 (유저 폰) ----------
+// 내가 직접 쓰고(AI로 채우기도 가능), 캐릭터에게 엿보게 할 수 있어요.
+// 커뮤는 캐릭터 폰의 커뮤와 같은 사이트예요. 서로 익명이라 누가 쓴 건지 몰라요.
+const UP_APPS = {
+  ucomm: { n: "커뮤", ic: "comm", bg: "#5f7f2e" },
+  umsg: { n: "메시지", ic: "msg", bg: "#4b8fd6" },
+  umemo: { n: "메모", ic: "memo", bg: "#b07d18" },
+  usearch: { n: "검색", ic: "search", bg: "#4f6275" }
+};
+const UP_WALL = "#2b3440";
+function upOf(c) {
+  if (!c.uphone || typeof c.uphone !== "object") c.uphone = {};
+  const u = c.uphone;
+  if (!Array.isArray(u.memo)) u.memo = [];
+  if (!Array.isArray(u.search)) u.search = [];
+  if (!Array.isArray(u.threads)) u.threads = [];
+  if (!u.comm || typeof u.comm !== "object") u.comm = {};
+  if (!Array.isArray(u.comm.posts)) u.comm.posts = [];
+  return u;
+}
+const upNowWhen = c => { const t = phNow(phoneOf(c)); return `${t.m}월 ${t.d}일 ${t.hh}:${String(t.mm).padStart(2, "0")}`; };
+const charComm = c => { const a = phoneOf(c).apps.comm; return a && a.data ? a.data : null; };
+// 커뮤 목록: 캐릭터 글 + 내 글
+function upCommList(c) {
+  const D = charComm(c), mine = upOf(c).comm.posts;
+  const out = mine.map((p, i) => ({ src: "u", i, p })).reverse();
+  ((D && D.posts) || []).forEach((p, i) => out.push({ src: "c", i, p }));
+  return out;
+}
+function upPost(c, key) {
+  const [src, i] = String(key || "").split(":");
+  if (src === "u") return upOf(c).comm.posts[+i] || null;
+  const D = charComm(c); return D && D.posts ? D.posts[+i] || null : null;
+}
+
+// ---- 캐릭터가 엿본 것 ----
+function peeksOf(c) { if (!Array.isArray(c.peeks)) c.peeks = []; return c.peeks; }
+function peekBlock(c) {
+  const L = peeksOf(c).slice(-6); if (!L.length) return "";
+  const u = c.uname || "유저";
+  return `[${josa(c.name, "이", "가")} ${u}의 휴대폰에서 본 것]\n` + L.map(x => `- ${x.label}: ${x.detail}` + (x.how === "caught" ? ` (보다가 ${u}에게 들켰다)` : ` (${u} 몰래 봤다. ${josa(u, "은", "는")} ${josa(c.name, "이", "가")} 본 걸 모른다)`)).join("\n")
+    + `\n(${josa(c.name, "은", "는")} 본 내용을 알고 있다. 몰래 본 것은 아는 티를 낼 수도, 모르는 척할 수도 있다. 성격과 관계에 맞게 정한다.)\n\n`;
+}
+// 캐릭터가 커뮤에서 겪은 익명 일 (누가 썼는지 모른다)
+function commBlock(c) {
+  const out = [], u = c.uname || "유저";
+  const D = charComm(c);
+  ((D && D.posts) || []).forEach(p => {
+    const mine = (p.cmts || []).filter(m => m.byUser);
+    if (mine.length) out.push(`- 커뮤에 익명으로 쓴 내 글 "${phPlain(p.title).slice(0, 30)}"에 익명 댓글이 달렸다: ${mine.slice(-2).map(m => `"${phPlain(m.t).slice(0, 60)}"`).join(", ")} (누가 쓴 건지 모른다)`);
+  });
+  upOf(c).comm.posts.forEach(p => {
+    const mc = (p.cmts || []).filter(m => m.char);
+    if (mc.length) out.push(`- 커뮤에서 익명 글 "${String(p.title).slice(0, 30)}"을 보고 댓글을 달았다: "${phPlain(mc[mc.length - 1].t).slice(0, 60)}" (그 글을 ${josa(u, "이", "가")} 쓴 줄은 모른다)`);
+  });
+  if (!out.length) return "";
+  return `[${c.name}의 익명 커뮤 활동]\n${out.slice(-5).join("\n")}\n(익명이라 ${josa(c.name, "은", "는")} 상대가 누구인지 모른다. 엿보기로 알게 되기 전까지는 ${josa(u, "과", "와")} 연결 짓지 않는다.)\n\n`;
+}
+
+// ---- 화면 ----
+function upHome(c) {
+  const t = phNow(phoneOf(c));
+  return `<div class="ph-body ph-home"><div class="ph-pages"><div class="ph-page">
+<div class="ph-clock"><div>${phDateLab(t.y, t.m, t.d, "ko", false)}</div><strong>${phHM(t)}</strong></div>
+<div class="ph-noti ghost">${esc(c.uname || "내")} 폰이에요</div>
+<div class="ph-grid">${["ucomm", "umemo"].map(k => upTile(k)).join("")}</div>
+</div></div>
+<div class="ph-dots"></div><div class="ph-dock up-dock">${["umsg", "usearch"].map(k => upTile(k, true)).join("")}</div></div>`;
+}
+function upTile(k, bare) {
+  const A = UP_APPS[k];
+  return `<button type="button" class="ph-app" data-up="app" data-v="${k}" aria-label="${A.n}"><span class="ph-ico" style="background:${A.bg}">${phIc(A.ic, 25, "#fff", 1.9)}</span>${bare ? "" : `<span class="ph-lb">${A.n}</span>`}</button>`;
+}
+const upHead = (title, extra) => `<div class="ph-head"><button type="button" class="ph-ib" data-up="back" aria-label="뒤로">${phIc("back", 22)}</button><h4>${title}</h4>${extra || ""}</div>`;
+const upPeekBtn = (what) => `<button type="button" class="ph-pill up-peek" data-up="peek" data-v="${esc(what)}">엿보기</button>`;
+const upAiBtn = k => `<button type="button" class="ph-ib" data-up="aifill" data-v="${k}" aria-label="AI로 채우기" ${PH.busy["u:" + k] ? "disabled" : ""}>${PH.busy["u:" + k] ? '<span class="ph-spin"></span>' : phIc("ai", 19)}</button>`;
+
+function upRender(c) {
+  if (PH.view === "home") return upHome(c);
+  const k = PH.app, U = upOf(c), note = PH.err["u:" + k] ? `<div class="ph-err">${esc(PH.err["u:" + k])}</div>` : "";
+  if (k === "umemo") {
+    if (PH.memo >= 0 && U.memo[PH.memo]) {
+      const m = U.memo[PH.memo];
+      return upHead("메모", upPeekBtn("memo:" + PH.memo)) + `<div class="ph-body memo up-form"><input type="text" class="up-in" data-upf="mtitle" value="${esc(m.title || "")}" placeholder="제목"><textarea class="up-ta" data-upf="mbody" placeholder="내용">${esc(m.body || "")}</textarea><small class="up-when">${esc(m.when || "")}</small><button type="button" class="up-del" data-up="mdel">이 메모 삭제</button></div>`;
+    }
+    return upHead("메모", upAiBtn("umemo")) + note + `<div class="ph-body memo"><div class="ph-memos">`
+      + U.memo.map((m, i) => `<button type="button" class="ph-memo" data-up="memo" data-v="${i}"><span class="ph-l1"><b>${esc(m.title || "새 메모")}</b><small>${esc(m.when || "")}</small></span><span class="ph-cut2">${esc(String(m.body || "").replace(/\n/g, " "))}</span></button>`).join("")
+      + `</div><button type="button" class="up-add" data-up="mnew">+ 새 메모</button></div>`;
+  }
+  if (k === "usearch") {
+    return upHead("검색", upPeekBtn("search") + upAiBtn("usearch")) + note + `<div class="ph-body"><div class="up-sadd"><input type="text" class="up-in" id="upQ" placeholder="검색한 말 적기"><button type="button" data-up="sadd">추가</button></div><div class="ph-sec">최근 검색</div>`
+      + (U.search.slice().reverse().map((x, ri) => { const i = U.search.length - 1 - ri; return `<div class="ph-row q">${phIc("search", 17, "#6f6169")}<span class="ph-mid"><b>${esc(x.q)}</b></span><small>${esc(x.when || "")}</small><button type="button" class="up-x" data-up="sdel" data-v="${i}" aria-label="지우기">×</button></div>`; }).join("") || `<div class="ph-msg sm">검색 기록이 없어요</div>`) + `</div>`;
+  }
+  if (k === "umsg") {
+    upEnsureCharThread(c);
+    if (PH.tid === "new") {
+      return upHead("새 대화방") + `<div class="ph-body up-form">
+<div class="ph-tabs" style="padding:0">${["개인톡", "단톡방"].map((n, i) => `<button type="button" data-up="tkind" data-v="${i}" class="${(PH.upKind || 0) === i ? "on" : ""}">${n}</button>`).join("")}</div>
+<input type="text" class="up-in" id="upTn" placeholder="${PH.upKind ? "방 이름 (예: 과동기 단톡)" : "저장할 이름"}">
+${PH.upKind ? `<input type="text" class="up-in" id="upTm" placeholder="참여자 이름, 쉼표로 (${esc(c.name)}도 넣을 수 있어요)">` : ""}
+<textarea class="up-ta" id="upTd" style="min-height:90px;flex:none" placeholder="${PH.upKind ? "어떤 방인지 (예: 대학 동기들, 설기는 모르는 사람들)" : "누구인지 (예: 대학 동기, 나한테 반말, 장난 잘 침)"}"></textarea>
+<button type="button" class="up-add" data-up="tnew">만들기</button></div>`;
+    }
+    if (PH.tid != null && U.threads[PH.tid]) {
+      const t = U.threads[PH.tid], L = t.msgs || [], grp = t.kind === "group", key = "ur:t" + PH.tid;
+      const nm = m => m.from === "them" ? t.name : m.from;
+      const rows = L.map((m, i) => { const me = m.from === "me", pv = L[i - 1], first = !pv || pv.from !== m.from, who = nm(m);
+        return me ? `<div class="ph-b me${first ? "" : " cont"}"><small class="t">${esc(m.time || "")}</small><span class="ph-bt">${phTx(m.text, PH.tr === "both" ? "paren" : PH.tr)}</span></div>` : `<div class="ph-b${first ? "" : " cont"}">${first ? `<span class="ph-av xs">${esc(phPlain(who).slice(0, 1))}</span>` : `<span class="ph-avs"></span>`}<span class="ph-bc">${first && grp ? `<small>${esc(phPlain(who))}</small>` : ""}<span class="ph-bt">${phTx(m.text, PH.tr === "both" ? "paren" : PH.tr)}</span></span><small class="t">${esc(m.time || "")}</small></div>`; }).join("");
+      const typing = PH.busy[key] ? `<div class="ph-b"><span class="ph-av xs">…</span><span class="ph-bc"><span class="ph-bt up-typing"><i></i><i></i><i></i></span></span></div>` : "";
+      const title = esc(t.name) + (grp && (t.members || []).length ? ` <em>${t.members.length + 1}</em>` : "");
+      return upHead(title, (t.kind === "char" ? "" : upPeekBtn("thread:" + PH.tid)) + `<button type="button" class="ph-ib" data-up="reply" aria-label="답장 받기" ${PH.busy[key] ? "disabled" : ""}>${phIc("refresh", 19)}</button>`)
+        + `<div class="ph-body chat">${rows || `<div class="ph-msg sm">아직 메시지가 없어요</div>`}${typing}${PH.err[key] ? `<div class="ph-err">${esc(PH.err[key])}</div>` : ""}</div><div class="up-send"><input type="text" class="up-in" id="upMsg" placeholder="메시지 보내기"><button type="button" data-up="msend">보내기</button></div>`;
+    }
+    return upHead("메시지", `<button type="button" class="ph-pill" data-up="tnewform">새 대화</button>` + upAiBtn("umsg")) + note + `<div class="ph-body">`
+      + U.threads.map((t, i) => { const last = (t.msgs || [])[(t.msgs || []).length - 1] || {}; return `<button type="button" class="ph-row" data-up="thread" data-v="${i}">${t.kind === "group" ? `<span class="ph-gav"><i></i><i></i></span>` : `<span class="ph-av blue">${esc(String(t.name).slice(0, 1))}</span>`}<span class="ph-mid"><span class="ph-l1"><b>${esc(t.name)}${t.kind === "group" && (t.members || []).length ? ` <em>${t.members.length + 1}</em>` : ""}</b><small>${esc(last.time || "")}</small></span><span class="ph-l2"><span class="ph-cut">${esc(phPlain(last.text || ""))}</span>${t.unread ? `<b class="ph-badge">${t.unread}</b>` : ""}</span></span></button>`; }).join("")
+      + `</div>`;
+  }
+  if (k === "ucomm") return upComm(c, note);
+  return upHome(c);
+}
+function upComm(c, note) {
+  const D = charComm(c), site = D && D.site ? phNm(D.site) : "커뮤";
+  if (!D) {
+    const busy = PH.busy.comm;
+    return upHead("커뮤") + `<div class="ph-body"><div class="ph-msg">${busy ? `<span class="ph-spin"></span>${esc(josa(c.name, "이", "가"))} 다니는 커뮤 여는 중...` : `${esc(josa(c.name, "이", "가"))} 다니는 커뮤를 아직 안 열었어요.<button type="button" data-up="commload">커뮤 열기</button>`}${PH.err.comm ? `<br><small>${esc(PH.err.comm)}</small>` : ""}</div></div>`;
+  }
+  // 글쓰기
+  if (PH.upWrite) {
+    const boards = [...new Set((D.posts || []).map(p => phPlain(p.board || "")).filter(Boolean))];
+    return upHead("글쓰기") + `<div class="ph-body up-form"><input type="text" class="up-in" id="upBoard" list="upBoards" placeholder="게시판" value="${esc(boards[0] || "자유")}"><datalist id="upBoards">${boards.map(b => `<option value="${esc(b)}">`).join("")}</datalist><input type="text" class="up-in" id="upTitle" placeholder="제목"><textarea class="up-ta" id="upBody" placeholder="익명으로 올라가요"></textarea><button type="button" class="up-add" data-up="post">올리기</button></div>`;
+  }
+  // 글 보기
+  if (PH.upPost) {
+    const p = upPost(c, PH.upPost); if (!p) { PH.upPost = null; return upComm(c, note); }
+    const mineP = PH.upPost[0] === "u", idx = +PH.upPost.split(":")[1], key = mineP ? "ur:" + idx : "cr:" + idx, busy = PH.busy[key] || PH.busy["cm:" + idx];
+    const tr = PH.tr === "both" ? "paren" : PH.tr;
+    const cm = (p.cmts || []).map(m => {
+      const who = m.byUser ? "익명 (나)" : m.u;
+      return `<div class="ph-cmt${m.re ? " re" : ""}${/글쓴이/.test(m.u || "") ? " op" : ""}${PH.upReveal && m.char ? " up-charc" : ""}">${m.re ? "<i>ㄴ</i>" : ""}<span class="ph-mid"><b>${esc(phPlain(who))}${PH.upReveal && m.char ? ` <em class="up-tag">${esc(c.name)}</em>` : ""}</b><span>${phTx(m.t, tr)}</span></span></div>`;
+    }).join("");
+    const hasChar = mineP && (p.cmts || []).some(m => m.char);
+    return upHead(site, mineP ? upPeekBtn("post:" + idx) : "") + `<div class="ph-body"><div class="ph-cpost"><span class="ph-ctag">${phNm(p.board || "자유")}</span><h5>${phTx(p.title, PH.tr)}</h5><small>익명${mineP ? " (나)" : ""} · ${esc(phPlain(p.when || ""))}</small><p>${phTx(String(p.body || "").replace(/\s*(?:\\n|\n)+\s*/g, " "), PH.tr)}</p><div class="ph-cstat">댓글 ${(p.cmts || []).length || +p.nc || 0}${hasChar ? ` · <button type="button" class="up-rev" data-up="reveal">${PH.upReveal ? "누가 썼는지 숨기기" : "누가 썼는지 보기"}</button>` : ""}</div></div>`
+      + cm + (busy ? `<div class="ph-msg sm"><span class="ph-spin"></span>댓글 확인 중...</div>` : "")
+      + (PH.err[key] ? `<div class="ph-err">${esc(PH.err[key])}</div>` : "")
+      + `</div><div class="up-send"><input type="text" class="up-in" id="upCmt" placeholder="익명으로 댓글 달기"><button type="button" data-up="cmt">등록</button></div>`;
+  }
+  const L = upCommList(c), f = PH.tab || 0;
+  const list = f === 1 ? L.filter(x => x.src === "u") : f === 2 ? L.filter(x => x.src === "c" && (x.p.cmts || []).some(m => m.byUser)) : L;
+  return upHead(site, `<button type="button" class="ph-pill" data-up="write">글쓰기</button>`) + note + `<div class="ph-body">${phTabs(["전체 글", "내 글", "내가 댓글 단 글"]).replace(/data-ph="tab"/g, 'data-up="tab"')}`
+    + (list.map(x => `<button type="button" class="ph-cl" data-up="open" data-v="${x.src}:${x.i}"><span class="ph-ctag">${phNm(x.p.board || "자유")}</span><b>${x.src === "u" ? esc(x.p.title) : phTx(x.p.title, PH.tr === "both" ? "paren" : PH.tr)}</b><small>익명${x.src === "u" ? " (나)" : ""} · ${esc(phPlain(x.p.when || ""))} · <em class="c">댓글 ${(x.p.cmts || []).length || +x.p.nc || 0}</em></small></button>`).join("") || `<div class="ph-msg sm">글이 없어요</div>`) + `</div>`;
+}
+
+// ---- 동작 ----
+async function upAsk(p, signal) { return phJSON(await phoneAsk(p, signal)); }
+function upLangRule(c) {
+  const L = PH_LANGS[phLang(c)];
+  return L ? `\n- 댓글은 그 커뮤 분위기에 맞게 ${L}로 쓰고, 댓글마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다. 닉네임에는 번역을 붙이지 않는다.` : "";
+}
+// 내가 캐릭터 글에 단 익명 댓글 → 캐릭터(글쓴이)나 다른 사람이 답할 수도, 안 할 수도
+async function upReactCharPost(c, idx) {
+  const D = charComm(c), p = D && D.posts && D.posts[idx], key = "cr:" + idx;
+  if (!p || PH.busy[key]) return;
+  const mine = (p.cmts || []).filter(m => m.byUser && !m.seen); if (!mine.length) return;
+  const u = c.uname || "유저";
+  const prompt = `너는 인터넷 커뮤니티 [${phPlain(D.site || "커뮤")}]의 글 하나에 새로 달릴 댓글을 만든다. 이 글은 ${josa(c.name, "이", "가")} 익명으로 쓴 글이다.
+
+${phoneCtx(c)}
+
+[글]
+제목: ${phPlain(p.title)}
+본문: ${phPlain(p.body)}
+
+[지금까지 댓글]
+${(p.cmts || []).slice(-12).map(m => `${m.byUser ? "익명" : phPlain(m.u)}: ${phPlain(m.t)}`).join("\n")}
+
+[새로 달린 익명 댓글]
+${mine.map(m => phPlain(m.t)).join("\n")}
+
+[규칙]
+- 새 익명 댓글은 누가 썼는지 아무도 모른다. ${c.name}도 모른다(${josa(u, "이", "가")} 썼다는 걸 모른다). 그 댓글을 ${josa(u, "과", "와")} 연결 짓지 않는다.
+- 글쓴이(${c.name})가 그 댓글에 답글을 달 수도 있고 무시할 수도 있다. 성격과 댓글 내용을 보고 정한다. 답글을 달면 u를 "글쓴이"로, re를 true로.
+- 다른 익명들이 거들 수도 있다. 달릴 게 없으면 cmts를 빈 배열로 둔다. 0~4개.${upLangRule(c)}
+
+[형식]
+{"cmts":[{"u":"글쓴이 또는 닉네임","t":"댓글","re":true}]}
+JSON 하나만 출력한다.`;
+  const ctl = new AbortController(); PH.ctl[key] = ctl; PH.busy[key] = 1; PH.err[key] = ""; phoneRender();
+  try {
+    const j = await upAsk(prompt, ctl.signal);
+    mine.forEach(m => { m.seen = 1; });
+    if (Array.isArray(j.cmts)) p.cmts.push(...j.cmts.filter(x => x && x.t).map(x => Object.assign(x, /글쓴이/.test(x.u || "") ? { char: true } : {})));
+    save(c.id);
+  } catch (e) { if (e.name !== "AbortError" && PH) PH.err[key] = e.message || "댓글을 못 불러왔어요."; }
+  if (PH) { delete PH.busy[key]; delete PH.ctl[key]; phoneRender(); }
+}
+// 내가 올린 글 → 다른 익명들, 그리고 캐릭터가 (나인 줄 모르고) 댓글을 달 수도
+async function upReactMyPost(c, idx) {
+  const U = upOf(c), p = U.comm.posts[idx], key = "ur:" + idx, D = charComm(c);
+  if (!p || p.reacted || PH.busy[key]) return;
+  const u = c.uname || "유저";
+  const prompt = `너는 인터넷 커뮤니티 [${phPlain((D && D.site) || "커뮤")}]에 올라온 익명 글에 달릴 댓글을 만든다. ${josa(c.name, "은", "는")} 이 커뮤를 자주 보는 사람이다.
+
+${phoneCtx(c)}
+
+[익명 글]
+게시판: ${p.board || "자유"}
+제목: ${p.title}
+본문: ${p.body}
+
+[규칙]
+- 이 글은 사실 ${josa(u, "이", "가")} 쓴 글이지만, ${josa(c.name, "을", "를")} 포함해 아무도 그걸 모른다. 익명 글로만 본다. 댓글에서 ${u}의 이름이나 정체를 알아채지 않는다.
+- 다른 익명들의 댓글 3~7개. 공감·훈수·드립·비꼼·진지한 조언을 그 사이트 분위기대로 섞는다.
+- ${josa(c.name, "이", "가")} 이 글을 봤다면 댓글을 달지 말지 스스로 정한다. 글 내용이 ${c.name}의 관심사·처지와 닿아 있으면 달 가능성이 높고, 아니면 그냥 지나칠 수 있다. 단다면 익명이라 말투는 평소보다 풀어져 있을 수 있지만 성격은 드러나게, char를 true로.
+- re가 true면 바로 위 댓글에 단 대댓글이다.${upLangRule(c)}
+
+[형식]
+{"cmts":[{"u":"닉네임","t":"댓글","re":false,"char":false}]}
+JSON 하나만 출력한다.`;
+  const ctl = new AbortController(); PH.ctl[key] = ctl; PH.busy[key] = 1; PH.err[key] = ""; phoneRender();
+  try {
+    const j = await upAsk(prompt, ctl.signal);
+    p.cmts = (p.cmts || []).concat((j.cmts || []).filter(x => x && x.t)); p.reacted = 1; save(c.id);
+  } catch (e) { if (e.name !== "AbortError" && PH) PH.err[key] = e.message || "댓글을 못 불러왔어요."; }
+  if (PH) { delete PH.busy[key]; delete PH.ctl[key]; phoneRender(); }
+}
+// AI로 채우기 (내 설정과 대화를 보고)
+async function upFill(c, k) {
+  const key = "u:" + k; if (PH.busy[key]) return;
+  const U = upOf(c), u = c.uname || "유저";
+  const what = k === "umemo" ? `메모 앱의 메모 4~6개.\n{"items":[{"title":"제목","body":"내용(줄바꿈은 \\n)","when":"9월 25일"}]}`
+    : k === "usearch" ? `최근 검색 기록 8~12개.\n{"items":[{"q":"검색어","when":"오늘/어제/9월 22일"}]}`
+    : `메시지 앱 대화방 3~5개(${c.name}와의 방은 빼고). 방마다 메시지 4~10개.\n{"threads":[{"name":"저장된 이름","msgs":[{"from":"me 또는 상대 이름","text":"내용","time":"오후 3:10"}]}]}`;
+  const prompt = `너는 ${u}의 휴대폰 속 기록을 만든다. ${josa(u, "은", "는")} 롤플레이에서 유저가 연기하는 인물이다.
+
+${phoneCtx(c)}
+
+[규칙]
+- ${u}의 설정과 최근 대화에 맞게, ${josa(u, "이", "가")} 실제로 썼을 법한 기록만 쓴다. 설정에 없는 큰 사건이나 비밀을 새로 지어내지 않는다. 사소하고 일상적인 것 위주로.
+- ${u}의 말투로 쓴다. 최근 대화에 나온 일과 어긋나지 않게 한다.
+- 이미 있는 기록과 겹치지 않게 한다.
+
+[만들 것]
+${what}
+JSON 하나만 출력한다.`;
+  const ctl = new AbortController(); PH.ctl[key] = ctl; PH.busy[key] = 1; PH.err[key] = ""; phoneRender();
+  try {
+    const j = await upAsk(prompt, ctl.signal);
+    if (k === "umemo") U.memo.push(...(j.items || []).filter(x => x && (x.title || x.body)));
+    else if (k === "usearch") U.search.push(...(j.items || []).filter(x => x && x.q).reverse());
+    else U.threads.push(...(j.threads || []).filter(x => x && x.name).map(x => ({ name: phPlain(x.name), kind: "mob", msgs: (x.msgs || []).map(m => ({ from: m.from === "me" ? "me" : "them", text: phPlain(m.text), time: m.time || "" })) })));
+    save(c.id);
+  } catch (e) { if (e.name !== "AbortError" && PH) PH.err[key] = e.message || "못 채웠어요."; }
+  if (PH) { delete PH.busy[key]; delete PH.ctl[key]; phoneRender(); }
+}
+// 설기와의 문자방은 항상 맨 위에 있어요
+function upEnsureCharThread(c) {
+  const U = upOf(c);
+  let i = U.threads.findIndex(t => t.kind === "char");
+  if (i < 0) { U.threads.unshift({ name: c.name, kind: "char", msgs: [] }); i = 0; }
+  else if (i > 0) U.threads.unshift(U.threads.splice(i, 1)[0]);
+  U.threads.forEach(t => { if (!t.kind) t.kind = "mob"; });
+}
+const upTime = c => { const tm = phNow(phoneOf(c)); return `${tm.hh < 12 ? "오전" : "오후"} ${tm.hh % 12 || 12}:${String(tm.mm).padStart(2, "0")}`; };
+// 보내고 잠깐 기다렸다가 답장이 와요 (연달아 보내면 다 보낸 뒤에)
+function upReplySoon(c, ti) {
+  clearTimeout(PH.upTimer);
+  PH.upTimer = setTimeout(() => { if (PH && PH.owner === "user") upReply(c, ti); }, 2600);
+}
+async function upReply(c, ti) {
+  const U = upOf(c), t = U.threads[ti], key = "ur:t" + ti;
+  if (!t || PH.busy[key]) return;
+  const u = c.uname || "유저", L = PH_LANGS[phLang(c)];
+  const who = t.kind === "char" ? c.name : t.kind === "group" ? (t.members || []).join(", ") : t.name;
+  const hist = (t.msgs || []).slice(-30).map(m => `${m.from === "me" ? u : (m.from === "them" ? t.name : m.from)}: ${phPlain(m.text)}`).join("\n");
+  const role = t.kind === "char"
+    ? `너는 ${c.name}로서 ${u}에게 온 문자에 답한다. 지금 롤플레이 속 관계, 성격, 말투, 최근에 있었던 일을 그대로 이어서, ${josa(c.name, "이", "가")} 실제로 폰으로 칠 법한 문자로 답한다. 소설 지문이나 *행동*은 쓰지 않는다. 문자만 쓴다.`
+    : t.kind === "group"
+    ? `너는 단체 대화방 [${t.name}]의 다른 참여자들(${who})을 연기한다. ${josa(u, "이", "가")} 방금 보낸 문자에 참여자들이 반응한다. 모두가 답할 필요는 없고, 그 방 분위기대로 끼어든다.${(t.members || []).includes(c.name) ? ` ${c.name}도 이 방에 있다. ${c.name}은 설정과 관계 그대로 행동한다.` : ""}`
+    : `너는 ${u}의 휴대폰에 [${t.name}]으로 저장된 사람을 연기한다. ${josa(u, "이", "가")} 보낸 문자에 그 사람으로서 답한다.`;
+  const prompt = `${role}
+
+${phoneCtx(c)}
+${t.desc ? `\n[이 대화방]\n${t.desc}\n` : ""}
+[지금까지 문자]
+${hist || "(없음)"}
+
+[규칙]
+- 카톡처럼 짧게 짧게. 한 사람이 1~4번 연달아 보내도 된다. 바로 답하기 애매하면 짧게 넘기거나, 성격상 씹을 만하면 msgs를 빈 배열로 둔다(자주 그러지는 않는다).
+- ${u}의 대사나 행동을 대신 쓰지 않는다. ${u}가 보낸 문자는 다시 쓰지 않는다.
+- 지금 폰 속 시각은 ${phNowText(phNow(phoneOf(c)))}이다. 시간에 맞는 반응을 한다.${L ? `\n- 문자는 ${L}로 쓰고 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다.` : ""}
+
+[형식]
+{"msgs":[{"from":"보낸 사람 이름","text":"내용"}]}
+JSON 하나만 출력한다.`;
+  const ctl = new AbortController(); PH.ctl[key] = ctl; PH.busy[key] = 1; PH.err[key] = ""; phoneRender();
+  try {
+    const j = await upAsk(prompt, ctl.signal);
+    const add = (j.msgs || []).filter(m => m && m.text).map(m => ({ from: t.kind === "char" ? c.name : (t.kind === "group" ? phPlain(m.from || "누군가") : t.name), text: String(m.text), time: upTime(c) }));
+    t.msgs.push(...add);
+    if (PH && !(PH.view === "app" && PH.app === "umsg" && PH.tid === ti)) t.unread = (t.unread || 0) + add.length;
+    save(c.id);
+  } catch (e) { if (e.name !== "AbortError" && PH) PH.err[key] = e.message || "답장을 못 받았어요."; }
+  if (PH) { delete PH.busy[key]; delete PH.ctl[key]; phoneRender(); }
+}
+// 메인 대화에 알려줄 문자 (설기와 주고받은 것, 설기가 있는 단톡)
+function textBlock(c) {
+  const U = c.uphone; if (!U || !Array.isArray(U.threads)) return "";
+  const u = c.uname || "유저", out = [];
+  U.threads.forEach(t => {
+    const inRoom = t.kind === "char" || (t.kind === "group" && (t.members || []).includes(c.name));
+    if (!inRoom || !(t.msgs || []).length) return;
+    out.push((t.kind === "char" ? `[${josa(u, "과", "와")} 폰으로 주고받은 문자]` : `[단톡방 ${t.name}]`) + "\n" + t.msgs.slice(-12).map(m => `${m.from === "me" ? u : (m.from === "them" ? t.name : m.from)}: ${phPlain(m.text)}`).join("\n"));
+  });
+  return out.length ? out.join("\n\n") + `\n(최근에 실제로 주고받은 문자다. ${josa(c.name, "은", "는")} 이 내용을 알고 있고, 대화에서 자연스럽게 이어진다.)\n\n` : "";
+}
+// 엿보기 대상 요약
+function upPeekInfo(c, what) {
+  const U = upOf(c), [k, i] = String(what).split(":");
+  if (k === "memo") { const m = U.memo[+i]; return m && { label: "메모", detail: `"${m.title || ""}" — ${String(m.body || "").replace(/\s+/g, " ").slice(0, 300)}` }; }
+  if (k === "search") return U.search.length && { label: "검색 기록", detail: U.search.slice(-10).reverse().map(x => x.q).join(", ") };
+  if (k === "thread") { const t = U.threads[+i]; return t && { label: `메시지 (${t.name}와의 대화)`, detail: (t.msgs || []).slice(-8).map(m => (m.from === "me" ? (c.uname || "나") : t.name) + ": " + m.text).join(" / ").slice(0, 400) }; }
+  if (k === "post") {
+    const p = U.comm.posts[+i]; if (!p) return null;
+    const cc = (p.cmts || []).filter(m => m.char);
+    return { label: "익명 커뮤에 쓴 글", detail: `"${p.title}" — ${String(p.body || "").replace(/\s+/g, " ").slice(0, 250)}` + (cc.length ? ` (이 글에 ${c.name} 자신이 익명으로 "${phPlain(cc[0].t).slice(0, 60)}"라고 댓글을 달았었다. 이제 그 글이 ${c.uname || "유저"}의 글이었다는 걸 안다)` : "") };
+  }
+  return null;
+}
+function upDoPeek(c, what, how) {
+  const info = upPeekInfo(c, what); if (!info) return;
+  peeksOf(c).push(Object.assign({ how, at: Date.now() }, info)); save(c.id);
+  if (how === "caught") {
+    const u = c.uname || "유저";
+    closeCharPhone();
+    generate(`(장면 지시: 지금 ${josa(c.name, "이", "가")} ${u}의 휴대폰을 몰래 보다가 ${u}에게 들킨다. ${josa(c.name, "이", "가")} 본 것 — ${info.label}: ${info.detail}\n본 내용에 대한 ${c.name}의 반응과 들킨 순간을 ${c.name}의 성격대로 쓴다. ${u}의 대사·행동·반응은 쓰지 않는다. 이 괄호는 답에 쓰지 않는다.)`, true);
+  } else {
+    PH.uask = null; PH.toast = `${josa(c.name, "이", "가")} 몰래 봤어요. 다음 대화부터 알고 있어요.`; phoneRender();
+    setTimeout(() => { if (PH && PH.toast) { PH.toast = null; phoneRender(); } }, 2200);
+  }
+}
+function upClick(e) {
+  const b = e.target.closest("[data-up]"); if (!b || !PH || PH.owner !== "user") return;
+  const c = char(); if (!c || cur !== PH.cid) { closeCharPhone(); return; }
+  const a = b.dataset.up, v = b.dataset.v, U = upOf(c);
+  if (a === "app") { PH.view = "app"; PH.app = v; PH.memo = -1; PH.tid = null; PH.tab = 0; PH.upPost = null; PH.upWrite = false; }
+  else if (a === "back") {
+    if (PH.app === "umemo" && PH.memo >= 0) { const m = U.memo[PH.memo]; if (m && !String(m.title || "").trim() && !String(m.body || "").trim()) U.memo.splice(PH.memo, 1); PH.memo = -1; save(c.id); }
+    else if (PH.app === "umsg" && PH.tid != null) { PH.tid = null; clearTimeout(PH.upTimer); }
+    else if (PH.app === "ucomm" && (PH.upPost || PH.upWrite)) { PH.upPost = null; PH.upWrite = false; PH.upReveal = false; }
+    else PH.view = "home";
+  }
+  else if (a === "memo") PH.memo = +v;
+  else if (a === "mnew") { U.memo.push({ title: "", body: "", when: upNowWhen(c) }); PH.memo = U.memo.length - 1; save(c.id); }
+  else if (a === "mdel") { if (!confirm("이 메모를 지울까요?")) return; U.memo.splice(PH.memo, 1); PH.memo = -1; save(c.id); }
+  else if (a === "sadd") { const q = ($("#upQ") || {}).value || ""; if (!q.trim()) return; U.search.push({ q: q.trim(), when: upNowWhen(c) }); save(c.id); }
+  else if (a === "sdel") { U.search.splice(+v, 1); save(c.id); }
+  else if (a === "thread") { PH.tid = +v; const th = U.threads[PH.tid]; if (th) th.unread = 0; }
+  else if (a === "tnewform") { PH.tid = "new"; PH.upKind = 0; }
+  else if (a === "tkind") PH.upKind = +v;
+  else if (a === "reply") { upReply(c, PH.tid); return; }
+  else if (a === "tnew") {
+    const n = (($("#upTn") || {}).value || "").trim(); if (!n) { alert("이름을 적어주세요."); return; }
+    const grp = PH.upKind === 1, mem = grp ? (($("#upTm") || {}).value || "").split(/[,，]/).map(x => x.trim()).filter(Boolean) : [];
+    U.threads.splice(1, 0, { name: n, kind: grp ? "group" : "mob", members: mem, desc: (($("#upTd") || {}).value || "").trim(), msgs: [] });
+    PH.tid = 1; save(c.id);
+  }
+  else if (a === "msend") { const t = ($("#upMsg") || {}).value || ""; if (!t.trim()) return; const th = U.threads[PH.tid]; th.msgs.push({ from: "me", text: t.trim(), time: upTime(c) }); save(c.id); phoneRender(); const inp = $("#upMsg"); if (inp) { inp.value = ""; inp.focus(); } upReplySoon(c, PH.tid); return; }
+  else if (a === "aifill") { upFill(c, v); return; }
+  else if (a === "tab") PH.tab = +v;
+  else if (a === "commload") { phoneGen("comm", "new"); return; }
+  else if (a === "write") { PH.upWrite = true; }
+  else if (a === "post") {
+    const t = ($("#upTitle") || {}).value || "", bd = ($("#upBody") || {}).value || "", bo = ($("#upBoard") || {}).value || "자유";
+    if (!t.trim() || !bd.trim()) { alert("제목과 내용을 적어주세요."); return; }
+    U.comm.posts.push({ board: bo.trim(), title: t.trim(), body: bd.trim(), when: upNowWhen(c), cmts: [] }); save(c.id);
+    PH.upWrite = false; PH.upPost = "u:" + (U.comm.posts.length - 1);
+  }
+  else if (a === "open") { PH.upPost = v; PH.upReveal = false; }
+  else if (a === "reveal") PH.upReveal = !PH.upReveal;
+  else if (a === "cmt") {
+    const t = ($("#upCmt") || {}).value || ""; if (!t.trim()) return;
+    const p = upPost(c, PH.upPost); if (!p) return;
+    p.cmts = p.cmts || []; p.cmts.push({ u: "익명", t: t.trim(), re: false, byUser: true }); save(c.id);
+  }
+  else if (a === "peek") { PH.uask = v; }
+  else if (a === "peek-sneak" || a === "peek-caught") { const w = PH.uask; PH.uask = null; upDoPeek(c, w, a === "peek-caught" ? "caught" : "sneak"); return; }
+  else if (a === "peek-no") PH.uask = null;
+  phoneRender();
+  // 열 때 알아서 반응 확인
+  if (a === "open" || a === "post" || a === "cmt") {
+    const [src, i] = String(PH.upPost || "").split(":");
+    if (src === "c") { const p = upPost(c, PH.upPost); if (p && !(p.cmts || []).length && +p.nc) phoneGenCmts(+i); else if (a === "open") upReactCharPost(c, +i); }
+    else if (src === "u" && (a === "open" || a === "post")) upReactMyPost(c, +i);
+  }
+}
+function upInput(e) {
+  const t = e.target; if (!PH || PH.owner !== "user" || !t.dataset || !t.dataset.upf) return;
+  const c = char(), m = upOf(c).memo[PH.memo]; if (!m) return;
+  if (t.dataset.upf === "mtitle") m.title = t.value; else m.body = t.value;
+  save(c.id);
+}
+function upKey(e) {
+  if (e.key !== "Enter" || e.isComposing || !PH || PH.owner !== "user") return;
+  const map = { upQ: "sadd", upMsg: "msend", upCmt: "cmt", upTn: "tnew" }, a = map[e.target.id];
+  if (!a) return;
+  e.preventDefault(); const btn = PH.el.querySelector(`[data-up="${a}"]`); if (btn) btn.click();
+}
+
 function closeCharPhone() {
   if (!PH) return;
   Object.values(PH.ctl).forEach(a => { try { a.abort(); } catch (e) {} });
@@ -4230,20 +4941,25 @@ function phoneRender() {
   const ph = phoneOf(c), scr = PH.el.querySelector(".ph-scr");
   const home = PH.view === "home", t = phNow(ph);
   scr.className = "ph-scr" + (home ? " dark" : "");
-  scr.style.background = home ? ph.wall : "";
+  scr.style.background = home ? (PH.owner === "user" ? UP_WALL : ph.wall) : "";
   const bar = `<div class="ph-sb"><span class="ph-sbt">${phHM(t)}</span><i></i><span class="ph-sic"><span class="ph-sig"><b></b><b></b><b></b><b></b></span><svg class="ph-wf" width="15" height="11" viewBox="0 0 15 11" aria-hidden="true"><path fill="currentColor" d="M7.5 2.2c2.1 0 4 .8 5.5 2.2l1.1-1.1A9.4 9.4 0 0 0 7.5.6 9.4 9.4 0 0 0 .9 3.3L2 4.4a7.8 7.8 0 0 1 5.5-2.2zm0 3.1c1.2 0 2.4.5 3.3 1.3l1.1-1.1a6.3 6.3 0 0 0-8.8 0l1.1 1.1c.9-.8 2.1-1.3 3.3-1.3zm0 3.1c.4 0 .8.2 1.1.4L7.5 10 6.4 8.8c.3-.2.7-.4 1.1-.4z"/></svg><span class="ph-bat"><em style="width:${55 + ((t.d * 7 + t.hh) % 40)}%"></em></span></span></div>`;
   const foot = `<div class="ph-foot"><button type="button" data-ph="home" aria-label="홈"></button></div>`;
   let body = "";
-  try { body = home ? phHome(c, ph) : PH.view === "thread" ? phThread(c, ph) : phApp(c, ph); }
+  try { body = PH.owner === "user" ? upRender(c) : home ? phHome(c, ph) : PH.view === "thread" ? phThread(c, ph) : phApp(c, ph); }
   catch (e) { body = `<div class="ph-msg">화면을 그리지 못했어요.<button type="button" data-ph="retry">다시 불러오기</button></div>`; }
+  const uask = PH.owner === "user" && PH.uask ? `<div class="ph-ask"><div><p>${esc(c.name)}에게 이걸 보게 할까요?</p><span class="up-askb"><button type="button" data-up="peek-no">취소</button><button type="button" data-up="peek-sneak">몰래 보게</button><button type="button" data-up="peek-caught" class="y">보다가 들키게</button></span></div></div>` : "";
+  const toast = PH.owner === "user" && PH.toast ? `<div class="up-toast">${esc(PH.toast)}</div>` : "";
   const ask = PH.ask ? `<div class="ph-ask"><div><p>${esc(PH.ask.msg)}</p><span><button type="button" data-ph="ask-no">취소</button><button type="button" data-ph="ask-ok" class="y">지우기</button></span></div></div>` : "";
   // 화면마다 어디까지 내렸는지 기억해 뒀다가, 돌아오면 그 자리로 (구독 펼치기는 같은 화면으로 봐요)
-  const sig = [PH.view, PH.app, PH.tid, PH.tab, PH.app === "subs" ? "" : PH.memo, PH.photo, PH.calOff, PH.calD].join("|");
+  const sig = [PH.owner, PH.view, PH.app, PH.tid, PH.tab, PH.app === "subs" ? "" : PH.memo, PH.photo, PH.calOff, PH.calD, PH.upPost, PH.upWrite].join("|");
+  const keepIn = {}; ["upQ", "upMsg", "upCmt", "upTn", "upTitle", "upBody", "upBoard"].forEach(id => { const x = scr.querySelector("#" + id); if (x) keepIn[id] = x.value; });
+  const sameView = sig === PH._same;
   const keep = scr.querySelector(".ph-body");
   PH.scrollMem = PH.scrollMem || {};
   if (keep && PH._same) PH.scrollMem[PH._same] = keep.scrollTop;
   const top = PH.scrollMem[sig] || 0;
-  scr.innerHTML = bar + body + foot + ask;
+  scr.innerHTML = bar + body + foot + ask + uask + toast;
+  if (sameView) Object.keys(keepIn).forEach(id => { const x = scr.querySelector("#" + id); if (x) x.value = keepIn[id]; });
   PH._same = sig;
   const nb = scr.querySelector(".ph-body"); if (nb && top) nb.scrollTop = top;
   const pg = scr.querySelector(".ph-pages"); if (pg && PH.page) pg.scrollLeft = PH.page * pg.clientWidth;
@@ -4266,7 +4982,7 @@ function phHome(c, ph) {
 ${hasAny ? `<button type="button" class="ph-rall" data-ph="resetall" aria-label="폰 초기화">${phIc("eraser", 17, "#fff", 1.9)}</button>` : ""}
 <div class="ph-pages"><div class="ph-page">
 <div class="ph-clock"><div>${phDateLab(t.y, t.m, t.d, phLang(c), false)}</div><strong>${PH.clockBusy && !ph.clock ? "··:··" : phHM(t)}</strong></div>
-${noti ? `<button type="button" class="ph-noti" data-ph="thread" data-v="${esc(phPlain(noti.name))}"><span class="ph-ico sm" style="background:#4b8fd6">${phIc("msg", 16, "#fff", 2)}</span><span><b>${phNm(noti.name)}</b> · ${esc(noti.when || "")}<br>${phTx(noti.last, tr === "both" ? "paren" : tr)}</span></button>` : `<div class="ph-noti ghost">${esc(c.name)}의 폰이에요. 앱을 눌러서 몰래 봐요</div>`}
+${noti ? `<button type="button" class="ph-noti" data-ph="thread" data-v="${esc(phPlain(noti.name))}"><span class="ph-ico sm" style="background:#4b8fd6">${phIc("msg", 16, "#fff", 2)}</span><span class="ph-nb"><span class="ph-nl1"><b>${tr === "tr" ? phTx(noti.name, "tr") : esc(phPlain(noti.name))}</b><small>${esc(phPlain(noti.when || ""))}</small></span><span class="ph-nl2">${phTx(noti.last, tr === "tr" ? "tr" : "orig")}</span></span></button>` : `<div class="ph-noti ghost">${esc(c.name)}의 폰이에요. 앱을 눌러서 몰래 봐요</div>`}
 <div class="ph-grid">${PH_GRID.map(k => phTile(k, badge(k))).join("")}</div>
 </div>
 <div class="ph-page"><div class="ph-grid">${PH_GRID2.map(k => phTile(k, badge(k))).join("")}</div></div>
