@@ -6,6 +6,8 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"2.97","items":[]},
+  {"v":"2.96","items":[]},
   {"v":"2.95","items":[]},
   {"v":"2.94","items":[]},
   {"v":"2.93","items":[]},
@@ -4229,7 +4231,7 @@ n은 같은 사람에게 연달아 온 횟수. 부재중과 아주 짧은 통화
 {"user":"본인 아이디","name":"프로필 이름","bio":"소개글","private":false,"posts":24,"followers":312,"following":198,"highlights":["하이라이트 이름 3~4개"],"stories":["스토리 올린 계정 아이디 4~6개"],"follower_list":[{"u":"아이디","name":"이름","note":"누구인지 짧게"}],"following_list":[{"u":"아이디","name":"이름","note":"누구인지 짧게"}],"feed":[{"author":"게시한 계정 아이디","loc":"위치(없으면 빈칸)","img":"사진에 찍힌 것 한 줄 설명","cap":"캡션","likes":128,"comments":[{"u":"아이디","t":"댓글"}],"when":"3시간 전"}]}
 본인 게시물의 댓글과 좋아요에 친구들 반응이 드러나게. 사진은 실제 이미지가 아니라 무엇이 찍혔는지 설명만 쓴다.
 posts, followers, following 숫자는 이 인물의 인기, 직업, 성격, 사교성에 맞게 정한다. 연예인·인플루언서·유명한 인물이면 팔로워 수만~수십만, 평범한 대학생·직장인이면 수백 명, 친구가 거의 없거나 SNS를 안 하는 인물이면 수십~백 명대, 비공개 계정이면 적게. 팔로잉은 성격대로(아무도 안 따라가는 인물이면 적게).
-follower_list와 following_list는 각각 8~12개. 친구, 설정에 나온 인물, 동료, 가게·브랜드·좋아하는 사람 계정처럼 ${"${c}"}이 실제로 팔로우하거나 팔로우받을 법한 계정으로 채운다.`,
+follower_list와 following_list는 각각 6~8개. feed는 게시물마다 댓글 1~3개로 짧게. 친구, 설정에 나온 인물, 동료, 가게·브랜드·좋아하는 사람 계정처럼 ${"${c}"}이 실제로 팔로우하거나 팔로우받을 법한 계정으로 채운다. ${"${u}"}의 계정은 앱이 따로 붙이니, 스토리·피드·댓글·좋아요 어디에도 ${"${u}"}나 ${"${u}"}의 계정을 지어내 넣지 않는다(${"${u}"}의 이름을 딴 아이디도 안 된다). 그 자리는 친구, 동료, 가족, 동네 사람, 단골 가게, 브랜드, 팬, 악플러처럼 다양한 사람으로 채운다. 아이디는 사람마다 개성 있게, 게시물 주제도 일상·음식·장소·취미·일·밈·광고처럼 겹치지 않게 다양하게. 댓글도 게시물마다 다른 사람이 다른 말투로.`,
   search: `검색 기록 8~12개. 검색창에 친 검색어 그대로.
 {"items":[{"day":"오늘|어제|이번 주|지난주","q":"검색어","when":"오후 2:10"}]}
 최근 것이 위로. 남한테 들키면 민망한 검색어도 한두 개 섞는다.`,
@@ -5201,6 +5203,14 @@ async function phoneGen(k, mode) {
     const out = await phoneAsk(phonePrompt(c, k, mode, mode === "more" ? st.data : null), ctl.signal);
     const j = phJSON(out);
     const merged = phoneMerge(k, mode === "more" ? st.data : null, j);
+    if (k === "insta" && !(merged.feed || []).length) {
+      try {
+        const u = c.uname || "유저";
+        const fp = `너는 ${c.name}의 인스타그램 피드 게시물을 만든다.\n\n${phoneCtx(c)}\n\n[계정] @${phPlain(merged.user || c.name)}\n\n[규칙]\n- 본인 게시물 3~4개와 친구 게시물 2~3개를 섞어 5~7개. 사진은 무엇이 찍혔는지 설명만. 댓글은 게시물마다 1~3개.\n- ${u}나 ${u}의 계정을 지어내 넣지 않는다(댓글에도, 이름을 딴 아이디도 안 된다). 친구·동료·가족·가게·브랜드처럼 다양한 계정으로, 주제도 겹치지 않게.${PH_LANGS[phLang(c)] ? `\n- 캡션과 댓글은 ${PH_LANGS[phLang(c)]}로 쓰고 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다.` : ""}\n\n[형식]\n{"feed":[{"author":"게시한 계정 아이디","loc":"","img":"사진 설명","cap":"캡션","likes":0,"comments":[{"u":"아이디","t":"댓글"}],"when":"3시간 전"}]}\nJSON 하나만 출력한다.`;
+        const fj = phJSON(await phoneAsk(fp, ctl.signal));
+        if (Array.isArray(fj.feed)) merged.feed = fj.feed;
+      } catch (x) { if (x.name === "AbortError") throw x; }
+    }
     if (merged._changed) { merged._changed.forEach(n => { const t = ph.threads[n]; if (t) t.stale = true; }); delete merged._changed; }
     st.data = merged; st.n = msgs().length; st.at = Date.now(); delete st.cleared;
     save(c.id);
@@ -5493,9 +5503,11 @@ function phApp(c, ph) {
 }
 function phInstaFeed(c, D, tr, refresh, note) {
   const me = D.user || "";
-  const upPosts = upIgForChar(c);
+  const upPosts = upIgForChar(c), UH = c.uphone && c.uphone.insta && c.uphone.insta.user;
+  if (UH) D = Object.assign({}, D, { feed: (D.feed || []).filter(p => phPlain(p.author || "").replace(/^@/, "") !== UH).map(p => Object.assign({}, p, { comments: (p.comments || []).filter(m => phPlain(m.u || "").replace(/^@/, "") !== UH || m.byUser) })) });
   if (upPosts.length) D = Object.assign({}, D, { feed: upPosts.concat(D.feed || []) });
-  const stories = (D.stories || []).slice(0, 6).map((s, i) => `<span class="ph-story"><i class="${i > 3 ? "seen" : ""}"><em></em></i><small>${esc(phPlain(s))}</small></span>`).join("");
+  const UIh = c.uphone && c.uphone.insta && c.uphone.insta.user;
+  const stories = (D.stories || []).filter(s => !UIh || phPlain(s).replace(/^@/, "") !== UIh).slice(0, 6).map((s, i) => `<span class="ph-story"><i class="${i > 3 ? "seen" : ""}"><em></em></i><small>${esc(phPlain(s))}</small></span>`).join("");
   const feed = (D.feed || []).map((p, i) => {
     const mine = !p.author || p.author === me, isU = upPosts.includes(p);
     const av = mine && c.avatar ? `<img src="${esc(c.avatar)}" alt="">` : isU && c.uavatar ? `<img src="${esc(c.uavatar)}" alt="">` : esc(phPlain(p.author || me).slice(0, 1));
