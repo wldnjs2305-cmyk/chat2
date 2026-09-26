@@ -6,6 +6,8 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"3.03","items":[]},
+  {"v":"3.02","items":[]},
   {"v":"3.01","items":[]},
   {"v":"3.00","items":[]},
   {"v":"2.99","items":[]},
@@ -983,6 +985,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .ph-wrap .ph-scr input.up-in:focus,.ph-wrap .ph-scr textarea.up-ta:focus{border-color:#e0457b !important}
 .up-replying{flex:none;display:flex;align-items:center;gap:6px;padding:6px 12px;background:#fdf0f5;font-size:12px;color:#a02a57;border-top:1px solid #f3dbe5}
 .up-replying span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.up-replying button.up-rdel{font-size:12px;font-weight:600;border:1px solid #f0c3d4;border-radius:8px;padding:3px 8px;background:#fff}
 .up-replying button{border:0;background:none;color:#a02a57;font-size:16px;padding:0 4px}
 .ph-cmt[data-ci]{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .ph-cmt.up-hold{background:#f6eef2}
@@ -4639,7 +4642,7 @@ function upComm(c, note) {
     return upHead(site, mineP ? upPeekBtn("post:" + idx) : "") + `<div class="ph-body"><div class="ph-cpost"><span class="ph-ctag">${phNm(p.board || "자유")}</span><h5>${phTx(p.title, PH.tr)}</h5><small>익명${mineP ? " (나)" : ""} · ${esc(phPlain(p.when || ""))}</small><p>${phTx(String(p.body || "").replace(/\s*(?:\\n|\n)+\s*/g, " "), PH.tr)}</p><div class="ph-cstat">댓글 ${(p.cmts || []).length || +p.nc || 0}${hasChar ? ` · <button type="button" class="up-rev" data-up="reveal">${PH.upReveal ? "누가 썼는지 숨기기" : "누가 썼는지 보기"}</button>` : ""}</div></div>`
       + cm + (busy ? `<div class="ph-msg sm"><span class="ph-spin"></span>댓글 확인 중...</div>` : "")
       + (PH.err[key] ? `<div class="ph-err">${esc(PH.err[key])}</div>` : "")
-      + `</div>${PH.replyTo != null && (p.cmts || [])[PH.replyTo] ? `<div class="up-replying"><span>ㄴ ${esc(phPlain((p.cmts[PH.replyTo].byUser ? "익명 (나)" : p.cmts[PH.replyTo].u)))}에게 답글 다는 중</span><button type="button" data-up="unreply" aria-label="답글 취소">×</button></div>` : ""}<div class="up-send"><input type="text" class="up-in" id="upCmt" placeholder="${PH.replyTo != null ? "답글 달기" : "댓글 달기 · 꾹 누르면 답글"}"><button type="button" data-up="cmt">등록</button></div>`;
+      + `</div>${PH.replyTo != null && (p.cmts || [])[PH.replyTo] ? `<div class="up-replying"><span>ㄴ ${esc(phPlain((p.cmts[PH.replyTo].byUser ? "익명 (나)" : p.cmts[PH.replyTo].u)))}에게 답글 다는 중</span>${p.cmts[PH.replyTo].byUser ? `<button type="button" class="up-rdel" data-up="cdel">내 댓글 삭제</button>` : ""}<button type="button" data-up="unreply" aria-label="답글 취소">×</button></div>` : ""}<div class="up-send"><input type="text" class="up-in" id="upCmt" placeholder="${PH.replyTo != null ? "답글 달기" : "댓글 달기 · 꾹 누르면 답글"}"><button type="button" data-up="cmt">등록</button></div>`;
   }
   const L = upCommList(c), f = PH.tab || 0;
   const list = f === 1 ? L.filter(x => x.src === "u") : f === 2 ? L.filter(x => x.src === "c" && (x.p.cmts || []).some(m => m.byUser)) : L;
@@ -4680,7 +4683,7 @@ ${phPlain(last.t)} (${target})
 [규칙]
 - 방금 댓글은 누가 썼는지 아무도 모른다. ${c.name}도 ${josa(u, "이", "가")} 썼다는 걸 모른다. ${u}와 연결 짓지 않는다.
 - ${whoAnswers}
-- 모두 방금 댓글 아래 이어지는 답글이다. 0~3개. 달 게 없으면 빈 배열.${upLangRule(c)}
+- 모두 방금 댓글 아래 이어지는 답글이다. 0~3개. 달 게 없으면 빈 배열. 한 사람(글쓴이 포함)은 이번에 댓글을 하나만 단다. 할 말이 많으면 그 한 댓글 안에 길게 몰아서 쓴다.${upLangRule(c)}
 
 [형식]
 {"cmts":[{"u":"글쓴이 또는 닉네임","t":"답글","char":false}]}
@@ -4689,7 +4692,7 @@ JSON 하나만 출력한다.`;
   try {
     const j = await upAsk(prompt, ctl.signal);
     fresh.forEach(m => { m.seen = 1; });
-    const add = (j.cmts || []).filter(x => x && x.t).map(x => ({ u: phPlain(x.u || "익명"), t: x.t, re: true, char: !!x.char || (!mine && /글쓴이/.test(x.u || "")) }));
+    const add = upOnePer((j.cmts || []).filter(x => x && x.t)).map(x => ({ u: phPlain(x.u || "익명"), t: x.t, re: true, char: !!x.char || (!mine && /글쓴이/.test(x.u || "")) }));
     let at = cm.indexOf(last) + 1; while (at < cm.length && cm[at].re && !cm[at].byUser) at++;
     cm.splice(at, 0, ...add);
     save(c.id);
@@ -4718,7 +4721,7 @@ ${mine.map(m => phPlain(m.t)).join("\n")}
 [규칙]
 - 새 익명 댓글은 누가 썼는지 아무도 모른다. ${c.name}도 모른다(${josa(u, "이", "가")} 썼다는 걸 모른다). 그 댓글을 ${josa(u, "과", "와")} 연결 짓지 않는다.
 - 글쓴이(${c.name})가 그 댓글에 답글을 달 수도 있고 무시할 수도 있다. 성격과 댓글 내용을 보고 정한다. 답글을 달면 u를 "글쓴이"로, re를 true로.
-- 다른 익명들이 거들 수도 있다. 달릴 게 없으면 cmts를 빈 배열로 둔다. 0~4개.${upLangRule(c)}
+- 다른 익명들이 거들 수도 있다. 달릴 게 없으면 cmts를 빈 배열로 둔다. 0~4개. 한 사람(글쓴이 포함)은 이번에 댓글을 하나만 단다. 할 말이 많으면 그 한 댓글 안에 길게 몰아서 쓴다.${upLangRule(c)}
 
 [형식]
 {"cmts":[{"u":"글쓴이 또는 닉네임","t":"댓글","re":true}]}
@@ -4727,7 +4730,7 @@ JSON 하나만 출력한다.`;
   try {
     const j = await upAsk(prompt, ctl.signal);
     mine.forEach(m => { m.seen = 1; });
-    if (Array.isArray(j.cmts)) p.cmts.push(...j.cmts.filter(x => x && x.t).map(x => Object.assign(x, /글쓴이/.test(x.u || "") ? { char: true } : {})));
+    if (Array.isArray(j.cmts)) p.cmts.push(...upOnePer(j.cmts.filter(x => x && x.t)).map(x => Object.assign(x, /글쓴이/.test(x.u || "") ? { char: true } : {})));
     save(c.id);
   } catch (e) { if (e.name !== "AbortError" && PH) PH.err[key] = e.message || "댓글을 못 불러왔어요."; }
   if (PH) { delete PH.busy[key]; delete PH.ctl[key]; phoneRender(); }
@@ -4748,7 +4751,7 @@ ${phoneCtx(c)}
 
 [규칙]
 - 이 글은 사실 ${josa(u, "이", "가")} 쓴 글이지만, ${josa(c.name, "을", "를")} 포함해 아무도 그걸 모른다. 익명 글로만 본다. 댓글에서 ${u}의 이름이나 정체를 알아채지 않는다.
-- 다른 익명들의 댓글 3~7개. 공감·훈수·드립·비꼼·진지한 조언을 그 사이트 분위기대로 섞는다.
+- 다른 익명들의 댓글 3~7개. 공감·훈수·드립·비꼼·진지한 조언을 그 사이트 분위기대로 섞는다. 한 사람(글쓴이 포함)은 이번에 댓글을 하나만 단다. 할 말이 많으면 그 한 댓글 안에 길게 몰아서 쓴다.
 - ${josa(c.name, "이", "가")} 이 글을 봤다면 댓글을 달지 말지 스스로 정한다. 글 내용이 ${c.name}의 관심사·처지와 닿아 있으면 달 가능성이 높고, 아니면 그냥 지나칠 수 있다. 단다면 익명이라 말투는 평소보다 풀어져 있을 수 있지만 성격은 드러나게, char를 true로.
 - re가 true면 바로 위 댓글에 단 대댓글이다.${upLangRule(c)}
 
@@ -4758,7 +4761,7 @@ JSON 하나만 출력한다.`;
   const ctl = new AbortController(); PH.ctl[key] = ctl; PH.busy[key] = 1; PH.err[key] = ""; phoneRender();
   try {
     const j = await upAsk(prompt, ctl.signal);
-    p.cmts = (p.cmts || []).concat((j.cmts || []).filter(x => x && x.t)); p.reacted = 1; save(c.id);
+    p.cmts = (p.cmts || []).concat(upOnePer((j.cmts || []).filter(x => x && x.t))); p.reacted = 1; save(c.id);
   } catch (e) { if (e.name !== "AbortError" && PH) PH.err[key] = e.message || "댓글을 못 불러왔어요."; }
   if (PH) { delete PH.busy[key]; delete PH.ctl[key]; phoneRender(); }
 }
@@ -4934,6 +4937,7 @@ function upClick(e) {
   }
   else if (a === "uresetall") { if (!confirm("내 폰을 통째로 초기화할까요? 쓴 글, 문자, 메모, 인스타가 다 지워지고, 설기가 엿본 기억도 사라져요.")) return; Object.keys(UP_APPS).forEach(k => upResetApp(c, k)); c.uphone = {}; c.peeks = []; save(c.id); }
   else if (a === "igunreply") PH.igReply = null;
+  else if (a === "igdel") { const x = upIgPost(c, PH.igp); if (x && x.p.comments && PH.igReply != null) { upCutThread(x.p.comments, PH.igReply); save(c.id); } PH.igReply = null; clearTimeout(PH.igTimer); }
   else if (a === "igopen") {
     PH.igReply = null; PH.igFrom = PH.igv || "feed"; PH.igv = "post"; PH.igp = v; phoneRender();
     const x = upIgPost(c, v); if (x) upIgReact(c, v, x.src === "m" && !x.p.reacted);
@@ -5004,6 +5008,7 @@ function upClick(e) {
   }
   else if (a === "open") { PH.upPost = v; PH.upReveal = false; PH.replyTo = null; }
   else if (a === "unreply") PH.replyTo = null;
+  else if (a === "cdel") { const p = upPost(c, PH.upPost); if (p && p.cmts && PH.replyTo != null) { upCutThread(p.cmts, PH.replyTo); save(c.id); } PH.replyTo = null; clearTimeout(PH.cmTimer); }
   else if (a === "reveal") PH.upReveal = !PH.upReveal;
   else if (a === "cmt") {
     const t = ($("#upCmt") || {}).value || ""; if (!t.trim()) return;
@@ -5086,7 +5091,7 @@ function upInsta(c, note) {
   if (v === "post") {
     const x = upIgPost(c, PH.igp); if (!x) { PH.igv = "feed"; return upInsta(c, note); }
     const key = "ig:" + PH.igp, busy = PH.busy[key];
-    return upHead(esc(phPlain(x.who))) + `<div class="ph-body">${upIgCard(c, Object.assign({}, x, { i: +PH.igp.split(":")[1] }), 0, true)}${busy ? `<div class="ph-msg sm"><span class="ph-spin"></span>댓글 확인 중...</div>` : ""}${PH.err[key] ? `<div class="ph-err">${esc(PH.err[key])}</div>` : ""}</div>${PH.igReply != null && (x.p.comments || [])[PH.igReply] ? `<div class="up-replying"><span>ㄴ @${esc(phPlain(x.p.comments[PH.igReply].u))}에게 답글 다는 중</span><button type="button" data-up="igunreply" aria-label="답글 취소">×</button></div>` : ""}<div class="up-send"><input type="text" class="up-in" id="upIgC" placeholder="${PH.igReply != null ? "답글 달기" : "댓글 달기 · 꾹 누르면 답글"}"><button type="button" data-up="igcmt">게시</button></div>`;
+    return upHead(esc(phPlain(x.who))) + `<div class="ph-body">${upIgCard(c, Object.assign({}, x, { i: +PH.igp.split(":")[1] }), 0, true)}${busy ? `<div class="ph-msg sm"><span class="ph-spin"></span>댓글 확인 중...</div>` : ""}${PH.err[key] ? `<div class="ph-err">${esc(PH.err[key])}</div>` : ""}</div>${PH.igReply != null && (x.p.comments || [])[PH.igReply] ? `<div class="up-replying"><span>ㄴ @${esc(phPlain(x.p.comments[PH.igReply].u))}에게 답글 다는 중</span>${x.p.comments[PH.igReply].byUser ? `<button type="button" class="up-rdel" data-up="igdel">내 댓글 삭제</button>` : ""}<button type="button" data-up="igunreply" aria-label="답글 취소">×</button></div>` : ""}<div class="up-send"><input type="text" class="up-in" id="upIgC" placeholder="${PH.igReply != null ? "답글 달기" : "댓글 달기 · 꾹 누르면 답글"}"><button type="button" data-up="igcmt">게시</button></div>`;
   }
   if (v === "new") {
     return upHead("새 게시물") + `<div class="ph-body up-form"><textarea class="up-ta" id="upIgImg" style="min-height:90px;flex:none" placeholder="사진 설명 (무엇이 찍혔는지)"></textarea><textarea class="up-ta" id="upIgCap" style="min-height:90px;flex:none" placeholder="문구 입력..."></textarea><input type="text" class="up-in" id="upIgLoc" placeholder="위치 추가 (선택)"><button type="button" class="up-add" data-up="igpost">공유</button></div>`;
@@ -5137,7 +5142,7 @@ ${fresh.length && fresh[fresh.length - 1].toU ? `\n[방금 ${josa(u, "이", "가
 [규칙]
 - ${u}의 인스타 아이디는 @${me}, ${c.name}의 아이디는 @${ch}다. 서로 맞팔이라 누구 계정인지 안다.
 ${first && x.src === "m" ? `- ${u}가 방금 올린 게시물이다. ${u}의 친구들(${friends || "지인들"})이 댓글을 단다. ${c.name}도 볼 수 있다. 관계와 성격에 맞게 댓글을 달지, 좋아요만 누를지, 그냥 넘길지 정한다. 단다면 u를 "${ch}"로.` : `- ${josa(u, "이", "가")} 새로 단 댓글에 게시물 주인(${owner})이나 다른 사람이 답글을 달 수도, 안 달 수도 있다. 성격과 관계대로 정한다. 답글은 re를 true로.`}
-- ${u}(@${me})의 댓글은 쓰지 않는다. 인스타 댓글답게 짧게. 0~6개. 달 게 없으면 빈 배열.
+- ${u}(@${me})의 댓글은 쓰지 않는다. 0~6개. 달 게 없으면 빈 배열. 한 사람(게시물 주인 포함)은 이번에 댓글을 하나만 단다. 할 말이 많으면 그 한 댓글 안에 길게 몰아서 쓴다.
 
 [형식]
 {"likes":0,"cmts":[{"u":"아이디","t":"댓글","re":false}]}
@@ -5146,7 +5151,7 @@ likes는 지금 좋아요 수(모르면 0). JSON 하나만 출력한다.`;
   try {
     const j = await upAsk(prompt, ctl.signal);
     fresh.forEach(m => { m.seen = 1; });
-    const add = (j.cmts || []).filter(m => m && m.t && phPlain(m.u) !== me).map(m => ({ u: phPlain(m.u), t: m.t, re: !!m.re, char: phPlain(m.u) === phPlain(ch) }));
+    const add = upOnePer((j.cmts || []).filter(m => m && m.t && phPlain(m.u) !== me)).map(m => ({ u: phPlain(m.u), t: m.t, re: !!m.re, char: phPlain(m.u) === phPlain(ch) }));
     const lastF = fresh[fresh.length - 1];
     if (lastF && lastF.re && cm.indexOf(lastF) >= 0) { let at = cm.indexOf(lastF) + 1; while (at < cm.length && cm[at].re && !cm[at].byUser) at++; add.forEach(m => { m.re = true; }); cm.splice(at, 0, ...add); }
     else add.forEach(m => cm.push(m));
@@ -5350,6 +5355,23 @@ JSON 하나만 출력한다.`;
   try { const j = await upAsk(prompt, ctl.signal); (j.msgs || []).filter(Boolean).forEach(t => m.msgs.push({ from: "them", text: String(typeof t === "string" ? t : t.text || ""), time: upTime(c) })); save(c.id); }
   catch (e) { if (e.name !== "AbortError" && PH) PH.err[key] = e.message || "답장을 못 받았어요."; }
   if (PH) { delete PH.busy[key]; delete PH.ctl[key]; phoneRender(); }
+}
+// 내 댓글 지우기: 그 댓글과, 그 뒤로 같은 묶음에 이어진 답글까지
+function upCutThread(list, i) {
+  const m = list[i]; if (!m || !m.byUser) return;
+  let end = i + 1; while (end < list.length && list[end].re) end++;
+  if (!m.re) { list.splice(i, end - i); return; }
+  list.splice(i, end - i);
+}
+// 한 번에 온 댓글 중 같은 사람 것은 하나로 합쳐요 ("익명"처럼 이름 없는 건 그대로)
+function upOnePer(list) {
+  const out = [], by = {};
+  (list || []).forEach(m => {
+    const k = phPlain(m.u || "").replace(/^@/, "");
+    if (k && k !== "익명" && by[k]) { by[k].t = String(by[k].t) + " " + String(m.t); return; }
+    const n = Object.assign({}, m); out.push(n); if (k) by[k] = n;
+  });
+  return out;
 }
 // 앱 초기화
 function upResetApp(c, k) {
