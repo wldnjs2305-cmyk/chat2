@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.21","items":[]}
+  {"v":"3.22","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1580,6 +1580,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
         <button id="qPhone">핸드폰</button>
         <button id="qUPhone">내 폰</button>
         <button id="qCmd">명령어</button>
+        <button id="qRoom">대화방</button>
         <button id="resetChat">초기화</button>
       </div>
       <div class="in">
@@ -1685,7 +1686,7 @@ async function flush() {
   const doMeta = metaDirty; metaDirty = false;
   try {
     for (const id of chats) {
-      const exists = store.chars.some(c => c.id === id);
+      const exists = store.chars.some(c => c.id === id) || (String(id).includes("~") && Array.isArray(store.chats[id]) && store.chars.some(c => (c.rooms || []).some(r => r.key === id && r.key !== c.room)));
       const parts = exists ? splitPages(store.chats[id] || []) : [];
       for (let i = 0; i < parts.length; i++) await col().doc(`chat_${id}_${i}`).set({ msgs: parts[i] });
       const old = pages[id] || 0;
@@ -1730,6 +1731,11 @@ async function initDb() {
         const snaps = await Promise.all([...Array(n)].map((_, i) => col().doc(`chat_${c.id}_${i}`).get()));
         snaps.forEach(s => { if (s.exists) list.push(...(s.data().msgs || [])); });
         chats[c.id] = list;
+        await Promise.all((c.rooms || []).filter(r => r.key !== c.room && pages[r.key]).map(async r => {
+          const rs = await Promise.all([...Array(pages[r.key])].map((_, i) => col().doc(`chat_${r.key}_${i}`).get())), rl = [];
+          rs.forEach(x => { if (x.exists) rl.push(...(x.data().msgs || [])); });
+          chats[r.key] = rl;
+        }));
         try { const a = await col().doc(`avatar_${c.id}`).get(); if (a.exists) c.avatar = a.data().img; } catch (e) {}
         try { const nb = await col().doc(`nbg_${c.id}`).get(); if (nb.exists) c.nbg = nb.data().img; } catch (e) {}
         if (Array.isArray(c.cast) && c.cast.length) { try { const ca = await col().doc(`castav_${c.id}`).get(); if (ca.exists) { const im = ca.data().imgs || {}; c.cast.forEach(x => { if (x && im[x.id]) x.avatar = im[x.id]; }); } } catch (e) {} }
@@ -1782,6 +1788,7 @@ $("#importFile").onchange = async e => {
     j.chars.forEach(c => {
       if (have.has(c.id)) return;
       store.chars.push(c); store.chats[c.id] = (j.chats || {})[c.id] || []; dirtyChats.add(c.id); added++;
+      (c.rooms || []).forEach(r => { if (r.key !== c.room) { store.chats[r.key] = (j.chats || {})[r.key] || []; dirtyChats.add(r.key); } });
     });
     let pAdd = 0;
     if (Array.isArray(j.presets)) { const hp = new Set(presetList().map(x => x.id)); j.presets.forEach(x => { if (x && x.id && !hp.has(x.id)) { presetList().push(x); pAdd++; } }); if (j.presetDef && !store.presetDef && presetById(j.presetDef)) store.presetDef = j.presetDef; }
@@ -3477,7 +3484,8 @@ $("#saveChar").onclick = () => {
 $("#delChar").onclick = () => {
   if (!editing || !confirm(`'${editing.name}'와(과) 대화 기록을 삭제할까요?`)) return;
   store.chars = store.chars.filter(c => c.id !== editing.id);
-  const gone = editing.id; clearDraft(DRAFT_PRE + gone); delete store.chats[gone]; if (cur === gone) cur = null; save(gone); renderHome(); show("home");
+  const gone = editing.id; clearDraft(DRAFT_PRE + gone); delete store.chats[gone];
+  { const gc = store.chars.find(x => x.id === gone); ((gc && gc.rooms) || []).forEach(r => { if (store.chats[r.key]) { delete store.chats[r.key]; dirtyChats.add(r.key); } }); } if (cur === gone) cur = null; save(gone); renderHome(); show("home");
 };
 
 // 채팅
@@ -3500,7 +3508,7 @@ function openChat(id) {
     flushA();
     save();
   }
-  $("#chName").textContent = c.name;
+  $("#chName").textContent = c.name + ((c.rooms || []).length > 1 ? " · " + ((c.rooms.find(r => r.key === c.room) || {}).name || "") : "");
   $("#chat").toggleAttribute("data-oshi", !!c.pinned);
   updLenBtn(); updMemDot();
   renderLog(); show("chat");
@@ -7336,6 +7344,60 @@ $("#qCmd").onclick = () => {
   $("#input").value = k + " ";
   $("#input").focus();
 };
+// ---- 대화방: 같은 캐릭터로 여러 이야기를 따로 (폰·인스타·DM·요약도 방마다 따로) ----
+const ROOM_KEYS = ["phone", "uphone", "igdm", "peeks", "memory", "kissStyle", "kissStyleN"];
+function roomsOf(c) {
+  if (!Array.isArray(c.rooms) || !c.rooms.length) { c.rooms = [{ key: c.id + "~" + newId(), name: "방 1", at: Date.now() }]; c.room = c.rooms[0].key; }
+  if (!c.rooms.some(r => r.key === c.room)) c.room = c.rooms[0].key;
+  return c.rooms;
+}
+// 지금 방 내용을 방 목록에 넣어 두기
+function roomStash(c) {
+  const r = roomsOf(c).find(x => x.key === c.room), st = {};
+  ROOM_KEYS.forEach(k => { if (c[k] !== undefined) st[k] = c[k]; delete c[k]; });
+  r.st = st; r.at = Date.now(); r.n = (store.chats[c.id] || []).length;
+  store.chats[r.key] = store.chats[c.id] || []; dirtyChats.add(r.key);
+  store.chats[c.id] = [];
+  return r;
+}
+function roomLoad(c, r) {
+  ROOM_KEYS.forEach(k => { delete c[k]; });
+  Object.assign(c, r.st || {}); delete r.st;
+  store.chats[c.id] = store.chats[r.key] || []; delete store.chats[r.key]; dirtyChats.add(r.key);
+  c.room = r.key;
+}
+function roomPrep() { if (busy) { alert("답장이 끝난 뒤에 해 주세요."); return false; } if (typeof PH !== "undefined" && PH) closeCharPhone(); return true; }
+function roomSwitch(c, r) {
+  if (!roomPrep() || r.key === c.room) return;
+  roomStash(c); roomLoad(c, r); metaDirty = true; save(c.id); openChat(c.id);
+}
+function roomNew(c) {
+  if (!roomPrep()) return;
+  const now = roomsOf(c).find(x => x.key === c.room);
+  if (!confirm(`지금 대화는 '${now.name}'에 그대로 저장하고, 새 대화방에서 처음부터 시작할까요?\n캐릭터 폰, 내 폰(인스타·DM·문자), 요약도 새로 시작해요. 유저노트는 그대로 가져가요.`)) return;
+  const old = c.memory || {};
+  roomStash(c);
+  let n = c.rooms.length + 1; while (c.rooms.some(x => x.name === "방 " + n)) n++;
+  const r = { key: c.id + "~" + newId(), name: "방 " + n, at: Date.now() };
+  c.rooms.push(r); c.room = r.key;
+  c.memory = { summary: "", note: old.note || "", sumOn: old.sumOn !== false, noteOn: old.noteOn !== false, upto: 0 };
+  metaDirty = true; save(c.id); openChat(c.id);
+}
+function roomMenu() {
+  const c = char(); if (!c) return;
+  const rs = roomsOf(c), d = t => { const x = new Date(t || Date.now()); return `${x.getMonth() + 1}/${x.getDate()}`; };
+  const acts = rs.map(r => r.key === c.room
+    ? [`✓ ${r.name} (지금 방 · 메시지 ${(store.chats[c.id] || []).length}개)`, () => {}]
+    : [`${r.name} · 메시지 ${(store.chats[r.key] || []).length}개 · ${d(r.at)}`, () => roomSwitch(c, r)]);
+  acts.push(["＋ 새 대화방 만들기", () => roomNew(c)]);
+  acts.push(["지금 방 이름 바꾸기", () => { const r = rs.find(x => x.key === c.room), v = prompt("대화방 이름", r.name); if (v && v.trim()) { r.name = v.trim().slice(0, 30); metaDirty = true; save(null); openChat(c.id); } }]);
+  if (rs.length > 1) acts.push(["다른 방 지우기", () => showMsgMenu(rs.filter(r => r.key !== c.room).map(r => [`${r.name} 지우기`, () => {
+    if (!confirm(`'${r.name}'을 지울까요? 그 방의 대화, 폰 기록, 요약이 모두 사라져요.`)) return;
+    c.rooms = c.rooms.filter(x => x !== r); delete store.chats[r.key]; dirtyChats.add(r.key); metaDirty = true; save(null); openChat(c.id);
+  }]))]);
+  showMsgMenu(acts);
+}
+$("#qRoom").onclick = roomMenu;
 $("#resetChat").onclick = () => {
   if (busy || !confirm("대화를 처음부터 다시 시작할까요?")) return;
   store.chats[cur] = []; save(); openChat(cur);
