@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.22","items":[]}
+  {"v":"3.26","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3508,7 +3508,7 @@ function openChat(id) {
     flushA();
     save();
   }
-  $("#chName").textContent = c.name + ((c.rooms || []).length > 1 ? " · " + ((c.rooms.find(r => r.key === c.room) || {}).name || "") : "");
+  $("#chName").textContent = c.name;
   $("#chat").toggleAttribute("data-oshi", !!c.pinned);
   updLenBtn(); updMemDot();
   renderLog(); show("chat");
@@ -5258,25 +5258,33 @@ ${fresh.length && fresh[fresh.length - 1].toU ? `\n[방금 ${josa(u, "이", "가
 - ${u}의 인스타 아이디는 @${me}, ${c.name}의 아이디는 @${ch}다. 서로 맞팔이라 누구 계정인지 안다.
 ${first && x.src === "m" ? `- ${u}가 방금 올린 게시물이다. ${u}의 친구들(${friends || "지인들"})이 댓글을 단다. ${c.name}도 볼 수 있다. 관계와 성격에 맞게 댓글을 달지, 좋아요만 누를지, 그냥 넘길지 정한다. 단다면 u를 "${ch}"로.` : `- ${josa(u, "이", "가")} 새로 단 댓글에 게시물 주인(${owner})이나 다른 사람이 답글을 달 수도, 안 달 수도 있다. 성격과 관계대로 정한다. 답글은 re를 true로.`}
 - ${u}(@${me})의 댓글은 쓰지 않는다. ${u}의 이름을 딴 비슷한 아이디로도 쓰지 않는다. ${u}의 댓글은 ${u}가 직접 단다.${upWhenRule(p.when)} 0~6개. 달 게 없으면 빈 배열. 한 사람(게시물 주인 포함)은 이번에 댓글을 하나만 단다. 여러 개로 나눠 쓰고 싶은 말은 그 한 댓글에 합친다. 길이는 그 사람 성격과 할 말대로(짧게 끝내도 된다).
+- 답글(re가 true)은 누구한테 하는 말인지 to에 그 사람 아이디를 쓴다. 본문 맨 앞에 @아이디를 붙여도 된다.${PH_LANGS[phLang(c)] ? `
+- 댓글과 답글은 ${PH_LANGS[phLang(c)]}로 쓰고, 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다. 아이디에는 번역을 붙이지 않는다. 한국어를 할 줄 아는 사람이 ${u}에게 일부러 한국어로 답하는 경우만 한국어로 쓰고, 그때는 번역을 붙이지 않는다.` : ""}
 - ${IG_CMT}
 
-- 따로, ${josa(c.name, "은", "는")} 이 게시물에서 ${u}(@${me})가 한 댓글·답글(누구한테 뭐라고 했는지)을 볼 수 있다. 그걸 보고 ${u}에게 인스타 DM을 보낼지 정한다. 보낼 만할 때만 보낸다(시비, 질투, 궁금함, 놀림, 걱정 등 ${c.name}의 성격과 관계상 가만히 못 있을 때). 별일 아니면 안 보낸다. 보낸다면 dm에 인스타 DM답게 짧은 메시지 보통 1~2개(많아야 3개), 안 보내면 빈 배열.
+- 따로, ${josa(c.name, "은", "는")} 이 게시물에서 ${u}(@${me})가 한 댓글·답글(누구한테 뭐라고 했는지)을 볼 수 있다. 그걸 보고 ${u}에게 인스타 DM을 보낼지 정한다. 보낼 만할 때만 보낸다(시비, 질투, 궁금함, 놀림, 걱정 등 ${c.name}의 성격과 관계상 가만히 못 있을 때). 별일 아니면 안 보낸다. 보낸다면 dm에 인스타 DM답게 짧은 메시지 보통 1~2개(많아야 3개), 안 보내면 빈 배열.${PH_LANGS[phLang(c)] ? ` DM은 ${PH_LANGS[phLang(c)]}로 쓰고 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다.` : ""}
 
 [형식]
-{"likes":0,"cmts":[{"u":"아이디","t":"댓글","re":false}],"dm":["DM"]}
+{"likes":0,"cmts":[{"u":"아이디","t":"댓글","re":false,"to":"답글이면 상대 아이디"}],"dm":["DM"]}
 likes는 지금 좋아요 수(모르면 0). JSON 하나만 출력한다.`;
   const k = "ig:" + key, ctl = new AbortController(); PH.ctl[k] = ctl; PH.busy[k] = 1; PH.err[k] = ""; phoneRender();
   try {
     const j = await upAsk(prompt, ctl.signal);
     fresh.forEach(m => { m.seen = 1; });
-    const add = upOnePer((j.cmts || []).filter(m => m && m.t && phPlain(m.u) !== me && !igIsMe(c, m.u))).map(m => ({ u: phPlain(m.u), t: m.t, re: !!m.re, char: phPlain(m.u) === phPlain(ch) }));
+    const lastT = fresh.length ? me : "";
+    const add = upOnePer((j.cmts || []).filter(m => m && m.t && phPlain(m.u) !== me && !igIsMe(c, m.u))).map(m => {
+      const re = !!m.re, to = phPlain(m.to || (re ? lastT : "")).replace(/^@/, "");
+      let t = String(m.t).trim();
+      if (re && to && to !== phPlain(m.u) && !/^@/.test(t)) t = "@" + to + " " + t;
+      return { u: phPlain(m.u), t, re, char: phPlain(m.u) === phPlain(ch) };
+    });
     const lastF = fresh[fresh.length - 1];
     if (lastF && lastF.re && cm.indexOf(lastF) >= 0) { let at = cm.indexOf(lastF) + 1; while (at < cm.length && cm[at].re && !cm[at].byUser) at++; add.forEach(m => { m.re = true; }); cm.splice(at, 0, ...add); }
     else add.forEach(m => cm.push(m));
     if (+j.likes > (p.likes || 0)) p.likes = +j.likes;
     if (first) p.reacted = 1;
     save(c.id);
-    const dm = (Array.isArray(j.dm) ? j.dm : j.dm ? [j.dm] : []).map(x => phPlain(typeof x === "string" ? x : (x && x.text) || "")).filter(Boolean);
+    const dm = (Array.isArray(j.dm) ? j.dm : j.dm ? [j.dm] : []).map(x => String(typeof x === "string" ? x : (x && x.text) || "").trim()).filter(x => phPlain(x));
     if (dm.length && (fresh.length || first)) upCharDM(c, dm.slice(0, 3));
   } catch (e) { if (e.name !== "AbortError" && PH) PH.err[k] = e.message || "댓글을 못 불러왔어요."; }
   if (PH) { delete PH.busy[k]; delete PH.ctl[k]; phoneRender(); }
@@ -5618,7 +5626,7 @@ function upOpenDM(c) {
 function upNotify(c, text) {
   try { if (navigator.vibrate) navigator.vibrate([20, 60, 20]); } catch (e) {}
   const av = c.avatar ? `<img src="${esc(c.avatar)}" alt="">` : esc(String(c.name).slice(0, 1));
-  const html = `<span class="up-nav">${av}</span><span class="up-nmid"><b>Instagram · ${esc(igCharHandle(c))}</b><small>${esc(phPlain(text))}</small></span><small class="up-nnow">지금</small>`;
+  const html = `<span class="up-nav">${av}</span><span class="up-nmid"><b>Instagram · ${esc(igCharHandle(c))}</b><small>${esc(String(text || "").replace(/\[\[([\s\S]*?)\]\](?!\])/g, " ($1)").trim())}</small></span><small class="up-nnow">지금</small>`;
   if (PH && PH.owner === "user" && PH.cid === c.id) { PH.banner = html; phoneRender(); clearTimeout(PH.bannerT); PH.bannerT = setTimeout(() => { if (PH) { PH.banner = null; phoneRender(); } }, 4200); return; }
   const old = document.querySelector(".up-gnoti"); if (old) old.remove();
   const d = document.createElement("button"); d.type = "button"; d.className = "up-gnoti"; d.innerHTML = html;
@@ -7373,14 +7381,13 @@ function roomSwitch(c, r) {
 }
 function roomNew(c) {
   if (!roomPrep()) return;
-  const now = roomsOf(c).find(x => x.key === c.room);
-  if (!confirm(`지금 대화는 '${now.name}'에 그대로 저장하고, 새 대화방에서 처음부터 시작할까요?\n캐릭터 폰, 내 폰(인스타·DM·문자), 요약도 새로 시작해요. 유저노트는 그대로 가져가요.`)) return;
+  if (!confirm("새 대화방에서 새로 시작할게요?")) return;
   const old = c.memory || {};
   roomStash(c);
   let n = c.rooms.length + 1; while (c.rooms.some(x => x.name === "방 " + n)) n++;
   const r = { key: c.id + "~" + newId(), name: "방 " + n, at: Date.now() };
   c.rooms.push(r); c.room = r.key;
-  c.memory = { summary: "", note: old.note || "", sumOn: old.sumOn !== false, noteOn: old.noteOn !== false, upto: 0 };
+  c.memory = { summary: "", note: "", sumOn: old.sumOn !== false, noteOn: old.noteOn !== false, upto: 0 };
   metaDirty = true; save(c.id); openChat(c.id);
 }
 function roomMenu() {
