@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.29","items":[]}
+  {"v":"3.30","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4910,7 +4910,7 @@ function textBlock(c) {
 // 엿보기 대상 요약
 function upPeekInfo(c, what) {
   const U = upOf(c), [k, i] = String(what).split(":");
-  if (k === "memo") { const m = U.memo[+i]; return m && { label: "메모", detail: `"${m.title || ""}" — ${String(m.body || "").replace(/\s+/g, " ").slice(0, 300)}` }; }
+  if (k === "memo") { const m = U.memo[+i]; if (m && !m.pid) m.pid = newId(); return m && { label: "메모", ref: "memo:" + m.pid, detail: `"${m.title || ""}" — ${String(m.body || "").replace(/\s+/g, " ").slice(0, 300)}` }; }
   if (k === "search") return U.search.length && { label: "검색 기록", detail: U.search.slice(-10).reverse().map(x => x.q).join(", ") };
   if (k === "thread") { const t = U.threads[+i]; return t && { label: `메시지 (${t.name}와의 대화)`, detail: (t.msgs || []).slice(-8).map(m => (m.from === "me" ? (c.uname || "나") : t.name) + ": " + m.text).join(" / ").slice(0, 400) }; }
   if (k === "app" && i === "date") { const Dt = U.date; if (!Dt) return null; const P = Dt.profile || {}; return { app: "date", label: "데이팅 앱", detail: `${Dt.app || "데이팅 앱"} 프로필 — ${P.name || ""} ${P.age || ""}, 사진: ${P.photo || "없음"}, 소개: ${(P.bio || "").slice(0, 120)}` + ((Dt.matches || []).length ? ` / 매칭 ${Dt.matches.length}명: ` + Dt.matches.slice(0, 4).map(m => m.name + ((m.msgs || []).length ? `("${(m.msgs[m.msgs.length - 1].text || "").slice(0, 30)}")` : "")).join(", ") : "") }; }
@@ -5065,7 +5065,15 @@ function upClick(e) {
   }
   else if (a === "memo") PH.memo = +v;
   else if (a === "mnew") { U.memo.push({ title: "", body: "", when: upNowWhen(c) }); PH.memo = U.memo.length - 1; save(c.id); }
-  else if (a === "mdel") { if (!confirm("이 메모를 지울까요?")) return; U.memo.splice(PH.memo, 1); PH.memo = -1; save(c.id); }
+  else if (a === "mdel") {
+    if (!confirm("이 메모를 지울까요?")) return;
+    const m = U.memo[PH.memo];
+    if (m) { // 캐릭터가 엿본 기억에서도 같이 지워요
+      const old = `"${m.title || ""}" — ${String(m.body || "").replace(/\s+/g, " ").slice(0, 300)}`;
+      c.peeks = peeksOf(c).filter(x => !(m.pid && x.ref === "memo:" + m.pid) && !(x.label === "메모" && !x.ref && x.detail === old));
+    }
+    U.memo.splice(PH.memo, 1); PH.memo = -1; save(c.id);
+  }
   else if (a === "sadd") { const q = ($("#upQ") || {}).value || ""; if (!q.trim()) return; U.search.push({ q: q.trim(), when: upNowWhen(c) }); save(c.id); $("#upQ").value = ""; }
   else if (a === "sdel") { U.search.splice(+v, 1); save(c.id); }
   else if (a === "msel-no") PH.msgSel = null;
