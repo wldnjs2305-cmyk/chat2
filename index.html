@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.30","items":[]}
+  {"v":"3.35","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -103,6 +103,11 @@ header.bar .icon.back+h2,header.bar .icon.back+h1{margin-left:-2px}
 .swl{display:flex;gap:10px;align-items:center;color:var(--ink);font-size:15px;margin:0 0 8px}
 .swl input{width:20px;height:20px}
 #qMem{position:relative}
+.pk-row{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px dashed #0002}
+.pk-row span{flex:1;min-width:0;font-size:13px;line-height:1.45;word-break:break-all}
+.pk-row small{display:block;opacity:.6;font-size:11px}
+.pk-row .btn{flex:none;padding:6px 10px;font-size:12px}
+.pk-none{font-size:12px;opacity:.65;margin:8px 0 0}
 .mdot{position:absolute;top:3px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
 .msgmenu{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:50}
 .msgmenu .sheet{background:var(--panel);border:1px solid var(--line);border-radius:16px;min-width:180px;overflow:hidden}
@@ -1171,6 +1176,49 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .ph-dsep{display:flex;justify-content:center;margin:6px 0 2px}
 .ph-dsep span{padding:4px 12px;border-radius:12px;background:rgba(42,34,39,.08);font-size:11.5px;color:#5f5560}
 .ph-b.cont .ph-bt{border-radius:14px}
+.cl{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;align-items:stretch;background:linear-gradient(180deg,#2b2430,#161218);color:#fff;overflow:hidden}
+.cl.video{background:#000}
+.cl-bg{position:absolute;inset:0;display:grid;place-items:center;overflow:hidden}
+.cl-bg img{width:100%;height:100%;object-fit:cover;animation:clBreath 5s ease-in-out infinite;transform-origin:50% 40%}
+.cl-bg b{font-size:80px;color:#fff6}
+.cl.video.speak .cl-bg img{animation:clBreath 5s ease-in-out infinite,clTalk .5s ease-in-out infinite}
+.cl.video::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0008,transparent 30%,transparent 55%,#000b);pointer-events:none}
+.cl>*:not(.cl-bg){position:relative;z-index:1}
+.cl-top{display:flex;flex-direction:column;align-items:center;gap:4px;padding:22px 16px 8px;text-align:center}
+.cl-top b{font-size:22px;font-weight:600;text-shadow:0 1px 6px #0006}
+.cl-top small{font-size:13px;color:#fffc;text-shadow:0 1px 4px #0006}
+.cl-note{font-style:normal;font-size:10.5px;color:#fff9}
+.cl-av{width:108px;height:108px;border-radius:50%;overflow:hidden;background:#fff2;display:grid;place-items:center;margin-bottom:8px;box-shadow:0 0 0 0 #fff4;animation:clBreath 5s ease-in-out infinite}
+.cl-av img{width:100%;height:100%;object-fit:cover}.cl-av b{font-size:40px}
+.cl-av.speak{animation:clPulse 1s ease-in-out infinite}
+.cl.video .cl-av{display:none}
+.cl-dots em{font-style:normal;animation:clDot 1.2s infinite}.cl-dots em:nth-child(2){animation-delay:.2s}.cl-dots em:nth-child(3){animation-delay:.4s}
+.cl-cam{position:absolute !important;right:12px;top:12px;width:92px;height:128px;object-fit:cover;border-radius:12px;background:#222;transform:scaleX(-1);z-index:2 !important;box-shadow:0 4px 14px #0008}
+.cl-subs{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;padding:8px 14px}
+.cl-line{align-self:flex-start;max-width:88%;padding:7px 11px;border-radius:14px;background:#0007;font-size:13px;line-height:1.45;backdrop-filter:blur(4px)}
+.cl-line.me{align-self:flex-end;background:#7b4dffcc}
+.cl-line .ph-tr,.cl-line .ph-par{color:#fffb !important}
+.cl-err{font-size:11.5px;color:#ffd0dc;text-align:center}
+.cl-in{display:flex;gap:6px;padding:6px 12px}
+.cl-in .up-in{flex:1}
+.cl-in button{border:0;border-radius:10px;padding:0 12px;background:#fff2;color:#fff;font-weight:700}
+.cl-btns{display:flex;justify-content:center;align-items:flex-end;gap:26px;padding:10px 0 18px}
+.cl-btns button{border:0;border-radius:50%;width:62px;height:62px;display:grid;place-items:center;padding:0}
+.cl-yes{background:#34c759}.cl-no{background:#ff3b30}.cl-no svg{transform:rotate(135deg)}
+.cl-no:disabled{opacity:.5}
+.cl-sm{background:#fff3 !important;width:54px !important;height:54px !important;position:relative}
+.cl-sm.on{background:#fff !important}.cl-sm.on svg{stroke:#2a2227}
+.cl-sm.off{background:#fff1 !important;opacity:.6}
+.cl-sm small{position:absolute;top:58px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10.5px;color:#fffc}
+.up-callbar{flex:none;display:flex;gap:8px;padding:8px 12px;border-bottom:1px solid #eee6ea;align-items:center}
+.up-callbar button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:10px;padding:9px 0;background:#34c759;color:#fff;font-weight:700;font-size:13px}
+.up-callbar button.v{background:#2f7cf6}
+.up-callbar button.g{flex:none;width:40px;background:#efe9ed;color:#2a2227}
+@keyframes clBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
+@keyframes clTalk{0%,100%{filter:brightness(1)}50%{filter:brightness(1.08)}}
+@keyframes clPulse{0%,100%{box-shadow:0 0 0 0 #fff5;transform:scale(1)}50%{box-shadow:0 0 0 12px #fff0;transform:scale(1.04)}}
+@keyframes clDot{0%,100%{opacity:.2}50%{opacity:1}}
+.up-igdots{border:0;background:none;padding:4px 6px;font-size:15px;color:#1f1a1d;letter-spacing:1px}
 .ig-dmb{position:relative}
 .ig-dmb b{position:absolute;top:1px;right:-1px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:#ff3040;color:#fff;font-size:10.5px;font-weight:700;display:grid;place-items:center;border:2px solid #fff;line-height:1;box-sizing:content-box}
 .ig-dmh{display:flex;align-items:center;gap:9px;flex:1;min-width:0}
@@ -1354,6 +1402,10 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
         <legend>유저노트</legend>
         <label class="swl"><input type="checkbox" id="memNoteOn"> AI에게 알려주기</label>
         <textarea id="memNote" class="tall" style="min-height:160px"></textarea>
+      </fieldset>
+      <fieldset>
+        <legend id="peekLeg">내 폰에서 본 것</legend>
+        <div id="peekList"></div>
       </fieldset>
     </div>
   </section>
@@ -3817,7 +3869,7 @@ ${myRule()}${mobRule(c)}${smsRule()}
 ${(c.world || "").trim() ? "[상황 및 세계관]\n" + sub(c.world, c) + "\n\n" : ""}[캐릭터 설정]
 ${sub(c.prompt, c) || "(설정 없음)"}
 
-${castBlock}${loreBlock}${memBlock}${phoneBlock(c)}${textBlock(c)}${instaBlock(c)}${commBlock(c)}${peekBlock(c)}[유저 캐릭터: ${u}]
+${castBlock}${loreBlock}${memBlock}${phoneBlock(c)}${textBlock(c)}${instaBlock(c)}${callBlock(c)}${commBlock(c)}${peekBlock(c)}[유저 캐릭터: ${u}]
 ${sub(c.upersona, c) || "(설정 없음)"}
 
 [작성 규칙]
@@ -4036,6 +4088,9 @@ $("#qUPhone").onclick = () => openCharPhone("user");
 // ---------- 캐릭터 폰 몰래 보기 ----------
 // 폰 속 기록은 캐릭터 본인의 실제 기록으로 저장돼요 (c.phone). 대화할 때 캐릭터도 알고 있지만, 유저가 엿본 건 몰라요.
 const PH_IC = {
+  mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+  cam: '<rect x="2" y="6" width="14" height="12" rx="3"/><path d="M16 10l6-3v10l-6-3z"/>',
+  gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
   phone: '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>',
   msg: '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.1-4.6A8 8 0 1 1 21 12z"/>',
   insta: '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.6"/>',
@@ -4610,6 +4665,7 @@ const upPeekBtn = (what) => `<button type="button" class="ph-pill up-peek" data-
 const upAiBtn = k => `<button type="button" class="ph-ib" data-up="aifill" data-v="${k}" aria-label="AI로 채우기" ${PH.busy["u:" + k] ? "disabled" : ""}>${PH.busy["u:" + k] ? '<span class="ph-spin"></span>' : phIc("ai", 19)}</button>`;
 
 function upRender(c) {
+  if (PH.call) return upCallView(c);
   if (PH.view === "home") return upHome(c);
   const k = PH.app, U = upOf(c), note = PH.err["u:" + k] ? `<div class="ph-err">${esc(PH.err["u:" + k])}</div>` : "";
   if (k === "umemo") {
@@ -4658,8 +4714,12 @@ ${PH.upKind ? `<input type="text" class="up-in" id="upTm" placeholder="참여자
   if (k === "ai") return upGptView(c, note);
   if (k === "call") {
     if (!U.apps) U.apps = {};
-    const h = phApp(UP_KO(c), { apps: U.apps });
-    return U.apps[k] && U.apps[k].data ? h.replace("</h4>", "</h4>" + upPeekBtn("app:" + k)) : h;
+    if (PH.callSet) return upCallSet(c);
+    let h = phApp(UP_KO(c), { apps: U.apps });
+    if (U.apps[k] && U.apps[k].data) h = h.replace("</h4>", "</h4>" + upPeekBtn("app:" + k));
+    const bar = `<div class="up-callbar"><button type="button" data-up="clcall" data-v="voice">${phIc("phone", 17, "#fff", 2)}${esc(c.name)} 전화</button><button type="button" class="g" data-up="clset" aria-label="통화 설정">${phIc("gear", 18)}</button></div>`;
+    const bi = h.indexOf('<div class="ph-body');
+    return bi >= 0 ? h.slice(0, bi) + bar + h.slice(bi) : bar + h;
   }
   return upHome(c);
 }
@@ -4957,6 +5017,35 @@ function upClick(e) {
     if (v === "call" && !(U.apps && U.apps.call && (U.apps.call.data || U.apps.call.cleared))) { phoneRender(); upGenApp(c, v, "new"); return; }
     if (v === "uinsta") { const I = upIg(c); if (!I.filled && !I.follower_list.length && !I.following_list.length) { if (!I.user) PH.igv = "setup"; else { phoneRender(); upIgFill(c); return; } } }
   }
+  else if (a === "clcall") { callStart(c, "voice"); return; }
+  else if (a === "claccept") { callAccept(c); return; }
+  else if (a === "cldecline") { callDecline(c, false); return; }
+  else if (a === "clend") { callEnd(c, "me"); return; }
+  else if (a === "clmic") { callRec(c); return; }
+  else if (a === "clcam") { const C = PH.call; if (C) { C.camOff = !C.camOff; if (C.camOff) callCam(false); else { C.camErr = ""; callCam(true); } } }
+  else if (a === "clsend") { const inp = $("#upCallIn"), t = ((inp || {}).value || "").trim(); if (inp) inp.value = ""; callUnlock(); callSend(c, t); return; }
+  else if (a === "clset") PH.callSet = true;
+  else if (a === "clmodel" || a === "cllang") { const vv = callVoice(c); vv.id = (($("#upElVoice") || {}).value || vv.id).trim(); ai.elKey = (($("#upElKey") || {}).value || ai.elKey || "").trim(); if (a === "clmodel") vv.model = v; else vv.lang = v; c.voice = vv; saveAi(); save(null); }
+  else if (a === "clsave" || a === "cltest") {
+    ai.elKey = (($("#upElKey") || {}).value || "").trim(); saveAi();
+    const vv = callVoice(c); vv.id = (($("#upElVoice") || {}).value || "").trim(); c.voice = vv; save(null);
+    if (a === "clsave") { PH.callSet = false; PH.toast = "통화 설정을 저장했어요"; setTimeout(() => { if (PH && PH.toast) { PH.toast = null; phoneRender(); } }, 1600); }
+    else {
+      callUnlock();
+      const L = PH_LANGS[phLang(c)] && vv.lang !== "ko" ? phLang(c) : "ko";
+      const sample = { ja: "もしもし、今ちょっといい? 声聞きたくなってさ。", en: "Hey, got a minute? I just wanted to hear your voice.", zh: "喂，现在方便吗？就是想听听你的声音。" }[L] || `여보세요? 나야, ${c.name}. 그냥… 목소리 듣고 싶어서 전화했어.`;
+      (ai.elKey && vv.id ? elTTS(c, callSpeakable(sample, false)).then(callPlayBuf) : Promise.resolve().then(() => { PH.toast = "키나 목소리 ID가 없어서 폰 기본 목소리로 읽어요"; phoneRender(); return callSpeakDevice(c, sample); }))
+        .catch(e => { alert(e.message || "목소리를 불러오지 못했어요."); });
+      return;
+    }
+  }
+  else if (a === "clring") { PH.callSet = false; PH.view = "home"; phoneRender(); upCharCall(c, "그냥 목소리 듣고 싶어서"); PH.toast = `잠시 뒤 ${c.name}에게서 전화가 와요`; setTimeout(() => { if (PH && PH.toast) { PH.toast = null; phoneRender(); } }, 2000); }
+  else if (a === "igpdel") {
+    const I = upIg(c), i = +v; if (!I.posts[i] || !confirm("이 게시물을 삭제할까요? 달린 댓글도 같이 사라져요.")) return;
+    clearTimeout(PH.igTimer); I.posts.splice(i, 1); PH.igReply = null;
+    if (PH.igv === "post") PH.igv = PH.igFrom === "prof" ? "prof" : "feed";
+    save(c.id); PH.toast = "게시물을 삭제했어요"; setTimeout(() => { if (PH && PH.toast) { PH.toast = null; phoneRender(); } }, 1600);
+  }
   else if (a === "igv") { if (v === "post") return; PH.igv = v; PH.msgSel = null; if (v === "dmt") { igDM(c).unread = 0; save(c.id); } }
   else if (a === "igtr") PH.tr = PH.tr === "both" ? "orig" : PH.tr === "orig" ? "tr" : "both";
   else if (a === "igdmsend") {
@@ -5057,20 +5146,22 @@ function upClick(e) {
     else if (PH.app === "ucomm" && (PH.upPost || PH.upWrite)) { PH.upPost = null; PH.upWrite = false; PH.upReveal = false; }
     else if (PH.app === "date" && PH.dv) { PH.dv = null; PH.msgSel = null; clearTimeout(PH.upTimer); }
     else if (PH.app === "ai" && PH.gc != null) PH.gc = null;
+    else if (PH.app === "call" && PH.callSet) PH.callSet = false;
     else if (PH.app === "uinsta" && PH.igv === "dmt") { PH.igv = "dm"; PH.msgSel = null; clearTimeout(PH.igdmT); }
     else if (PH.app === "uinsta" && PH.igv === "dm") PH.igv = "feed";
     else if (PH.app === "uinsta" && PH.igv === "setup") PH.view = "home";
     else if (PH.app === "uinsta" && PH.igv && PH.igv !== "feed") { PH.igv = PH.igv === "post" ? (PH.igFrom || "feed") : (PH.igv === "prof" ? "feed" : "prof"); }
     else PH.view = "home";
   }
-  else if (a === "memo") PH.memo = +v;
+  else if (a === "memo") { PH.memo = +v; PH.memoForgot = null; }
   else if (a === "mnew") { U.memo.push({ title: "", body: "", when: upNowWhen(c) }); PH.memo = U.memo.length - 1; save(c.id); }
   else if (a === "mdel") {
     if (!confirm("이 메모를 지울까요?")) return;
     const m = U.memo[PH.memo];
     if (m) { // 캐릭터가 엿본 기억에서도 같이 지워요
       const old = `"${m.title || ""}" — ${String(m.body || "").replace(/\s+/g, " ").slice(0, 300)}`;
-      c.peeks = peeksOf(c).filter(x => !(m.pid && x.ref === "memo:" + m.pid) && !(x.label === "메모" && !x.ref && x.detail === old));
+      const body = String(m.body || "").replace(/\s+/g, " ").trim().slice(0, 20), ttl = String(m.title || "").trim();
+      c.peeks = peeksOf(c).filter(x => !(m.pid && x.ref === "memo:" + m.pid) && !(x.label === "메모" && (x.detail === old || (body && String(x.detail || "").includes(body)) || (ttl && String(x.detail || "").includes(`"${ttl}"`)))));
     }
     U.memo.splice(PH.memo, 1); PH.memo = -1; save(c.id);
   }
@@ -5141,12 +5232,21 @@ function upClick(e) {
 function upInput(e) {
   const t = e.target; if (!PH || PH.owner !== "user" || !t.dataset || !t.dataset.upf) return;
   const c = char(), m = upOf(c).memo[PH.memo]; if (!m) return;
+  // 메모를 고치면, 캐릭터가 전에 본 이 메모 기억은 잊어요 (고치기 전 내용으로 찾아요)
+  if (PH.memoForgot !== PH.memo) { upForgetMemo(c, m); PH.memoForgot = PH.memo; }
   if (t.dataset.upf === "mtitle") m.title = t.value; else m.body = t.value;
   save(c.id);
 }
+function upForgetMemo(c, m) {
+  const old = `"${m.title || ""}" — ${String(m.body || "").replace(/\s+/g, " ").slice(0, 300)}`;
+  const body = String(m.body || "").replace(/\s+/g, " ").trim().slice(0, 20), ttl = String(m.title || "").trim();
+  const before = peeksOf(c).length;
+  c.peeks = peeksOf(c).filter(x => !(m.pid && x.ref === "memo:" + m.pid) && !(x.label === "메모" && (x.detail === old || (body && String(x.detail || "").includes(body)) || (ttl && String(x.detail || "").includes(`"${ttl}"`)))));
+  return before !== c.peeks.length;
+}
 function upKey(e) {
   if (e.key !== "Enter" || e.isComposing || !PH || PH.owner !== "user") return;
-  const map = { upQ: "sadd", upMsg: "msend", upIgDM: "igdmsend", upCmt: "cmt", upTn: "tnew", upIgC: "igcmt", upDM: "dsend", upGQ: "gsend" }, a = map[e.target.id];
+  const map = { upQ: "sadd", upMsg: "msend", upIgDM: "igdmsend", upCallIn: "clsend", upCmt: "cmt", upTn: "tnew", upIgC: "igcmt", upDM: "dsend", upGQ: "gsend" }, a = map[e.target.id];
   if (!a) return;
   e.preventDefault(); const btn = PH.el.querySelector(`[data-up="${a}"]`); if (btn) btn.click();
 }
@@ -5183,7 +5283,7 @@ function upIgCard(c, x, idx, full) {
   const cm = p.comments || [];
   const cmts = full ? cm.map((m, ci) => `<div data-igi="${ci}" class="up-igc${m.re ? " re" : ""}${PH.igReply === ci ? " up-hold" : ""}"><b>${esc(phPlain(m.u))}</b> ${phTx(m.t, tr)}</div>`).join("")
     : (cm.length ? `<br><button type="button" class="up-igmore" data-up="igopen" data-v="${x.src}:${x.i}">댓글 ${cm.length}개 모두 보기</button>` + cm.slice(-2).map(m => `<br><b>${esc(phPlain(m.u))}</b> ${phTx(m.t, tr)}`).join("") : `<br><button type="button" class="up-igmore" data-up="igopen" data-v="${x.src}:${x.i}">댓글 달기</button>`);
-  return `<div class="ph-post"><div class="ph-ph"><span class="ph-av sm">${av}</span><span class="ph-mid"><b>${esc(phPlain(x.who))}</b>${p.loc ? `<small>${esc(phPlain(p.loc))}</small>` : ""}</span><span>···</span></div>
+  return `<div class="ph-post"><div class="ph-ph"><span class="ph-av sm">${av}</span><span class="ph-mid"><b>${esc(phPlain(x.who))}</b>${p.loc ? `<small>${esc(phPlain(p.loc))}</small>` : ""}</span>${isMe ? `<button type="button" class="up-igdots" data-up="igpdel" data-v="${x.i}" aria-label="게시물 삭제">···</button>` : `<span>···</span>`}</div>
 <div class="ph-img" style="background:hsl(${(idx * 53 + 25) % 360} 20% 80%)"><span>${phTx(p.img, PH.tr === "both" ? "tr" : PH.tr)}</span></div>
 <div class="ph-acts">${phIc("heart", 23, isMe ? "#1f1a1d" : "#d23d6b", 2)}${phIc("msg", 22)}${phIc("send", 21)}<span class="ph-fill"></span>${phIc("mark", 21)}</div>
 <div class="ph-cap"><b>좋아요 ${phK(p.likes || 0)}개</b><br><b>${esc(phPlain(x.who))}</b> ${phTx(p.cap, tr)}${full ? "" : cmts}
@@ -5275,10 +5375,10 @@ ${first && x.src === "m" ? `- ${u}가 방금 올린 게시물이다. ${u}의 친
 - 댓글과 답글은 ${PH_LANGS[phLang(c)]}로 쓰고, 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다. 아이디에는 번역을 붙이지 않는다. 한국어를 할 줄 아는 사람이 ${u}에게 일부러 한국어로 답하는 경우만 한국어로 쓰고, 그때는 번역을 붙이지 않는다.` : ""}
 - ${IG_CMT}
 
-- 따로, ${josa(c.name, "은", "는")} 이 게시물에서 ${u}(@${me})가 한 댓글·답글(누구한테 뭐라고 했는지)을 볼 수 있다. 그걸 보고 ${u}에게 인스타 DM을 보낼지 정한다. 보낼 만할 때만 보낸다(시비, 질투, 궁금함, 놀림, 걱정 등 ${c.name}의 성격과 관계상 가만히 못 있을 때). 별일 아니면 안 보낸다. 보낸다면 dm에 인스타 DM답게 짧은 메시지 보통 1~2개(많아야 3개), 안 보내면 빈 배열.${PH_LANGS[phLang(c)] ? ` DM은 ${PH_LANGS[phLang(c)]}로 쓰고 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다.` : ""}
+- 따로, ${josa(c.name, "은", "는")} 이 게시물에서 ${u}(@${me})가 한 댓글·답글(누구한테 뭐라고 했는지)을 볼 수 있다. 그걸 보고 ${u}에게 인스타 DM을 보낼지 정한다. 보낼 만할 때만 보낸다(시비, 질투, 궁금함, 놀림, 걱정 등 ${c.name}의 성격과 관계상 가만히 못 있을 때). 별일 아니면 안 보낸다. 보낸다면 dm에 인스타 DM답게 짧은 메시지 보통 1~2개(많아야 3개), 안 보내면 빈 배열. DM으로는 성에 안 찰 만큼 가만히 못 있으면(드물게) DM 대신 전화를 건다. 그땐 call을 true로, dm은 빈 배열로.${PH_LANGS[phLang(c)] ? ` DM은 ${PH_LANGS[phLang(c)]}로 쓰고 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다.` : ""}
 
 [형식]
-{"likes":0,"cmts":[{"u":"아이디","t":"댓글","re":false,"to":"답글이면 상대 아이디"}],"dm":["DM"]}
+{"likes":0,"cmts":[{"u":"아이디","t":"댓글","re":false,"to":"답글이면 상대 아이디"}],"dm":["DM"],"call":false}
 likes는 지금 좋아요 수(모르면 0). JSON 하나만 출력한다.`;
   const k = "ig:" + key, ctl = new AbortController(); PH.ctl[k] = ctl; PH.busy[k] = 1; PH.err[k] = ""; phoneRender();
   try {
@@ -5298,7 +5398,8 @@ likes는 지금 좋아요 수(모르면 0). JSON 하나만 출력한다.`;
     if (first) p.reacted = 1;
     save(c.id);
     const dm = (Array.isArray(j.dm) ? j.dm : j.dm ? [j.dm] : []).map(x => String(typeof x === "string" ? x : (x && x.text) || "").trim()).filter(x => phPlain(x));
-    if (dm.length && (fresh.length || first)) upCharDM(c, dm.slice(0, 3));
+    if (j.call === true && (fresh.length || first)) upCharCall(c, `인스타에서 ${josa(u, "이", "가")} 단 댓글·답글을 보고 (${fresh.map(m => phPlain(m.t)).join(" / ").slice(0, 120)})`);
+    else if (dm.length && (fresh.length || first)) upCharDM(c, dm.slice(0, 3));
   } catch (e) { if (e.name !== "AbortError" && PH) PH.err[k] = e.message || "댓글을 못 불러왔어요."; }
   if (PH) { delete PH.busy[k]; delete PH.ctl[k]; phoneRender(); }
 }
@@ -5547,6 +5648,314 @@ function upCutThread(list, i) {
   if (!m.re) { list.splice(i, end - i); return; }
   list.splice(i, end - i);
 }
+// ---------- 내 폰: 캐릭터랑 음성통화 · 영상통화 ----------
+const CALL_TAGS = { laughs: "웃음", laugh: "웃음", laughing: "웃음", chuckles: "피식", giggles: "킥킥", sighs: "한숨", sigh: "한숨", whispers: "속삭이며", whispering: "속삭이며", sniffles: "훌쩍", gasps: "헉", excited: "들떠서", sarcastic: "비꼬며", curious: "궁금한 듯", crying: "울먹이며", angry: "화난 듯", shouting: "소리치며", sad: "슬프게", pause: "잠깐 멈칫", clears_throat: "헛기침", exhales: "숨 내쉬며", yawns: "하품" };
+const callTagRe = /\[([a-z_ ]{2,20})\]/gi;
+// 자막: [laughs] → (웃음)
+const callShow = s => String(s || "").replace(callTagRe, (m, t) => { const k = t.trim().toLowerCase().replace(/\s+/g, "_"); return CALL_TAGS[k] ? `(${CALL_TAGS[k]})` : ""; });
+// 소리로 읽을 것: 번역 빼고, ㅋㅋ·이모지 정리. v3면 태그는 살려요
+function callSpeakable(s, v3) {
+  let t = phPlain(s);
+  if (v3) t = t.replace(/ㅋ{2,}|ㅎ{2,}/g, " [laughs] "); else t = t.replace(callTagRe, " ").replace(/ㅋ{2,}|ㅎ{2,}/g, " ");
+  t = t.replace(/[ㅠㅜ]{2,}/g, v3 ? " [sniffles] " : " ").replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, " ").replace(/[ㄱ-ㅎㅏ-ㅣ]+/g, " ");
+  return t.replace(/\s+/g, " ").trim();
+}
+const callVoice = c => Object.assign({ id: "", model: "eleven_v3", lang: "char", ttsLang: "" }, c.voice || {});
+const callV3 = c => !!(ai.elKey && callVoice(c).id && callVoice(c).model === "eleven_v3");
+function callLangCode(c) {
+  const v = callVoice(c), l = v.lang === "ko" ? "ko" : (PH_LANGS[phLang(c)] ? phLang(c) : "ko");
+  return { ja: "ja-JP", en: "en-US", zh: "zh-CN", ko: "ko-KR" }[l] || "ko-KR";
+}
+// 소리: iOS는 사용자가 누른 순간에 오디오를 한 번 열어 둬야 나중에도 소리가 나요
+let callCtx = null, callSrc = null;
+function callUnlock() {
+  try { if (!callCtx) callCtx = new (window.AudioContext || window.webkitAudioContext)(); if (callCtx.state === "suspended") callCtx.resume(); const b = callCtx.createBuffer(1, 1, 22050), s = callCtx.createBufferSource(); s.buffer = b; s.connect(callCtx.destination); s.start(0); } catch (e) {}
+  try { if (window.speechSynthesis) { const u = new SpeechSynthesisUtterance(" "); u.volume = 0; speechSynthesis.speak(u); } } catch (e) {}
+}
+function callStopAudio() {
+  try { if (callSrc) { callSrc.onended = null; callSrc.stop(); } } catch (e) {} callSrc = null;
+  try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
+}
+function callTone(on) { // 연결음·벨소리
+  clearInterval(callTone.t); callTone.t = null; if (!on || !callCtx) return;
+  const beep = () => { try { const o = callCtx.createOscillator(), g = callCtx.createGain(); o.frequency.value = on === "ring" ? 520 : 425; g.gain.value = 0.06; o.connect(g); g.connect(callCtx.destination); o.start(); o.stop(callCtx.currentTime + (on === "ring" ? 0.9 : 1.2)); } catch (e) {} };
+  beep(); callTone.t = setInterval(() => { beep(); if (on === "ring") { try { navigator.vibrate && navigator.vibrate([400, 200, 400]); } catch (e) {} } }, 3000);
+}
+async function elTTS(c, text, signal) {
+  const v = callVoice(c);
+  const body = { text, model_id: v.model || "eleven_v3" };
+  body.voice_settings = v.model === "eleven_v3" ? { stability: 0.5, similarity_boost: 0.8 } : { stability: 0.35, similarity_boost: 0.8, style: 0.35, use_speaker_boost: true };
+  const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(v.id)}?output_format=mp3_44100_128`, { method: "POST", signal, headers: { "xi-api-key": ai.elKey, "Content-Type": "application/json", Accept: "audio/mpeg" }, body: JSON.stringify(body) });
+  if (!res.ok) {
+    let m = ""; try { const j = await res.json(); m = (j.detail && (j.detail.message || j.detail.status)) || JSON.stringify(j.detail || j).slice(0, 120); } catch (e) {}
+    const k = { 401: "ElevenLabs 키가 올바르지 않아요", 402: "ElevenLabs 크레딧이 부족해요", 404: "목소리 ID를 찾을 수 없어요", 422: "목소리 설정이 맞지 않아요", 429: "ElevenLabs 요청이 너무 많거나 크레딧이 부족해요" }[res.status];
+    throw new Error((k || "목소리 오류 " + res.status) + (m ? ` (${m})` : ""));
+  }
+  return await res.arrayBuffer();
+}
+function callPlayBuf(buf) {
+  return new Promise(async (ok) => {
+    try {
+      if (!callCtx) callCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (callCtx.state === "suspended") await callCtx.resume();
+      const ab = await callCtx.decodeAudioData(buf.slice(0));
+      const s = callCtx.createBufferSource(); s.buffer = ab; s.connect(callCtx.destination);
+      callSrc = s; s.onended = () => { if (callSrc === s) callSrc = null; ok(); }; s.start(0);
+    } catch (e) { ok(); }
+  });
+}
+function callSpeakDevice(c, text) {
+  return new Promise(ok => {
+    try {
+      if (!window.speechSynthesis || !text) return ok();
+      const u = new SpeechSynthesisUtterance(text), lang = callLangCode(c); u.lang = lang;
+      const vs = speechSynthesis.getVoices().filter(x => x.lang && x.lang.replace("_", "-").toLowerCase().startsWith(lang.slice(0, 2).toLowerCase()));
+      const male = vs.find(x => /male|남|男|Yuna|Kyoko/i.test(x.name) && !/female/i.test(x.name)); if (male || vs[0]) u.voice = male || vs[0];
+      u.rate = 1.05; u.onend = ok; u.onerror = ok; speechSynthesis.speak(u);
+      setTimeout(ok, 1500 + text.length * 250);
+    } catch (e) { ok(); }
+  });
+}
+// 캐릭터 말을 차례로 소리 내요 (다음 줄은 미리 받아 둬요)
+async function callSpeak(c, lines) {
+  const C = PH && PH.call; if (!C) return;
+  const v3 = callV3(c), useEl = !!(ai.elKey && callVoice(c).id);
+  const my = C.seq = (C.seq || 0) + 1;
+  const texts = lines.map(l => callSpeakable(l, v3)).filter(Boolean);
+  let next = useEl && texts[0] ? elTTS(c, texts[0]).catch(e => e) : null;
+  for (let i = 0; i < texts.length; i++) {
+    if (!PH || PH.call !== C || C.seq !== my || C.state !== "talk") return;
+    C.speaking = true; phoneRender();
+    if (useEl) {
+      const got = await next; next = texts[i + 1] ? elTTS(c, texts[i + 1]).catch(e => e) : null;
+      if (got instanceof Error) { C.err = got.message + " · 폰 기본 목소리로 읽을게요"; await callSpeakDevice(c, callSpeakable(lines[i], false)); }
+      else if (got) await callPlayBuf(got);
+    } else await callSpeakDevice(c, texts[i].replace(callTagRe, " "));
+  }
+  if (PH && PH.call === C && C.seq === my) { C.speaking = false; phoneRender(); if (C.hangAfter) callEnd(c, "them"); }
+}
+function callDur(C) { const s = C.t0 ? Math.max(0, Math.round(((C.t1 || Date.now()) - C.t0) / 1000)) : 0; return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; }
+function callPrompt(c, kind) {
+  const C = PH.call, u = c.uname || "유저", L = PH_LANGS[phLang(c)], v = callVoice(c), video = C.mode === "video", v3 = callV3(c);
+  const hist = C.lines.slice(-30).map(x => `${x.who === "u" ? u : c.name}: ${phPlain(callShow(x.t))}`).join("\n");
+  const lang = L ? (v.lang === "ko" ? `\n- 이번 통화는 한국어로 말한다(${josa(c.name, "이", "가")} 한국어가 서툰 설정이면 서툰 대로).` : `\n- ${L}로 말하고, 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다. ${josa(u, "은", "는")} 한국어로 말하지만 ${josa(c.name, "은", "는")} 알아듣는다.`) : "";
+  const base = `${phoneCtx(c)}
+
+[규칙]
+- 입으로 하는 말만 쓴다. 지문, *행동*, (괄호 설명), 이름표는 쓰지 않는다.
+- 실제 ${video ? "영상통화" : "전화 통화"}처럼 짧게 주고받는다. 한 번에 보통 1~2마디, 많아야 3마디. 말버릇, 머뭇거림(어, 음, 아니 그게…), 끊기는 말투를 성격대로 섞는다.${v3 ? `\n- 웃거나 한숨 쉬거나 속삭일 때는 말 사이에 [laughs], [sighs], [whispers], [chuckles] 같은 영어 태그를 대괄호 하나로 넣을 수 있다. 자주 넣지는 않는다.` : ""}${video ? `\n- 영상통화다. 첨부된 사진이 있으면 그건 지금 ${u}의 카메라 화면이다. 표정, 옷, 장소가 눈에 띄면 자연스럽게 반응할 수 있지만 매번 말하지는 않는다. 사진이 안 보이면 카메라 얘기는 하지 않는다.` : ""}
+- 지금 폰 속 시각은 ${phNowText(phNow(phoneOf(c)))}이다.${lang}`;
+  if (kind === "dial") return `너는 ${c.name}다. 지금 ${u}에게서 전화가 걸려 와서 받았다. 지금 상황(시각, 하고 있던 일, 기분, 관계)에 맞게 받자마자 하는 첫마디를 한다. 자다 깼으면 잠긴 목소리로, 바쁘면 바쁜 티를, 삐져 있으면 퉁명스럽게.
+${base}
+
+[형식]
+{"lines":["받자마자 하는 첫마디"]}
+JSON 하나만 출력한다.`;
+  if (kind === "open") return `너는 ${c.name}다. 방금 ${u}에게 ${video ? "영상통화" : "전화"}를 걸었고 ${u}가 받았다. 전화를 건 이유: ${C.reason || "그냥 목소리가 듣고 싶어서"}
+${base}
+
+[형식]
+{"lines":["첫마디"]}
+JSON 하나만 출력한다.`;
+  return `너는 ${c.name}다. 지금 ${u}와 ${video ? "영상통화" : "전화 통화"} 중이다.${C.reason ? ` (${C.incoming ? `${josa(c.name, "이", "가")} 건 전화. 이유: ${C.reason}` : ""})` : ""}
+${base}
+- 할 말이 끝났거나, 화가 났거나, 누가 불러서 끊어야 하면 hangup을 true로 하고 마지막 인사(또는 그냥 끊는 말)를 한다. 계속 이야기할 거면 false.
+
+[지금까지 통화]
+${hist || "(없음)"}
+
+[형식]
+{"lines":["말"],"hangup":false}
+JSON 하나만 출력한다.`;
+}
+// 영상통화: 지금 카메라 화면 한 장
+function callFrame() {
+  try {
+    const v = PH && PH.el.querySelector("#upCamV"); if (!v || !v.videoWidth) return "";
+    const w = 384, h = Math.round(w * v.videoHeight / v.videoWidth), cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+    const g = cv.getContext("2d"); g.translate(w, 0); g.scale(-1, 1); g.drawImage(v, 0, 0, w, h);
+    return cv.toDataURL("image/jpeg", 0.7);
+  } catch (e) { return ""; }
+}
+async function callAsk(c, prompt, img, signal) {
+  if (img && ai.prov !== "builtin") {
+    for (let i = 0; i < 2; i++) {
+      try { const out = await callApi(ai, [{ role: "user", content: [{ type: "text", text: prompt }, { type: "image_url", image_url: { url: img } }] }], null, signal, 4096); return phJSON(out); }
+      catch (e) { if (e.name === "AbortError") throw e; if (i) break; }
+    }
+  }
+  return phJSON(await phoneAsk(prompt, signal));
+}
+async function callStart(c, mode) {
+  callUnlock();
+  PH.call = { mode, state: "dial", lines: [], incoming: false, at: phNowText(phNow(phoneOf(c))) };
+  if (mode === "video") callCam(true);
+  phoneRender(); callTone("dial");
+  const C = PH.call, ctl = new AbortController(); C.ctl = ctl;
+  const t0 = Date.now();
+  try {
+    const j = await callAsk(c, callPrompt(c, "dial"), "", ctl.signal);
+    await new Promise(r => setTimeout(r, Math.max(0, 3200 - (Date.now() - t0))));
+    if (!PH || PH.call !== C) return;
+    callTone(false);
+    const lines = (Array.isArray(j.lines) ? j.lines : []).map(String).filter(x => phPlain(x)).slice(0, 3);
+    if (!lines.length) lines.push("여보세요?");
+    if (false) { C.state = "missed"; phoneRender(); callLog(c, C, "취소"); setTimeout(() => { if (PH && PH.call === C) { callCam(false); PH.call = null; phoneRender(); } }, 2400); return; }
+    C.state = "talk"; C.t0 = Date.now(); lines.forEach(t => C.lines.push({ who: "c", t })); phoneRender(); callTick(); callSpeak(c, lines);
+  } catch (e) { if (e.name !== "AbortError" && PH && PH.call === C) { callTone(false); C.state = "fail"; C.err = e.message || "연결하지 못했어요."; phoneRender(); } }
+}
+// 캐릭터가 거는 전화 (몇 초 뒤 벨이 울려요)
+function upCharCall(c, reason, mode) {
+  const cid = c.id;
+  setTimeout(() => {
+    const cc = store.chars.find(x => x.id === cid); if (!cc || cur !== cid) return;
+    if (PH && PH.call) return;
+    if (PH && PH.owner !== "user") closeCharPhone();
+    if (!PH) openCharPhone("user");
+    if (!PH) return;
+    PH.call = { mode: mode || "voice", state: "ring", lines: [], incoming: true, reason: reason || "", at: phNowText(phNow(phoneOf(cc))) };
+    phoneRender(); callTone("ring");
+    try { navigator.vibrate && navigator.vibrate([400, 200, 400]); } catch (e) {}
+    const C = PH.call;
+    C.ringT = setTimeout(() => { if (PH && PH.call === C && C.state === "ring") callDecline(cc, true); }, 25000);
+  }, 3000 + Math.random() * 4000);
+}
+async function callAccept(c) {
+  const C = PH.call; if (!C) return; clearTimeout(C.ringT); callTone(false); callUnlock();
+  C.state = "talk"; C.t0 = Date.now(); C.busy = true; if (C.mode === "video") callCam(true); phoneRender(); callTick();
+  const ctl = new AbortController(); C.ctl = ctl;
+  try {
+    const j = await callAsk(c, callPrompt(c, "open"), "", ctl.signal);
+    if (!PH || PH.call !== C) return;
+    const lines = (Array.isArray(j.lines) ? j.lines : []).map(String).filter(x => phPlain(x)).slice(0, 3);
+    lines.forEach(t => C.lines.push({ who: "c", t })); C.busy = false; phoneRender(); callSpeak(c, lines);
+  } catch (e) { if (e.name !== "AbortError" && PH && PH.call === C) { C.busy = false; C.err = e.message; phoneRender(); } }
+}
+async function callDecline(c, missed) {
+  const C = PH.call; if (!C) return; clearTimeout(C.ringT); callTone(false);
+  callLog(c, C, "부재중"); PH.call = null; phoneRender();
+  const u = c.uname || "유저", L = PH_LANGS[phLang(c)];
+  try {
+    const j = await upAsk(`너는 ${c.name}다. 방금 ${u}에게 전화를 걸었는데 ${missed ? "안 받았다" : "거절당했다"}. 건 이유: ${C.reason || "목소리 듣고 싶어서"}
+${phoneCtx(c)}
+
+[규칙]
+- 성격과 관계대로 인스타 DM을 보낼지 정한다(서운함, 짜증, 걱정, 쿨하게 넘기기 등). 보내면 짧게 1~2개, 안 보내면 빈 배열.${L ? `\n- ${L}로 쓰고 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다.` : ""}
+
+[형식]
+{"msgs":["DM"]}
+JSON 하나만 출력한다.`);
+    const m = (Array.isArray(j.msgs) ? j.msgs : []).map(x => String(x).trim()).filter(x => phPlain(x)).slice(0, 2);
+    if (m.length) upCharDM(c, m);
+  } catch (e) {}
+}
+async function callSend(c, text) {
+  const C = PH && PH.call; if (!C || C.state !== "talk") return;
+  text = String(text || "").trim(); if (!text && !C.lines.length) return;
+  callStopAudio(); C.seq = (C.seq || 0) + 1; C.speaking = false;
+  if (text) C.lines.push({ who: "u", t: text });
+  C.busy = true; C.err = ""; phoneRender();
+  const ctl = new AbortController(); C.ctl = ctl;
+  try {
+    const img = C.mode === "video" && !C.camOff ? callFrame() : "";
+    const j = await callAsk(c, callPrompt(c, "talk"), img, ctl.signal);
+    if (!PH || PH.call !== C) return;
+    const lines = (Array.isArray(j.lines) ? j.lines : []).map(String).filter(x => phPlain(x)).slice(0, 3);
+    lines.forEach(t => C.lines.push({ who: "c", t })); C.busy = false; C.hangAfter = !!j.hangup;
+    phoneRender(); callSpeak(c, lines);
+    if (!lines.length && j.hangup) callEnd(c, "them");
+  } catch (e) { if (e.name !== "AbortError" && PH && PH.call === C) { C.busy = false; C.err = e.message || "답을 못 받았어요."; phoneRender(); } }
+}
+function callTick() { clearInterval(callTick.t); callTick.t = setInterval(() => { const d = PH && PH.call && PH.el.querySelector(".cl-dur"); if (!PH || !PH.call || PH.call.state !== "talk") { clearInterval(callTick.t); return; } if (d) d.textContent = callDur(PH.call); }, 1000); }
+function callLog(c, C, type) {
+  const U = upOf(c); if (!U.apps) U.apps = {};
+  const st = U.apps.call; if (!st || !st.data) return;
+  (st.data.items = st.data.items || []).unshift({ name: c.name, type, dur: type === "부재중" || type === "취소" ? "" : callDur(C), when: upTime(c), n: 1 });
+}
+function callEnd(c, who) {
+  const C = PH && PH.call; if (!C) return;
+  if (C.ctl) { try { C.ctl.abort(); } catch (e) {} }
+  callTone(false); callStopAudio(); callRecStop(); callCam(false); clearInterval(callTick.t);
+  C.t1 = Date.now();
+  if (C.state === "talk" && C.lines.length) {
+    if (!Array.isArray(c.calls)) c.calls = [];
+    c.calls.push({ mode: C.mode, at: C.at, dur: callDur(C), incoming: !!C.incoming, reason: C.reason || "", endBy: who || "me", lines: C.lines.slice(-24).map(x => ({ who: x.who, t: phPlain(callShow(x.t)).slice(0, 200) })) });
+    c.calls = c.calls.slice(-6);
+    callLog(c, C, C.incoming ? "수신" : "발신");
+  } else if (C.state === "dial") callLog(c, C, "취소");
+  save(c.id);
+  C.state = "ended"; C.endBy = who; phoneRender();
+  setTimeout(() => { if (PH && PH.call === C) { PH.call = null; phoneRender(); } }, 1600);
+}
+// 카메라
+async function callCam(on) {
+  const C = PH && PH.call;
+  if (!on) { if (callCam.s) { try { callCam.s.getTracks().forEach(t => t.stop()); } catch (e) {} callCam.s = null; } return; }
+  if (callCam.s || !C) return;
+  try {
+    callCam.s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 640 } }, audio: false });
+    if (!PH || !PH.call) { callCam(false); return; }
+    callCamAttach();
+  } catch (e) { if (PH && PH.call) { PH.call.camErr = "카메라를 켤 수 없어요. 권한을 허용했는지 확인해 주세요. (카메라 없이 계속할 수 있어요)"; PH.call.camOff = true; phoneRender(); } }
+}
+function callCamAttach() { const v = PH && PH.el.querySelector("#upCamV"); if (v && callCam.s && v.srcObject !== callCam.s) { v.srcObject = callCam.s; v.play().catch(() => {}); } }
+// 마이크 (말하면 글자로)
+function callRecStop() { if (callRec.r) { try { callRec.r.onend = null; callRec.r.stop(); } catch (e) {} callRec.r = null; } if (PH && PH.call) PH.call.rec = false; }
+function callRec(c) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition, C = PH && PH.call; if (!C) return;
+  if (!SR) { C.err = "이 브라우저에서는 음성 인식이 안 돼요. 아래 칸에 글로 써 주세요."; phoneRender(); return; }
+  if (callRec.r) { callRecStop(); phoneRender(); return; }
+  callStopAudio();
+  const r = new SR(); r.lang = "ko-KR"; r.interimResults = true; r.continuous = false;
+  let fin = "";
+  r.onresult = e => { let s = ""; for (let i = 0; i < e.results.length; i++) { s += e.results[i][0].transcript; if (e.results[i].isFinal) fin = s; } const inp = PH && PH.el.querySelector("#upCallIn"); if (inp) inp.value = s; };
+  r.onerror = e => { C.err = e.error === "not-allowed" ? "마이크 권한이 없어요. 글로 써 주세요." : ""; };
+  r.onend = () => { callRec.r = null; if (!PH || PH.call !== C) return; C.rec = false; const inp = PH.el.querySelector("#upCallIn"), t = (fin || (inp && inp.value) || "").trim(); if (inp) inp.value = ""; phoneRender(); if (t) callSend(c, t); };
+  callRec.r = r; C.rec = true; phoneRender();
+  try { r.start(); } catch (e) { callRecStop(); }
+}
+function upCallView(c) {
+  const C = PH.call, v = callVoice(c), tr = PH.tr, video = C.mode === "video";
+  const av = c.avatar ? `<img src="${esc(c.avatar)}" alt="">` : `<b>${esc(String(c.name).slice(0, 1))}</b>`;
+  const status = C.state === "dial" ? `${video ? "영상통화" : "전화"} 거는 중<i class="cl-dots"><em>.</em><em>.</em><em>.</em></i>`
+    : C.state === "ring" ? `${video ? "영상통화" : "전화"}가 왔어요`
+    : C.state === "missed" ? "받지 않아요"
+    : C.state === "fail" ? "연결하지 못했어요"
+    : C.state === "ended" ? `통화 종료${C.endBy === "them" ? " · 상대가 끊었어요" : ""}`
+    : `<span class="cl-dur">${callDur(C)}</span>`;
+  const last = C.lines.slice(-4).map(x => `<div class="cl-line ${x.who === "u" ? "me" : ""}">${x.who === "u" ? esc(x.t) : phTx(callShow(x.t), tr === "both" ? "paren" : tr)}</div>`).join("");
+  const talk = C.state === "talk";
+  const controls = C.state === "ring"
+    ? `<div class="cl-btns"><button type="button" class="cl-no" data-up="cldecline" aria-label="거절">${phIc("phone", 28, "#fff", 2)}</button><button type="button" class="cl-yes" data-up="claccept" aria-label="받기">${phIc("phone", 28, "#fff", 2)}</button></div>`
+    : `<div class="cl-btns">${talk ? `<button type="button" class="cl-sm${C.rec ? " on" : ""}" data-up="clmic" aria-label="말하기">${phIc("mic", 24, "#fff", 2)}<small>${C.rec ? "듣는 중" : "말하기"}</small></button>` : ""}${talk && video ? `<button type="button" class="cl-sm${C.camOff ? " off" : ""}" data-up="clcam" aria-label="카메라">${phIc("cam", 24, "#fff", 2)}<small>${C.camOff ? "카메라 꺼짐" : "카메라"}</small></button>` : ""}<button type="button" class="cl-no" data-up="clend" aria-label="끊기" ${C.state === "ended" || C.state === "missed" ? "disabled" : ""}>${phIc("phone", 28, "#fff", 2)}</button></div>`;
+  const input = talk ? `<div class="cl-in"><input type="text" class="up-in" id="upCallIn" placeholder="${C.busy ? "듣는 중…" : "말하기 (글로 써도 돼요)"}"><button type="button" data-up="clsend">보내기</button></div>` : "";
+  const cam = video && !C.camOff && C.state !== "ring" ? `<video id="upCamV" class="cl-cam" autoplay playsinline muted></video>` : "";
+  return `<div class="cl${video ? " video" : ""}${C.speaking ? " speak" : ""}">
+${video ? `<div class="cl-bg">${av}</div>` : ""}
+<div class="cl-top"><div class="cl-av${C.speaking ? " speak" : ""}">${av}</div><b>${esc(c.name)}</b><small>${status}</small>${talk && ai.elKey && v.id ? "" : talk ? `<em class="cl-note">폰 기본 목소리</em>` : ""}</div>
+${cam}
+<div class="cl-subs">${last}${C.busy ? `<div class="cl-line wait"><span class="ph-spin"></span></div>` : ""}${C.err ? `<div class="cl-err">${esc(C.err)}</div>` : ""}${C.camErr ? `<div class="cl-err">${esc(C.camErr)}</div>` : ""}</div>
+${input}${controls}</div>`;
+}
+function upCallSet(c) {
+  const v = callVoice(c), L = PH_LANGS[phLang(c)];
+  return upHead("통화 설정") + `<div class="ph-body up-form">
+<label class="up-lb">ElevenLabs API 키 (모든 캐릭터 공통, 이 기기에만 저장)</label><input type="password" class="up-in" id="upElKey" value="${esc(ai.elKey || "")}" placeholder="sk_로 시작" autocomplete="off">
+<label class="up-lb">${esc(c.name)} 목소리 ID</label><input type="text" class="up-in" id="upElVoice" value="${esc(v.id)}" placeholder="내 음성 → ⋮ → ID 복사" autocomplete="off" autocapitalize="off" spellcheck="false">
+<label class="up-lb">목소리 모델</label><div class="ph-tabs" style="padding:0">${[["eleven_v3", "v3 (감정·웃음 최고)"], ["eleven_multilingual_v2", "Multilingual v2 (안정적)"]].map(([k, n]) => `<button type="button" data-up="clmodel" data-v="${k}" class="${v.model === k ? "on" : ""}">${n}</button>`).join("")}</div>
+${L ? `<label class="up-lb">통화할 때 ${esc(c.name)}가 쓰는 말</label><div class="ph-tabs" style="padding:0">${[["char", L + " (자막 번역)"], ["ko", "한국어"]].map(([k, n]) => `<button type="button" data-up="cllang" data-v="${k}" class="${v.lang === k ? "on" : ""}">${n}</button>`).join("")}</div>` : ""}
+<button type="button" class="up-igbtn" data-up="cltest">목소리 들어 보기</button>
+<button type="button" class="up-add" data-up="clsave">저장</button>
+<small class="up-lb" style="line-height:1.5">키나 목소리 ID가 비어 있으면 폰 기본 목소리로 통화해요. 목소리를 쓰면 ElevenLabs 크레딧이 들어요(글자 수만큼).</small>
+<button type="button" class="up-igbtn" data-up="clring">${esc(c.name)}가 전화 걸게 해 보기</button>
+</div>`;
+}
+function callBlock(c) {
+  const L = (c.calls || []).slice(-2); if (!L.length) return "";
+  const u = c.uname || "유저";
+  return L.map(x => `[${josa(u, "과", "와")} ${x.mode === "video" ? "영상통화" : "전화 통화"}한 내용 (${x.at || ""}, ${x.dur}, ${x.incoming ? `${josa(c.name, "이", "가")} 걸었음` : `${josa(u, "이", "가")} 걸었음`}${x.endBy === "them" ? `, ${josa(c.name, "이", "가")} 끊음` : ""})]\n` + x.lines.map(l => `${l.who === "u" ? u : c.name}: ${l.t}`).join("\n")).join("\n\n") + "\n\n";
+}
+
 // ---------- 인스타 DM: 유저 ↔ 캐릭터 스레드는 두 폰이 같이 봐요 ----------
 function igDM(c) {
   if (!c.igdm || typeof c.igdm !== "object") c.igdm = {};
@@ -5698,6 +6107,7 @@ function upResetApp(c, k) {
 
 function closeCharPhone() {
   if (!PH) return;
+  if (PH.call) { try { const cc = store.chars.find(x => x.id === PH.cid); if (cc && PH.call.state === "talk") callEnd(cc, "me"); } catch (e) {} callTone(false); callStopAudio(); callRecStop(); callCam(false); PH.call = null; }
   Object.values(PH.ctl).forEach(a => { try { a.abort(); } catch (e) {} });
   const el = PH.el; PH = null;
   el.classList.remove("on"); el.style.transform = "";
@@ -5828,7 +6238,9 @@ function phoneRender() {
   const ph = phoneOf(c), scr = PH.el.querySelector(".ph-scr");
   const home = PH.view === "home", t = phNow(ph);
   scr.className = "ph-scr" + (home ? " dark" : "");
+  if (PH.owner === "user" && PH.call) { scr.className = "ph-scr dark"; }
   scr.style.background = home ? (PH.owner === "user" ? UP_WALL : ph.wall) : "";
+  if (PH.owner === "user" && PH.call) scr.style.background = PH.call.mode === "video" ? "#000" : "#1b161d";
   const bar = `<div class="ph-sb"><span class="ph-sbt">${phHM(t)}</span><i></i><span class="ph-sic"><span class="ph-sig"><b></b><b></b><b></b><b></b></span><svg class="ph-wf" width="15" height="11" viewBox="0 0 15 11" aria-hidden="true"><path fill="currentColor" d="M7.5 2.2c2.1 0 4 .8 5.5 2.2l1.1-1.1A9.4 9.4 0 0 0 7.5.6 9.4 9.4 0 0 0 .9 3.3L2 4.4a7.8 7.8 0 0 1 5.5-2.2zm0 3.1c1.2 0 2.4.5 3.3 1.3l1.1-1.1a6.3 6.3 0 0 0-8.8 0l1.1 1.1c.9-.8 2.1-1.3 3.3-1.3zm0 3.1c.4 0 .8.2 1.1.4L7.5 10 6.4 8.8c.3-.2.7-.4 1.1-.4z"/></svg><span class="ph-bat"><em style="width:${55 + ((t.d * 7 + t.hh) % 40)}%"></em></span></span></div>`;
   const foot = `<div class="ph-foot"><button type="button" data-ph="home" aria-label="홈"></button></div>`;
   let body = "";
@@ -5839,7 +6251,7 @@ function phoneRender() {
   const ask = PH.ask ? `<div class="ph-ask"><div><p>${esc(PH.ask.msg)}</p><span><button type="button" data-ph="ask-no">취소</button><button type="button" data-ph="ask-ok" class="y">지우기</button></span></div></div>` : "";
   // 화면마다 어디까지 내렸는지 기억해 뒀다가, 돌아오면 그 자리로 (구독 펼치기는 같은 화면으로 봐요)
   const sig = [PH.owner, PH.view, PH.app, PH.tid, PH.tab, PH.app === "subs" ? "" : PH.memo, PH.photo, PH.calOff, PH.calD, PH.upPost, PH.upWrite, PH.igv, PH.igp, PH.dv, PH.dm, PH.gc, PH.igdt].join("|");
-  const keepIn = {}; ["upQ", "upMsg", "upCmt", "upTn", "upTitle", "upBody", "upBoard", "upIgC", "upIgImg", "upIgCap", "upIgLoc", "upIgU", "upIgN", "upIgB", "upTm", "upTd", "upDM", "upIgDM", "upGQ", "upMN", "upMD"].forEach(id => { const x = scr.querySelector("#" + id); if (x) keepIn[id] = x.value; });
+  const keepIn = {}; ["upQ", "upMsg", "upCmt", "upTn", "upTitle", "upBody", "upBoard", "upIgC", "upIgImg", "upIgCap", "upIgLoc", "upIgU", "upIgN", "upIgB", "upTm", "upTd", "upDM", "upIgDM", "upCallIn", "upGQ", "upMN", "upMD"].forEach(id => { const x = scr.querySelector("#" + id); if (x) keepIn[id] = x.value; });
   const sameView = sig === PH._same;
   const keep = scr.querySelector(".ph-body");
   PH.scrollMem = PH.scrollMem || {};
@@ -5853,6 +6265,7 @@ function phoneRender() {
   const pg = scr.querySelector(".ph-pages"); if (pg && PH.page) pg.scrollLeft = PH.page * pg.clientWidth;
   if (PH.view === "thread" && nb && !top) nb.scrollTop = nb.scrollHeight;
   if (nb && nb.classList.contains("igdm") && !dmFar) nb.scrollTop = nb.scrollHeight;
+  if (PH.call) { callCamAttach(); const cs = scr.querySelector(".cl-subs"); if (cs) cs.scrollTop = cs.scrollHeight; }
 }
 function phTile(k, badge, bare) {
   const A = PH_APPS[k], nm = phAppName(k);
@@ -6206,9 +6619,22 @@ function openMemory() {
   $("#memSum").value = mem.summary || ""; $("#memNote").value = mem.note || "";
   $("#memSumOn").checked = mem.sumOn !== false; $("#memNoteOn").checked = mem.noteOn !== false;
   $("#memProp").hidden = true;
+  renderPeekList(c);
   const list = msgs(), done = Math.min(mem.upto || 0, list.length);
   $("#memInfo").textContent = done ? `마지막 정리 이후 새 메시지 ${list.length - done}개` : `아직 정리한 적 없음 · 메시지 ${list.length}개`;
   show("memory");
+}
+// 캐릭터가 엿본 기억: 하나씩 잊게 할 수 있어요
+function renderPeekList(c) {
+  const L = peeksOf(c), box = $("#peekList"); $("#peekLeg").textContent = `${c.name}가 내 폰에서 본 것`;
+  box.innerHTML = (L.length ? L.map((x, i) => `<div class="pk-row"><span><b>${esc(x.label || "")}</b> ${esc(String(x.detail || "").slice(0, 120))}<small>${x.how === "caught" ? "보다가 들킴" : "몰래 봄"}</small></span><button type="button" class="btn ghost" data-pk="${i}">잊게 하기</button></div>`).join("") + `<button type="button" class="btn ghost" data-pk="all" style="width:100%;margin-top:8px">전부 잊게 하기</button>` : `<p class="pk-none">본 게 없어요.</p>`)
+    + `<p class="pk-none">대화나 요약에 이미 나온 내용은 여기서 지워도 남아요. 그 답장을 지우거나 요약에서도 지워 주세요.</p>`;
+  box.querySelectorAll("[data-pk]").forEach(b => b.onclick = () => {
+    const k = b.dataset.pk;
+    if (k === "all") { if (!confirm("본 것을 전부 잊게 할까요?")) return; c.peeks = []; }
+    else c.peeks = peeksOf(c).filter((_, i) => i !== +k);
+    save(null); renderPeekList(c);
+  });
 }
 function saveMem() { const c = char(); if (!c) return; const mem = memOf(c); mem.summary = $("#memSum").value; mem.note = $("#memNote").value; mem.sumOn = $("#memSumOn").checked; mem.noteOn = $("#memNoteOn").checked; save(null); }
 $("#qMem").onclick = openMemory;
@@ -7385,7 +7811,7 @@ $("#qCmd").onclick = () => {
   $("#input").focus();
 };
 // ---- 대화방: 같은 캐릭터로 여러 이야기를 따로 (폰·인스타·DM·요약도 방마다 따로) ----
-const ROOM_KEYS = ["phone", "uphone", "igdm", "peeks", "memory", "kissStyle", "kissStyleN"];
+const ROOM_KEYS = ["phone", "uphone", "igdm", "peeks", "memory", "kissStyle", "kissStyleN", "calls"];
 function roomsOf(c) {
   if (!Array.isArray(c.rooms) || !c.rooms.length) { c.rooms = [{ key: c.id + "~" + newId(), name: "방 1", at: Date.now() }]; c.room = c.rooms[0].key; }
   if (!c.rooms.some(r => r.key === c.room)) c.room = c.rooms[0].key;
