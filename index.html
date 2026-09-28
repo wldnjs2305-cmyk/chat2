@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.36","items":[]}
+  {"v":"3.37","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4636,14 +4636,14 @@ function commBlock(c) {
   const D = charComm(c);
   ((D && D.posts) || []).forEach(p => {
     const mine = (p.cmts || []).filter(m => m.byUser);
-    if (mine.length) out.push(`- 커뮤에 익명으로 쓴 내 글 "${phPlain(p.title).slice(0, 30)}"에 익명 댓글이 달렸다: ${mine.slice(-2).map(m => `"${phPlain(m.t).slice(0, 60)}"`).join(", ")} (누가 쓴 건지 모른다)`);
+    if (mine.length) out.push(`- 커뮤에 익명으로 쓴 내 글 "${phPlain(p.title).slice(0, 30)}"에 익명 댓글이 달렸다: ${mine.slice(-2).map(m => `"${phPlain(m.t).slice(0, 60)}"`).join(", ")} ${upNameHit(c, mine.map(m => m.t)) ? `(댓글 쓴 익명이 스스로 ${u}라는 이름을 꺼냈다)` : "(누가 쓴 건지 모른다)"}`);
   });
   upOf(c).comm.posts.forEach(p => {
     const mc = (p.cmts || []).filter(m => m.char);
-    if (mc.length) out.push(`- 커뮤에서 익명 글 "${String(p.title).slice(0, 30)}"을 보고 댓글을 달았다: "${phPlain(mc[mc.length - 1].t).slice(0, 60)}" (그 글을 ${josa(u, "이", "가")} 쓴 줄은 모른다)`);
+    if (mc.length) out.push(`- 커뮤에서 익명 글 "${String(p.title).slice(0, 30)}"을 보고 댓글을 달았다: "${phPlain(mc[mc.length - 1].t).slice(0, 60)}" ${upNameHit(c, [p.title, p.body]) ? `(글쓴이가 글에서 스스로 ${u}라는 이름을 꺼냈다)` : `(그 글을 ${josa(u, "이", "가")} 쓴 줄은 모른다)`}`);
   });
   if (!out.length) return "";
-  return `[${c.name}의 익명 커뮤 활동]\n${out.slice(-5).join("\n")}\n(익명이라 ${josa(c.name, "은", "는")} 상대가 누구인지 모른다. 엿보기로 알게 되기 전까지는 ${josa(u, "과", "와")} 연결 짓지 않는다.)\n\n`;
+  return `[${c.name}의 익명 커뮤 활동]\n${out.slice(-5).join("\n")}\n(익명이라 ${josa(c.name, "은", "는")} 상대가 누구인지 모른다. 엿보기로 알게 되기 전까지는 ${josa(u, "과", "와")} 연결 짓지 않는다. 다만 익명이 스스로 ${u}라는 이름을 꺼냈으면 ${josa(c.name, "은", "는")} 그 이름을 알아본다.)\n\n`;
 }
 
 // ---- 화면 ----
@@ -4757,6 +4757,17 @@ function upComm(c, note) {
 
 // ---- 동작 ----
 async function upAsk(p, signal) { return phJSON(await phoneAsk(p, signal)); }
+// 익명 글·댓글에 내 이름이 나오면 캐릭터는 그 이름을 안다
+function upNameHit(c, texts) {
+  const u = String(c.uname || "").trim(); if (!u) return false;
+  const g = /^[가-힣]{3}$/.test(u) ? u.slice(1) : "";
+  const re = g ? new RegExp(g + "(?:이(?:야|가|는|를|랑|한테|인데)?|아|야|씨|님|쨩|짱)?(?![가-힣])") : null;
+  return texts.some(t => { t = String(t || ""); return t.includes(u) || (re && re.test(t)); });
+}
+function upNameRule(c) {
+  const u = c.uname || "유저";
+  return `- 이 익명은 글이나 댓글에서 ${u}라는 이름을 스스로 꺼냈다. ${josa(c.name, "은", "는")} ${josa(u, "을", "를")} 아는 사람이다. 그 이름을 모르는 척하거나 모르는 사람 취급하지 않고, 바로 ${josa(u, "을", "를")} 떠올린다. 진짜 ${u}인지, 누가 이름을 팔아 장난치는 건지는 ${c.name}의 성격과 지금 관계대로 판단해 반응한다.`;
+}
 function upLangRule(c) {
   const L = PH_LANGS[phLang(c)];
   return L ? `\n- 댓글은 그 커뮤 분위기에 맞게 ${L}로 쓰고, 댓글마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다. 닉네임에는 번역을 붙이지 않는다.` : "";
@@ -4787,7 +4798,7 @@ ${cm.slice(-14).map(m => `${m.re ? "  ㄴ " : ""}${m.byUser ? "익명" : phPlain
 ${phPlain(last.t)} (${target})
 
 [규칙]
-- 방금 댓글은 누가 썼는지 아무도 모른다. ${c.name}도 ${josa(u, "이", "가")} 썼다는 걸 모른다. ${u}와 연결 짓지 않는다.
+${upNameHit(c, [last.t]) ? upNameRule(c) : `- 방금 댓글은 누가 썼는지 아무도 모른다. ${c.name}도 ${josa(u, "이", "가")} 썼다는 걸 모른다. ${u}와 연결 짓지 않는다.`}
 - ${whoAnswers}
 - 모두 방금 댓글 아래 이어지는 답글이다.${upWhenRule(p.when)} 0~3개. 달 게 없으면 빈 배열. 한 사람(글쓴이 포함)은 이번에 댓글을 하나만 단다. 여러 개로 나눠 쓰고 싶은 말은 그 한 댓글에 합친다. 길이는 그 사람 성격과 할 말대로(짧게 끝내도 된다).${upLangRule(c)}
 
@@ -4826,7 +4837,7 @@ ${(p.cmts || []).slice(-12).map(m => `${m.byUser ? "익명" : phPlain(m.u)}: ${p
 ${mine.map(m => phPlain(m.t)).join("\n")}
 
 [규칙]
-- 새 익명 댓글은 누가 썼는지 아무도 모른다. ${c.name}도 모른다(${josa(u, "이", "가")} 썼다는 걸 모른다). 그 댓글을 ${josa(u, "과", "와")} 연결 짓지 않는다.
+${upNameHit(c, mine.map(m => m.t)) ? upNameRule(c) : `- 새 익명 댓글은 누가 썼는지 아무도 모른다. ${c.name}도 모른다(${josa(u, "이", "가")} 썼다는 걸 모른다). 그 댓글을 ${josa(u, "과", "와")} 연결 짓지 않는다.`}
 - 글쓴이(${c.name})가 그 댓글에 답글을 달 수도 있고 무시할 수도 있다. 성격과 댓글 내용을 보고 정한다. 답글을 달면 u를 "글쓴이"로, re를 true로.
 - 다른 익명들이 거들 수도 있다.${upWhenRule(p.when)} 달릴 게 없으면 cmts를 빈 배열로 둔다. 0~4개. 한 사람(글쓴이 포함)은 이번에 댓글을 하나만 단다. 여러 개로 나눠 쓰고 싶은 말은 그 한 댓글에 합친다. 길이는 그 사람 성격과 할 말대로(짧게 끝내도 된다).${upLangRule(c)}
 
@@ -4857,7 +4868,7 @@ ${phoneCtx(c)}
 본문: ${p.body}
 
 [규칙]
-- 이 글은 사실 ${josa(u, "이", "가")} 쓴 글이지만, ${josa(c.name, "을", "를")} 포함해 아무도 그걸 모른다. 익명 글로만 본다. 댓글에서 ${u}의 이름이나 정체를 알아채지 않는다.
+${upNameHit(c, [p.title, p.body]) ? upNameRule(c) : `- 이 글은 사실 ${josa(u, "이", "가")} 쓴 글이지만, ${josa(c.name, "을", "를")} 포함해 아무도 그걸 모른다. 익명 글로만 본다. 댓글에서 ${u}의 이름이나 정체를 알아채지 않는다.`}
 - 다른 익명들의 댓글 3~7개. 공감·훈수·드립·비꼼·진지한 조언을 그 사이트 분위기대로 섞는다. 한 사람(글쓴이 포함)은 이번에 댓글을 하나만 단다. 여러 개로 나눠 쓰고 싶은 말은 그 한 댓글에 합친다. 길이는 그 사람 성격과 할 말대로(짧게 끝내도 된다).
 - ${josa(c.name, "이", "가")} 이 글을 봤다면 댓글을 달지 말지 스스로 정한다. 글 내용이 ${c.name}의 관심사·처지와 닿아 있으면 달 가능성이 높고, 아니면 그냥 지나칠 수 있다. 단다면 익명이라 말투는 평소보다 풀어져 있을 수 있지만 성격은 드러나게, char를 true로.
 - re가 true면 바로 위 댓글에 단 대댓글이다.${upLangRule(c)}
