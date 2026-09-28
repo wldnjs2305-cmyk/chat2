@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.37","items":[]}
+  {"v":"3.40","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3879,6 +3879,9 @@ ${fmtRules}${langRule}${narrRule}
 ${psReplace ? "" : `- 대사나 질문으로 끝내야 하는 건 아니다. 지문으로 끝나도 되고 대사로 끝나도 된다. 장면 흐름에 맞게 정한다.
 - 이전 응답의 형식을 그대로 따라 하지 않는다. 문단 수, 지문과 대사의 순서·비율·길이는 매번 새로 정한다. 지문으로 시작해도 되고 대사로 시작해도 된다. 어떤 응답은 지문이 많고 어떤 응답은 대사가 많아도 된다. 앞의 답과 모양이 비슷해지는 것을 경계한다.`}
 - ${u}의 새 대사·행동·동의를 대신 정하지 않는다.
+- 캐릭터 설정 속 과거사나 핵심 갈등을 매 답마다 되새기거나 설명하지 않는다. 지금 장면에 꼭 필요할 때만 꺼낸다.
+- 앞선 답에서 쓴 표현, 비유, 문장 구조를 되풀이하지 않는다. 같은 답 안에서도 같은 말을 반복하지 않는다.
+- 말줄임표(…, ...)는 거의 쓰지 않는다. 말끝을 흐리거나 머뭇거리는 게 꼭 필요할 때만, 한 답에 한 번 이하로 쓴다. 쉼표나 마침표로 끊어도 되는 곳에는 쓰지 않는다.
 - [멀리서] 카드의 장면은 실제로 있었던 일이지만 ${u}는 보지 못했다. ${u}가 그 일을 아는 것처럼 반응하지 않는다. 남은 흔적이나 결과는 이어질 수 있다.
 - 별표로 감싼 대괄호는 문자 메시지다. *[내용]* 형태로 오면 그것은 지문이나 소리 내어 한 말이 아니라 휴대폰으로 보낸 문자다. 답할 때도 같은 *[내용]* 표기로 돌려주고, 문자에 대사용 따옴표를 붙이지 않는다. 문자를 보내고 받는 동안에도 두 사람이 있는 장면은 계속 흐르므로, 필요하면 문자 앞뒤에 지문을 함께 쓴다. 한 번에 한두 마디씩만 주고받고, 여러 줄을 몰아서 늘어놓지 않는다. 세계관에 휴대폰이 없으면 그 시대에 짧은 말을 주고받는 수단으로 바꿔 쓰되 표기는 그대로 *[내용]* 을 쓴다.
 - ${u}가 결과나 시간 경과, 장면 전환을 뜻하는 지문을 쓰면(예: *결국 그날 밤 같이 잔다*, *다음 날 아침*), 그것은 이미 그렇게 되었다는 설정이다. 그 내용을 설명하거나 앞 장면을 이어 받지 말고, 곧바로 그 시점의 새 장면부터 쓴다. 앞 장면의 대화를 요약하거나 반응하지 않는다.
@@ -4514,6 +4517,11 @@ function openCharPhone(owner) {
   el.addEventListener("keydown", upKey);
   // 커뮤 댓글을 꾹 누르면 그 댓글에 답글
   let holdT = null, holdXY = null;
+  // 입력 중에 옆 버튼(보내기 등)을 눌러도 입력칸 포커스를 뺏지 않게
+  el.addEventListener("mousedown", e => {
+    const a = document.activeElement;
+    if (a && /^(INPUT|TEXTAREA)$/.test(a.tagName) && el.contains(a) && e.target.closest("button") && e.target.closest(".up-send,.cl-in,.up-callin,[data-snd]")) e.preventDefault();
+  });
   el.addEventListener("pointerdown", e => {
     const snd = PH && PH.owner === "user" && e.target.closest("[data-snd]");
     if (snd) {
@@ -6269,14 +6277,39 @@ function phoneRender() {
   if (keep && PH._same) PH.scrollMem[PH._same] = keep.scrollTop;
   const dmFar = keep && sameView && keep.classList.contains("igdm") && keep.scrollHeight - keep.scrollTop - keep.clientHeight > 90;
   const top = PH.scrollMem[sig] || 0;
-  scr.innerHTML = bar + body + foot + ask + uask + toast;
-  if (sameView) Object.keys(keepIn).forEach(id => { const x = scr.querySelector("#" + id); if (x) x.value = keepIn[id]; });
+  // 입력 중인 칸이 있으면 그 칸은 그대로 두고 나머지만 바꿔요 (키보드가 안 내려가게)
+  const act = document.activeElement;
+  if (!(sameView && act && act.id && scr.contains(act) && /^(INPUT|TEXTAREA)$/.test(act.tagName) && phMorph(scr, bar + body + foot + ask + uask + toast, act)))
+    scr.innerHTML = bar + body + foot + ask + uask + toast;
+  if (sameView) Object.keys(keepIn).forEach(id => { const x = scr.querySelector("#" + id); if (x && x.value !== keepIn[id]) x.value = keepIn[id]; });
   PH._same = sig;
   const nb = scr.querySelector(".ph-body"); if (nb && top) nb.scrollTop = top;
   const pg = scr.querySelector(".ph-pages"); if (pg && PH.page) pg.scrollLeft = PH.page * pg.clientWidth;
   if (PH.view === "thread" && nb && !top) nb.scrollTop = nb.scrollHeight;
   if (nb && nb.classList.contains("igdm") && !dmFar) nb.scrollTop = nb.scrollHeight;
   if (PH.call) { callCamAttach(); const cs = scr.querySelector(".cl-subs"); if (cs) cs.scrollTop = cs.scrollHeight; }
+}
+// 새 화면을 만들되, 입력 중인 칸(act)과 그 조상은 그대로 두고 주변만 새 것으로 갈아 끼워요
+function phMorph(scr, html, act) {
+  const tmp = document.createElement("div"); tmp.innerHTML = html;
+  const nx = tmp.querySelector("#" + CSS.escape(act.id)); if (!nx || nx.tagName !== act.tagName) return false;
+  const oldP = [], newP = [];
+  for (let x = act; x && x !== scr; x = x.parentNode) oldP.unshift(x);
+  for (let x = nx; x && x !== tmp; x = x.parentNode) newP.unshift(x);
+  if (oldP.length !== newP.length || oldP.some((x, i) => x.tagName !== newP[i].tagName)) return false;
+  let po = scr, pn = tmp;
+  for (let i = 0; i < oldP.length; i++) {
+    const o = oldP[i], n = newP[i];
+    while (po.firstChild && po.firstChild !== o) po.removeChild(po.firstChild);
+    while (o.nextSibling) po.removeChild(o.nextSibling);
+    while (pn.firstChild && pn.firstChild !== n) po.insertBefore(pn.firstChild, o);
+    n.remove(); while (pn.firstChild) po.appendChild(pn.firstChild);
+    [...o.attributes].forEach(a => { if (!n.hasAttribute(a.name)) o.removeAttribute(a.name); });
+    [...n.attributes].forEach(a => { if (a.name !== "value" && o.getAttribute(a.name) !== a.value) o.setAttribute(a.name, a.value); });
+    if (o === act) break;
+    po = o; pn = n;
+  }
+  return true;
 }
 function phTile(k, badge, bare) {
   const A = PH_APPS[k], nm = phAppName(k);
