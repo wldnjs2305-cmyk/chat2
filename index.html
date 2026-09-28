@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.35","items":[]}
+  {"v":"3.36","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1176,14 +1176,14 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .ph-dsep{display:flex;justify-content:center;margin:6px 0 2px}
 .ph-dsep span{padding:4px 12px;border-radius:12px;background:rgba(42,34,39,.08);font-size:11.5px;color:#5f5560}
 .ph-b.cont .ph-bt{border-radius:14px}
-.cl{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;align-items:stretch;background:linear-gradient(180deg,#2b2430,#161218);color:#fff;overflow:hidden}
-.cl.video{background:#000}
+.ucall{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;align-items:stretch;background:linear-gradient(180deg,#2b2430,#161218);color:#fff;overflow:hidden}
+.ucall.video{background:#000}
 .cl-bg{position:absolute;inset:0;display:grid;place-items:center;overflow:hidden}
 .cl-bg img{width:100%;height:100%;object-fit:cover;animation:clBreath 5s ease-in-out infinite;transform-origin:50% 40%}
 .cl-bg b{font-size:80px;color:#fff6}
-.cl.video.speak .cl-bg img{animation:clBreath 5s ease-in-out infinite,clTalk .5s ease-in-out infinite}
-.cl.video::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0008,transparent 30%,transparent 55%,#000b);pointer-events:none}
-.cl>*:not(.cl-bg){position:relative;z-index:1}
+.ucall.video.speak .cl-bg img{animation:clBreath 5s ease-in-out infinite,clTalk .5s ease-in-out infinite}
+.ucall.video::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0008,transparent 30%,transparent 55%,#000b);pointer-events:none}
+.ucall>*:not(.cl-bg){position:relative;z-index:1}
 .cl-top{display:flex;flex-direction:column;align-items:center;gap:4px;padding:22px 16px 8px;text-align:center}
 .cl-top b{font-size:22px;font-weight:600;text-shadow:0 1px 6px #0006}
 .cl-top small{font-size:13px;color:#fffc;text-shadow:0 1px 4px #0006}
@@ -1191,7 +1191,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .cl-av{width:108px;height:108px;border-radius:50%;overflow:hidden;background:#fff2;display:grid;place-items:center;margin-bottom:8px;box-shadow:0 0 0 0 #fff4;animation:clBreath 5s ease-in-out infinite}
 .cl-av img{width:100%;height:100%;object-fit:cover}.cl-av b{font-size:40px}
 .cl-av.speak{animation:clPulse 1s ease-in-out infinite}
-.cl.video .cl-av{display:none}
+.ucall.video .cl-av{display:none}
 .cl-dots em{font-style:normal;animation:clDot 1.2s infinite}.cl-dots em:nth-child(2){animation-delay:.2s}.cl-dots em:nth-child(3){animation-delay:.4s}
 .cl-cam{position:absolute !important;right:12px;top:12px;width:92px;height:128px;object-fit:cover;border-radius:12px;background:#222;transform:scaleX(-1);z-index:2 !important;box-shadow:0 4px 14px #0008}
 .cl-subs{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;padding:8px 14px}
@@ -5930,7 +5930,7 @@ function upCallView(c) {
     : `<div class="cl-btns">${talk ? `<button type="button" class="cl-sm${C.rec ? " on" : ""}" data-up="clmic" aria-label="말하기">${phIc("mic", 24, "#fff", 2)}<small>${C.rec ? "듣는 중" : "말하기"}</small></button>` : ""}${talk && video ? `<button type="button" class="cl-sm${C.camOff ? " off" : ""}" data-up="clcam" aria-label="카메라">${phIc("cam", 24, "#fff", 2)}<small>${C.camOff ? "카메라 꺼짐" : "카메라"}</small></button>` : ""}<button type="button" class="cl-no" data-up="clend" aria-label="끊기" ${C.state === "ended" || C.state === "missed" ? "disabled" : ""}>${phIc("phone", 28, "#fff", 2)}</button></div>`;
   const input = talk ? `<div class="cl-in"><input type="text" class="up-in" id="upCallIn" placeholder="${C.busy ? "듣는 중…" : "말하기 (글로 써도 돼요)"}"><button type="button" data-up="clsend">보내기</button></div>` : "";
   const cam = video && !C.camOff && C.state !== "ring" ? `<video id="upCamV" class="cl-cam" autoplay playsinline muted></video>` : "";
-  return `<div class="cl${video ? " video" : ""}${C.speaking ? " speak" : ""}">
+  return `<div class="ucall${video ? " video" : ""}${C.speaking ? " speak" : ""}">
 ${video ? `<div class="cl-bg">${av}</div>` : ""}
 <div class="cl-top"><div class="cl-av${C.speaking ? " speak" : ""}">${av}</div><b>${esc(c.name)}</b><small>${status}</small>${talk && ai.elKey && v.id ? "" : talk ? `<em class="cl-note">폰 기본 목소리</em>` : ""}</div>
 ${cam}
