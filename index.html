@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.42","items":[]}
+  {"v":"3.45","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1716,7 +1716,7 @@ function save(chatId) {
   else { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e) {} }
   metaDirty = true;
   if (chatId === undefined) chatId = cur;
-  if (chatId) { dirtyChats.add(chatId); const lc = store.chars.find(x => x.id === chatId); if (lc) lc.lastAt = Date.now(); }
+  if (chatId) { dirtyChats.add(chatId); const lc = store.chars.find(x => x.id === chatId); if (lc) { lc.lastAt = Date.now(); const L = store.chats[chatId]; if (lc.memory && Array.isArray(L) && (lc.memory.upto || 0) > L.length) lc.memory.upto = L.length; } }
   if (!dbReady) return;
   clearTimeout(flushTimer);
   flushTimer = setTimeout(flush, 700);
@@ -3881,7 +3881,7 @@ ${psReplace ? "" : `- 대사나 질문으로 끝내야 하는 건 아니다. 지
 - ${u}의 새 대사·행동·동의를 대신 정하지 않는다.
 - 캐릭터 설정 속 과거사나 핵심 갈등을 매 답마다 되새기거나 설명하지 않는다. 지금 장면에 꼭 필요할 때만 꺼낸다.
 - 앞선 답에서 쓴 표현, 비유, 문장 구조를 되풀이하지 않는다. 같은 답 안에서도 같은 말을 반복하지 않는다.
-- 대사로 상황, 관계, 과거를 요약하거나 설명하지 않는다. 인물은 서로 이미 아는 사실을 굳이 말로 정리하지 않는다. 감정은 세고 과하게 터뜨려도 되지만, 그 사람이 그 순간 실제로 내뱉을 법한 말로 쓴다.
+- 대사는 그 사람이 그 순간 실제로 입으로 뱉을 말로 쓴다.
 - 말줄임표(…, ...)는 거의 쓰지 않는다. 말끝을 흐리거나 머뭇거리는 게 꼭 필요할 때만, 한 답에 한 번 이하로 쓴다. 쉼표나 마침표로 끊어도 되는 곳에는 쓰지 않는다.
 - [멀리서] 카드의 장면은 실제로 있었던 일이지만 ${u}는 보지 못했다. ${u}가 그 일을 아는 것처럼 반응하지 않는다. 남은 흔적이나 결과는 이어질 수 있다.
 - 별표로 감싼 대괄호는 문자 메시지다. *[내용]* 형태로 오면 그것은 지문이나 소리 내어 한 말이 아니라 휴대폰으로 보낸 문자다. 답할 때도 같은 *[내용]* 표기로 돌려주고, 문자에 대사용 따옴표를 붙이지 않는다. 문자를 보내고 받는 동안에도 두 사람이 있는 장면은 계속 흐르므로, 필요하면 문자 앞뒤에 지문을 함께 쓴다. 한 번에 한두 마디씩만 주고받고, 여러 줄을 몰아서 늘어놓지 않는다. 세계관에 휴대폰이 없으면 그 시대에 짧은 말을 주고받는 수단으로 바꿔 쓰되 표기는 그대로 *[내용]* 을 쓴다.
@@ -7909,7 +7909,14 @@ function roomMenu() {
 }
 $("#qRoom").onclick = roomMenu;
 $("#resetChat").onclick = () => {
-  if (busy || !confirm("대화를 처음부터 다시 시작할까요?")) return;
+  if (busy || !confirm("이 방을 처음부터 다시 시작할까요?\n대화, 요약, 유저노트, 캐릭터 폰, 내 폰, 인스타 DM, 통화 기록, 엿본 기억이 모두 지워져요.")) return;
+  const c = char();
+  if (c) {
+    if (typeof PH !== "undefined" && PH) closeCharPhone();
+    const old = c.memory || {};
+    ROOM_KEYS.forEach(k => { delete c[k]; });
+    c.memory = { summary: "", note: "", sumOn: old.sumOn !== false, noteOn: old.noteOn !== false, upto: 0 };
+  }
   store.chats[cur] = []; save(); openChat(cur);
 };
 // 모바일 키보드: 보이는 영역과 읽던 위치를 함께 맞춤 (원본 방식)
