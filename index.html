@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.48","items":[]}
+  {"v":"3.49","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6617,6 +6617,18 @@ ${list.length ? list.map(x => `<div class="ph-ev${past ? " past" : ""}"><span cl
 </div></div>`;
 }
 
+// 두 시각이 10분 안쪽이면 같은 묶음으로 봐요 ("오후 3:29", "15:29", "午後3:29" 등)
+function phMinOf(s) {
+  const t = String(s || "").trim(), g = t.match(/(\d{1,2})[:：](\d{2})/); if (!g) return null;
+  let h = +g[1] % 12; const pm = /오후|午後|下午|PM/i.test(t), am = /오전|午前|上午|AM/i.test(t);
+  if (pm) h += 12; else if (!am) h = +g[1];
+  return h * 60 + +g[2];
+}
+function phNearTime(a, b) {
+  if (String(a || "") === String(b || "")) return true;
+  const x = phMinOf(a), y = phMinOf(b); if (x == null || y == null) return false;
+  return Math.abs(y - x) <= 10;
+}
 function phThread(c, ph) {
   const name = PH.tid, key = "t:" + name, tr = PH.tr;
   const tl = ((ph.apps.msg && ph.apps.msg.data && ph.apps.msg.data.threads) || []).find(x => phPlain(x.name) === name) || { name };
@@ -6637,7 +6649,7 @@ function phThread(c, ph) {
     function phMsgRow(m, i) {
       const me = m.from === "me", pv = L[i - 1], nx = L[i + 1];
       const first = !pv || pv.from !== m.from || (m.date && pv.date && m.date !== pv.date);
-      const lastRun = !nx || nx.from !== m.from || String(nx.time || "") !== String(m.time || "") || String(nx.date || "") !== String(m.date || "");
+      const lastRun = !nx || nx.from !== m.from || String(nx.date || "") !== String(m.date || "") || !phNearTime(m.time, nx.time);
       const time = lastRun ? `<small class="t">${esc(m.time || "")}</small>` : "";
       const bt = phTx(m.text, tr === "both" ? "paren" : tr);
       if (me) return `<div class="ph-b me${first ? "" : " cont"}">${time}<span class="ph-bt">${bt}</span></div>`;
