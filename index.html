@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.53","items":[]}
+  {"v":"3.55","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3599,7 +3599,7 @@ function renderLog(errText) {
       if (cards) { content = cards; bare = true; }
       else {
         const segs = castSplit(m.text, c);
-        if (segs && (segs.length > 1 || !segs[0].who.main)) multi = segs;
+        if (segs && (segs.length > 1 || !segs[0].who.main) && fmt === "bubble") multi = segs;
         content = renderBlocks(segs ? segs.map(sg => sg.text).join("\n") : m.text, fmt); bare = fmt !== "bubble";
       }
     }
@@ -3858,7 +3858,7 @@ ${glossRule}
     const nm = x.name.trim(), xc = Object.assign({}, c, { name: nm });
     const st = sampleText(x.samples, { char: nm, user: names.user });
     return "- " + nm + ": " + (sub(x.prompt, xc).trim() || "(설정 없음)") + (st.trim() ? "\n  " + nm + "의 문체 예시:\n" + sub(st, xc) : "");
-  }).join("\n") + "\n- 이 인물들도 네가 연기한다. 그 자리에 있을 이유가 있는 인물만 나오고, 한 번의 답에 모두 나올 필요는 없다. 분량은 장면의 중심 인물에게 몰아주고 나머지는 짧아도 된다.\n- 말하는 인물이 바뀌면 그 인물의 문단 맨 앞에 [이름]을 붙인다. 예: [" + castList[0].name.trim() + "] 대사나 행동. 다시 " + josa(c.name, "으로", "로") + " 돌아올 때도 [" + c.name + "]" + josa(c.name, "을", "를").slice(-1) + " 붙인다. 답이 " + josa(c.name, "으로", "로") + " 시작하면 첫 문단엔 붙이지 않아도 된다.\n\n" : "";
+  }).join("\n") + "\n- 이 인물들도 네가 연기한다. 그 자리에 있을 이유가 있는 인물만 나오고, 한 번의 답에 모두 나올 필요는 없다. 분량은 장면의 중심 인물에게 몰아주고 나머지는 짧아도 된다." + (fmt === "bubble" ? "\n- 말하는 인물이 바뀌면 그 인물의 문단 맨 앞에 [이름]을 붙인다. 예: [" + castList[0].name.trim() + "] 대사나 행동. 다시 " + josa(c.name, "으로", "로") + " 돌아올 때도 [" + c.name + "]" + josa(c.name, "을", "를").slice(-1) + " 붙인다. 답이 " + josa(c.name, "으로", "로") + " 시작하면 첫 문단엔 붙이지 않아도 된다." : "") + "\n\n" : "";
   const mem = c.memory || {};
   const memBlock = ((mem.sumOn !== false && (mem.summary || "").trim()) ? "[지금까지의 이야기]\n" + sub(mem.summary, c) + "\n\n" : "")
     + ((mem.noteOn !== false && (mem.note || "").trim()) ? "[유저노트]\n" + sub(mem.note, c) + "\n\n" : "");
@@ -3899,7 +3899,7 @@ function buildTurns(c, extraUser, cmd) {
   let hist = msgs().map(m => ({ role: m.role, content: sub(m.text, c) }));
   if (extraUser) hist.push({ role: "user", content: extraUser });
   const rules = buildRules(c, cmd);
-  const LIMIT = 55000;
+  const LIMIT = 120000;
   const size = () => rules.length + hist.reduce((a, t) => a + t.content.length, 0);
   while (hist.length > 2 && size() > LIMIT) hist.shift();
   const turns = [{ role: "user", content: rules }];
@@ -4331,10 +4331,10 @@ function phoneCtx(c) {
   const u = c.uname || "유저", mem = c.memory || {};
   const cast = castPeople(c).map(x => x.name).slice(0, 12);
   const CMD_CARD = /^\s*\[(편지|일기|삭제내역|플리|관계|소문|커뮤|인스타|주문|결제|비밀|시청|통화|리뷰|향수|멀리서|메모|속마음|쇼핑|이벤트|상태|휴지통)\]/;
-  const recent = msgs().filter(m => !m.draw && !m.cmd && !CMD_CARD.test(m.text || "")).slice(-24).map(m => (m.role === "user" ? u : c.name) + ": " + phonePlain(sub(m.text || "", c)).replace(/\s+/g, " ").slice(0, 300)).join("\n");
-  return `[${c.name} 설정]\n${sub(c.prompt || "", c).slice(0, 2500) || "(없음)"}\n`
+  const recent = msgs().filter(m => !m.draw && !m.cmd && !CMD_CARD.test(m.text || "")).slice(-40).map(m => (m.role === "user" ? u : c.name) + ": " + phonePlain(sub(m.text || "", c)).replace(/\s+/g, " ").slice(0, 500)).join("\n");
+  return `[${c.name} 설정]\n${sub(c.prompt || "", c).slice(0, 4000) || "(없음)"}\n`
     + ((c.world || "").trim() ? `\n[세계관]\n${sub(c.world, c).slice(0, 1200)}\n` : "")
-    + (mem.sumOn !== false && (mem.summary || "").trim() ? `\n[지금까지의 이야기]\n${sub(mem.summary, c).slice(0, 1500)}\n` : "")
+    + (mem.sumOn !== false && (mem.summary || "").trim() ? `\n[지금까지의 이야기]\n${sub(mem.summary, c).slice(0, 4000)}\n` : "")
     + `\n[${u} (유저 캐릭터)]\n${sub(c.upersona || "", c).slice(0, 600) || "(없음)"}\n`
     + (cast.length ? `\n[다른 등장인물]\n${cast.join(", ")}\n` : "")
     + `\n[최근 대화]\n${recent || "(없음)"}`;
@@ -5301,12 +5301,18 @@ function upIg(c) {
   return I;
 }
 const charIg = c => { const a = phoneOf(c).apps.insta; return a && a.data ? a.data : null; };
+// /핸드폰 이름 으로 연 다른 인물들의 인스타. 불러와 둔 계정만 내 폰 인스타와 이어져요
+function sideIgs(c) {
+  const S = (c && c.sidePh) || {};
+  return Object.keys(S).map((N, k) => { const a = S[N] && S[N].phone && S[N].phone.apps && S[N].phone.apps.insta; return { N, k, C: a && a.data ? a.data : null }; }).filter(x => x.C);
+}
 const myHandle = c => upIg(c).user || (c.uname || "me");
 // 피드: 내 글 → 캐릭터 글 → 친구 글
 function upIgFeed(c) {
   const I = upIg(c), C = charIg(c), out = [];
   I.posts.map((p, i) => ({ src: "m", i, p, who: myHandle(c) })).reverse().forEach(x => out.push(x));
   if (C) (C.feed || []).forEach((p, i) => { if (!p.author || p.author === C.user) out.push({ src: "c", i, p, who: C.user || c.name }); });
+  sideIgs(c).forEach(s => (s.C.feed || []).forEach((p, i) => { if (!p.author || p.author === s.C.user) out.push({ src: "s" + s.k, i, p, who: s.C.user || s.N, N: s.N }); }));
   I.feed.forEach((p, i) => out.push({ src: "f", i, p, who: p.author || "친구" }));
   return out;
 }
@@ -5315,11 +5321,13 @@ function upIgPost(c, key) {
   if (src === "m") return I.posts[+i] ? { p: I.posts[+i], who: myHandle(c), src } : null;
   if (src === "c") return C && C.feed && C.feed[+i] ? { p: C.feed[+i], who: C.user || c.name, src } : null;
   if (src === "f") return I.feed[+i] ? { p: I.feed[+i], who: I.feed[+i].author || "친구", src } : null;
+  if (/^s\d+$/.test(src)) { const s = sideIgs(c).find(q => q.k === +src.slice(1)); return s && s.C.feed && s.C.feed[+i] ? { p: s.C.feed[+i], who: s.C.user || s.N, src, N: s.N } : null; }
   return null;
 }
 function upIgCard(c, x, idx, full) {
   const p = x.p, tr = PH.tr === "both" ? "paren" : PH.tr, isMe = x.src === "m", isChar = x.src === "c";
-  const av = isMe && c.uavatar ? `<img src="${esc(c.uavatar)}" alt="">` : isChar && c.avatar ? `<img src="${esc(c.avatar)}" alt="">` : esc(phPlain(x.who).slice(0, 1));
+  const sideAv = x.N ? ((castPeople(c).find(q => q.name.trim() === x.N) || {}).avatar || "") : "";
+  const av = isMe && c.uavatar ? `<img src="${esc(c.uavatar)}" alt="">` : isChar && c.avatar ? `<img src="${esc(c.avatar)}" alt="">` : sideAv ? `<img src="${esc(sideAv)}" alt="">` : esc(phPlain(x.who).slice(0, 1));
   const cm = p.comments || [];
   const cmts = full ? cm.map((m, ci) => `<div data-igi="${ci}" class="up-igc${m.re ? " re" : ""}${PH.igReply === ci ? " up-hold" : ""}"><b>${esc(phPlain(m.u))}</b> ${phTx(m.t, tr)}</div>`).join("")
     : (cm.length ? `<br><button type="button" class="up-igmore" data-up="igopen" data-v="${x.src}:${x.i}">댓글 ${cm.length}개 모두 보기</button>` + cm.slice(-2).map(m => `<br><b>${esc(phPlain(m.u))}</b> ${phTx(m.t, tr)}`).join("") : `<br><button type="button" class="up-igmore" data-up="igopen" data-v="${x.src}:${x.i}">댓글 달기</button>`);
@@ -5368,20 +5376,21 @@ function upInsta(c, note) {
   }
   if (v === "fol" || v === "fing") {
     const fol = v === "fol", list = (fol ? I.follower_list : I.following_list).slice();
+    sideIgs(c).slice().reverse().forEach(s => { if (s.C.user && !list.some(x => phPlain(x.u) === phPlain(s.C.user))) list.unshift({ u: s.C.user, name: s.C.name || s.N, note: "" }); });
     if (C && C.user && !list.some(x => phPlain(x.u) === phPlain(C.user))) list.unshift({ u: C.user, name: C.name || c.name, note: "" });
     return upHead(esc(myHandle(c))) + `<div class="ph-tabs"><button type="button" data-up="igv" data-v="fol" class="${fol ? "on" : ""}">팔로워 ${phK(I.followers || list.length)}</button><button type="button" data-up="igv" data-v="fing" class="${fol ? "" : "on"}">팔로잉 ${phK(I.following || list.length)}</button></div><div class="ph-body">`
       + (list.map(x => `<div class="ph-row"><span class="ph-av sm">${esc(phPlain(x.u || x.name || "").slice(0, 1))}</span><span class="ph-mid"><b>${esc(phPlain(x.u || ""))}</b><small>${esc(phPlain(x.name || ""))}${x.note ? " · " + esc(phPlain(x.note)) : ""}</small></span><span class="ph-fbtn">${fol ? "삭제" : "팔로잉"}</span></div>`).join("") || `<div class="ph-msg sm">목록이 없어요. 위 반짝이 버튼으로 채울 수 있어요</div>`) + `</div>`;
   }
   if (v === "prof") {
     const cells = I.posts.map((p, i) => ({ p, i })).reverse().map((x, k) => `<button type="button" class="ph-cell" data-up="igopen" data-v="m:${x.i}" style="background:hsl(${(k * 53 + 25) % 360} 20% 80%)">${esc(phPlain(x.p.img))}</button>`).join("");
-    const nF = I.followers || I.follower_list.length + (C ? 1 : 0), nG = I.following || I.following_list.length + (C ? 1 : 0);
+    const nS = sideIgs(c).length, nF = I.followers || I.follower_list.length + (C ? 1 : 0) + nS, nG = I.following || I.following_list.length + (C ? 1 : 0) + nS;
     return upHead(esc(myHandle(c)), aiBtn) + note + `<div class="ph-body"><div class="ph-prof"><span class="ph-ring">${c.uavatar ? `<img src="${esc(c.uavatar)}" alt="">` : ""}</span><span class="ph-stats"><span><b>${I.posts.length}</b><small>게시물</small></span><button type="button" data-up="igv" data-v="fol"><b>${phK(nF)}</b><small>팔로워</small></button><button type="button" data-up="igv" data-v="fing"><b>${phK(nG)}</b><small>팔로잉</small></button></span></div>
 <div class="ph-bio"><b>${esc(I.name || c.uname || "")}</b><br>${esc(I.bio || "").replace(/\n/g, "<br>")}</div>
 <div class="ph-btns"><button type="button" class="up-igbtn" data-up="igv" data-v="edit">프로필 편집</button><button type="button" class="up-igbtn" data-up="igv" data-v="new">새 게시물</button></div>
 <div class="ph-cells">${cells || `<span class="ph-cell" style="grid-column:1/-1;background:#f6f1f4">첫 게시물을 올려 보세요</span>`}</div></div>` + upIgBar("prof");
   }
   const feed = upIgFeed(c);
-  const stories = [C && C.user ? C.user : null].concat(I.following_list.slice(0, 5).map(x => x.u)).filter(Boolean).map((s, i) => `<span class="ph-story"><i class="${i > 2 ? "seen" : ""}"><em></em></i><small>${esc(phPlain(s))}</small></span>`).join("");
+  const stories = [C && C.user ? C.user : null].concat(sideIgs(c).map(s => s.C.user || s.N)).concat(I.following_list.slice(0, 5).map(x => x.u)).filter(Boolean).map((s, i) => `<span class="ph-story"><i class="${i > 2 ? "seen" : ""}"><em></em></i><small>${esc(phPlain(s))}</small></span>`).join("");
   const hint = !C ? `<div class="ph-msg sm">${esc(c.name)}의 인스타를 아직 안 열었어요.<button type="button" data-up="igload">${esc(c.name)} 인스타 불러오기</button></div>` : "";
   return `<div class="ph-head ig"><button type="button" class="ph-ib" data-up="back" aria-label="뒤로">${phIc("back", 22)}</button><h4 class="ig">인스타</h4>${aiBtn}${upResetBtn("uinsta")}<button type="button" class="ph-ib ig-dmb" data-up="igv" data-v="dm" aria-label="메시지">${phIc("send", 22)}${igDM(c).unread ? `<b>${igDM(c).unread}</b>` : ""}</button></div>${note}<div class="ph-body">${stories ? `<div class="ph-stories">${stories}</div>` : ""}${hint}${feed.map((x, k) => upIgCard(c, x, k, false)).join("") || `<div class="ph-msg sm">피드가 비어 있어요</div>`}</div>` + upIgBar("feed");
 }
@@ -5392,7 +5401,8 @@ async function upIgReact(c, key, first) {
   const cm = p.comments || (p.comments = []);
   const fresh = cm.filter(m => m.byUser && !m.seen);
   if (!first && !fresh.length) return;
-  const owner = x.src === "m" ? `${u}(@${me})` : x.src === "c" ? `${c.name}(@${ch})` : `@${phPlain(x.who)}`;
+  const owner = x.src === "m" ? `${u}(@${me})` : x.src === "c" ? `${c.name}(@${ch})` : x.N ? `${x.N}(@${phPlain(x.who)})` : `@${phPlain(x.who)}`;
+  const sides = sideIgs(c).map(s => { const cp = castPeople(c).find(q => q.name.trim() === s.N); return `${s.N}(@${phPlain(s.C.user || s.N)})` + (cp && (cp.prompt || "").trim() ? ` — ${sub(cp.prompt, c).replace(/\s+/g, " ").slice(0, 160)}` : ""); });
   const friends = I.following_list.concat(I.follower_list).slice(0, 12).map(f => "@" + phPlain(f.u)).join(", ");
   const prompt = `너는 인스타그램 게시물에 새로 달릴 댓글과 답글을 만든다.
 
@@ -5409,7 +5419,7 @@ ${cm.slice(-15).map(m => `${m.re ? "  ㄴ " : ""}@${phPlain(m.u)}: ${phPlain(m.t
 ${fresh.length && fresh[fresh.length - 1].toU ? `\n[방금 ${josa(u, "이", "가")} 단 답글]\n@${me}: ${phPlain(fresh[fresh.length - 1].t)} (@${fresh[fresh.length - 1].toU}의 댓글 "${String(fresh[fresh.length - 1].toT || "").slice(0, 80)}"에 단 답글. @${fresh[fresh.length - 1].toU}가 다시 답할 수도, 안 할 수도 있다. 답한다면 그 사람 말투로, re는 true)\n` : ""}
 [규칙]
 - ${u}의 인스타 아이디는 @${me}, ${c.name}의 아이디는 @${ch}다. 서로 맞팔이라 누구 계정인지 안다.
-${first && x.src === "m" ? `- ${u}가 방금 올린 게시물이다. ${u}의 친구들(${friends || "지인들"})이 댓글을 단다. ${c.name}도 볼 수 있다. 관계와 성격에 맞게 댓글을 달지, 좋아요만 누를지, 그냥 넘길지 정한다. 단다면 u를 "${ch}"로.` : `- ${josa(u, "이", "가")} 새로 단 댓글에 게시물 주인(${owner})이나 다른 사람이 답글을 달 수도, 안 달 수도 있다. 성격과 관계대로 정한다. 답글은 re를 true로.`}
+${sides.length ? `- 이 이야기의 다른 인물 계정: ${sides.join(" / ")}. 이 사람들도 ${u}와 서로 팔로우한 사이라 게시물과 댓글을 볼 수 있다. 각자 성격과 ${u}와의 관계대로 댓글을 달 수도, 좋아요만 누를 수도, 그냥 넘길 수도 있다. 단다면 u에 그 사람 아이디를 쓰고 그 사람 말투로 쓴다.\n` : ""}${first && x.src === "m" ? `- ${u}가 방금 올린 게시물이다. ${u}의 친구들(${friends || "지인들"})이 댓글을 단다. ${c.name}도 볼 수 있다. 관계와 성격에 맞게 댓글을 달지, 좋아요만 누를지, 그냥 넘길지 정한다. 단다면 u를 "${ch}"로.` : `- ${josa(u, "이", "가")} 새로 단 댓글에 게시물 주인(${owner})이나 다른 사람이 답글을 달 수도, 안 달 수도 있다. 성격과 관계대로 정한다. 답글은 re를 true로.`}
 - ${u}(@${me})의 댓글은 쓰지 않는다. ${u}의 이름을 딴 비슷한 아이디로도 쓰지 않는다. ${u}의 댓글은 ${u}가 직접 단다.${upWhenRule(p.when)} 0~6개. 달 게 없으면 빈 배열. 한 사람(게시물 주인 포함)은 이번에 댓글을 하나만 단다. 여러 개로 나눠 쓰고 싶은 말은 그 한 댓글에 합친다. 길이는 그 사람 성격과 할 말대로(짧게 끝내도 된다).
 - 답글(re가 true)은 누구한테 하는 말인지 to에 그 사람 아이디를 쓴다. 본문 맨 앞에 @아이디를 붙여도 된다.${PH_LANGS[phLang(c)] ? `
 - 댓글과 답글은 ${PH_LANGS[phLang(c)]}로 쓰고, 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다. 아이디에는 번역을 붙이지 않는다. 한국어를 할 줄 아는 사람이 ${u}에게 일부러 한국어로 답하는 경우만 한국어로 쓰고, 그때는 번역을 붙이지 않는다.` : ""}
