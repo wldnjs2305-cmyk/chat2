@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.55","items":[]}
+  {"v":"3.58","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1630,6 +1630,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
         <button id="qLen">응답</button>
         <button id="qModel">모델</button>
         <button id="qMob">모브</button>
+        <button id="qPov">시점</button>
         <button id="qMem">기억<span class="mdot" id="memDot" hidden></span></button>
         <button id="qPhone">핸드폰</button>
         <button id="qUPhone">내 폰</button>
@@ -3867,7 +3868,12 @@ ${glossRule}
   const tense = c.tense === "past"
     ? "- 지문은 3인칭 과거형(~했다, ~였다)으로 쓴다."
     : "- 지문은 3인칭 현재형(~한다, ~본다)으로 쓴다.";
-  return `너는 지금부터 캐릭터 롤플레이 채팅의 '${c.name}' 역할을 맡는다. ${castList.length ? `이후 대화에서 너는 ${josa(c.name, "과", "와")} [같이 나오는 인물]을 함께 연기한다.` : `이후 대화에서 너는 오직 ${c.name}으로서 응답한다.`}
+  const pov = String(c.pov || ""), povN = pov.startsWith("name:") ? pov.slice(5).trim() : "";
+  const povRule = pov === "auto" ? `\n- 시점: 장면마다 그 장면을 가장 잘 보여 줄 인물의 시점으로 쓴다. 장면이나 흐름이 바뀌면 시점 인물도 자연스럽게 바뀐다. 한 인물의 시점에만 계속 머물지 않는다. 한 문단 안에서는 시점을 섞지 않는다. ${u}의 속마음은 어떤 시점에서도 쓰지 않는다.`
+    : pov === "all" ? `\n- 시점: 전지적 작가 시점으로 쓴다. 그 자리에 있는 여러 인물의 속마음과 반응을 고루 오가며 쓰고, 한 사람에게만 치우치지 않는다. ${u}의 속마음은 쓰지 않는다.`
+    : povN ? `\n- 시점: ${povN}의 시점으로 쓴다(여러 명이면 그 인물들의 시점을 오간다). 그 인물이 보고 듣고 느끼는 것을 중심으로 서술하고, 속마음도 그 인물의 것을 쓴다. 다른 인물의 속은 그 인물의 눈에 비친 만큼만 드러낸다. ${u}의 속마음은 쓰지 않는다.`
+    : "";
+  return `${povRule ? `너는 지금부터 이 이야기를 쓰는 작가다. ${u}를 뺀 모든 인물을 네가 쓴다. 이야기의 중심 인물은 '${c.name}'이고, 서술 시점은 [작성 규칙]의 시점 줄을 따른다.${castList.length ? ` [같이 나오는 인물]도 함께 쓴다.` : ""}` : `너는 지금부터 캐릭터 롤플레이 채팅의 '${c.name}' 역할을 맡는다. ${castList.length ? `이후 대화에서 너는 ${josa(c.name, "과", "와")} [같이 나오는 인물]을 함께 연기한다.` : `이후 대화에서 너는 오직 ${c.name}으로서 응답한다.`}`}
 ${myRule()}${mobRule(c)}${smsRule()}
 ${(c.world || "").trim() ? "[상황 및 세계관]\n" + sub(c.world, c) + "\n\n" : ""}[캐릭터 설정]
 ${sub(c.prompt, c) || "(설정 없음)"}
@@ -3877,7 +3883,7 @@ ${sub(c.upersona, c) || "(설정 없음)"}
 
 [작성 규칙]
 - 한국어로 쓴다.
-${tense}
+${tense}${povRule}
 ${fmtRules}${langRule}${narrRule}
 ${psReplace ? "" : `- 대사나 질문으로 끝내야 하는 건 아니다. 지문으로 끝나도 되고 대사로 끝나도 된다. 장면 흐름에 맞게 정한다.
 - 이전 응답의 형식을 그대로 따라 하지 않는다. 문단 수, 지문과 대사의 순서·비율·길이는 매번 새로 정한다. 지문으로 시작해도 되고 대사로 시작해도 된다. 어떤 응답은 지문이 많고 어떤 응답은 대사가 많아도 된다. 앞의 답과 모양이 비슷해지는 것을 경계한다.`}
@@ -4421,7 +4427,7 @@ ${(() => { const b = phoneBrief(c, k); return b ? `\n[이미 폰에 있는 다�
 - ${c.name}의 설정, 성격, 인간관계, 최근 대화에서 드러난 일과 자연스럽게 이어지게 쓴다. 설정이나 대화에 없는 큰 사건(사고, 새 연인 등)은 지어내지 않는다.
 - 사람은 설정과 대화에 이미 나온 인물을 우선 쓰고, 없으면 ${c.name}의 생활에 있을 법한 사람으로 정한다. ${u}는 ${josa(c.name, "이", "가")} 폰에 저장했을 법한 이름이나 호칭으로 쓴다.
 - ${u}와 관련된 기록은 대화에서 실제로 있었던 일과 어긋나지 않게 한다. 둘이 문자나 통화를 한 적이 대화에 나오지 않았으면 ${u}와의 기록은 짧은 일상적인 것만 쓴다.
-- 세계관과 시대에 맞는 앱·서비스·가게 이름을 쓴다. 날짜와 시각은 최근 대화 시점을 기준으로 자연스럽게 쓴다.
+${k === "insta" && c.igdm && c.igdm.h ? `- 인스타 계정 아이디(user)는 ${c.igdm.h}로 한다. 이미 그 아이디로 댓글을 단 적이 있다.\n` : ""}- 세계관과 시대에 맞는 앱·서비스·가게 이름을 쓴다. 날짜와 시각은 최근 대화 시점을 기준으로 자연스럽게 쓴다.
 - 폰 주인의 말투는 ${c.name}의 말투 그대로, 다른 사람들은 각자 말투로 쓴다.${langRule}
 ${mode === "more" ? `
 [이미 이 앱에 있는 기록]
@@ -5149,14 +5155,16 @@ function upClick(e) {
     return;
   }
   else if (a === "igcmt") {
-    const t = (($("#upIgC") || {}).value || "").trim(); if (!t) return;
+    let t = (($("#upIgC") || {}).value || "").trim(); if (!t) return;
     const x = upIgPost(c, PH.igp); if (!x) return;
+    let who = myHandle(c), as = "";
+    { const mm = t.match(/^@?([^\s:：@]{1,30})\s*[:：]\s*([\s\S]+)$/), P = mm && igPersona(c, mm[1]); if (P && mm[2].trim()) { who = P.h; as = P.n; t = mm[2].trim(); } }
     const cm = x.p.comments = x.p.comments || [], ri = PH.igReply, tg = ri != null ? cm[ri] : null;
     if (tg) {
       let at = ri + 1; while (at < cm.length && cm[at].re) at++;
       const tu = phPlain(tg.u);
-      cm.splice(at, 0, { u: myHandle(c), t: (t.startsWith("@") ? t : "@" + tu + " " + t), re: true, byUser: true, toU: tu, toT: phPlain(tg.t) });
-    } else cm.push({ u: myHandle(c), t, byUser: true });
+      cm.splice(at, 0, Object.assign({ u: who, t: (t.startsWith("@") ? t : "@" + tu + " " + t), re: true, byUser: true, toU: tu, toT: phPlain(tg.t) }, as ? { as } : {}));
+    } else cm.push(Object.assign({ u: who, t, byUser: true }, as ? { as } : {}));
     PH.igReply = null; save(c.id); $("#upIgC").value = ""; phoneRender();
     const key = PH.igp; clearTimeout(PH.igTimer); PH.igTimer = setTimeout(() => { if (PH && PH.owner === "user") upIgReact(c, key, false); }, 2600);
     return;
@@ -5307,6 +5315,15 @@ function sideIgs(c) {
   return Object.keys(S).map((N, k) => { const a = S[N] && S[N].phone && S[N].phone.apps && S[N].phone.apps.insta; return { N, k, C: a && a.data ? a.data : null }; }).filter(x => x.C);
 }
 const myHandle = c => upIg(c).user || (c.uname || "me");
+// "선우: 댓글" 처럼 쓰면 그 인물 이름으로 댓글을 달아요 (이야기에 나오는 인물만)
+function igPersona(c, key) {
+  key = phPlain(key || "").replace(/^@/, "").trim(); if (!key) return null;
+  const list = [{ n: c.name, h: igCharHandle(c) }];
+  Object.keys(c.sidePh || {}).forEach(N => { const a = c.sidePh[N] && c.sidePh[N].phone && c.sidePh[N].phone.apps && c.sidePh[N].phone.apps.insta; list.push({ n: N, h: phPlain((a && a.data && a.data.user) || N).replace(/^@/, "") }); });
+  castPeople(c).forEach(x => { const n = x.name.trim(); if (!list.some(q => q.n === n)) list.push({ n, h: n }); });
+  const short = n => /^[가-힣]{3}$/.test(n) ? n.slice(1) : n;
+  return list.find(q => q.n === key || q.h === key || short(q.n) === key) || null;
+}
 // 피드: 내 글 → 캐릭터 글 → 친구 글
 function upIgFeed(c) {
   const I = upIg(c), C = charIg(c), out = [];
@@ -5357,6 +5374,7 @@ function upInsta(c, note) {
   { const C0 = charIg(c), I0 = upIg(c); let ch = igScrub(c);
     if (C0 && igFixReplies(C0.feed, p => p.author || C0.user)) ch = true;
     if (igFixReplies(I0.feed, p => p.author)) ch = true;
+    { const h = igCharHandle(c); if (h && h !== c.name) { const fix = p => (p.comments || []).forEach(m => { if (phPlain(m.u) === c.name) { m.u = h; m.char = true; ch = true; } }); I0.posts.forEach(fix); I0.feed.forEach(fix); sideIgs(c).forEach(s => (s.C.feed || []).forEach(fix)); } }
     if (ch) save(c.id); }
   if (v === "dm" || v === "dmt") return upIgDMView(c);
   if (v === "setup") {
@@ -5397,10 +5415,12 @@ function upInsta(c, note) {
 // 댓글 반응: 게시물 주인이나 다른 사람들이 답할 수도, 안 할 수도
 async function upIgReact(c, key, first) {
   const x = upIgPost(c, key); if (!x || PH.busy["ig:" + key]) return;
-  const p = x.p, I = upIg(c), C = charIg(c), u = c.uname || "유저", me = myHandle(c), ch = (C && C.user) || c.name;
+  const p = x.p, I = upIg(c), C = charIg(c), u = c.uname || "유저", me = myHandle(c);
+  const noH = !(C && C.user) && !(c.igdm && c.igdm.h), ch = (C && C.user) || (c.igdm && c.igdm.h) || c.name;
   const cm = p.comments || (p.comments = []);
   const fresh = cm.filter(m => m.byUser && !m.seen);
   if (!first && !fresh.length) return;
+  const lastFr = fresh[fresh.length - 1], asN = (lastFr && lastFr.as) || "", frU = lastFr ? phPlain(lastFr.u) : me;
   const owner = x.src === "m" ? `${u}(@${me})` : x.src === "c" ? `${c.name}(@${ch})` : x.N ? `${x.N}(@${phPlain(x.who)})` : `@${phPlain(x.who)}`;
   const sides = sideIgs(c).map(s => { const cp = castPeople(c).find(q => q.name.trim() === s.N); return `${s.N}(@${phPlain(s.C.user || s.N)})` + (cp && (cp.prompt || "").trim() ? ` — ${sub(cp.prompt, c).replace(/\s+/g, " ").slice(0, 160)}` : ""); });
   const friends = I.following_list.concat(I.follower_list).slice(0, 12).map(f => "@" + phPlain(f.u)).join(", ");
@@ -5416,10 +5436,10 @@ ${phoneCtx(c)}
 
 [지금까지 댓글]
 ${cm.slice(-15).map(m => `${m.re ? "  ㄴ " : ""}@${phPlain(m.u)}: ${phPlain(m.t)}`).join("\n") || "(없음)"}
-${fresh.length && fresh[fresh.length - 1].toU ? `\n[방금 ${josa(u, "이", "가")} 단 답글]\n@${me}: ${phPlain(fresh[fresh.length - 1].t)} (@${fresh[fresh.length - 1].toU}의 댓글 "${String(fresh[fresh.length - 1].toT || "").slice(0, 80)}"에 단 답글. @${fresh[fresh.length - 1].toU}가 다시 답할 수도, 안 할 수도 있다. 답한다면 그 사람 말투로, re는 true)\n` : ""}
+${fresh.length && fresh[fresh.length - 1].toU ? `\n[방금 ${josa(asN || u, "이", "가")} 단 답글]\n@${frU}: ${phPlain(fresh[fresh.length - 1].t)} (@${fresh[fresh.length - 1].toU}의 댓글 "${String(fresh[fresh.length - 1].toT || "").slice(0, 80)}"에 단 답글. @${fresh[fresh.length - 1].toU}가 다시 답할 수도, 안 할 수도 있다. 답한다면 그 사람 말투로, re는 true)\n` : ""}
 [규칙]
-- ${u}의 인스타 아이디는 @${me}, ${c.name}의 아이디는 @${ch}다. 서로 맞팔이라 누구 계정인지 안다.
-${sides.length ? `- 이 이야기의 다른 인물 계정: ${sides.join(" / ")}. 이 사람들도 ${u}와 서로 팔로우한 사이라 게시물과 댓글을 볼 수 있다. 각자 성격과 ${u}와의 관계대로 댓글을 달 수도, 좋아요만 누를 수도, 그냥 넘길 수도 있다. 단다면 u에 그 사람 아이디를 쓰고 그 사람 말투로 쓴다.\n` : ""}${first && x.src === "m" ? `- ${u}가 방금 올린 게시물이다. ${u}의 친구들(${friends || "지인들"})이 댓글을 단다. ${c.name}도 볼 수 있다. 관계와 성격에 맞게 댓글을 달지, 좋아요만 누를지, 그냥 넘길지 정한다. 단다면 u를 "${ch}"로.` : `- ${josa(u, "이", "가")} 새로 단 댓글에 게시물 주인(${owner})이나 다른 사람이 답글을 달 수도, 안 달 수도 있다. 성격과 관계대로 정한다. 답글은 re를 true로.`}
+- ${u}의 인스타 아이디는 @${me}${noH ? `다. ${c.name}의 인스타 아이디는 아직 정해지지 않았다. ${c.name}에게 어울리는 인스타 아이디(영문 소문자·숫자·밑줄·마침표)를 하나 정해 ch에 적고, ${josa(c.name, "이", "가")} 댓글을 달 때는 이름이 아니라 그 아이디를 u에 쓴다.` : `, ${c.name}의 아이디는 @${ch}다.`} 서로 맞팔이라 누구 계정인지 안다.
+${sides.length ? `- 이 이야기의 다른 인물 계정: ${sides.join(" / ")}. 이 사람들도 ${u}와 서로 팔로우한 사이라 게시물과 댓글을 볼 수 있다. 각자 성격과 ${u}와의 관계대로 댓글을 달 수도, 좋아요만 누를 수도, 그냥 넘길 수도 있다. 단다면 u에 그 사람 아이디를 쓰고 그 사람 말투로 쓴다.\n` : ""}${first && x.src === "m" ? `- ${u}가 방금 올린 게시물이다. ${u}의 친구들(${friends || "지인들"})이 댓글을 단다. ${c.name}도 볼 수 있다. 관계와 성격에 맞게 댓글을 달지, 좋아요만 누를지, 그냥 넘길지 정한다. 단다면 u를 "${ch}"로.` : asN ? `- 방금 ${asN}(@${frU})가 댓글을 달았다. 그 댓글에 게시물 주인(${owner})이나 다른 사람이 답글을 달 수도, 안 달 수도 있다. 성격과 ${asN}와의 관계대로 정한다. 답글은 re를 true로. 이번에는 ${asN}(@${frU})의 댓글을 더 쓰지 않는다.` : `- ${josa(u, "이", "가")} 새로 단 댓글에 게시물 주인(${owner})이나 다른 사람이 답글을 달 수도, 안 달 수도 있다. 성격과 관계대로 정한다. 답글은 re를 true로.`}
 - ${u}(@${me})의 댓글은 쓰지 않는다. ${u}의 이름을 딴 비슷한 아이디로도 쓰지 않는다. ${u}의 댓글은 ${u}가 직접 단다.${upWhenRule(p.when)} 0~6개. 달 게 없으면 빈 배열. 한 사람(게시물 주인 포함)은 이번에 댓글을 하나만 단다. 여러 개로 나눠 쓰고 싶은 말은 그 한 댓글에 합친다. 길이는 그 사람 성격과 할 말대로(짧게 끝내도 된다).
 - 답글(re가 true)은 누구한테 하는 말인지 to에 그 사람 아이디를 쓴다. 본문 맨 앞에 @아이디를 붙여도 된다.${PH_LANGS[phLang(c)] ? `
 - 댓글과 답글은 ${PH_LANGS[phLang(c)]}로 쓰고, 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다. 아이디에는 번역을 붙이지 않는다. 한국어를 할 줄 아는 사람이 ${u}에게 일부러 한국어로 답하는 경우만 한국어로 쓰고, 그때는 번역을 붙이지 않는다.` : ""}
@@ -5428,18 +5448,21 @@ ${sides.length ? `- 이 이야기의 다른 인물 계정: ${sides.join(" / ")}.
 - 따로, ${josa(c.name, "은", "는")} 이 게시물에서 ${u}(@${me})가 한 댓글·답글(누구한테 뭐라고 했는지)을 볼 수 있다. 그걸 보고 ${u}에게 인스타 DM을 보낼지 정한다. 보낼 만할 때만 보낸다(시비, 질투, 궁금함, 놀림, 걱정 등 ${c.name}의 성격과 관계상 가만히 못 있을 때). 별일 아니면 안 보낸다. 보낸다면 dm에 인스타 DM답게 짧은 메시지 보통 1~2개(많아야 3개), 안 보내면 빈 배열. DM으로는 성에 안 찰 만큼 가만히 못 있으면(드물게) DM 대신 전화를 건다. 그땐 call을 true로, dm은 빈 배열로.${PH_LANGS[phLang(c)] ? ` DM은 ${PH_LANGS[phLang(c)]}로 쓰고 문장마다 바로 뒤에 [[자연스러운 한국어 번역]]을 붙인다.` : ""}
 
 [형식]
-{"likes":0,"cmts":[{"u":"아이디","t":"댓글","re":false,"to":"답글이면 상대 아이디"}],"dm":["DM"],"call":false}
+{"likes":0,"cmts":[{"u":"아이디","t":"댓글","re":false,"to":"답글이면 상대 아이디"}],"dm":["DM"],"call":false${noH ? `,"ch":"${c.name}의 아이디"` : ""}}
 likes는 지금 좋아요 수(모르면 0). JSON 하나만 출력한다.`;
   const k = "ig:" + key, ctl = new AbortController(); PH.ctl[k] = ctl; PH.busy[k] = 1; PH.err[k] = ""; phoneRender();
   try {
     const j = await upAsk(prompt, ctl.signal);
     fresh.forEach(m => { m.seen = 1; });
-    const lastT = fresh.length ? me : "";
-    const add = upOnePer((j.cmts || []).filter(m => m && m.t && phPlain(m.u) !== me && !igIsMe(c, m.u))).map(m => {
+    let chH = ch;
+    if (noH) { const h = phPlain(j.ch || "").replace(/^@/, "").trim(); if (/^[a-z0-9._]{3,30}$/i.test(h) && h !== me) { igDM(c).h = h; chH = h; } }
+    if (chH !== c.name) (j.cmts || []).forEach(m => { if (m && phPlain(m.u).replace(/^@/, "") === c.name) m.u = chH; });
+    const lastT = fresh.length ? frU : "";
+    const add = upOnePer((j.cmts || []).filter(m => m && m.t && phPlain(m.u) !== me && !igIsMe(c, m.u) && !(asN && phPlain(m.u).replace(/^@/, "") === frU))).map(m => {
       const re = !!m.re, to = phPlain(m.to || (re ? lastT : "")).replace(/^@/, "");
       let t = String(m.t).trim();
       if (re && to && to !== phPlain(m.u) && !/^@/.test(t)) t = "@" + to + " " + t;
-      return { u: phPlain(m.u), t, re, char: phPlain(m.u) === phPlain(ch) };
+      return { u: phPlain(m.u), t, re, char: phPlain(m.u) === phPlain(chH) };
     });
     const lastF = fresh[fresh.length - 1];
     if (lastF && lastF.re && cm.indexOf(lastF) >= 0) { let at = cm.indexOf(lastF) + 1; while (at < cm.length && cm[at].re && !cm[at].byUser) at++; add.forEach(m => { m.re = true; }); cm.splice(at, 0, ...add); }
@@ -5448,7 +5471,8 @@ likes는 지금 좋아요 수(모르면 0). JSON 하나만 출력한다.`;
     if (first) p.reacted = 1;
     save(c.id);
     const dm = (Array.isArray(j.dm) ? j.dm : j.dm ? [j.dm] : []).map(x => String(typeof x === "string" ? x : (x && x.text) || "").trim()).filter(x => phPlain(x));
-    if (j.call === true && (fresh.length || first)) upCharCall(c, `인스타에서 ${josa(u, "이", "가")} 단 댓글·답글을 보고 (${fresh.map(m => phPlain(m.t)).join(" / ").slice(0, 120)})`);
+    if (asN) { /* 다른 인물 이름으로 단 댓글에는 DM·전화가 오지 않아요 */ }
+    else if (j.call === true && (fresh.length || first)) upCharCall(c, `인스타에서 ${josa(u, "이", "가")} 단 댓글·답글을 보고 (${fresh.map(m => phPlain(m.t)).join(" / ").slice(0, 120)})`);
     else if (dm.length && (fresh.length || first)) upCharDM(c, dm.slice(0, 3));
   } catch (e) { if (e.name !== "AbortError" && PH) PH.err[k] = e.message || "댓글을 못 불러왔어요."; }
   if (PH) { delete PH.busy[k]; delete PH.ctl[k]; phoneRender(); }
@@ -5542,7 +5566,7 @@ function instaBlock0(c) {
     out.push(`- ${josa(u, "이", "가")} 올린 게시물: ${phPlain(p.img).slice(0, 50)} / "${phPlain(p.cap).slice(0, 60)}"` + (mine ? ` → ${josa(c.name, "이", "가")} 단 댓글: "${phPlain(mine.t).slice(0, 50)}"` : ""));
   });
   if (C) (C.feed || []).forEach(p => {
-    const um = (p.comments || []).filter(m => m.byUser); if (!um.length) return;
+    const um = (p.comments || []).filter(m => m.byUser && !m.as); if (!um.length) return;
     out.push(`- ${c.name}의 게시물 "${phPlain(p.cap).slice(0, 40)}"에 ${josa(u, "이", "가")} 단 댓글: "${phPlain(um[um.length - 1].t).slice(0, 60)}"`);
   });
   return out.length ? `[인스타에서 있었던 일 (@${ch} ↔ @${I.user || u})]\n${out.slice(-6).join("\n")}\n\n` : "";
@@ -6012,7 +6036,7 @@ function igDM(c) {
   const D = c.igdm; if (!Array.isArray(D.u)) D.u = []; if (!Array.isArray(D.others)) D.others = [];
   return D;
 }
-const igCharHandle = c => { const C = charIg(c); return phPlain((C && C.user) || c.name).replace(/^@/, ""); };
+const igCharHandle = c => { const C = charIg(c); return phPlain((C && C.user) || (c.igdm && c.igdm.h) || c.name).replace(/^@/, ""); };
 const igUserHandle = c => { const I = c.uphone && c.uphone.insta; return phPlain((I && I.user) || c.uname || "나").replace(/^@/, ""); };
 // "19:20", "午後7:20" 같은 것도 "오후 7:20" 으로
 function igHM(s) {
@@ -6806,9 +6830,20 @@ $("#qModel").onclick = () => {
   if (!list.length) acts.push(["설정에서 모델 목록 채우기", () => $("#setBtn").click()]);
   showMsgMenu(acts);
 };
+function povLabel(c) { const v = String((c && c.pov) || ""); return v === "auto" ? "흐름" : v === "all" ? "모두" : v.startsWith("name:") ? v.slice(5).trim().slice(0, 8) : "기본"; }
+function updPovBtn() { const c = char(), b = $("#qPov"); if (b) b.textContent = "시점 · " + povLabel(c); }
+$("#qPov").onclick = () => {
+  const c = char(); if (!c || busy) return;
+  const cur0 = String(c.pov || ""), set = v => { c.pov = v; save(null); updPovBtn(); }, mk = (lab, v) => [(cur0 === v ? "✓ " : "") + lab, () => set(v)];
+  const names = [c.name].concat(castPeople(c).map(x => x.name.trim())).filter((n, i, a) => n && a.indexOf(n) === i);
+  const acts = [mk(`기본 (${c.name} 중심)`, ""), mk("흐름에 맞게 (장면마다 알아서)", "auto"), mk("모두의 시점 (전지적)", "all")]
+    .concat(names.map(n => mk(n + " 시점", "name:" + n)));
+  acts.push([(cur0.startsWith("name:") && !names.includes(cur0.slice(5)) ? "✓ " : "") + "직접 쓰기 (이름 적기)", () => { const v = prompt("누구 시점으로 볼까요? 여러 명이면 쉼표로 적어요. (예: 선우, 은우)", cur0.startsWith("name:") ? cur0.slice(5) : ""); if (v && v.trim()) set("name:" + v.trim().slice(0, 40)); }]);
+  showMsgMenu(acts);
+};
 function updMobBtn() { const c = char(), b = $("#qMob"); if (b) b.textContent = "모브 · " + (c && c.mob ? "켬" : "끔"); }
 $("#qMob").onclick = () => { const c = char(); if (!c || busy) return; c.mob = !c.mob; save(null); updMobBtn(); };
-function updLenBtn() { updModelBtn(); updMobBtn(); const c = char(); $("#qLen").textContent = "응답 · " + (LEN_NAMES[c && c.len] || "보통"); }
+function updLenBtn() { updModelBtn(); updMobBtn(); updPovBtn(); const c = char(); $("#qLen").textContent = "응답 · " + (LEN_NAMES[c && c.len] || "보통"); }
 $("#qLen").onclick = () => {
   const c = char(); if (!c) return;
   showMsgMenu(Object.keys(LEN_NAMES).map(k => [(c.len === k ? "✓ " : "") + LEN_NAMES[k], () => { c.len = k; save(null); updLenBtn(); }]));
