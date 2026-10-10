@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.58","items":[]}
+  {"v":"3.61","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -246,6 +246,9 @@ button,.quick button,.icon{touch-action:manipulation}
 .msg.user.oocu{display:block}
 .msg.user.oocu .ooc{width:100%}
 .nline{color:var(--soft);font-style:italic;font-family:var(--font-serif);margin:4px 2px 12px;line-height:1.75;font-size:.96em}
+.nbox{color:var(--narr);font-style:italic;font-family:var(--font-serif);line-height:1.8;margin:6px 6px 16px;white-space:normal}
+.nbox p{margin:0 0 .7em}.nbox p:last-child{margin-bottom:0}
+body[data-novelbg] .log .nbox{color:rgba(230,230,238,.82);text-shadow:0 1px 2px rgba(0,0,0,.55)}
 .msg.user.unov{display:block;margin:30px 0;padding:26px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .unov .np{margin:0 0 .6em;line-height:1.75}
 .unov .np:last-child{margin:0}
@@ -568,7 +571,8 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 /* 대화 */
 :root[data-skin="tk"] body:not([data-novelbg]) .log .who{color:var(--tk-mauve)}
 :root[data-skin="tk"] body:not([data-novelbg]) .log .mav{border-radius:0;border:1px solid #f4f0f4;background:#0e0b0e;color:#f4f0f4;font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","GounBatang",serif;font-weight:500}
-:root[data-skin="tk"] body:not([data-novelbg]) .log .mav img{border-radius:0}
+:root[data-skin="tk"] body:not([data-novelbg]) .log .mav img{border-radius:50%}
+:root[data-skin="tk"] body:not([data-novelbg]) .log .mav{border-radius:50%}
 :root[data-skin="tk"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body{width:fit-content;max-width:100%;background:#1d1822;border:1.5px solid #f4f0f4;border-radius:2px 14px 14px 14px;padding:11px 14px;box-shadow:0 0 12px rgba(244,240,244,.4);color:#f4f0f4;--ink:#f4f0f4;--narr:#a898a6;--faint:#8e7f8c}
 /* 推し(고정한 캐릭터): 핑크 글로우 */
 :root[data-skin="tk"] body:not([data-novelbg]) #chat[data-oshi] > .log.fmt-bubble .msg.char .body{border-color:var(--tk-pink);box-shadow:0 0 12px rgba(255,126,185,.45)}
@@ -662,7 +666,8 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 /* 대화 */
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) .log .who{color:var(--tk-mauve)}
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) .log .mav{border-radius:0;border:1px solid #1d1720;background:#ffffff;color:#1d1720;font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","GounBatang",serif;font-weight:500}
-:root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) .log .mav img{border-radius:0}
+:root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) .log .mav img{border-radius:50%}
+:root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) .log .mav{border-radius:50%}
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body{width:fit-content;max-width:100%;background:#fff;border:1.5px solid #1d1720;border-radius:2px 14px 14px 14px;padding:11px 14px;box-shadow:0 0 10px rgba(29,23,32,.14);color:#1d1720;--ink:#1d1720;--narr:#7a6a78;--faint:#7a6a78}
 /* 推し(고정한 캐릭터): 핑크 글로우 */
 :root[data-skin="tk"][data-tone="white"] body:not([data-novelbg]) #chat[data-oshi] > .log.fmt-bubble .msg.char .body{border-color:var(--tk-pink);box-shadow:0 0 12px rgba(255,126,185,.45)}
@@ -2820,7 +2825,21 @@ function autoSmsTime(text, history) {
   }).join("\n");
 }
 function renderPlainChunk(t) { return t && t.trim() ? renderBlocks(t, "bubble") : ""; }
+// >> 가 줄 중간에 붙어 나와도 새 줄로 떼어 내요
+function narrFix(t) { return String(t || "").replace(/([^\n>])[ \t]*(?:>>|》)[ \t]*/g, "$1\n>> "); }
+// 나레이션(>>)과 캐릭터 부분을 순서대로 나눠요
+function narrSplit(t) {
+  const out = []; narrFix(t).replace(/\r/g, "").split("\n").forEach(l => {
+    if (!l.trim()) return;
+    const m = l.match(/^\s*(?:>>|》)\s*(.*)$/), k = m ? "n" : "c", v = m ? m[1].replace(/\*/g, "") : l;
+    if (m && !v.trim()) return;
+    const last = out[out.length - 1];
+    if (last && last.k === k) last.t.push(v); else out.push({ k, t: [v] });
+  });
+  return out.map(x => ({ k: x.k, t: x.t.join("\n").trim() })).filter(x => x.t);
+}
 function renderBlocks(text, fmt) {
+  text = narrFix(text);
   const lines = text.replace(/\r/g, "").split(/\n/).map(l => l.trim()).filter(Boolean);
   let html = "", buf = [];
   const isMsgLine = l => { const m = l.match(SMS_RE); return !!m && !/^\//.test(m[1].trim()) && !OC_KINDS.includes(m[1].trim()); };
@@ -2872,6 +2891,7 @@ function mergeDialogue(text) {
   const out = [];
   let pending = "";
   paras.forEach(p => {
+    if (/^(?:>>|》)/.test(p)) { if (pending) { out.push(pending); pending = ""; } out.push(p); return; }
     if (!isNarr(p)) {
       if (out.length && out[out.length - 1].length + p.length < 600) out[out.length - 1] += " " + p;
       else if (out.length) out.push(p);
@@ -3616,8 +3636,16 @@ function renderLog(errText) {
     else if (multi) d.innerHTML = multi.map((sg, k) => bare
         ? `<div class="spkn">${esc(sg.who.name)}</div>${renderBlocks(sg.text, fmt)}${k === multi.length - 1 ? `<div class="tools"></div>` : ""}`
         : `<div class="mrow">${avHTML({ avatar: sg.who.avatar, name: sg.who.name }, "mav")}<div class="mcol"><div class="who">${esc(sg.who.name)}</div>${renderBlocks(sg.text, fmt)}${k === multi.length - 1 ? `<div class="tools"></div>` : ""}</div></div>`).join("");
+    else if (!bare && m.role === "assistant" && !m.ooc && !m.inner && narrSplit(m.text).some(x => x.k === "n")) {
+      const parts = narrSplit(m.text);
+      d.innerHTML = parts.map((x, k) => {
+        const tools = k === parts.length - 1 ? `<div class="tools"></div>` : "";
+        if (x.k === "n") return `<div class="nbox">${x.t.split("\n").filter(l => l.trim()).map(l => `<p>${esc(l.trim())}</p>`).join("")}${tools}</div>`;
+        return `<div class="mrow">${avHTML(c, "mav")}<div class="mcol"><div class="who">${esc(c.name)}</div>${renderBlocks(x.t, fmt)}${tools}</div></div>`;
+      }).join("");
+    }
     else d.innerHTML = bare ? inner : `<div class="mrow">${avHTML(c, "mav")}<div class="mcol">${inner}</div></div>`;
-    if (m.role !== "user" && !bare && !multi) d.querySelector(".who").textContent = c.name;
+    if (m.role !== "user" && !bare && !multi && d.querySelector(".who")) d.querySelector(".who").textContent = c.name;
     const whoEl = d.querySelector(".who");
     if (whoEl && m.role === "user") { if (ai.uav === false) whoEl.remove(); else whoEl.textContent = c.uname || "나"; }
     if (ttsReady() && m.role === "assistant" && !m.ooc && !m.inner && ttsLine(m.text, fmt)) {
@@ -3828,9 +3856,10 @@ function buildRules(c, cmd) {
 - 대사에 따옴표("")를 붙이지 않는다.
 - 지문과 대사는 한 문단 안에서 이어 쓴다. 지문 다음에 줄을 바꿔 대사를 따로 떼어놓지 않는다. (*지문* 대사 *지문* 대사 처럼 한 줄로 이어진다)`;
   const narrRule = c.narr === "some" || c.narr === "many" ? `
-- 나레이션을 쓸 수 있다. 나레이션은 ${c.name}의 말이나 행동이 아니라, 장면 밖에서 상황을 서술하는 목소리다. 시간·장소가 바뀌거나, 전화·인기척·날씨 같은 새 상황이 생기거나, 분위기를 짚어줄 때 쓴다.
-- 나레이션 줄은 >> 로 시작해 한 줄로 쓰고, 별표를 쓰지 않는다. 예: >> 30초 후. 복도에서 발소리가 들렸다.
-- 나레이션에서 ${c.uname || "유저"}의 말이나 속마음을 대신 쓰지 않는다. 상황만 던지고 반응은 맡긴다.
+- 나레이션을 쓸 수 있다. 나레이션은 ${c.name}의 말이나 행동이 아니라, 장면 밖에서 이야기를 들려주는 목소리다. 주변 풍경과 사물, 다른 사람의 움직임, 시간의 흐름을 그려 장면을 보여 주고, 새 사건이나 상황 변화(시간·장소가 바뀜, 전화·문자 알림, 인기척, 누가 들어옴 등)를 일으켜 이야기를 앞으로 끌고 간다.
+- 나레이션 문단은 줄 맨 앞에 >> 를 붙여 쓴다. 나레이션이 여러 줄이면 줄마다 >> 를 붙인다. 별표는 쓰지 않는다. >> 는 다른 문장 끝에 이어 붙이지 않고 늘 새 줄에서 시작한다.
+- 나레이션은 한두 문장으로 짧아도 되고, 장면을 그리느라 여러 문장이 되어도 된다. 답의 처음, 중간, 끝 어디에 와도 되고, 나레이션과 ${c.name}의 부분이 번갈아 나와도 된다.
+- 나레이션에서 ${c.uname || "유저"}의 말이나 속마음을 대신 쓰지 않는다. 상황을 만들고 반응은 맡긴다.
 - 빈도: ${c.narr === "many" ? "응답마다 한 번 정도" : "서너 번에 한 번 정도, 필요할 때만"}.` : "";
   const LANGS = { ja: "일본어", en: "영어", zh: "중국어(간체)" };
   const wantP = !!ai.pron, wantT = ai.trans !== false;
@@ -3956,6 +3985,15 @@ function paintLive() {
   if (old) old.replaceWith(el); else L.appendChild(el);
   if (nearBottom) L.scrollTop = L.scrollHeight;
 }
+// 모델이 가끔 흘리는 찌꺼기 정리: 혼자 떠 있는 thumb_up 같은 줄, 아랍·인도식 숫자(٣, ३ 등)
+function tidyModel(t) {
+  return String(t || "")
+    .replace(/^[ \t]*thumb_(?:up|down)[ \t]*(?:\r?\n|$)/gim, "")
+    .replace(/[\u0660-\u0669]/g, d => String(d.charCodeAt(0) - 0x0660))
+    .replace(/[\u06F0-\u06F9]/g, d => String(d.charCodeAt(0) - 0x06F0))
+    .replace(/[\u0966-\u096F]/g, d => String(d.charCodeAt(0) - 0x0966))
+    .replace(/[\u09E6-\u09EF]/g, d => String(d.charCodeAt(0) - 0x09E6));
+}
 async function generate(extraUser, noCmd) {
   if (busy) return;
   const c = char();
@@ -3971,6 +4009,7 @@ async function generate(extraUser, noCmd) {
   let finalText = "", errMsg = null;
   try {
     const paint = text => {
+      text = tidyModel(text);
       finalText = text;
       if (live && !live.cmd) { live.text = text; paintLive(); }
     };
@@ -3987,7 +4026,7 @@ async function generate(extraUser, noCmd) {
     if (useApi) { if (e.name !== "AbortError") errMsg = e.message || "응답을 받지 못했어요."; }
     else { finalText = e.text || ""; if (e.code !== "cancelled") errMsg = errCopy(e.code); }
   }
-  finalText = finalText.trim();
+  finalText = tidyModel(finalText).trim();
   if (finalText && ai.merge !== false && fmtOf(c) === "bubble" && !cmd) finalText = mergeDialogue(finalText);
   if (finalText && cmd && commerceKind(cmd)) { try { finalText = commerceResponse(finalText, c, cmd); } catch (e) { errMsg = e.message; finalText = ""; } }
   if (finalText && cmd) finalText = ocFinish(finalText, c, cmd);
@@ -6835,7 +6874,7 @@ function updPovBtn() { const c = char(), b = $("#qPov"); if (b) b.textContent = 
 $("#qPov").onclick = () => {
   const c = char(); if (!c || busy) return;
   const cur0 = String(c.pov || ""), set = v => { c.pov = v; save(null); updPovBtn(); }, mk = (lab, v) => [(cur0 === v ? "✓ " : "") + lab, () => set(v)];
-  const names = [c.name].concat(castPeople(c).map(x => x.name.trim())).filter((n, i, a) => n && a.indexOf(n) === i);
+  const names = castPeople(c).map(x => x.name.trim()).concat(Object.keys(c.sidePh || {})).filter((n, i, a) => n && n !== c.name && a.indexOf(n) === i);
   const acts = [mk(`기본 (${c.name} 중심)`, ""), mk("흐름에 맞게 (장면마다 알아서)", "auto"), mk("모두의 시점 (전지적)", "all")]
     .concat(names.map(n => mk(n + " 시점", "name:" + n)));
   acts.push([(cur0.startsWith("name:") && !names.includes(cur0.slice(5)) ? "✓ " : "") + "직접 쓰기 (이름 적기)", () => { const v = prompt("누구 시점으로 볼까요? 여러 명이면 쉼표로 적어요. (예: 선우, 은우)", cur0.startsWith("name:") ? cur0.slice(5) : ""); if (v && v.trim()) set("name:" + v.trim().slice(0, 40)); }]);
