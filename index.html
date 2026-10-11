@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.62","items":[]}
+  {"v":"3.64","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -114,6 +114,12 @@ header.bar .icon.back+h2,header.bar .icon.back+h1{margin-left:-2px}
 .msgmenu .sheet{background:var(--panel);border:1px solid var(--line);border-radius:16px;min-width:180px;overflow:hidden}
 .msgmenu button{display:block;width:100%;border:0;background:none;padding:14px 18px;text-align:left;border-bottom:1px solid var(--line);color:var(--ink)}
 .msgmenu button:last-child{border-bottom:0}
+.agq{width:min(360px,calc(100vw - 32px));max-height:80vh;overflow:auto;padding:16px 18px 6px}
+.agq h4{margin:0 0 10px;font-size:15px}.agq h5{margin:14px 0 6px;font-size:13px;color:var(--soft);font-weight:600}
+.agq .r{display:flex;justify-content:space-between;gap:10px;font-size:13px;margin:6px 0 3px}.agq .r small{color:var(--soft)}
+.agq .bar{height:6px;border-radius:4px;background:var(--line);overflow:hidden}.agq .bar i{display:block;height:100%;background:var(--accent)}
+.agq .tk{display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:13px}.agq .tk span:nth-child(odd){color:var(--soft)}
+.agq .msg0{font-size:13px;color:var(--soft);line-height:1.6}
 .avrow{display:flex;align-items:center;gap:14px;margin-top:6px}
 .avbtns{display:flex;gap:8px;flex-wrap:wrap}
 .av-lg{width:72px;height:72px;font-size:30px}
@@ -248,7 +254,10 @@ button,.quick button,.icon{touch-action:manipulation}
 .nline{color:var(--soft);font-style:italic;font-family:var(--font-serif);margin:4px 2px 12px;line-height:1.75;font-size:.96em}
 .nbox{color:var(--narr);font-style:italic;font-family:var(--font-serif);line-height:1.8;margin:26px 12px 28px;white-space:normal}
 .msg > .nbox:first-child{margin-top:8px}.msg > .nbox:last-child{margin-bottom:8px}
-.nbox p{margin:0 0 .7em}.nbox p:last-child{margin-bottom:0}
+.nbox p{margin:0 0 .7em}
+.novb{margin:10px 8px 18px;line-height:1.85;font-family:var(--font-serif)}
+.novb p{margin:0 0 .9em}.novb p:last-child{margin-bottom:0}
+.novb .narr{font-style:normal;color:var(--soft)}.novb .say{color:var(--ink)}.nbox p:last-child{margin-bottom:0}
 body[data-novelbg] .log .nbox{color:rgba(230,230,238,.82);text-shadow:0 1px 2px rgba(0,0,0,.55)}
 .msg.user.unov{display:block;margin:30px 0;padding:26px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .unov .np{margin:0 0 .6em;line-height:1.75}
@@ -1635,6 +1644,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
         <button id="qDelLast">마지막 지우기</button>
         <button id="qLen">응답</button>
         <button id="qModel">모델</button>
+        <button id="qQuota">잔량</button>
         <button id="qMob">모브</button>
         <button id="qPov">시점</button>
         <button id="qMem">기억<span class="mdot" id="memDot" hidden></span></button>
@@ -1962,6 +1972,38 @@ $("#sTest").onclick = async () => {
   } catch (e) { out.textContent = e.message || "연결 실패"; }
 };
 
+// AG Bridge(안티그래비티) 잔량·토큰 보기 — 지금 쓰는 API 주소가 Bridge일 때만
+function agRoot() { const b = String(apiBase(ai) || "").replace(/\/+$/, ""); return b.replace(/\/v1$/, ""); }
+async function agGet(path) {
+  const r = await fetch(agRoot() + path, { headers: ai.key ? { Authorization: "Bearer " + ai.key } : {} });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return r.json();
+}
+function agPct(f) { return f == null || !isFinite(f) ? null : Math.max(0, Math.min(100, Math.round(f * 100))); }
+function agWhen(t) { if (!t) return ""; const d = new Date(t), m = Math.round((d - Date.now()) / 60000); if (!isFinite(m)) return ""; if (m <= 0) return "곧 초기화"; return m < 60 ? m + "분 뒤 초기화" : m < 1440 ? Math.round(m / 60) + "시간 뒤 초기화" : Math.round(m / 1440) + "일 뒤 초기화"; }
+function agNum(n) { n = +n || 0; return n >= 1e6 ? (n / 1e6).toFixed(1) + "M" : n >= 1e3 ? (n / 1e3).toFixed(1) + "K" : String(n); }
+async function agQuotaOpen() {
+  const w = document.createElement("div"); w.className = "msgmenu";
+  w.innerHTML = `<div class="sheet"><div class="agq"><h4>잔량</h4><div class="msg0">불러오는 중...</div></div><button data-x="1">닫기</button></div>`;
+  w.onclick = e => { if (e.target === w || e.target.closest("[data-x]")) w.remove(); };
+  document.body.appendChild(w);
+  const box = w.querySelector(".agq");
+  if (ai.prov === "builtin" || !agRoot()) { box.innerHTML = `<h4>잔량</h4><div class="msg0">AG Bridge 주소로 연결했을 때만 볼 수 있어요.</div>`; return; }
+  let q = null, d = null, err = "";
+  try { [q, d] = await Promise.all([agGet("/dashboard/api/quota").catch(e => { err = e.message; return null; }), agGet("/dashboard/api/data").catch(e => { err = err || e.message; return null; })]); } catch (e) { err = e.message; }
+  if (!q && !d) { box.innerHTML = `<h4>잔량</h4><div class="msg0">잔량을 못 불러왔어요 (${esc(err || "연결 안 됨")}).<br>지금 쓰는 주소가 AG Bridge가 아니거나, Bridge가 꺼져 있을 수 있어요.</div>`; return; }
+  let h = "<h4>잔량</h4>", low = null;
+  const row = (name, f, reset) => { const p = agPct(f); if (p != null) low = low == null ? p : Math.min(low, p); return `<div class="r"><span>${esc(name)}</span><small>${p == null ? "-" : p + "%"}${reset ? " · " + esc(agWhen(reset)) : ""}</small></div><div class="bar"><i style="width:${p == null ? 0 : p}%"></i></div>`; };
+  if (q && Array.isArray(q.groups) && q.groups.length) q.groups.forEach(g => { h += `<h5>${esc(g.displayName || "모델")}</h5>` + (g.buckets || []).map(b => row(b.displayName || b.window || "잔량", b.remainingFraction, b.resetTime)).join(""); });
+  else if (q && Array.isArray(q.models) && q.models.length) { h += `<h5>모델별</h5>` + q.models.filter(m => m.remainingFraction != null).map(m => row(m.displayName || m.model, m.remainingFraction, m.resetTime)).join(""); }
+  if (d) {
+    const S = d.sprint || {}, T = d.totals || {};
+    h += `<h5>토큰 (이번 5시간)</h5><div class="tk"><span>요청</span><span>${agNum(S.requests)}회${S.fail ? ` (실패 ${agNum(S.fail)})` : ""}</span><span>입력</span><span>${agNum(S.promptTokens)}</span><span>출력</span><span>${agNum(S.completionTokens)}</span><span>생각</span><span>${agNum(S.thinkingTokens)}</span></div>`;
+    h += `<h5>토큰 (전체)</h5><div class="tk"><span>요청</span><span>${agNum(T.requests)}회</span><span>합계</span><span>${agNum(T.totalTokens)}</span></div>`;
+  }
+  box.innerHTML = h;
+  const b = $("#qQuota"); if (b && low != null) b.textContent = "잔량 · " + low + "%";
+}
 function apiBase(cfg) { return cfg.prov === "openai" ? "https://api.openai.com/v1" : cfg.url; }
 /* 제미나이 안전 필터 완화 (v43 방식). 중계 서버가 그대로 넘겨줘야 먹힌다 */
 const GEMINI_SAFE_CATS = ["HARM_CATEGORY_HARASSMENT", "HARM_CATEGORY_HATE_SPEECH", "HARM_CATEGORY_SEXUALLY_EXPLICIT", "HARM_CATEGORY_DANGEROUS_CONTENT", "HARM_CATEGORY_CIVIC_INTEGRITY"];
@@ -3313,7 +3355,7 @@ function introLines(txt) {
     if (m) {
       if (curL) out.push(curL);
       const tag = m[1].trim();
-      curL = { who: !tag ? "" : (/^(user|나|유저)$/i.test(tag) ? "@user" : tag), t: m[2] };
+      curL = { who: !tag ? "" : (/^(user|나|유저)$/i.test(tag) ? "@user" : /^소설$/.test(tag) ? "@novel" : tag), t: m[2] };
       return;
     }
     if (!curL) curL = { who: "@char", t: "" };
@@ -3328,6 +3370,7 @@ function introText(lines, names) {
     if (!t) return "";
     if (!l.who) return "@: " + t;
     if (l.who === "@user") return "@유저: " + t;
+    if (l.who === "@novel") return "@소설: " + t;
     return "@" + (l.who === "@char" ? names.char : l.who) + ": " + t;
   }).filter(Boolean).join("\n");
 }
@@ -3339,7 +3382,7 @@ function sampleText(samples, names) {
     return (l.who === "@user" ? names.user : l.who === "@char" ? names.char : l.who) + ": " + t;
   }).filter(Boolean).join("\n")).filter(Boolean).join("\n\n---\n\n");
 }
-function whoLabel(w, names) { return !w ? "내레이터" : w === "@user" ? names.user : w === "@char" ? names.char : w; }
+function whoLabel(w, names) { return !w ? "내레이터" : w === "@novel" ? "소설" : w === "@user" ? names.user : w === "@char" ? names.char : w; }
 function peekOf(lines) { return lines.map(l => l.t).join(" ").replace(/\s+/g, " ").slice(0, 26); }
 
 function renderStyleList() {
@@ -3417,12 +3460,13 @@ function renderSub() {
       prev = null; return;
     }
     if (!l.who) { h += `<div class="subline"><div class="nline" data-ln="${i}">${esc(l.t)}</div>${acts}</div>`; prev = null; return; }
+    if (l.who === "@novel") { h += `<div class="subline"><div class="novb" data-ln="${i}">${renderText(l.t, "novel")}</div>${acts}</div>`; prev = null; return; }
     const mine = l.who === "@user", same = prev === l.who;
     h += `<div class="subline${mine ? " mine" : ""}">${!mine && !same ? `<div class="who">${esc(whoLabel(l.who, n))}</div>` : ""}<div class="sbub" data-ln="${i}">${renderText(l.t, "bubble")}</div>${acts}</div>`;
     prev = l.who;
   });
   h += `</div><div class="sublabel">한 줄 더</div><div class="whochips">`;
-  [["", "내레이터"], ["@user", n.user], ["@char", n.char]].forEach(w => {
+  [["", "내레이터"], ["@user", n.user], ["@char", n.char]].concat(se.kind === "intro" ? [["@novel", "소설"]] : []).forEach(w => {
     h += `<button type="button" class="${se.who === w[0] ? "on" : ""}" data-w="${esc(w[0])}">${esc(w[1])}</button>`;
   });
   h += `</div><textarea id="subTx"></textarea><button class="btn" id="subGo" type="button" style="width:100%;margin-top:8px">추가</button>`;
@@ -3581,6 +3625,7 @@ function openChat(id) {
     const flushA = () => { if (buf) { msgs().push({ id: newId(), role: "assistant", text: sub(buf.join("\n"), c) }); buf = null; } };
     introLines(pick).forEach(l => {
       if (l.who === "@user") { flushA(); msgs().push({ id: newId(), role: "user", text: sub(l.t, c) }); return; }
+      if (l.who === "@novel") { flushA(); msgs().push({ id: newId(), role: "assistant", novel: true, text: sub(l.t, c) }); return; }
       if (!buf) buf = [];
       buf.push(l.who ? l.t : l.t.split("\n").map(x => ">> " + x).join("\n"));
     });
@@ -3616,6 +3661,7 @@ function renderLog(errText) {
     else if (m.role === "user") content = `<div class="body">${renderText(m.text, fmt)}</div>`;
     else if (m.ooc) { content = `<div class="ooc">${esc(m.text)}</div>`; bare = true; }
     else if (m.inner) { content = `<div class="body inner">${esc(m.text)}</div>`; bare = fmt !== "bubble"; }
+    else if (m.novel) { content = `<div class="novb">${renderText(m.text, "novel")}</div>`; bare = true; }
     else {
       const cards = renderCards(m.text, HANDS[c.hand] || HANDS["단정"]);
       if (cards) { content = cards; bare = true; }
@@ -4081,6 +4127,7 @@ function regen() {
   generate();
 }
 $("#send").onclick = send;
+$("#qQuota").onclick = () => agQuotaOpen();
 $("#qRegen").onclick = regen;
 const LEN_NAMES = { auto: "자동", short: "짧게", mid: "보통", long: "길게" };
 // ---------- 핸드폰 (phone.js, 깃허브 버전) ----------
