@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.64","items":[]}
+  {"v":"3.69","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -114,6 +114,7 @@ header.bar .icon.back+h2,header.bar .icon.back+h1{margin-left:-2px}
 .msgmenu .sheet{background:var(--panel);border:1px solid var(--line);border-radius:16px;min-width:180px;overflow:hidden}
 .msgmenu button{display:block;width:100%;border:0;background:none;padding:14px 18px;text-align:left;border-bottom:1px solid var(--line);color:var(--ink)}
 .msgmenu button:last-child{border-bottom:0}
+.agq .agall summary{cursor:pointer;opacity:.7;margin:14px 0 6px;font-size:13px}
 .agq{width:min(360px,calc(100vw - 32px));max-height:80vh;overflow:auto;padding:16px 18px 6px}
 .agq h4{margin:0 0 10px;font-size:15px}.agq h5{margin:14px 0 6px;font-size:13px;color:var(--soft);font-weight:600}
 .agq .r{display:flex;justify-content:space-between;gap:10px;font-size:13px;margin:6px 0 3px}.agq .r small{color:var(--soft)}
@@ -1993,16 +1994,29 @@ async function agQuotaOpen() {
   try { [q, d] = await Promise.all([agGet("/dashboard/api/quota").catch(e => { err = e.message; return null; }), agGet("/dashboard/api/data").catch(e => { err = err || e.message; return null; })]); } catch (e) { err = e.message; }
   if (!q && !d) { box.innerHTML = `<h4>잔량</h4><div class="msg0">잔량을 못 불러왔어요 (${esc(err || "연결 안 됨")}).<br>지금 쓰는 주소가 AG Bridge가 아니거나, Bridge가 꺼져 있을 수 있어요.</div>`; return; }
   let h = "<h4>잔량</h4>", low = null;
-  const row = (name, f, reset) => { const p = agPct(f); if (p != null) low = low == null ? p : Math.min(low, p); return `<div class="r"><span>${esc(name)}</span><small>${p == null ? "-" : p + "%"}${reset ? " · " + esc(agWhen(reset)) : ""}</small></div><div class="bar"><i style="width:${p == null ? 0 : p}%"></i></div>`; };
-  if (q && Array.isArray(q.groups) && q.groups.length) q.groups.forEach(g => { h += `<h5>${esc(g.displayName || "모델")}</h5>` + (g.buckets || []).map(b => row(b.displayName || b.window || "잔량", b.remainingFraction, b.resetTime)).join(""); });
-  else if (q && Array.isArray(q.models) && q.models.length) { h += `<h5>모델별</h5>` + q.models.filter(m => m.remainingFraction != null).map(m => row(m.displayName || m.model, m.remainingFraction, m.resetTime)).join(""); }
+  const row = (name, f, reset) => { const p = agPct(f); return `<div class="r"><span>${esc(name)}</span><small>${p == null ? "-" : p + "%"}${reset ? " · " + esc(agWhen(reset)) : ""}</small></div><div class="bar"><i style="width:${p == null ? 0 : p}%"></i></div>`; };
+  // 지금 쓰는 모델만 — 이름이 안 맞으면 전체 목록을 접어서 보여줌
+  const nz = x => String(x || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const me = nz(ai.model), hit = (...ns) => me && ns.some(n => { const v = nz(n); return v && (v === me || v.includes(me) || me.includes(v)); });
+  let mine = "", all = "";
+  if (q && Array.isArray(q.groups) && q.groups.length) q.groups.forEach(g => {
+    const one = `<h5>${esc(g.displayName || "모델")}</h5>` + (g.buckets || []).map(b => row(b.displayName || b.window || "잔량", b.remainingFraction, b.resetTime)).join("");
+    if (hit(g.displayName, g.id, g.model, ...(g.models || []))) mine += one; else all += one;
+  });
+  else if (q && Array.isArray(q.models) && q.models.length) q.models.filter(m => m.remainingFraction != null).forEach(m => {
+    const one = row(m.displayName || m.model, m.remainingFraction, m.resetTime);
+    if (!mine && hit(m.model, m.id, m.displayName)) mine = one; else all += one;
+  });
+  if (mine) { h += `<h5>지금 모델</h5>` + mine; const ps = [...mine.matchAll(/(\d+)%<\/small>|(\d+)% · /g)].map(x => +(x[1] || x[2])); if (ps.length) low = Math.min(...ps); }
+  else if (q) { low = null; h += `<div class="msg0">지금 모델(${esc(ai.model || "-")}) 잔량을 못 찾았어요.</div>`; }
+  if (all) h += `<details class="agall"><summary>다른 모델 보기</summary>${all}</details>`;
   if (d) {
     const S = d.sprint || {}, T = d.totals || {};
     h += `<h5>토큰 (이번 5시간)</h5><div class="tk"><span>요청</span><span>${agNum(S.requests)}회${S.fail ? ` (실패 ${agNum(S.fail)})` : ""}</span><span>입력</span><span>${agNum(S.promptTokens)}</span><span>출력</span><span>${agNum(S.completionTokens)}</span><span>생각</span><span>${agNum(S.thinkingTokens)}</span></div>`;
     h += `<h5>토큰 (전체)</h5><div class="tk"><span>요청</span><span>${agNum(T.requests)}회</span><span>합계</span><span>${agNum(T.totalTokens)}</span></div>`;
   }
   box.innerHTML = h;
-  const b = $("#qQuota"); if (b && low != null) b.textContent = "잔량 · " + low + "%";
+  const b = $("#qQuota"); if (b) b.textContent = low != null ? "잔량 · " + low + "%" : "잔량";
 }
 function apiBase(cfg) { return cfg.prov === "openai" ? "https://api.openai.com/v1" : cfg.url; }
 /* 제미나이 안전 필터 완화 (v43 방식). 중계 서버가 그대로 넘겨줘야 먹힌다 */
@@ -2213,7 +2227,7 @@ const CMD_SAY = {
   "/관계도": "(관계를 정리해줘)", "/비밀": "(숨기고 있는 거 알려줘)", "/메모": "(메모 남겨줘)", "/시청기록": "(뭐 봤는지 보여줘)",
   "/통화기록": "(통화 기록 보여줘)", "/리뷰": "(후기 뭐 썼는지 보여줘)", "/향수": "(무슨 향 쓰는지 알려줘)", "/멀리서": "(내가 없을 때 뭐 하는지 보여줘)", "/이벤트": "(무슨 일이 생겼어)", "/손끝": "(손끝 꾹 ♡)"
 };
-const CMD_ALIAS = { "/같이그리기": "/그림", "/그리기": "/그림", "/낙서": "/그림", "/뽀뽀": "/손끝", "/손가락뽀뽀": "/손끝", "/썸키스": "/손끝", "/휴지통": "/삭제내역", "/복구": "/삭제내역", "#속마음": "/속마음", "/속마음보기": "/속마음", "/커뮤니티": "/커뮤", "/커뮤반응": "/커뮤", "/주문": "/쇼핑", "/주문내역": "/쇼핑", "/결제내역": "/결제", "/장면전환": "/전환", "/시청": "/시청기록", "/통화": "/통화기록", "/향": "/향수", "/바디": "/향수" };
+const CMD_ALIAS = { "/같이그리기": "/그림", "/그리기": "/그림", "/낙서": "/그림", "/뽀뽀": "/손끝", "/손가락뽀뽀": "/손끝", "/썸키스": "/손끝", "/휴지통": "/삭제내역", "/삭제기록": "/삭제내역", "/삭제": "/삭제내역", "/삭제된": "/삭제내역", "/복구": "/삭제내역", "#속마음": "/속마음", "/속마음보기": "/속마음", "/커뮤니티": "/커뮤", "/커뮤반응": "/커뮤", "/주문": "/쇼핑", "/주문내역": "/쇼핑", "/결제내역": "/결제", "/장면전환": "/전환", "/시청": "/시청기록", "/통화": "/통화기록", "/향": "/향수", "/바디": "/향수" };
 const CARD_CMDS = { "/삭제내역": 1, "/편지": 1, "/일기": 1, "/플리": 1, "/관계": 1, "/상태": 1, "/소문": 1, "/커뮤": 1, "/인스타": 1, "/쇼핑": 1, "/결제": 1, "/속마음": 1, "/관계도": 1, "/비밀": 1, "/시청기록": 1, "/통화기록": 1, "/리뷰": 1, "/향수": 1, "/멀리서": 1, "/메모": 1 };
 function parseCmd(text) {
   const m = String(text || "").match(/^\s*([\/#][^\s]+)\s*([\s\S]*)$/);
@@ -2851,11 +2865,18 @@ function autoSmsTime(text, history) {
   const lines = String(text || "").split("\n");
   if (!lines.some(l => { const m = smsMatch(l.trim()); return m && !m[2]; })) return text;
   let base = null;
-  const jump = /다음\s?날|이튿날|며칠|몇\s?시간|몇\s?주|일주일|한\s?달|시간이\s?흘|아침|점심|저녁|새벽|한밤|주말/.test(lines.filter(l => !smsMatch(l.trim())).join(" "));
+  const JUMP = /다음\s?날|이튿날|며칠|몇\s?시간|몇\s?주|일주일|한\s?달|시간이\s?흘|아침|점심|저녁|새벽|한밤|주말|퇴근|출근|하교|밤이|해가|오후|오전|도착|만나|찾아/;
+  let jump = JUMP.test(lines.filter(l => !smsMatch(l.trim())).join(" "));
+  // 문자를 바로 이어서 주고받을 때만 직전 문자 시각 + 1분. 그 사이에 장면(만남·이동·시간 흐름)이 끼면 시각을 비워 둬요
+  let gap = 0;
   for (let i = history.length - 1; i >= 0 && base === null && !jump; i--) {
     const ls = String(history[i].text || "").split("\n");
-    for (let j = ls.length - 1; j >= 0; j--) { const m = smsMatch(ls[j].trim()); if (m && m[2]) { base = smsMin(m[2]) + 1; break; } }
+    let found = false;
+    for (let j = ls.length - 1; j >= 0; j--) { const m = smsMatch(ls[j].trim()); if (m && m[2]) { base = smsMin(m[2]) + 1; found = true; break; } }
+    const rest = ls.filter(l => l.trim() && !smsMatch(l.trim())).join(" ");
+    if (!found) { gap++; if (JUMP.test(rest) || gap > 1) jump = true; }
   }
+  if (jump) return text;
   lines.forEach(l => { const m = smsMatch(l.trim()); if (m && m[2] && base === null) base = smsMin(m[2]); });
   // 이야기 속 시각을 모르면 현실 시계를 쓰지 않고 시간을 비워 둬요 (폰 시계가 정해져 있으면 그걸 써요)
   if (base === null) { const cc = char(), k = cc && cc.phone && cc.phone.clock; if (k && k.hh != null && !jump) base = (+k.hh) * 60 + (+k.mm || 0); else return text; }
@@ -2866,6 +2887,26 @@ function autoSmsTime(text, history) {
     if (m[2]) { last = smsMin(m[2]); return l; }
     return l.replace(/\s+$/, "") + " " + smsFmt(last);
   }).join("\n");
+}
+// 시각 없이 보낸 내 문자 — 시각은 모델이 이야기 흐름을 보고 정해 줘요 (@시각: 줄)
+function smsBlank(t) { return String(t || "").split("\n").filter(l => { const m = smsMatch(l.trim()); return m && !m[2]; }).length; }
+function smsAskRule(c, cmd) {
+  if (cmd) return "";
+  const lastU = [...msgs()].reverse().find(m => m.role === "user");
+  const n = lastU && lastU.smsAsk ? smsBlank(lastU.text) : 0;
+  if (!n) return "";
+  const u = c.uname || "유저";
+  return `\n[이번 턴 지시]\n- ${u}가 방금 보낸 문자 ${n}개에 시각이 없다. 앞 장면에서 시간이 얼마나 흘렀는지, 지금 어디서 무엇을 하는 중인지 보고 ${u}가 그 문자를 보낸 시각을 정한다. 답의 맨 첫 줄에 @시각: 오후 7:40 형식으로 그 시각만 한 줄 쓴다. ${n > 1 ? "문자가 여러 개면 보낸 순서대로 쉼표로 이어 쓴다(예: @시각: 오후 7:40, 오후 7:40, 오후 7:43). 연달아 보냈으면 같은 분이고, 사이를 두고 보냈으면 벌어진다. " : ""}그 다음 줄부터 평소처럼 답을 쓴다.\n`;
+}
+function smsTakeTimes(text, um) {
+  const m = String(text || "").match(/^\s*@\s*시각\s*[:：]\s*([^\n]*)\n?/);
+  if (!m) return text;
+  if (um && um.smsAsk) {
+    const ts = (m[1].match(/(?:오전|오후)\s*\d{1,2}:\d{2}|\d{1,2}:\d{2}/g) || []).map(x => smsFmt(smsMin(x)));
+    if (ts.length) { let k = 0; um.text = String(um.text).split("\n").map(l => { const mm = smsMatch(l.trim()); if (!mm || mm[2]) return l; const t = ts[Math.min(k++, ts.length - 1)]; return l.replace(/\s+$/, "") + " " + t; }).join("\n"); }
+    delete um.smsAsk;
+  }
+  return text.slice(m[0].length);
 }
 function renderPlainChunk(t) { return t && t.trim() ? renderBlocks(t, "bubble") : ""; }
 // >> 가 줄 중간에 붙어 나와도 새 줄로 떼어 내요
@@ -3768,7 +3809,7 @@ function mobRule(c) {
   return "주변 인물: 새로운 주변 인물을 등장시키지 않는다. 이미 장면에 있는 주변 인물은 흐름에 맞게 자연스럽게 퇴장시킨다. 설정에 있는 인물과 유저가 직접 등장시킨 인물은 예외다.\n";
 }
 function smsRule() {
-  return "휴대폰 문자나 메신저 메시지를 보여줄 때는 메시지 하나를 한 줄에 [메시지 내용] 오후 9:32 처럼 쓴다. 대괄호 안에는 메시지 내용만 넣고, 뒤에 보낸 시각을 오전/오후 시:분으로 붙인다. 시각은 장면의 시간 흐름에 맞게 정한다. 유저나 대화에 이미 나온 시각이 있으면 그 시각을 기준으로 이어 가고 그보다 앞선 시각을 쓰지 않는다. 연달아 보낸 메시지는 같은 분이거나 조금씩 늘어난다.\n";
+  return "휴대폰 문자나 메신저 메시지를 보여줄 때는 메시지 하나를 한 줄에 [메시지 내용] 오후 9:32 처럼 쓴다. 대괄호 안에는 메시지 내용만 넣고, 뒤에 보낸 시각을 오전/오후 시:분으로 붙인다. 시각은 장면의 시간 흐름에 맞게 정한다. 유저나 대화에 이미 나온 시각이 있으면 그 시각을 기준으로 이어 가고 그보다 앞선 시각을 쓰지 않는다. 연달아 보낸 메시지는 같은 분이거나 조금씩 늘어난다. 답장은 바로 올 수도 있고, 바쁘거나 망설이거나 일부러 미루면 한참 뒤에 올 수도 있다. 상황과 성격에 맞게 정한다.\n";
 }
 function myRule() { const t = MY_RULE.trim(); return t && t !== "여기에 쓰세요" ? t + "\n" : ""; }
 // ---------- 프리셋 ----------
@@ -3968,12 +4009,13 @@ ${psReplace ? "" : `- 대사나 질문으로 끝내야 하는 건 아니다. 지
 - [멀리서] 카드의 장면은 실제로 있었던 일이지만 ${u}는 보지 못했다. ${u}가 그 일을 아는 것처럼 반응하지 않는다. 남은 흔적이나 결과는 이어질 수 있다.
 - 별표로 감싼 대괄호는 문자 메시지다. *[내용]* 형태로 오면 그것은 지문이나 소리 내어 한 말이 아니라 휴대폰으로 보낸 문자다. 답할 때도 같은 *[내용]* 표기로 돌려주고, 문자에 대사용 따옴표를 붙이지 않는다. 문자를 보내고 받는 동안에도 두 사람이 있는 장면은 계속 흐르므로, 필요하면 문자 앞뒤에 지문을 함께 쓴다. 한 번에 한두 마디씩만 주고받고, 여러 줄을 몰아서 늘어놓지 않는다. 세계관에 휴대폰이 없으면 그 시대에 짧은 말을 주고받는 수단으로 바꿔 쓰되 표기는 그대로 *[내용]* 을 쓴다.
 - ${u}가 결과나 시간 경과, 장면 전환을 뜻하는 지문을 쓰면(예: *결국 그날 밤 같이 잔다*, *다음 날 아침*), 그것은 이미 그렇게 되었다는 설정이다. 그 내용을 설명하거나 앞 장면을 이어 받지 말고, 곧바로 그 시점의 새 장면부터 쓴다. 앞 장면의 대화를 요약하거나 반응하지 않는다.
+- 시간 말이 없어도 그 일이 일어나려면 시간이 걸리는 내용이면, 그만큼 시간이 흐른 뒤의 장면으로 쓴다. 바로 앞 장면과 '방금 전까지'로 붙이지 않는다.
 - 분량: ${cmd ? "정해진 분량 없음. 흐름에 맞게 알아서 정한다." : ((fmt === "bubble" ? lenMap : lenMapNovel)[c.len] || (fmt === "bubble" ? lenMap : lenMapNovel).mid)}
 - ${u}가 대화 중에 분량·문체·전개를 따로 요청하면 그 요청이 위 분량 설정보다 우선한다. 단, OOC에서 정한 분량은 그 OOC 턴에만 적용하고, 다음 답변부터는 위 분량 설정으로 돌아간다.
 ${(c.note || "").trim() ? "\n[추가 지시]\n" + sub(c.note, c) : ""}
 ${psBlock}${styleBlock}
 
-${cmd ? "\n[이번 턴 지시 — 위 형식 규칙보다 우선한다]\n" + cmdText(c, cmd) + (commerceKind(cmd) ? commercePrompt(c, commerceKind(cmd)) : "") : ""}
+${smsAskRule(c, cmd)}${cmd ? "\n[이번 턴 지시 — 위 형식 규칙보다 우선한다]\n" + cmdText(c, cmd) + (commerceKind(cmd) ? commercePrompt(c, commerceKind(cmd)) : "") + (CARD_CMDS[cmd] ? "\n이번 턴에는 이야기를 이어 쓰지 않는다. 위 형식의 카드만 쓴다." : "") : ""}
 이제 롤플레이를 시작한다.`;
 }
 
@@ -4058,7 +4100,7 @@ async function generate(extraUser, noCmd) {
     const paint = text => {
       text = tidyModel(text);
       finalText = text;
-      if (live && !live.cmd) { live.text = text; paintLive(); }
+      if (live && !live.cmd) { live.text = text.replace(/^\s*@\s*시각[^\n]*\n?/, "").replace(/^\s*@\s*시?각?\s*$/, ""); paintLive(); }
     };
     if (useApi) {
       finalText = await callApi(genCfg(c), withDrawing(apiMessages(c, extraUser, cmd), c, "api"), paint, ctl.signal);
@@ -4074,6 +4116,7 @@ async function generate(extraUser, noCmd) {
     else { finalText = e.text || ""; if (e.code !== "cancelled") errMsg = errCopy(e.code); }
   }
   finalText = tidyModel(finalText).trim();
+  if (finalText && !cmd) { finalText = smsTakeTimes(finalText, lastU).trim(); }
   if (finalText && ai.merge !== false && fmtOf(c) === "bubble" && !cmd) finalText = mergeDialogue(finalText);
   if (finalText && cmd && commerceKind(cmd)) { try { finalText = commerceResponse(finalText, c, cmd); } catch (e) { errMsg = e.message; finalText = ""; } }
   if (finalText && cmd) finalText = ocFinish(finalText, c, cmd);
@@ -4112,9 +4155,11 @@ function send() {
   const hp = v.match(/^\/(?:핸드폰|폰)(?:\s+([\s\S]+))?$/);
   if (hp) { $("#input").value = ""; autoGrow(); const who = (hp[1] || "").trim(); if (PH) closeCharPhone(); openCharPhone("char", who); return; }
   const pc = parseCmd(v);
+  if (!pc && /^\/[^\s\/]+$/.test(v)) { alert("없는 명령어예요: " + v); return; }
   if (pc && pc.key === "/손끝") { $("#input").value = ""; autoGrow(); thumbKiss(); return; }
   if (pc && pc.key === "/그림") { $("#input").value = ""; autoGrow(); drawTogether(); return; }
-  const um = { id: newId(), role: "user", text: pc ? v : autoSmsTime(v, msgs()) };
+  const um = { id: newId(), role: "user", text: v };
+  if (!pc && smsBlank(v)) um.smsAsk = 1;
   if (pc) um.cmd = pc.key;
   msgs().push(um); save();
   $("#input").value = ""; autoGrow();
