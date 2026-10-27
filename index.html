@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.74","items":[]}
+  {"v":"3.75","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -519,6 +519,32 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root[data-theme="green"] .oc :is(.statc,.mind,.pl){border-radius:18px;border:1px solid #cfeabd;box-shadow:0 4px 14px rgba(90,150,70,.10)}
 :root[data-theme="ocean"] .oc :is(.statc,.mind,.pl){border-radius:22px;border:1px solid rgba(255,255,255,.90);background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(222,238,255,.50));box-shadow:0 8px 20px rgba(45,102,184,.12),inset 0 1px 0 rgba(255,255,255,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 :root[data-theme="berry"] .oc :is(.statc,.mind,.pl,.paper){border-radius:20px;border:1px solid var(--line);box-shadow:0 4px 16px rgba(255,140,180,.14)}
+
+/* ===== 핑크 아쿠아 (옛 아이폰 느낌) ===== */
+:root[data-skin="pk"]{--bg:#fff;--field:#fff;--panel:#f5f5f5;--ink:#333;--soft:#6b6b6b;--line:#d6d6d6;--accent:#c9789a;--accent-ink:#fff;--narr:#666;--faint:#9a9a9a;--user-bg:#fbe7ef;--char-bg:#f6f6f6;--pk-g1:#fbe4ed;--pk-g2:#f3c8d8;--pk-g3:#eab3c8;--pk-edge:#c98aa4}
+:root[data-skin="pk"] body:not([data-novelbg]) header.bar{margin:0;background:linear-gradient(180deg,var(--pk-g1) 0%,#f7d5e2 48%,var(--pk-g2) 52%,var(--pk-g3) 100%);border-bottom:1px solid var(--pk-edge);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 1px 2px rgba(150,80,110,.18);padding:12px 14px;min-height:62px}
+:root[data-skin="pk"] body:not([data-novelbg]) header.bar h1,:root[data-skin="pk"] body:not([data-novelbg]) header.bar h2{color:#4a3a42;text-shadow:0 1px 0 rgba(255,255,255,.85)}
+:root[data-skin="pk"] body:not([data-novelbg]) header.bar .icon{color:#4a3a42}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat header.bar h2{text-align:center;font-size:19px;font-weight:700;letter-spacing:-.01em}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat header.bar .back{font-size:34px;line-height:1;font-weight:300;width:40px;padding:0}
+:root[data-skin="pk"] body:not([data-novelbg]) #editFromChat{font-size:0;display:flex;align-items:center;gap:22px;padding:0 4px}
+:root[data-skin="pk"] body:not([data-novelbg]) #editFromChat::before{content:"✎";font-size:22px;color:#555;transform:rotate(-8deg)}
+:root[data-skin="pk"] body:not([data-novelbg]) #editFromChat::after{content:"⚙️";font-size:26px;filter:grayscale(1) contrast(1.1) drop-shadow(0 1px 0 rgba(255,255,255,.8))}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat .log{background:#fff}
+:root[data-skin="pk"] body:not([data-novelbg]) .log .narr{color:#666;font-style:normal}
+:root[data-skin="pk"] body:not([data-novelbg]) .log:not(.fmt-bubble) .msg.char p:has(> .say:only-child){background:#fdf0f4;border-left:4px solid #c9789a;padding:10px 14px;margin:1em 0;color:#333}
+:root[data-skin="pk"] body:not([data-novelbg]) .log .say{color:#333}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body{background:#fff;border:1px solid #e3c2cf;border-radius:4px 14px 14px 14px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.user .body{background:linear-gradient(180deg,#fbe4ed,#f3c8d8);border:1px solid var(--pk-edge);border-radius:14px 4px 14px 14px;color:#3b2a32}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat > .composer{background:linear-gradient(180deg,#f1f1f1,#e4e4e4);border-top:1px solid #bdbdbd;box-shadow:inset 0 1px 0 #fff}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat .composer .quick button{background:linear-gradient(180deg,#fdfdfd,#e3e3e3);border:1px solid #b3b3b3;border-radius:3px;padding:6px 13px;font-size:15px;color:#333;box-shadow:inset 0 1px 0 #fff,0 1px 0 rgba(0,0,0,.05)}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat .composer .quick button:active{background:linear-gradient(180deg,#e3e3e3,#f5f5f5)}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat .composer .quick{padding-bottom:6px;border-bottom:1px solid #c9c9c9;margin:0 -12px 10px;padding-left:12px;padding-right:12px}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat #input{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%2376e06a'/%3E%3Cstop offset='1' stop-color='%2322a21a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='1' y='1' width='22' height='22' rx='5' fill='url(%23g)' stroke='%23178a12'/%3E%3Cpath d='M12 5v14M6 8.5l12 7M18 8.5l-12 7' stroke='%23fff' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 12px center/22px 22px;border:1px solid #b5b5b5;border-radius:6px;box-shadow:inset 0 1px 2px rgba(0,0,0,.12);padding-right:44px;color:#333;min-height:46px}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat #send{width:46px;min-width:46px;min-height:46px;padding:0;font-size:0;background:linear-gradient(180deg,#f8dce7 0%,#f0c2d4 50%,#e8afc5 51%,#e3a3bc 100%);border:1px solid #b9789a;border-radius:4px;box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 1px 1px rgba(0,0,0,.1)}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat #send::after{content:"↑";font-size:24px;color:#3d2a33;font-weight:400}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat #send[data-busy]::after{content:"■";font-size:16px}
+:root[data-skin="pk"] .sms{background:#eee}
 </style>
 <style id="tsukiyo-theme">
 @import url("https://fonts.googleapis.com/css2?family=DotGothic16&family=Shippori+Mincho:wght@500&display=swap");
@@ -1907,7 +1933,7 @@ const HANDS = {
   "깜찍": "'HandSeh','Nanum Pen Script',cursive", "서툰": "'HandRam','Nanum Pen Script',cursive",
   "수수": "'HandDng','Nanum Pen Script',cursive"
 };
-const THEMES = [["light", "밝게"], ["night", "밤"], ["tk", "月夜 (츠키요)"], ["tkw", "月白 (츠키요 화이트)"]];
+const THEMES = [["light", "밝게"], ["night", "밤"], ["tk", "月夜 (츠키요)"], ["tkw", "月白 (츠키요 화이트)"], ["pk", "핑크 아쿠아"]];
 function applyLook() {
   const r = document.documentElement.style;
   const fam = FONTS[ai.font] || FONTS["고운돋움"];
@@ -1923,6 +1949,8 @@ function applyLook() {
   de.dataset.theme = th === "night" || th === "dark" || th === "tk" ? "night" : "light";
   if (th === "tk" || th === "tkw") de.dataset.skin = "tk"; else delete de.dataset.skin;
   if (th === "tkw") de.dataset.tone = "white"; else delete de.dataset.tone;
+  if (th === "pk") de.dataset.skin = "pk";
+  try { const ip = document.getElementById("input"); if (ip) ip.placeholder = th === "pk" ? "메시지" : ""; } catch (e) {}
 }
 try { Object.assign(ai, JSON.parse(localStorage.getItem(SKEY) || "{}")); } catch(e) {}
 applyLook();
@@ -4202,6 +4230,7 @@ async function generate(extraUser, noCmd) {
 const CONT = "(방금 장면을 자연스럽게 이어서 계속 써줘. 유저의 행동은 쓰지 말 것.)";
 function setBusy(on) {
   $("#send").textContent = on ? "멈춤" : "보내기";
+  if (on) $("#send").dataset.busy = "1"; else delete $("#send").dataset.busy;
   ["#qRegen", "#qDelLast"].forEach(s => $(s).disabled = on);
 }
 
