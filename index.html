@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.70","items":[]}
+  {"v":"3.72","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3827,9 +3827,12 @@ function showMsgMenu(acts) {
 }
 function editMsg(node, m) {
   if (busy) return;
-  const body = node.querySelector(".body") || node.querySelector(".unovb") || node;
+  // 여러 덩어리(나레이션·꾸민 박스 등)로 나뉜 답이면 맨 아래 덩어리에서 수정해요
+  const bs = node.querySelectorAll(".body");
+  const body = (bs.length ? bs[bs.length - 1] : null) || node.querySelector(".unovb") || node;
   body.innerHTML = `<textarea class="edit-area"></textarea><div style="display:flex;gap:6px;margin-top:6px;justify-content:flex-end"><button class="btn ghost" data-c>취소</button><button class="btn" data-s>저장</button></div>`;
   const ta = body.querySelector("textarea"); ta.value = m.text; ta.focus();
+  try { body.scrollIntoView({ block: "nearest" }); } catch (e) {}
   body.querySelector("[data-c]").onclick = () => renderLog();
   body.querySelector("[data-s]").onclick = () => { m.text = ta.value; save(); renderLog(); };
 }
@@ -3848,7 +3851,7 @@ function mobRule(c) {
   return "주변 인물: 새로운 주변 인물을 등장시키지 않는다. 이미 장면에 있는 주변 인물은 흐름에 맞게 자연스럽게 퇴장시킨다. 설정에 있는 인물과 유저가 직접 등장시킨 인물은 예외다.\n";
 }
 function smsRule() {
-  return "휴대폰 문자나 메신저 메시지를 보여줄 때는 메시지 하나를 한 줄에 [메시지 내용] 오후 9:32 처럼 쓴다. 대괄호 안에는 메시지 내용만 넣고, 뒤에 보낸 시각을 오전/오후 시:분으로 붙인다. 시각은 장면의 시간 흐름에 맞게 정한다. 유저나 대화에 이미 나온 시각이 있으면 그 시각을 기준으로 이어 가고 그보다 앞선 시각을 쓰지 않는다. 연달아 보낸 메시지는 같은 분이거나 조금씩 늘어난다. 답장은 바로 올 수도 있고, 바쁘거나 망설이거나 일부러 미루면 한참 뒤에 올 수도 있다. 상황과 성격에 맞게 정한다.\n";
+  return "휴대폰 문자나 메신저 메시지를 보여줄 때는 메시지 하나를 한 줄에 [메시지 내용] 오후 9:32 처럼 쓴다. 대괄호 안에는 메시지 내용만 넣고, 뒤에 보낸 시각을 오전/오후 시:분으로 붙인다. 시각은 장면의 시간 흐름에 맞게 정한다. 유저나 대화에 이미 나온 시각이 있으면 그 시각을 기준으로 이어 가고 그보다 앞선 시각을 쓰지 않는다. 연달아 보낸 메시지는 같은 분이거나 조금씩 늘어난다. 꾸민 박스로 보여줄 때는 이 표기 대신 박스 안에서 꾸민다. 답장은 바로 올 수도 있고, 바쁘거나 망설이거나 일부러 미루면 한참 뒤에 올 수도 있다. 상황과 성격에 맞게 정한다.\n";
 }
 function myRule() { const t = MY_RULE.trim(); return t && t !== "여기에 쓰세요" ? t + "\n" : ""; }
 // ---------- 프리셋 ----------
@@ -3990,7 +3993,7 @@ function buildRules(c, cmd) {
 - 빈도: ${c.narr === "many" ? "응답마다 한 번 정도" : "서너 번에 한 번 정도, 필요할 때만"}.` : "";
   const dv = c.deco || "some";
   const decoRule = dv !== "off" && !cmd ? `
-- 이야기 속에 글로 된 물건(뉴스 기사, 편지, 전단지, 공지문, 쪽지, 영수증, 초대장 등)이 나와 그 내용을 보여줄 때는, 그 물건을 HTML로 꾸며 <꾸밈>과 </꾸밈> 사이에 넣는다. 두 표시는 각각 독립된 줄에 쓰고, 그 앞뒤로 평소처럼 글을 이어 쓴다.
+- 이야기 속에 글로 된 물건(뉴스 기사, 편지, 전단지, 공지문, 쪽지, 영수증, 초대장, 문자·메신저·무전 같은 통신 화면 등)이 나와 그 내용을 보여줄 때는, 그 물건을 HTML로 꾸며 <꾸밈>과 </꾸밈> 사이에 넣는다. 두 표시는 각각 독립된 줄에 쓰고, 그 앞뒤로 평소처럼 글을 이어 쓴다.
 - 꾸밈 안에는 HTML과 <style>만 쓴다. 스크립트와 외부 이미지·링크는 쓰지 않는다. 사진 자리는 회색 칸에 무엇이 찍혔는지 짧게 적는다. 휴대폰 화면 너비에 맞추고, 물건의 종류와 세계관에 어울리게 꾸민다.
 - 빈도: ${dv === "many" ? "이야기에 어울리면 그런 물건을 등장시켜도 된다. 한 답에 하나까지." : "그런 물건이 이야기에 실제로 나올 때만. 억지로 만들지 않는다. 한 답에 하나까지."}` : "";
   const LANGS = { ja: "일본어", en: "영어", zh: "중국어(간체)" };
