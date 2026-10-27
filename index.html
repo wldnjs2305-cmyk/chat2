@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.75","items":[]}
+  {"v":"3.78","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -520,31 +520,121 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root[data-theme="ocean"] .oc :is(.statc,.mind,.pl){border-radius:22px;border:1px solid rgba(255,255,255,.90);background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(222,238,255,.50));box-shadow:0 8px 20px rgba(45,102,184,.12),inset 0 1px 0 rgba(255,255,255,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 :root[data-theme="berry"] .oc :is(.statc,.mind,.pl,.paper){border-radius:20px;border:1px solid var(--line);box-shadow:0 4px 16px rgba(255,140,180,.14)}
 
-/* ===== 핑크 아쿠아 (옛 아이폰 느낌) ===== */
-:root[data-skin="pk"]{--bg:#fff;--field:#fff;--panel:#f5f5f5;--ink:#333;--soft:#6b6b6b;--line:#d6d6d6;--accent:#c9789a;--accent-ink:#fff;--narr:#666;--faint:#9a9a9a;--user-bg:#fbe7ef;--char-bg:#f6f6f6;--pk-g1:#fbe4ed;--pk-g2:#f3c8d8;--pk-g3:#eab3c8;--pk-edge:#c98aa4}
-:root[data-skin="pk"] body:not([data-novelbg]) header.bar{margin:0;background:linear-gradient(180deg,var(--pk-g1) 0%,#f7d5e2 48%,var(--pk-g2) 52%,var(--pk-g3) 100%);border-bottom:1px solid var(--pk-edge);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 1px 2px rgba(150,80,110,.18);padding:12px 14px;min-height:62px}
-:root[data-skin="pk"] body:not([data-novelbg]) header.bar h1,:root[data-skin="pk"] body:not([data-novelbg]) header.bar h2{color:#4a3a42;text-shadow:0 1px 0 rgba(255,255,255,.85)}
-:root[data-skin="pk"] body:not([data-novelbg]) header.bar .icon{color:#4a3a42}
-:root[data-skin="pk"] body:not([data-novelbg]) #chat header.bar h2{text-align:center;font-size:19px;font-weight:700;letter-spacing:-.01em}
-:root[data-skin="pk"] body:not([data-novelbg]) #chat header.bar .back{font-size:34px;line-height:1;font-weight:300;width:40px;padding:0}
-:root[data-skin="pk"] body:not([data-novelbg]) #editFromChat{font-size:0;display:flex;align-items:center;gap:22px;padding:0 4px}
-:root[data-skin="pk"] body:not([data-novelbg]) #editFromChat::before{content:"✎";font-size:22px;color:#555;transform:rotate(-8deg)}
-:root[data-skin="pk"] body:not([data-novelbg]) #editFromChat::after{content:"⚙️";font-size:26px;filter:grayscale(1) contrast(1.1) drop-shadow(0 1px 0 rgba(255,255,255,.8))}
-:root[data-skin="pk"] body:not([data-novelbg]) #chat .log{background:#fff}
-:root[data-skin="pk"] body:not([data-novelbg]) .log .narr{color:#666;font-style:normal}
-:root[data-skin="pk"] body:not([data-novelbg]) .log:not(.fmt-bubble) .msg.char p:has(> .say:only-child){background:#fdf0f4;border-left:4px solid #c9789a;padding:10px 14px;margin:1em 0;color:#333}
-:root[data-skin="pk"] body:not([data-novelbg]) .log .say{color:#333}
-:root[data-skin="pk"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.char .body{background:#fff;border:1px solid #e3c2cf;border-radius:4px 14px 14px 14px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
-:root[data-skin="pk"] body:not([data-novelbg]) #chat > .log.fmt-bubble .msg.user .body{background:linear-gradient(180deg,#fbe4ed,#f3c8d8);border:1px solid var(--pk-edge);border-radius:14px 4px 14px 14px;color:#3b2a32}
-:root[data-skin="pk"] body:not([data-novelbg]) #chat > .composer{background:linear-gradient(180deg,#f1f1f1,#e4e4e4);border-top:1px solid #bdbdbd;box-shadow:inset 0 1px 0 #fff}
-:root[data-skin="pk"] body:not([data-novelbg]) #chat .composer .quick button{background:linear-gradient(180deg,#fdfdfd,#e3e3e3);border:1px solid #b3b3b3;border-radius:3px;padding:6px 13px;font-size:15px;color:#333;box-shadow:inset 0 1px 0 #fff,0 1px 0 rgba(0,0,0,.05)}
-:root[data-skin="pk"] body:not([data-novelbg]) #chat .composer .quick button:active{background:linear-gradient(180deg,#e3e3e3,#f5f5f5)}
-:root[data-skin="pk"] body:not([data-novelbg]) #chat .composer .quick{padding-bottom:6px;border-bottom:1px solid #c9c9c9;margin:0 -12px 10px;padding-left:12px;padding-right:12px}
-:root[data-skin="pk"] body:not([data-novelbg]) #chat #input{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%2376e06a'/%3E%3Cstop offset='1' stop-color='%2322a21a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='1' y='1' width='22' height='22' rx='5' fill='url(%23g)' stroke='%23178a12'/%3E%3Cpath d='M12 5v14M6 8.5l12 7M18 8.5l-12 7' stroke='%23fff' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 12px center/22px 22px;border:1px solid #b5b5b5;border-radius:6px;box-shadow:inset 0 1px 2px rgba(0,0,0,.12);padding-right:44px;color:#333;min-height:46px}
-:root[data-skin="pk"] body:not([data-novelbg]) #chat #send{width:46px;min-width:46px;min-height:46px;padding:0;font-size:0;background:linear-gradient(180deg,#f8dce7 0%,#f0c2d4 50%,#e8afc5 51%,#e3a3bc 100%);border:1px solid #b9789a;border-radius:4px;box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 1px 1px rgba(0,0,0,.1)}
-:root[data-skin="pk"] body:not([data-novelbg]) #chat #send::after{content:"↑";font-size:24px;color:#3d2a33;font-weight:400}
+/* ===== 핑크 창 (v48v pinkwin 그대로) — 2000년대 소설 뷰어 같은 옅은 분홍 창틀 ===== */
+:root[data-skin="pk"]{--bg:#F5F5F5;--panel:#F1F1F1;--field:#FFFFFF;--line:#BEBEBE;--ink:#353136;--soft:#7C777C;--faint:#7C777C;--char-bg:#FFFFFF;--user-bg:#FBEAF1;--narr:#777277;--accent:#B85E80;--accent-ink:#fff}
+:root[data-skin="pk"] body{background:#DCDCDC}
+:root[data-skin="pk"] .app{background:#F7F7F7;box-shadow:inset 2px 0 #F9F9F9,inset -2px 0 #8F8F8F}
+:root[data-skin="pk"] body:not([data-novelbg]) header.bar{margin:0;background:linear-gradient(180deg,#F9E5EC 0%,#F2CAD9 52%,#E9B9CB 100%);border-top:1px solid #FFF7FA;border-bottom:1px solid #A98693;box-shadow:inset 0 1px #FFFFFFB8,0 1px #EFEFEF;color:#4F3942;min-height:58px}
+:root[data-skin="pk"] body:not([data-novelbg]) header.bar :is(h1,h2,.icon,.plus){color:#5A3B48}
+:root[data-skin="pk"] body:not([data-novelbg]) header.bar :is(h1,h2){font-weight:600;text-shadow:0 1px #FFF7FA}
+:root[data-skin="pk"] body:not([data-novelbg]) header.bar .icon{border-radius:2px;text-shadow:0 1px #FFF7FA}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat header.bar h2{text-align:center;font-size:18px}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat header.bar .back{font-size:32px;line-height:1;font-weight:300;width:40px;padding:0}
+:root[data-skin="pk"] body:not([data-novelbg]) #editFromChat{font-size:0;display:flex;align-items:center;gap:20px;padding:0 4px}
+:root[data-skin="pk"] body:not([data-novelbg]) #editFromChat::before{content:"✎";font-size:21px;color:#5A3B48;transform:rotate(-8deg)}
+:root[data-skin="pk"] body:not([data-novelbg]) #editFromChat::after{content:"⚙️";font-size:25px;filter:grayscale(1) contrast(1.1) drop-shadow(0 1px 0 rgba(255,255,255,.8))}
+:root[data-skin="pk"] body:not([data-novelbg]) :is(.log,.list){background:#FFFFFF}
+:root[data-skin="pk"] :is(.card,.paper,.oc .statc,.oc .mind,.oc .detail-card,.oc .insta,.oc .ord,.oc .comm){border-radius:3px;border-color:#BEBEBE;background:#FFFFFF;box-shadow:1px 1px 0 #E4E4E4}
+:root[data-skin="pk"] :is(.av,.mav){border-radius:5px;border:1px solid #AFAFAF}
+:root[data-skin="pk"] :is(.av,.mav) img{border-radius:4px}
+:root[data-skin="pk"] body:not([data-novelbg]) .log.fmt-bubble .msg .body{border:1px solid #C8C8C8;border-radius:3px;background:#FFFFFF;box-shadow:1px 1px 0 #E6E6E6;line-height:1.8}
+:root[data-skin="pk"] body:not([data-novelbg]) .log.fmt-bubble .msg.user .body{background:#FBEAF1;border-color:#D7A9BB}
+:root[data-skin="pk"] :is(input,textarea,select,.btn){border-radius:2px;border-color:#AFAFAF}
+:root[data-skin="pk"] .btn{background:linear-gradient(180deg,#FFFFFF,#E5E5E5);color:#454045;box-shadow:inset 1px 1px #FFFFFF,1px 1px #B7B7B7}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat > .composer{background:#F2F2F2;border-top:1px solid #8F8F8F;box-shadow:inset 0 1px #FFFFFF;padding-top:9px}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat .composer .quick{gap:5px;margin:-9px -12px 9px;padding:6px 10px;background:linear-gradient(180deg,#EFEFEF,#D5D5D5);border-top:1px solid #FFFFFF;border-bottom:1px solid #9D9D9D;box-shadow:inset 0 -1px #ECECEC}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat .composer .quick button{padding:4px 7px;border:1px solid #B1B1B1;border-radius:2px;background:linear-gradient(180deg,#FAFAFA,#DADADA);color:#555057;box-shadow:inset 1px 1px #FFFFFF;font-size:12px}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat #input{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%2376e06a'/%3E%3Cstop offset='1' stop-color='%2322a21a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='1' y='1' width='22' height='22' rx='5' fill='url(%23g)' stroke='%23178a12'/%3E%3Cpath d='M12 5v14M6 8.5l12 7M18 8.5l-12 7' stroke='%23fff' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 12px center/22px 22px;border:1px solid #9F9F9F;border-radius:3px;box-shadow:inset 1px 1px 2px #D5D5D5;padding-right:44px;color:#353136;min-height:46px}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat #send{width:46px;min-width:46px;min-height:46px;padding:0;font-size:0;border-radius:3px;border:1px solid #A86C82;background:linear-gradient(180deg,#F4D4E0,#DEA5BA);color:#573746;box-shadow:inset 1px 1px #FFF4F8,1px 1px #B7B7B7}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat #send::after{content:"↑";font-size:24px;color:#573746;font-weight:400}
 :root[data-skin="pk"] body:not([data-novelbg]) #chat #send[data-busy]::after{content:"■";font-size:16px}
-:root[data-skin="pk"] .sms{background:#eee}
+/* 소설 모드의 대사만 분홍 카드로. 말풍선·대본은 제외 */
+:root[data-skin="pk"] .log.fmt-novel .msg.char p:has(> .say:only-child){display:table;max-width:100%;padding:7px 12px 8px;background:linear-gradient(90deg,#FFF2F7,#FFF8FA);border-left:3px solid #C86F91;box-shadow:inset 0 1px #FFFFFF;color:#49343E;font-weight:500;line-height:1.55;text-shadow:none}
+:root[data-skin="pk"] .log.fmt-novel .msg.char p:has(> .say:only-child) .say{color:#49343E}
+:root[data-skin="pk"] body[data-novelbg] .log.fmt-novel .msg.char p:has(> .say:only-child){background:rgba(255,240,247,.94);color:#49343E !important;text-shadow:none !important}
+:root[data-skin="pk"] body[data-novelbg] .log.fmt-novel .msg.char p:has(> .say:only-child) .say{color:#49343E !important}
+:root[data-skin="pk"] .sms{background:#FBEAF1;border:1px solid #D7A9BB;border-radius:3px}
+
+/* ===== 핑크 (딸기토끼 · v43에서 가져옴) ===== */
+:root[data-skin="berry"]{--bg:#fff8fa;--panel:#fffdfe;--field:#fff0f6;--line:#ffcfe0;--ink:#5c3346;--soft:#c78aa2;--faint:#c78aa2;--user-bg:#ffe3ee;--char-bg:#fff6f9;--narr:#7E7986;--accent:#ff5c7f;--accent-ink:#fff}
+:root[data-skin="berry"] body:not([data-novelbg]){background:linear-gradient(135deg,#fff8fa 0%,#ffeaf1 40%,#ffd6e4 75%,#ffb8d1 100%) fixed}
+:root[data-skin="berry"] body:not([data-novelbg]) .screen,:root[data-skin="berry"] body:not([data-novelbg]) .log,:root[data-skin="berry"] body:not([data-novelbg]) .list{background:transparent}
+:root[data-skin="berry"] body:not([data-novelbg]) header.bar{margin:0}
+:root[data-skin="berry"] body:not([data-novelbg]) #chat header.bar h2{text-align:center;color:#3a2b33}
+:root[data-skin="berry"] body:not([data-novelbg]) header.bar .icon{color:#ff5c7f}
+:root[data-skin="berry"] body:not([data-novelbg]) header.bar,:root[data-skin="berry"] body:not([data-novelbg]) .composer{background:rgba(255,244,248,.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+:root[data-skin="berry"] body:not([data-novelbg]) .msg.char .body{border:0;border-radius:4px 17px 17px 17px;background:#fffbfd;box-shadow:0 4px 14px rgba(255,140,180,.13)}
+:root[data-skin="berry"] body:not([data-novelbg]) .fmt-novel .msg.char .body,:root[data-skin="berry"] body:not([data-novelbg]) .fmt-script .msg.char .body{background:none;box-shadow:none}
+:root[data-skin="berry"] body:not([data-novelbg]) .msg.user .body{background:#fdf0f6;color:#4a2836;border-radius:17px 4px 17px 17px;box-shadow:0 4px 14px rgba(255,140,180,.10)}
+:root[data-skin="berry"] body:not([data-novelbg]) .log .who{color:#3a2b33;font-weight:700;font-size:13.5px}
+:root[data-skin="berry"] body:not([data-novelbg]) .mav,:root[data-skin="berry"] body:not([data-novelbg]) .av{border:2px solid #fff;box-shadow:0 3px 9px rgba(255,120,160,.30)}
+:root[data-skin="berry"] .card,:root[data-skin="berry"] .paper,:root[data-skin="berry"] .oc :is(.statc,.mind,.pl){border-radius:20px;border:1px solid var(--line);box-shadow:0 4px 16px rgba(255,140,180,.14)}
+:root[data-skin="berry"] .btn{border-radius:14px}
+:root[data-skin="berry"] body:not([data-novelbg]) #chat .composer .quick button{background:rgba(255,255,255,.7);border-color:#ffd6e4;color:#c06a8a}
+:root[data-skin="berry"] body:not([data-novelbg]) #chat #input{border-radius:22px;border:1px solid #ffd6e4;background:#fffdfe}
+:root[data-skin="berry"] body:not([data-novelbg]) #chat #send{background:linear-gradient(135deg,#ff9ab8,#ff5c7f);color:#fff;border:0;box-shadow:0 4px 10px rgba(255,92,127,.38)}
+:root[data-skin="berry"] .sms{background:rgba(255,92,127,.10)}
+
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) header.bar{margin:0}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .sms{background:var(--char-bg);border:1px solid var(--ms-bubble-line)}
+/* ===== 메신저 창 테마 (XP 블루 · 핑크 버디 · 실버 아쿠아) — themes 파일에서 그대로 ===== */
+:root[data-skin="xpblue"]{--bg:#e0eeff;--panel:#f8fbff;--ink:#213855;--soft:#607590;--line:#b1c6e1;--accent:#1764d8;--accent-ink:#fff;--char-bg:#f9fbff;--user-bg:#fff1cd;--narr:#516782;--faint:#6b7c92;--danger:#b04050;--ms-frame:#2870d6;--ms-title:linear-gradient(#78b3ff 0%,#176ff2 16%,#0062dc 80%,#004cc7);--ms-chrome:linear-gradient(#fafaf7,#e5e4df);--ms-title-ink:#fff;--ms-field:#fff;--ms-user-line:#ddcb97;--ms-bubble-line:#a1c1ea;--ms-send:linear-gradient(#94c8ff,#2685fc 48%,#0660df 51%,#317dec);--ms-cat:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20fill%3D%22%23153aa4%22%20d%3D%22M4%203h6v3h3v3h6V6h3V3h6v12h3v12h-3v3H4v-3H1V15h3z%22%2F%3E%3Cpath%20fill%3D%22%23fffdf9%22%20d%3D%22M7%206h3v6h12V6h3v12h3v6h-3v3H7v-3H4v-6h3z%22%2F%3E%3Cpath%20fill%3D%22%23f7b1c5%22%20d%3D%22M7%208h3v4H7zm15%200h3v4h-3zM5%2020h5v4H5zm17%200h5v4h-5z%22%2F%3E%3Cpath%20fill%3D%22%23183c9e%22%20d%3D%22M10%2016h3v3h-3zm10%200h3v3h-3zm-5%205h3v2h-3z%22%2F%3E%3C%2Fsvg%3E")}
+:root[data-skin="pinkbuddy"]{--bg:#fff8fc;--panel:#fffafd;--ink:#4b354b;--soft:#886d84;--line:#e7b4ce;--accent:#bc4f89;--accent-ink:#fff;--char-bg:#fff9fc;--user-bg:#eae2f7;--narr:#80667b;--faint:#8e7489;--danger:#b43f5f;--ms-frame:#cc719e;--ms-title:linear-gradient(#ffdbed,#f5a4cc 18%,#df76a8 80%,#e79cbd);--ms-chrome:linear-gradient(#fff0f7,#f6cfe2);--ms-title-ink:#fff;--ms-field:#fffdff;--ms-user-line:#cbb5e3;--ms-bubble-line:#dfb3cc;--ms-send:linear-gradient(#ffe0f0,#f4a0ca 48%,#dc71a4 51%,#e98ab8);--ms-cat:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20fill%3D%22%23153aa4%22%20d%3D%22M4%203h6v3h3v3h6V6h3V3h6v12h3v12h-3v3H4v-3H1V15h3z%22%2F%3E%3Cpath%20fill%3D%22%23fffdf9%22%20d%3D%22M7%206h3v6h12V6h3v12h3v6h-3v3H7v-3H4v-6h3z%22%2F%3E%3Cpath%20fill%3D%22%23f7b1c5%22%20d%3D%22M7%208h3v4H7zm15%200h3v4h-3zM5%2020h5v4H5zm17%200h5v4h-5z%22%2F%3E%3Cpath%20fill%3D%22%23183c9e%22%20d%3D%22M10%2016h3v3h-3zm10%200h3v3h-3zm-5%205h3v2h-3z%22%2F%3E%3C%2Fsvg%3E")}
+:root[data-skin="silveraqua"]{--bg:#f1f9fc;--panel:#f6fbfe;--ink:#243e4b;--soft:#687c8a;--line:#b6c6d0;--accent:#187cba;--accent-ink:#fff;--char-bg:#eaf5fc;--user-bg:#dff2ea;--narr:#58717e;--faint:#758793;--danger:#b24d61;--ms-frame:#93a8b7;--ms-title:linear-gradient(#f9fbfc,#e3e9ed 45%,#c3ced5 55%,#e6edf1);--ms-chrome:repeating-linear-gradient(0deg,#e5ebef 0 1px,#eef2f5 1px 3px);--ms-title-ink:#344754;--ms-field:#fcfeff;--ms-user-line:#accfc2;--ms-bubble-line:#bdd8e9;--ms-send:linear-gradient(#def6ff,#80d6fa 35%,#199edb 49%,#0481c4 51%,#5cbee7);--ms-cat:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20fill%3D%22%23153aa4%22%20d%3D%22M4%203h6v3h3v3h6V6h3V3h6v12h3v12h-3v3H4v-3H1V15h3z%22%2F%3E%3Cpath%20fill%3D%22%23fffdf9%22%20d%3D%22M7%206h3v6h12V6h3v12h3v6h-3v3H7v-3H4v-6h3z%22%2F%3E%3Cpath%20fill%3D%22%23f7b1c5%22%20d%3D%22M7%208h3v4H7zm15%200h3v4h-3zM5%2020h5v4H5zm17%200h5v4h-5z%22%2F%3E%3Cpath%20fill%3D%22%23183c9e%22%20d%3D%22M10%2016h3v3h-3zm10%200h3v3h-3zm-5%205h3v2h-3z%22%2F%3E%3C%2Fsvg%3E")}
+.ms-title,.ms-tabs,.ms-bottom{display:none}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) body{background:var(--bg)}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .app{border:2px solid var(--ms-frame);border-radius:9px;box-shadow:inset 0 0 0 1px #fff,0 4px 20px #234a6920;background:var(--bg)}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .ms-title{display:flex;flex:none;align-items:center;gap:8px;padding:6px 9px;min-height:35px;background:var(--ms-title);color:var(--ms-title-ink);border-bottom:1px solid var(--ms-frame);box-shadow:inset 0 1px #ffffffbb}
+.ms-title>i{width:20px;height:20px;background:var(--ms-cat) center/contain no-repeat;image-rendering:pixelated;flex:none}
+.ms-title strong{font-size:14px;letter-spacing:.015em}
+.ms-controls{display:flex;gap:3px;margin-left:auto;pointer-events:none}
+.ms-controls b{display:grid;place-items:center;width:22px;height:22px;border:1px solid #ffffffbb;outline:1px solid #0002;border-radius:3px;box-shadow:inset 1px 1px #ffffff80;background:linear-gradient(#ffffff66,#ffffff10);font:17px/1 Arial;color:inherit}
+:root[data-skin="xpblue"] .ms-controls b:last-child{background:linear-gradient(#ffaf88,#d94c30)}
+:root[data-skin="pinkbuddy"] .ms-controls b{color:#76516a;background:linear-gradient(#fff5fa,#e9c7d8)}
+:root[data-skin="silveraqua"] .ms-title>i{display:none}
+:root[data-skin="silveraqua"] .ms-controls{order:-1;margin:0 8px 0 0;gap:6px}
+:root[data-skin="silveraqua"] .ms-controls b{width:12px;height:12px;font-size:0;border:1px solid #885651;border-radius:50%;background:radial-gradient(circle at 35% 25%,#ffe6df,#f25243 60%,#a12525)}
+:root[data-skin="silveraqua"] .ms-controls b:nth-child(2){border-color:#af8722;background:radial-gradient(circle at 35% 25%,#fffbd7,#f4c641 60%,#b08915)}
+:root[data-skin="silveraqua"] .ms-controls b:nth-child(3){border-color:#4c8843;background:radial-gradient(circle at 35% 25%,#e7ffdb,#74c25e 60%,#317337)}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .ms-tabs{display:flex;flex:none;gap:18px;background:var(--ms-chrome);padding:4px 12px;border-bottom:1px solid var(--line);font-size:11px;color:var(--soft)}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) #chat header.bar{background:linear-gradient(115deg,var(--panel),var(--bg));padding:13px 11px;gap:9px;border-bottom:1px solid var(--line);min-height:77px;box-shadow:inset 0 1px white}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) #chat header.bar::before{content:"";width:44px;height:46px;flex:none;background:var(--ms-cat) center/30px no-repeat,linear-gradient(135deg,#eef8ff,#8eb5e6);border:1px solid var(--line);box-shadow:inset 0 0 0 3px #ffffff88;border-radius:3px;image-rendering:pixelated}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) #chat header.bar .back{order:-1;font-size:23px}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) #chat header.bar h2{font-size:15px;font-weight:700;line-height:1.5}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) #chat header.bar h2::after{content:"●  대화";display:block;font-size:10px;font-weight:400;color:var(--soft);margin-top:3px}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) #chat header.bar #editFromChat{background:var(--ms-chrome);border:1px solid var(--line);box-shadow:inset 0 1px white;border-radius:3px;font-size:11px;padding:4px 7px}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) header.bar:not(#chat header.bar){background:var(--ms-chrome);border-bottom:1px solid var(--line)}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .log{padding:19px 13px 24px;background:var(--bg)}
+:root[data-skin="xpblue"] .log{background-image:conic-gradient(#bcd6f755 25%,transparent 0 50%,#bcd6f755 0 75%,transparent 0);background-size:20px 20px}
+:root[data-skin="pinkbuddy"] .log{background-image:radial-gradient(#f2cfe055 1.3px,transparent 1.3px);background-size:17px 17px}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .log.fmt-bubble .msg .body:not(.inner){border:1px solid var(--ms-bubble-line);border-radius:13px;background:var(--char-bg);color:var(--ink);box-shadow:0 2px 4px #334c6910;padding:11px 14px;overflow-wrap:anywhere}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .log.fmt-bubble .msg.user .body:not(.inner){background:var(--user-bg);border-color:var(--ms-user-line)}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .msg .who{font-size:11px;font-weight:500;color:var(--soft)}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .msg{margin-bottom:22px}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .av{border:1px solid var(--line);border-radius:4px;background:var(--ms-cat) center/70% no-repeat,var(--panel);color:transparent;box-shadow:inset 0 0 0 2px #ffffff77}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .av:has(img){background:var(--panel)}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .av img{border-radius:3px}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .log.fmt-novel .msg.char .body,:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .log.fmt-script .msg.char .body{background:transparent;border:0;box-shadow:none}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) body:not([data-novelbg]) .fmt-novel .say{background:var(--char-bg);border:1px solid var(--ms-bubble-line);border-radius:6px;padding:3px 7px;-webkit-box-decoration-break:clone;box-decoration-break:clone;line-height:2.2}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) body:not([data-novelbg]) .msg.user.unov{padding:13px 15px;background:var(--user-bg);border:1px solid var(--ms-user-line);border-radius:11px;margin:20px 0}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .composer{background:var(--ms-chrome);border-top:1px solid var(--ms-frame);padding:8px 10px 10px;box-shadow:inset 0 2px #ffffffbb}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .composer .quick{gap:0;padding:0 0 7px;margin-bottom:7px;border-bottom:1px solid var(--line)}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .composer .quick button{border:0;border-right:1px solid var(--line);border-radius:0;background:transparent;color:var(--ink);font-size:10px;padding:5px 9px;white-space:nowrap}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .composer .quick button:first-child{padding-left:0}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .composer .quick button:last-child{border-right:0}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) #qRegen::before{content:"↻";color:var(--accent);font:bold 19px/12px Arial;margin-right:5px;text-shadow:0 1px white}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) #qCmd::before{content:"▤";color:var(--accent);font-size:15px;margin-right:4px}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .composer textarea{background:var(--ms-field);border:1px solid #9baabd;border-radius:5px;box-shadow:inset 1px 2px 4px #3b4f6620;color:var(--ink);min-height:52px}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) #send{background:var(--ms-send);color:var(--accent-ink);border:1px solid var(--ms-frame);border-radius:6px;box-shadow:inset 0 0 0 2px #ffffff55,0 1px 2px #20385822;min-width:64px;padding:9px 11px;font-size:13px;text-shadow:0 1px #284b8155}
+:root[data-skin="silveraqua"] #send{border-radius:22px}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .ms-bottom{display:flex;flex:none;align-items:center;gap:7px;padding:4px 10px;background:var(--ms-chrome);border-top:1px solid var(--line);box-shadow:inset 0 1px white;font-size:10px;color:var(--soft)}
+.ms-bottom i{width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 35% 25%,white,#86cd63 40%,#448a2d);border:1px solid #78a46c}
+.ms-bottom span:last-child{margin-left:auto}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) :is(.optcard,.sumbox,.lore-entry){background:var(--panel);border:1px solid var(--line);border-radius:6px;box-shadow:inset 0 1px #fff}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .btn{border-radius:5px}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .seg button.on{background:var(--accent);color:var(--accent-ink)}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .row{border-bottom:1px solid var(--line);background:var(--panel)}
+@media(max-height:600px){:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) #chat header.bar{min-height:50px;padding-block:5px}:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) #chat header.bar::before{height:32px;width:32px;background-size:24px}:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .ms-tabs,:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .ms-bottom{display:none}}
 </style>
 <style id="tsukiyo-theme">
 @import url("https://fonts.googleapis.com/css2?family=DotGothic16&family=Shippori+Mincho:wght@500&display=swap");
@@ -1666,6 +1756,8 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 
   <!-- 채팅 -->
   <section class="screen" id="chat">
+    <div class="ms-title"><i aria-hidden="true"></i><strong>밤편지</strong><span class="ms-controls" aria-hidden="true"><b>−</b><b>□</b><b>×</b></span></div>
+    <div class="ms-tabs" aria-hidden="true"><span>대화</span><span>밤편지 메신저</span></div>
     <header class="bar"><div class="phone-status" aria-hidden="true"><span class="phone-signal"><i></i><i></i><i></i><i></i></span><span class="phone-envelope"></span><span class="phone-battery"></span></div>
       <button class="icon back" data-back aria-label="뒤로">‹</button>
       <h2 id="chName"></h2>
@@ -1693,6 +1785,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
         <button class="btn" id="send">보내기</button>
       </div>
     </div>
+    <div class="ms-bottom" aria-hidden="true"><i></i><span>밤편지</span><span>MESSENGER</span></div>
   </section>
 </div>
 
@@ -1933,7 +2026,7 @@ const HANDS = {
   "깜찍": "'HandSeh','Nanum Pen Script',cursive", "서툰": "'HandRam','Nanum Pen Script',cursive",
   "수수": "'HandDng','Nanum Pen Script',cursive"
 };
-const THEMES = [["light", "밝게"], ["night", "밤"], ["tk", "月夜 (츠키요)"], ["tkw", "月白 (츠키요 화이트)"], ["pk", "핑크 아쿠아"]];
+const THEMES = [["light", "밝게"], ["night", "밤"], ["tk", "月夜 (츠키요)"], ["tkw", "月白 (츠키요 화이트)"], ["pk", "핑크 창"], ["berry", "핑크 (딸기토끼)"], ["pinkbuddy", "핑크 버디"], ["xpblue", "XP 블루"], ["silveraqua", "실버 아쿠아"]];
 function applyLook() {
   const r = document.documentElement.style;
   const fam = FONTS[ai.font] || FONTS["고운돋움"];
@@ -1949,7 +2042,7 @@ function applyLook() {
   de.dataset.theme = th === "night" || th === "dark" || th === "tk" ? "night" : "light";
   if (th === "tk" || th === "tkw") de.dataset.skin = "tk"; else delete de.dataset.skin;
   if (th === "tkw") de.dataset.tone = "white"; else delete de.dataset.tone;
-  if (th === "pk") de.dataset.skin = "pk";
+  if (["pk", "berry", "pinkbuddy", "xpblue", "silveraqua"].includes(th)) de.dataset.skin = th;
   try { const ip = document.getElementById("input"); if (ip) ip.placeholder = th === "pk" ? "메시지" : ""; } catch (e) {}
 }
 try { Object.assign(ai, JSON.parse(localStorage.getItem(SKEY) || "{}")); } catch(e) {}
