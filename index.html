@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.78","items":[]}
+  {"v":"3.79","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -528,10 +528,10 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root[data-skin="pk"] body:not([data-novelbg]) header.bar :is(h1,h2,.icon,.plus){color:#5A3B48}
 :root[data-skin="pk"] body:not([data-novelbg]) header.bar :is(h1,h2){font-weight:600;text-shadow:0 1px #FFF7FA}
 :root[data-skin="pk"] body:not([data-novelbg]) header.bar .icon{border-radius:2px;text-shadow:0 1px #FFF7FA}
-:root[data-skin="pk"] body:not([data-novelbg]) #chat header.bar h2{text-align:center;font-size:18px}
-:root[data-skin="pk"] body:not([data-novelbg]) #chat header.bar .back{font-size:32px;line-height:1;font-weight:300;width:40px;padding:0}
-:root[data-skin="pk"] body:not([data-novelbg]) #editFromChat{font-size:0;display:flex;align-items:center;gap:20px;padding:0 4px}
-:root[data-skin="pk"] body:not([data-novelbg]) #editFromChat::before{content:"✎";font-size:21px;color:#5A3B48;transform:rotate(-8deg)}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat header.bar{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:0;padding:8px 10px}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat header.bar h2{text-align:center;font-size:18px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+:root[data-skin="pk"] body:not([data-novelbg]) #chat header.bar .back{font-size:32px;line-height:1;font-weight:300;width:44px;height:44px;padding:0;display:grid;place-items:center}
+:root[data-skin="pk"] body:not([data-novelbg]) #editFromChat{font-size:0;width:44px;height:44px;padding:0;display:grid;place-items:center}
 :root[data-skin="pk"] body:not([data-novelbg]) #editFromChat::after{content:"⚙️";font-size:25px;filter:grayscale(1) contrast(1.1) drop-shadow(0 1px 0 rgba(255,255,255,.8))}
 :root[data-skin="pk"] body:not([data-novelbg]) :is(.log,.list){background:#FFFFFF}
 :root[data-skin="pk"] :is(.card,.paper,.oc .statc,.oc .mind,.oc .detail-card,.oc .insta,.oc .ord,.oc .comm){border-radius:3px;border-color:#BEBEBE;background:#FFFFFF;box-shadow:1px 1px 0 #E4E4E4}
