@@ -6,6 +6,8 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"3.83","items":["AGY 초기 설정을 GemTi 방식(메타데이터·서버)으로도 시도하고, 대기 시간을 늘렸어요"]},
+  {"v":"3.82","items":["AGY 초기 설정 때 무료 등급을 우선 찾고, 안 되면 이유를 보여줘요"]},
   {"v":"3.81","items":["AGY 프로젝트가 없는 계정은 자동으로 초기 설정해요"]},
   {"v":"3.80","items":["AGY 토큰 연결 · 계정 관리 · 모델 불러오기 · PC 연결 도우미"]},
   {"v":"3.79","items":[]}
@@ -2217,19 +2219,36 @@ async function agyRequest(ctx, action, body, signal) {
 async function agyProject(ctx, signal) {
   if (ctx.account.project) return ctx.account.project;
   if (ctx.cache.project) return ctx.cache.project;
-  const meta = { ide_type: 'ANTIGRAVITY', ide_version: '2.5.5', ide_name: 'antigravity' };
   const pick = p => typeof p === 'string' ? p : p?.id;
-  const res = await agyRequest(ctx, 'loadCodeAssist', { metadata: meta }, signal);
-  const data = await res.json();
-  let id = pick(data.cloudaicompanionProject);
-  if (!id) id = await agyOnboard(ctx, data, meta, signal);
-  if (!id) throw new Error('계정의 프로젝트를 찾지 못했어요. Antigravity에서 계정의 초기 설정을 완료하거나 고급 설정에 프로젝트 ID를 입력해주세요.');
-  ctx.cache.project = id; return id;
+  const cur = Object.hasOwn(AGY_ENDPOINTS, ctx.account.endpoint) ? ctx.account.endpoint : 'daily';
+  const other = cur === 'daily' ? 'production' : 'daily';
+  const GEM = { ideType: 'IDE_UNSPECIFIED', platform: 'PLATFORM_UNSPECIFIED', pluginType: 'GEMINI' };
+  const AGY = { ide_type: 'ANTIGRAVITY', ide_version: '2.5.5', ide_name: 'antigravity' };
+  const tries = [[cur, GEM], [other, GEM], [cur, AGY]];
+  let lastErr = null;
+  for (const [ep, meta] of tries) {
+    const c = ep === cur ? ctx : { ...ctx, account: { ...ctx.account, endpoint: ep } };
+    try {
+      const res = await agyRequest(c, 'loadCodeAssist', { metadata: meta }, signal);
+      const data = await res.json();
+      const id = pick(data.cloudaicompanionProject) || await agyOnboard(c, data, meta, signal);
+      if (id) { ctx.cache.project = id; return id; }
+    } catch (e) {
+      if (e?.name === 'AbortError' || e?.name === 'TimeoutError') throw e;
+      lastErr = e;
+    }
+  }
+  throw lastErr || new Error('계정의 프로젝트를 찾지 못했어요. Antigravity에서 계정의 초기 설정을 완료하거나 고급 설정에 프로젝트 ID를 입력해주세요.');
 }
 async function agyOnboard(ctx, data, meta, signal) {
   const tiers = Array.isArray(data.allowedTiers) ? data.allowedTiers : [];
-  const tier = data.currentTier || tiers.find(t => t.isDefault) || tiers.find(t => t.id === 'free-tier') || tiers[0] || { id: 'free-tier' };
-  if (tier.userDefinedCloudaicompanionProject) throw new Error('이 계정은 프로젝트 ID를 직접 지정해야 해요. 고급 연결 설정에 Google Cloud 프로젝트 ID를 입력해주세요.');
+  const free = t => t && !t.userDefinedCloudaicompanionProject;
+  const tier = [data.currentTier, tiers.find(t => t.id === 'free-tier'), tiers.find(t => t.isDefault), ...tiers].find(free) || (tiers.length || data.currentTier ? null : { id: 'free-tier' });
+  if (!tier) {
+    const why = (Array.isArray(data.ineligibleTiers) ? data.ineligibleTiers : []).map(t => t.reasonMessage || t.reasonCode).filter(Boolean).join(' / ');
+    const ids = [data.currentTier?.id, ...tiers.map(t => t.id)].filter(Boolean).join(', ');
+    throw new Error('이 계정은 무료 등급을 쓸 수 없어서 프로젝트 ID를 직접 지정해야 해요. 고급 연결 설정에 Google Cloud 프로젝트 ID를 입력해주세요.' + (ids ? ' [등급: ' + agySafeMessage(ids) + ']' : '') + (why ? ' [이유: ' + agySafeMessage(why) + ']' : ''));
+  }
   const body = { tierId: tier.id || 'free-tier', metadata: meta };
   const pick = r => { const p = r?.response?.cloudaicompanionProject; return typeof p === 'string' ? p : p?.id; };
   for (let i = 0; i < 12; i++) {
@@ -2329,7 +2348,7 @@ async function agyModels(cfg, signal) {
 }
 async function agyQuotaPanel(box) {
   try {
-    const items = await agyModels(ai, AbortSignal.timeout(30000));
+    const items = await agyModels(ai, AbortSignal.timeout(120000));
     box.innerHTML = '<h4>AGY 모델 잔량</h4>' + (items.length ? items.map(m => {
       const f = m.quota?.remainingFraction, percent = typeof f === 'number' ? Math.round(Math.max(0, Math.min(1, f)) * 100) + '%' : '정보 없음';
       return '<div class="r"><span>' + esc(m.name) + '</span><small>' + percent + '</small></div>';
@@ -2358,9 +2377,9 @@ $('#agyRemember').onchange = () => {
 };
 $('#agyLoadModels').onclick = async () => {
   const button = $('#agyLoadModels'), out = $('#agyStatus'), draft = agyDraft();
-  button.disabled = true; out.textContent = '계정의 모델을 확인하는 중…';
+  button.disabled = true; out.textContent = '계정의 모델을 확인하는 중… (처음엔 초기 설정 때문에 1분 정도 걸릴 수 있어요)';
   try {
-    const items = await agyModels({ agyAccount: draft, agyTransport: $('#agyTransport').value }, AbortSignal.timeout(30000));
+    const items = await agyModels({ agyAccount: draft, agyTransport: $('#agyTransport').value }, AbortSignal.timeout(120000));
     if (JSON.stringify(agyDraft()) !== JSON.stringify(draft)) return;
     $('#agyModelOptions').replaceChildren(...items.map(m => new Option(m.name, m.id)));
     if (!$('#agyModel').value && items[0]) $('#agyModel').value = items[0].id;
@@ -2428,7 +2447,7 @@ $("#sTest").onclick = async () => {
   if (cfg.prov === "agy") cfg.agyAccount = agyDraft();
   out.textContent = "연결 중...";
   try {
-    const t = await callApi(cfg, [{ role: "user", content: "한 단어로만 대답해: 안녕" }], null, AbortSignal.timeout(45000));
+    const t = await callApi(cfg, [{ role: "user", content: "한 단어로만 대답해: 안녕" }], null, AbortSignal.timeout(120000));
     out.textContent = "연결됨: " + t.slice(0, 30);
   } catch (e) { out.textContent = e.message || "연결 실패"; }
 };
