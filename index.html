@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.79","items":[]}
+  {"v":"3.80","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2293,7 +2293,7 @@ function userNovelHTML(raw) {
   src.split(/\n+/).forEach(line => {
     line = line.trim(); if (!line) return;
     const sm = smsMatch(line);
-    if (sm) { out += `<p class="np smsl"><span class="sms">[${esc(sm[1].trim())}]</span>${sm[2] ? `<span class="smst">${esc(sm[2].replace(/\s+/g, " "))}</span>` : ""}</p>`; return; }
+    if (sm) { out += `<p class="np smsl"><span class="sms">${esc(sm[1].trim())}</span>${sm[2] ? `<span class="smst">${esc(sm[2].replace(/\s+/g, " "))}</span>` : ""}</p>`; return; }
     let segs = [];
     if (starMode) segs = starSegs(line);
     else if (!quoteMode) segs = [{ nar: false, t: line }];
