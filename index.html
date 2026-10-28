@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"3.84","items":["AGY 개인 프로젝트가 없으면 기본 프로젝트로 연결해요"]},
   {"v":"3.83","items":["AGY 초기 설정을 GemTi 방식(메타데이터·서버)으로도 시도하고, 대기 시간을 늘렸어요"]},
   {"v":"3.82","items":["AGY 초기 설정 때 무료 등급을 우선 찾고, 안 되면 이유를 보여줘요"]},
   {"v":"3.81","items":["AGY 프로젝트가 없는 계정은 자동으로 초기 설정해요"]},
@@ -2098,6 +2099,7 @@ const AGY_BRIDGE_BASE64 = 'Ly8g67Ck7Y647KeAIEFHWSDsl7DqsrAg64+E7Jqw66+4LiBOb2RlL
 const AGY_STORE_KEY = 'bamp_agy_accounts_v1';
 const AGY_DEFAULT_CLIENT = '1071006060591-tmhssin2h21lcre235vtolojh4g403ep.apps.googleusercontent.com';
 const AGY_DEFAULT_SECRET = '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'; // Public installed-app OAuth identifier from the protocol reference, not a user credential.
+const AGY_FALLBACK_PROJECT = 'rising-fact-p41fc'; // Antigravity 공용 기본 프로젝트 (개인 프로젝트가 없는 계정용)
 const AGY_ENDPOINTS = { daily: 'https://daily-cloudcode-pa.googleapis.com', production: 'https://cloudcode-pa.googleapis.com' };
 const agyCache = new Map();
 let agyState = { active: '', accounts: [], remember: false };
@@ -2238,7 +2240,8 @@ async function agyProject(ctx, signal) {
       lastErr = e;
     }
   }
-  throw lastErr || new Error('계정의 프로젝트를 찾지 못했어요. Antigravity에서 계정의 초기 설정을 완료하거나 고급 설정에 프로젝트 ID를 입력해주세요.');
+  if (lastErr) console.warn('[AGY] 프로젝트 자동 확인 실패, 기본 프로젝트로 진행:', lastErr.message);
+  ctx.cache.project = AGY_FALLBACK_PROJECT; return AGY_FALLBACK_PROJECT;
 }
 async function agyOnboard(ctx, data, meta, signal) {
   const tiers = Array.isArray(data.allowedTiers) ? data.allowedTiers : [];
