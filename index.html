@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.84","items":["AGY 개인 프로젝트가 없으면 기본 프로젝트로 연결해요"]},
+  {"v":"3.85","items":["AGY 중계 서버(Cloudflare Workers) 연결 방식 추가 — 폰에서도 사용"]},
   {"v":"3.83","items":["AGY 초기 설정을 GemTi 방식(메타데이터·서버)으로도 시도하고, 대기 시간을 늘렸어요"]},
   {"v":"3.82","items":["AGY 초기 설정 때 무료 등급을 우선 찾고, 안 되면 이유를 보여줘요"]},
   {"v":"3.81","items":["AGY 프로젝트가 없는 계정은 자동으로 초기 설정해요"]},
@@ -1624,7 +1624,13 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
         <div class="agy-actions"><button id="agyLoadModels" type="button" class="btn ghost">모델 불러오기</button><button id="agySave" type="button" class="btn ghost">계정 저장</button></div>
         <div id="agyStatus" class="hint" role="status" aria-live="polite"></div>
         <label for="agyTransport">연결 방법</label>
-        <select id="agyTransport"><option value="direct">브라우저 직접 연결</option><option value="local">PC 연결 도우미</option></select>
+        <select id="agyTransport"><option value="direct">브라우저 직접 연결</option><option value="relay">중계 서버 (폰용)</option><option value="local">PC 연결 도우미</option></select>
+        <div id="agyRelayBox" hidden>
+          <label for="agyRelay">중계 서버 주소</label><input id="agyRelay" type="url" placeholder="https://이름.계정.workers.dev" autocomplete="off" spellcheck="false" autocapitalize="off">
+          <label for="agyRelayKey">중계 비밀번호</label><input id="agyRelayKey" type="password" autocomplete="off" spellcheck="false" autocapitalize="off">
+          <div class="agy-actions"><button id="agyCopyRelay" type="button" class="btn ghost">중계 서버 코드 복사</button></div>
+          <div class="hint">Cloudflare Workers(무료)에 중계 서버 코드를 붙여넣고 배포한 뒤, 주소와 코드 속 비밀번호를 여기에 넣어요. 토큰은 중계 서버를 거쳐 구글로 전달돼요.</div>
+        </div>
         <details class="agy-help"><summary>직접 연결이 안 될 때 · PC 연결 도우미</summary>
           <p>브라우저 연결 제한(CORS) 때문에 토큰이 맞아도 실패할 수 있어요. 이 경우 PC에서 아래 순서로 열어주세요.</p>
           <ol><li>이 HTML을 <b>character-chat-agy.html</b> 이름으로 저장해요.</li><li>아래 도우미를 내려받아 HTML과 같은 폴더에 둬요.</li><li>Node.js 20 이상이 설치된 PC의 터미널에서 그 폴더로 이동한 뒤 <code>node agy-bridge.mjs</code>를 실행해요.</li><li><b>http://127.0.0.1:17879</b>를 열고 토큰을 입력해요. 연결 방법은 자동으로 PC 연결 도우미가 돼요.</li></ol>
@@ -2099,7 +2105,7 @@ const AGY_BRIDGE_BASE64 = 'Ly8g67Ck7Y647KeAIEFHWSDsl7DqsrAg64+E7Jqw66+4LiBOb2RlL
 const AGY_STORE_KEY = 'bamp_agy_accounts_v1';
 const AGY_DEFAULT_CLIENT = '1071006060591-tmhssin2h21lcre235vtolojh4g403ep.apps.googleusercontent.com';
 const AGY_DEFAULT_SECRET = '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'; // Public installed-app OAuth identifier from the protocol reference, not a user credential.
-const AGY_FALLBACK_PROJECT = 'rising-fact-p41fc'; // Antigravity 공용 기본 프로젝트 (개인 프로젝트가 없는 계정용)
+const AGY_RELAY_BASE64 = 'Ly8g67Ck7Y647KeAIEFHWSDspJHqs4Qg7ISc67KEIChDbG91ZGZsYXJlIFdvcmtlcnPsmqkpCi8vIO2PsCDruIzrnbzsmrDsoIAg64yA7IugIEFudGlncmF2aXR5IO2RnOyLnOulvCDrtpnsl6zshJwg6rWs6riA7JeQIOyalOyyreydhCDsoITri6ztlbTsmpQuCi8vIO2GoO2BsOqzvCDrjIDtmZQg64K07Jqp7J2AIOyggOyepe2VmOyngCDslYrqs6Ag6re464yA66GcIOyghOuLrOunjCDtlbTsmpQuCgovLyDilrwg7JWE66y064+EIOuqqOultOuKlCDruYTrsIDrsojtmLjroZwg67CU6r+U7KO87IS47JqULiDslbHsnZggIuykkeqzhCDruYTrsIDrsojtmLgiIOy5uOyXkCDqsJnsnYAg6rCS7J2EIOuEo+yWtOyalC4KY29uc3QgUkVMQVlfS0VZID0gJ+yXrOq4sOyXkC3ruYTrsIDrsojtmLgt7J6F66ClJzsKCmNvbnN0IEVORFBPSU5UUyA9IHsgZGFpbHk6ICdodHRwczovL2RhaWx5LWNsb3VkY29kZS1wYS5nb29nbGVhcGlzLmNvbScsIHByb2R1Y3Rpb246ICdodHRwczovL2Nsb3VkY29kZS1wYS5nb29nbGVhcGlzLmNvbScgfTsKY29uc3QgQUNUSU9OUyA9IG5ldyBTZXQoWydsb2FkQ29kZUFzc2lzdCcsICdvbmJvYXJkVXNlcicsICdmZXRjaEF2YWlsYWJsZU1vZGVscycsICdzdHJlYW1HZW5lcmF0ZUNvbnRlbnQnLCAncmV0cmlldmVVc2VyUXVvdGFTdW1tYXJ5J10pOwpjb25zdCBDT1JTID0gewogICdBY2Nlc3MtQ29udHJvbC1BbGxvdy1PcmlnaW4nOiAnKicsCiAgJ0FjY2Vzcy1Db250cm9sLUFsbG93LU1ldGhvZHMnOiAnUE9TVCwgT1BUSU9OUycsCiAgJ0FjY2Vzcy1Db250cm9sLUFsbG93LUhlYWRlcnMnOiAnQ29udGVudC1UeXBlLCBBdXRob3JpemF0aW9uLCBYLVJlbGF5LUtleScsCiAgJ0FjY2Vzcy1Db250cm9sLU1heC1BZ2UnOiAnODY0MDAnLAp9Owpjb25zdCByZXBseSA9IChzdGF0dXMsIG1lc3NhZ2UpID0+IG5ldyBSZXNwb25zZShKU09OLnN0cmluZ2lmeSh7IGVycm9yOiB7IG1lc3NhZ2UgfSB9KSwgeyBzdGF0dXMsIGhlYWRlcnM6IHsgLi4uQ09SUywgJ0NvbnRlbnQtVHlwZSc6ICdhcHBsaWNhdGlvbi9qc29uOyBjaGFyc2V0PXV0Zi04JyB9IH0pOwoKZXhwb3J0IGRlZmF1bHQgewogIGFzeW5jIGZldGNoKHJlcSwgZW52KSB7CiAgICBpZiAocmVxLm1ldGhvZCA9PT0gJ09QVElPTlMnKSByZXR1cm4gbmV3IFJlc3BvbnNlKG51bGwsIHsgc3RhdHVzOiAyMDQsIGhlYWRlcnM6IENPUlMgfSk7CiAgICBpZiAocmVxLm1ldGhvZCAhPT0gJ1BPU1QnKSByZXR1cm4gcmVwbHkoNDA1LCAn7KSR6rOEIOyEnOuyhOqwgCDrj5nsnpEg7KSR7J207JeQ7JqULiDslbHsl5DshJwg7J20IOyjvOyGjOulvCDsgqzsmqntlZjshLjsmpQuJyk7CiAgICBjb25zdCBrZXkgPSAoZW52ICYmIGVudi5SRUxBWV9LRVkpIHx8IFJFTEFZX0tFWTsKICAgIGlmICgha2V5IHx8IGtleSA9PT0gJ+yXrOq4sOyXkC3ruYTrsIDrsojtmLgt7J6F66ClJykgcmV0dXJuIHJlcGx5KDUwMCwgJ+ykkeqzhCDshJzrsoQg7L2U65Oc7J2YIFJFTEFZX0tFWeulvCDruYTrsIDrsojtmLjroZwg67CU6r+U7KO87IS47JqULicpOwogICAgaWYgKHJlcS5oZWFkZXJzLmdldCgnWC1SZWxheS1LZXknKSAhPT0ga2V5KSByZXR1cm4gcmVwbHkoNDAxLCAn7KSR6rOEIOu5hOuwgOuyiO2YuOqwgCDrp57sp4Ag7JWK7JWE7JqULicpOwoKICAgIGNvbnN0IHBhdGggPSBuZXcgVVJMKHJlcS51cmwpLnBhdGhuYW1lLnNwbGl0KCcvJykuZmlsdGVyKEJvb2xlYW4pOwogICAgbGV0IHRhcmdldCwgaGVhZGVycywgYm9keTsKICAgIGlmIChwYXRoLmxlbmd0aCA9PT0gMSAmJiBwYXRoWzBdID09PSAndG9rZW4nKSB7CiAgICAgIGNvbnN0IGlucHV0ID0gbmV3IFVSTFNlYXJjaFBhcmFtcyhhd2FpdCByZXEudGV4dCgpKTsKICAgICAgaWYgKGlucHV0LmdldCgnZ3JhbnRfdHlwZScpICE9PSAncmVmcmVzaF90b2tlbicgfHwgIWlucHV0LmdldCgncmVmcmVzaF90b2tlbicpKSByZXR1cm4gcmVwbHkoNDAwLCAnUmVmcmVzaCBUb2tlbuydtCDtlYTsmpTtlbTsmpQuJyk7CiAgICAgIGNvbnN0IG91dCA9IG5ldyBVUkxTZWFyY2hQYXJhbXMoKTsKICAgICAgZm9yIChjb25zdCBrIG9mIFsnZ3JhbnRfdHlwZScsICdyZWZyZXNoX3Rva2VuJywgJ2NsaWVudF9pZCcsICdjbGllbnRfc2VjcmV0J10pIGlmIChpbnB1dC5oYXMoaykpIG91dC5zZXQoaywgaW5wdXQuZ2V0KGspKTsKICAgICAgdGFyZ2V0ID0gJ2h0dHBzOi8vb2F1dGgyLmdvb2dsZWFwaXMuY29tL3Rva2VuJzsKICAgICAgaGVhZGVycyA9IHsgJ0NvbnRlbnQtVHlwZSc6ICdhcHBsaWNhdGlvbi94LXd3dy1mb3JtLXVybGVuY29kZWQnIH07CiAgICAgIGJvZHkgPSBvdXQudG9TdHJpbmcoKTsKICAgIH0gZWxzZSBpZiAocGF0aC5sZW5ndGggPT09IDIgJiYgRU5EUE9JTlRTW3BhdGhbMF1dICYmIEFDVElPTlMuaGFzKHBhdGhbMV0pKSB7CiAgICAgIGNvbnN0IGF1dGggPSByZXEuaGVhZGVycy5nZXQoJ0F1dGhvcml6YXRpb24nKSB8fCAnJzsKICAgICAgaWYgKCEvXkJlYXJlciBbXlxyXG5dKyQvLnRlc3QoYXV0aCkpIHJldHVybiByZXBseSg0MDEsICfsoJHsho0g7Yag7YGw7J20IO2VhOyalO2VtOyalC4nKTsKICAgICAgbGV0IHBhcnNlZDsKICAgICAgdHJ5IHsgcGFyc2VkID0gSlNPTi5wYXJzZShhd2FpdCByZXEudGV4dCgpKTsgfSBjYXRjaCB7IHJldHVybiByZXBseSg0MDAsICfsmpTssq0g7ZiV7Iud7J20IOyYrOuwlOultOyngCDslYrslYTsmpQuJyk7IH0KICAgICAgY29uc3QgaXNBcmdvbiA9IC9eZ2VtaW5pLTQtYXJnb24oPzotKD86bG93fG1lZGl1bXxoaWdoKSk/JC8udGVzdChwYXJzZWQubW9kZWwgfHwgJycpOwogICAgICBjb25zdCBhZ2VudCA9IGlzQXJnb24gPyAnYW50aWdyYXZpdHkvY2xpLzEuMy42IChhaWRldl9jbGllbnQ7IG9zX3R5cGU9d2luZG93czsgYXJjaD1hbWQ2NDsgYXV0aF9tZXRob2Q9Y29uc3VtZXIpJyA6ICdhbnRpZ3Jhdml0eS9pZGUvMi41LjUgKGFpZGV2X2NsaWVudDsgb3NfdHlwZT13aW5kb3dzOyBhcmNoPWFtZDY0KSc7CiAgICAgIGNvbnN0IGFjdGlvbiA9IHBhdGhbMV07CiAgICAgIHRhcmdldCA9IEVORFBPSU5UU1twYXRoWzBdXSArICcvdjFpbnRlcm5hbDonICsgYWN0aW9uICsgKGFjdGlvbiA9PT0gJ3N0cmVhbUdlbmVyYXRlQ29udGVudCcgPyAnP2FsdD1zc2UnIDogJycpOwogICAgICBoZWFkZXJzID0geyAnQ29udGVudC1UeXBlJzogJ2FwcGxpY2F0aW9uL2pzb24nLCBBdXRob3JpemF0aW9uOiBhdXRoLCAnVXNlci1BZ2VudCc6IGFnZW50IH07CiAgICAgIGlmIChhY3Rpb24gPT09ICdzdHJlYW1HZW5lcmF0ZUNvbnRlbnQnKSBoZWFkZXJzLkFjY2VwdCA9ICd0ZXh0L2V2ZW50LXN0cmVhbSc7CiAgICAgIGJvZHkgPSBKU09OLnN0cmluZ2lmeShwYXJzZWQpOwogICAgfSBlbHNlIHsKICAgICAgcmV0dXJuIHJlcGx5KDQwNCwgJ+2XiOyaqeuQmOyngCDslYrsnYAg7JqU7LKt7J207JeQ7JqULicpOwogICAgfQoKICAgIGxldCB1cHN0cmVhbTsKICAgIHRyeSB7IHVwc3RyZWFtID0gYXdhaXQgZmV0Y2godGFyZ2V0LCB7IG1ldGhvZDogJ1BPU1QnLCBoZWFkZXJzLCBib2R5LCByZWRpcmVjdDogJ21hbnVhbCcgfSk7IH0KICAgIGNhdGNoIHsgcmV0dXJuIHJlcGx5KDUwMiwgJ+q1rOq4gCDshJzrsoTsl5Ag7Jew6rKw7ZWY7KeAIOuqu+2WiOyWtOyalC4nKTsgfQogICAgcmV0dXJuIG5ldyBSZXNwb25zZSh1cHN0cmVhbS5ib2R5LCB7IHN0YXR1czogdXBzdHJlYW0uc3RhdHVzLCBoZWFkZXJzOiB7IC4uLkNPUlMsICdDb250ZW50LVR5cGUnOiB1cHN0cmVhbS5oZWFkZXJzLmdldCgnY29udGVudC10eXBlJykgfHwgJ2FwcGxpY2F0aW9uL2pzb24nLCAnQ2FjaGUtQ29udHJvbCc6ICduby1zdG9yZScgfSB9KTsKICB9LAp9Owo=';
 const AGY_ENDPOINTS = { daily: 'https://daily-cloudcode-pa.googleapis.com', production: 'https://cloudcode-pa.googleapis.com' };
 const agyCache = new Map();
 let agyState = { active: '', accounts: [], remember: false };
@@ -2148,7 +2154,9 @@ function agyOpen() {
   const account = agyState.accounts.find(a => a.id === agyState.active);
   agyFill(account);
   if (ai.prov === 'agy' && ai.model && account) $('#agyModel').value = ai.model;
-  $('#agyTransport').value = agyLocal() ? 'local' : 'direct';
+  $('#agyTransport').value = agyLocal() ? 'local' : (ai.agyTransport === 'relay' ? 'relay' : 'direct');
+  $('#agyRelay').value = ai.agyRelay || ''; $('#agyRelayKey').value = ai.agyRelayKey || '';
+  $('#agyRelayBox').hidden = $('#agyTransport').value !== 'relay';
 }
 function agySaveProfile() {
   const a = agyDraft(); agyValidate(a);
@@ -2165,6 +2173,11 @@ function agySaveProfile() {
 function agyTransport(cfg) {
   const mode = cfg.agyTransport || (agyLocal() ? 'local' : 'direct');
   if (mode === 'local' && !agyLocal()) throw new Error('PC에서 연결 도우미를 실행한 뒤 http://127.0.0.1:17879 에서 앱을 열어주세요.');
+  if (mode === 'relay') {
+    const relay = String(cfg.agyRelay ?? ai.agyRelay ?? '').trim().replace(/\/+$/, '');
+    if (!/^https:\/\/[^\s/]+/.test(relay)) throw new Error('중계 서버 주소(https://…workers.dev)를 입력해주세요.');
+    if (!String(cfg.agyRelayKey ?? ai.agyRelayKey ?? '').trim()) throw new Error('중계 비밀번호를 입력해주세요.');
+  }
   return mode;
 }
 function agyContext(cfg) {
@@ -2174,7 +2187,9 @@ function agyContext(cfg) {
   const account = { ...a }, transport = agyTransport(cfg);
   const key = JSON.stringify([account.id, account.token, account.clientId, account.clientSecret, account.endpoint, account.project, transport]);
   if (!agyCache.has(key)) agyCache.set(key, {});
-  return { account, transport, cache: agyCache.get(key) };
+  const relay = transport === 'relay' ? String(cfg.agyRelay ?? ai.agyRelay ?? '').trim().replace(/\/+$/, '') : '';
+  const relayKey = transport === 'relay' ? String(cfg.agyRelayKey ?? ai.agyRelayKey ?? '').trim() : '';
+  return { account, transport, relay, relayKey, cache: agyCache.get(key) };
 }
 function agySafeMessage(message) {
   return String(message || '').replace(/(?:1\/\/|ya29\.)[^\s"'<>&]+/g, '[토큰 숨김]').slice(0, 220);
@@ -2182,10 +2197,11 @@ function agySafeMessage(message) {
 async function agyFetch(url, init, ctx) {
   const headers = { ...init.headers };
   if (ctx.transport === 'local') headers['X-Bamp-Agy'] = '1';
+  if (ctx.transport === 'relay') headers['X-Relay-Key'] = ctx.relayKey;
   try { return await fetch(url, { ...init, headers, credentials: 'omit', redirect: 'error' }); }
   catch (e) {
     if (e.name === 'AbortError' || e.name === 'TimeoutError') throw e;
-    throw new Error(ctx.transport === 'direct' ? '직접 연결에 실패했어요. 인터넷 연결을 확인하고, 브라우저 연결 제한(CORS)이라면 아래 PC 연결 도우미를 사용해주세요.' : '연결 도우미에 연결하지 못했어요. 실행 창을 열어두었는지 확인해주세요.');
+    throw new Error(ctx.transport === 'relay' ? '중계 서버에 연결하지 못했어요. 주소가 맞는지, 배포가 끝났는지 확인해주세요.' : ctx.transport === 'direct' ? '직접 연결에 실패했어요. 인터넷 연결을 확인하고, 브라우저 연결 제한(CORS)이라면 아래 PC 연결 도우미를 사용해주세요.' : '연결 도우미에 연결하지 못했어요. 실행 창을 열어두었는지 확인해주세요.');
   }
 }
 async function agyError(res, stage) {
@@ -2199,7 +2215,7 @@ async function agyAccess(ctx, signal, force = false) {
   if (a.token.startsWith('ya29.')) return a.token;
   if (!force && cache.access && cache.expires > Date.now() + 60000) return cache.access;
   const params = new URLSearchParams({ grant_type: 'refresh_token', refresh_token: a.token, client_id: a.clientId || AGY_DEFAULT_CLIENT, client_secret: a.clientSecret == null ? AGY_DEFAULT_SECRET : a.clientSecret });
-  const res = await agyFetch(ctx.transport === 'local' ? '/__agy/token' : 'https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString(), signal }, ctx);
+  const res = await agyFetch(ctx.transport === 'local' ? '/__agy/token' : ctx.transport === 'relay' ? ctx.relay + '/token' : 'https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString(), signal }, ctx);
   if (!res.ok) throw await agyError(res, '토큰 갱신 실패');
   const data = await res.json();
   if (typeof data.access_token !== 'string' || !data.access_token) throw new Error('서버가 접속 토큰을 보내지 않았어요.');
@@ -2208,7 +2224,7 @@ async function agyAccess(ctx, signal, force = false) {
 }
 async function agyRequest(ctx, action, body, signal) {
   const endpoint = Object.hasOwn(AGY_ENDPOINTS, ctx.account.endpoint) ? ctx.account.endpoint : 'daily';
-  const url = ctx.transport === 'local' ? '/__agy/' + endpoint + '/' + action : AGY_ENDPOINTS[endpoint] + '/v1internal:' + action + (action === 'streamGenerateContent' ? '?alt=sse' : '');
+  const url = ctx.transport === 'local' ? '/__agy/' + endpoint + '/' + action : ctx.transport === 'relay' ? ctx.relay + '/' + endpoint + '/' + action : AGY_ENDPOINTS[endpoint] + '/v1internal:' + action + (action === 'streamGenerateContent' ? '?alt=sse' : '');
   let token = await agyAccess(ctx, signal);
   const send = () => agyFetch(url, { method: 'POST', signal, headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(body) }, ctx);
   let res = await send();
@@ -2240,8 +2256,7 @@ async function agyProject(ctx, signal) {
       lastErr = e;
     }
   }
-  if (lastErr) console.warn('[AGY] 프로젝트 자동 확인 실패, 기본 프로젝트로 진행:', lastErr.message);
-  ctx.cache.project = AGY_FALLBACK_PROJECT; return AGY_FALLBACK_PROJECT;
+  throw lastErr || new Error('계정의 프로젝트를 찾지 못했어요. 고급 설정에 프로젝트 ID를 입력해주세요.');
 }
 async function agyOnboard(ctx, data, meta, signal) {
   const tiers = Array.isArray(data.allowedTiers) ? data.allowedTiers : [];
@@ -2382,13 +2397,23 @@ $('#agyLoadModels').onclick = async () => {
   const button = $('#agyLoadModels'), out = $('#agyStatus'), draft = agyDraft();
   button.disabled = true; out.textContent = '계정의 모델을 확인하는 중… (처음엔 초기 설정 때문에 1분 정도 걸릴 수 있어요)';
   try {
-    const items = await agyModels({ agyAccount: draft, agyTransport: $('#agyTransport').value }, AbortSignal.timeout(120000));
+    const items = await agyModels({ agyAccount: draft, agyTransport: $('#agyTransport').value, agyRelay: $('#agyRelay').value, agyRelayKey: $('#agyRelayKey').value }, AbortSignal.timeout(120000));
     if (JSON.stringify(agyDraft()) !== JSON.stringify(draft)) return;
     $('#agyModelOptions').replaceChildren(...items.map(m => new Option(m.name, m.id)));
     if (!$('#agyModel').value && items[0]) $('#agyModel').value = items[0].id;
     out.textContent = items.length ? items.length + '개 모델을 불러왔어요. 모델 입력칸에서 선택해주세요.' : '모델 목록이 비어 있어요. 사용 가능한 모델 ID를 직접 입력해주세요.';
   } catch (e) { out.textContent = e.name === 'TimeoutError' ? '모델 목록 요청 시간이 초과됐어요.' : e.message; }
   finally { button.disabled = false; }
+};
+$('#agyTransport').onchange = () => { $('#agyRelayBox').hidden = $('#agyTransport').value !== 'relay'; agyCache.clear(); };
+$('#agyCopyRelay').onclick = async () => {
+  const code = new TextDecoder().decode(Uint8Array.from(atob(AGY_RELAY_BASE64), c => c.charCodeAt(0)));
+  try { await navigator.clipboard.writeText(code); $('#agyStatus').textContent = '중계 서버 코드를 복사했어요. Cloudflare 코드 편집기에 붙여넣고 RELAY_KEY를 바꿔주세요.'; }
+  catch (_) {
+    const url = URL.createObjectURL(new Blob([code], { type: 'text/javascript;charset=utf-8' }));
+    const a = document.createElement('a'); a.href = url; a.download = 'agy-relay.js'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 10000);
+    $('#agyStatus').textContent = '복사가 막혀서 파일로 내려받았어요.';
+  }
 };
 $('#agyDownloadBridge').onclick = () => {
   const bytes = Uint8Array.from(atob(AGY_BRIDGE_BASE64), c => c.charCodeAt(0));
@@ -2416,7 +2441,7 @@ $("#sFontSel").onchange = () => { ai.font = $("#sFontSel").value; applyLook(); s
 $("#sCfs").oninput = () => { ai.cfs = parseFloat($("#sCfs").value); $("#sCfsLabel").textContent = "카드 글자 크기 · " + ai.cfs + "px"; applyLook(); saveAi(); };
 $("#sFs").oninput = () => { ai.fs = parseFloat($("#sFs").value); $("#sFsLabel").textContent = "글자 크기 · " + ai.fs + "px"; applyLook(); saveAi(); };
 function readSettings() {
-  return { agyId: agyState.active, agyTransport: $("#agyTransport").value, regularModel: $("#sModel").value.trim(), models: $("#sModels").value, home: ai.home, prov: segGet($("#sProv")), url: $("#sUrl").value.trim().replace(/\/+$/, ""), key: $("#sKey").value.trim(),
+  return { agyId: agyState.active, agyTransport: $("#agyTransport").value, agyRelay: $("#agyRelay").value.trim().replace(/\/+$/, ""), agyRelayKey: $("#agyRelayKey").value.trim(), regularModel: $("#sModel").value.trim(), models: $("#sModels").value, home: ai.home, prov: segGet($("#sProv")), url: $("#sUrl").value.trim().replace(/\/+$/, ""), key: $("#sKey").value.trim(),
     model: segGet($("#sProv")) === "agy" ? $("#agyModel").value.trim() : $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 0, merge: $("#sMerge").checked, uav: $("#sUav").checked, trans: $("#sTrans").checked, pron: $("#sPron").checked, font: $("#sFontSel").value, fs: parseFloat($("#sFs").value) || 15, cfs: parseFloat($("#sCfs").value) || 14, theme: $("#sTheme").value, ttsKey: $("#sTtsKey").value.trim(), ttsModel: $("#sTtsModel").value.trim(), ttsAuto: $("#sTtsAuto").checked, ttsOn: $("#sTtsOn").checked, ttsVia: ["google", "other"].includes(segGet($("#sTtsVia"))) ? segGet($("#sTtsVia")) : "same", ttsUrl: $("#sTtsUrl").value.trim(), ttsOKey: $("#sTtsOKey").value.trim() };
 }
 $("#setBtn").onclick = () => {
