@@ -6,6 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
+  {"v":"3.80","items":["AGY 토큰 연결 · 계정 관리 · 모델 불러오기 · PC 연결 도우미"]},
   {"v":"3.79","items":[]}
 ]
 </script>
@@ -635,6 +636,8 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .seg button.on{background:var(--accent);color:var(--accent-ink)}
 :root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .row{border-bottom:1px solid var(--line);background:var(--panel)}
 @media(max-height:600px){:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) #chat header.bar{min-height:50px;padding-block:5px}:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) #chat header.bar::before{height:32px;width:32px;background-size:24px}:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .ms-tabs,:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .ms-bottom{display:none}}
+
+#sProv{flex-wrap:wrap}#sProv button{flex:1 1 40%;min-height:42px}#agyPane{border-color:#b99bd1}#agyPane .hint{line-height:1.7;overflow-wrap:anywhere}#agyPane input,#agyPane select{max-width:100%;min-width:0}#agyPane .agy-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}#agyPane .agy-token{display:flex;gap:8px;align-items:center}#agyPane .agy-token input{flex:1}#agyPane .agy-token button{flex:none}#agyPane .agy-check{display:flex;align-items:center;gap:9px;line-height:1.6}#agyPane .agy-check input{width:18px;height:18px;flex:none}#agyPane .agy-help{margin-top:16px;font-size:13px;line-height:1.8}#agyPane summary{cursor:pointer;font-weight:600}#agyPane ol{padding-left:22px}#agyPane code{overflow-wrap:anywhere;user-select:all}#agyStatus{min-height:22px}
 </style>
 <style id="tsukiyo-theme">
 @import url("https://fonts.googleapis.com/css2?family=DotGothic16&family=Shippori+Mincho:wght@500&display=swap");
@@ -1567,9 +1570,9 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
   <section class="screen" id="settings">
     <header class="bar"><div class="phone-status" aria-hidden="true"><span class="phone-signal"><i></i><i></i><i></i><i></i></span><span class="phone-envelope"></span><span class="phone-battery"></span></div><button class="icon back" data-back aria-label="뒤로">‹</button><h2>설정</h2></header>
     <div class="form">
-      <fieldset hidden>
-        <legend>AI 제공자</legend>
-        <div class="seg" id="sProv"><button data-v="builtin">내장 Claude</button><button data-v="openai">OpenAI</button><button data-v="custom">직접 입력</button></div>
+      <fieldset>
+        <legend>AI 연결</legend>
+        <div class="seg" id="sProv"><button data-v="builtin">내장 Claude</button><button data-v="openai">OpenAI</button><button data-v="custom">직접 입력</button><button data-v="agy">AGY 토큰</button></div>
         <div class="hint" id="sProvHint"></div>
       </fieldset>
       <fieldset>
@@ -1598,19 +1601,53 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
         <select id="sPreset"></select>
         <button class="btn ghost addbtn" id="sPresetMan" type="button" style="margin-top:10px">프리셋 관리</button>
       </fieldset>
+      <fieldset id="agyPane" hidden>
+        <legend>AGY 연결 · 밤편지</legend>
+        <div class="hint">젬티처럼 AGY 계정 토큰으로 연결하는 독립 기능이에요. 공식 젬티 플러그인은 아니며, 실제 이용 가능 여부는 계정과 서버에 따라 달라요.</div>
+        <label for="agyAccount">계정 선택</label>
+        <select id="agyAccount"><option value="">새 계정</option></select>
+        <div class="agy-actions"><button type="button" class="btn ghost" id="agyNew">＋ 새 계정</button><button type="button" class="btn ghost" id="agyDelete">선택 계정 삭제</button></div>
+        <label for="agyName">계정 이름</label>
+        <input id="agyName" type="text" placeholder="예: 기본 계정" maxlength="60" autocomplete="off">
+        <label for="agyToken">AGY 토큰</label>
+        <div class="agy-token"><input id="agyToken" type="password" placeholder="1//… 또는 ya29.…" autocomplete="off" spellcheck="false" autocapitalize="off"><button id="agyShowToken" type="button" class="btn ghost">보기</button></div>
+        <div class="hint">Refresh Token(1//…)은 접속 토큰을 자동 갱신해요. Access Token(ya29.…)은 만료되면 다시 입력해야 해요.</div>
+        <label class="agy-check"><input id="agyRemember" type="checkbox"> 이 기기에 계정 토큰 기억하기</label>
+        <div class="hint">기본은 현재 탭에서만 보관해요. 기억하기를 켜면 이 브라우저에 암호화 없이 저장돼요. 토큰은 대화 백업에 포함하지 않아요.</div>
+        <label for="agyModel">AGY 모델</label>
+        <input id="agyModel" type="text" list="agyModelOptions" placeholder="모델 불러오기 후 선택하거나 모델 ID 입력" autocomplete="off" spellcheck="false">
+        <datalist id="agyModelOptions"></datalist>
+        <div class="agy-actions"><button id="agyLoadModels" type="button" class="btn ghost">모델 불러오기</button><button id="agySave" type="button" class="btn ghost">계정 저장</button></div>
+        <div id="agyStatus" class="hint" role="status" aria-live="polite"></div>
+        <label for="agyTransport">연결 방법</label>
+        <select id="agyTransport"><option value="direct">브라우저 직접 연결</option><option value="local">PC 연결 도우미</option></select>
+        <details class="agy-help"><summary>직접 연결이 안 될 때 · PC 연결 도우미</summary>
+          <p>브라우저 연결 제한(CORS) 때문에 토큰이 맞아도 실패할 수 있어요. 이 경우 PC에서 아래 순서로 열어주세요.</p>
+          <ol><li>이 HTML을 <b>character-chat-agy.html</b> 이름으로 저장해요.</li><li>아래 도우미를 내려받아 HTML과 같은 폴더에 둬요.</li><li>Node.js 20 이상이 설치된 PC의 터미널에서 그 폴더로 이동한 뒤 <code>node agy-bridge.mjs</code>를 실행해요.</li><li><b>http://127.0.0.1:17879</b>를 열고 토큰을 입력해요. 연결 방법은 자동으로 PC 연결 도우미가 돼요.</li></ol>
+          <button id="agyDownloadBridge" type="button" class="btn ghost">연결 도우미 내려받기</button>
+          <p>도우미 창은 사용하는 동안 열어두세요. PC 도우미는 같은 PC에서만 접속돼요. iPhone만으로는 이 도우미를 실행할 수 없어요. 새 주소에서는 기존 대화가 자동으로 나타나지 않으니 기존 앱의 백업을 불러와주세요.</p>
+        </details>
+        <details class="agy-help"><summary>고급 연결 설정</summary>
+          <label for="agyEndpoint">AGY 서버</label><select id="agyEndpoint"><option value="daily">Daily</option><option value="production">Production</option></select>
+          <label for="agyProject">프로젝트 ID (비워두면 자동 확인)</label><input id="agyProject" type="text" autocomplete="off" spellcheck="false">
+          <label for="agyClient">OAuth Client ID</label><input id="agyClient" type="text" autocomplete="off" spellcheck="false">
+          <label for="agySecret">OAuth Client Secret</label><input id="agySecret" type="password" autocomplete="off" spellcheck="false">
+          <div class="hint">기본값은 공개 AGY IDE 연동 방식이에요. 다른 앱에서 발급된 토큰은 발급 앱과 일치하는 OAuth 설정이 필요할 수 있어요.</div>
+        </details>
+      </fieldset>
       <fieldset id="sApi" hidden>
         <legend>연결 정보</legend>
         <div id="sUrlWrap">
           <label for="sUrl">API 주소 (OpenAI 호환)</label>
           <input type="text" id="sUrl" placeholder="https://openrouter.ai/api/v1" autocomplete="off" spellcheck="false">
         </div>
-        <label for="sKey">API 키</label>
-        <input type="text" id="sKey" placeholder="sk-..." autocomplete="off" spellcheck="false" style="-webkit-text-security:disc">
-        <label for="sModel">모델 이름</label>
+        <div id="sKeyWrap"><label for="sKey">API 키</label>
+        <input type="text" id="sKey" placeholder="sk-..." autocomplete="off" spellcheck="false" style="-webkit-text-security:disc"></div>
+        <div id="sApiModelWrap"><label for="sModel">모델 이름</label>
         <input type="text" id="sModel" list="modelList" placeholder="gpt-4.1" autocomplete="off" spellcheck="false">
         <label for="sModels">모델 목록</label>
         <textarea id="sModels" rows="4" autocomplete="off" spellcheck="false" style="width:100%;font-family:inherit"></textarea>
-        <datalist id="modelList"><option value="gpt-4.1"><option value="gpt-4.1-mini"><option value="gpt-4o"><option value="gpt-4o-mini"></datalist>
+        <datalist id="modelList"><option value="gpt-4.1"><option value="gpt-4.1-mini"><option value="gpt-4o"><option value="gpt-4o-mini"></datalist></div>
         <label for="sTemp">창의성 (temperature): <span id="sTempV"></span></label>
         <input type="range" id="sTemp" min="0" max="1.5" step="0.05" style="width:100%">
         <label for="sMax">최대 출력 토큰</label>
@@ -2051,11 +2088,282 @@ if (ai.max === 1500) ai.max = 0;
 const inClaude = !!window.claude;
 if (!inClaude && ai.prov === "builtin" && !localStorage.getItem(SKEY)) ai.prov = "openai";
 function updateBanner() { try { $("#aiBanner").hidden = !(ai.prov === "builtin" && !sample); } catch (e) {} }
+const AGY_BRIDGE_BASE64 = 'Ly8g67Ck7Y647KeAIEFHWSDsl7DqsrAg64+E7Jqw66+4LiBOb2RlLmpzIDIwIOydtOyDgSwg7Jm467aAIO2MqO2CpOyngCDrtojtlYTsmpQuCi8vIOyLpO2WiTogbm9kZSBhZ3ktYnJpZGdlLm1qcyAiY2hhcmFjdGVyLWNoYXQtYWd5Lmh0bWwiCmltcG9ydCBodHRwIGZyb20gJ25vZGU6aHR0cCc7CmltcG9ydCB7IHJlYWRGaWxlIH0gZnJvbSAnbm9kZTpmcy9wcm9taXNlcyc7CmltcG9ydCB7IHJlc29sdmUsIGRpcm5hbWUgfSBmcm9tICdub2RlOnBhdGgnOwppbXBvcnQgeyBmaWxlVVJMVG9QYXRoIH0gZnJvbSAnbm9kZTp1cmwnOwppbXBvcnQgeyBSZWFkYWJsZSB9IGZyb20gJ25vZGU6c3RyZWFtJzsKaW1wb3J0IHsgcGlwZWxpbmUgfSBmcm9tICdub2RlOnN0cmVhbS9wcm9taXNlcyc7Cgpjb25zdCBwb3J0ID0gMTc4Nzk7CmNvbnN0IHJvb3QgPSBkaXJuYW1lKGZpbGVVUkxUb1BhdGgoaW1wb3J0Lm1ldGEudXJsKSk7CmNvbnN0IGh0bWxQYXRoID0gcmVzb2x2ZShyb290LCBwcm9jZXNzLmFyZ3ZbMl0gfHwgJ2NoYXJhY3Rlci1jaGF0LWFneS5odG1sJyk7CmNvbnN0IGhvc3RzID0gbmV3IFNldChbJzEyNy4wLjAuMTonICsgcG9ydCwgJ2xvY2FsaG9zdDonICsgcG9ydF0pOwpjb25zdCBvcmlnaW5zID0gbmV3IFNldChbLi4uaG9zdHNdLm1hcChoID0+ICdodHRwOi8vJyArIGgpKTsKY29uc3QgZW5kcG9pbnRzID0geyBkYWlseTogJ2h0dHBzOi8vZGFpbHktY2xvdWRjb2RlLXBhLmdvb2dsZWFwaXMuY29tJywgcHJvZHVjdGlvbjogJ2h0dHBzOi8vY2xvdWRjb2RlLXBhLmdvb2dsZWFwaXMuY29tJyB9Owpjb25zdCBhY3Rpb25zID0gbmV3IFNldChbJ2xvYWRDb2RlQXNzaXN0JywgJ2ZldGNoQXZhaWxhYmxlTW9kZWxzJywgJ3N0cmVhbUdlbmVyYXRlQ29udGVudCcsICdyZXRyaWV2ZVVzZXJRdW90YVN1bW1hcnknXSk7CgpmdW5jdGlvbiByZXBseShyZXMsIHN0YXR1cywgbWVzc2FnZSkgewogIHJlcy53cml0ZUhlYWQoc3RhdHVzLCB7ICdDb250ZW50LVR5cGUnOiAnYXBwbGljYXRpb24vanNvbjsgY2hhcnNldD11dGYtOCcsICdDYWNoZS1Db250cm9sJzogJ25vLXN0b3JlJyB9KTsKICByZXMuZW5kKEpTT04uc3RyaW5naWZ5KHsgZXJyb3I6IHsgbWVzc2FnZSB9IH0pKTsKfQphc3luYyBmdW5jdGlvbiByZXF1ZXN0Qm9keShyZXEpIHsKICBjb25zdCBjaHVua3MgPSBbXTsgbGV0IHNpemUgPSAwOwogIGZvciBhd2FpdCAoY29uc3QgY2h1bmsgb2YgcmVxKSB7CiAgICBzaXplICs9IGNodW5rLmxlbmd0aDsKICAgIGlmIChzaXplID4gMTIgKiAxMDI0ICogMTAyNCkgdGhyb3cgT2JqZWN0LmFzc2lnbihuZXcgRXJyb3IoJ+yalOyyreydtCDrhIjrrLQg7Luk7JqULiDqt7jrprwg7YGs6riw66W8IOykhOyXrOyjvOyEuOyalC4nKSwgeyBzdGF0dXM6IDQxMyB9KTsKICAgIGNodW5rcy5wdXNoKGNodW5rKTsKICB9CiAgcmV0dXJuIEJ1ZmZlci5jb25jYXQoY2h1bmtzKS50b1N0cmluZygndXRmOCcpOwp9CmV4cG9ydCBmdW5jdGlvbiBjcmVhdGVCcmlkZ2UoeyB1cHN0cmVhbUZldGNoID0gZ2xvYmFsVGhpcy5mZXRjaCB9ID0ge30pIHsKICByZXR1cm4gaHR0cC5jcmVhdGVTZXJ2ZXIoYXN5bmMgKHJlcSwgcmVzKSA9PiB7CiAgICAvLyBObyB3aWxkY2FyZCBDT1JTOyBvbmx5IHBhZ2VzIHNlcnZlZCBieSB0aGlzIGxvb3BiYWNrIHNlcnZlciBtYXkgc2VuZCBjcmVkZW50aWFscy4KICAgIGlmICghaG9zdHMuaGFzKHJlcS5oZWFkZXJzLmhvc3QpKSByZXR1cm4gcmVwbHkocmVzLCA0MDMsICftl4jsmqnrkJjsp4Ag7JWK7J2AIO2YuOyKpO2KuOyYiOyalC4nKTsKICAgIGlmIChyZXEuaGVhZGVycy5vcmlnaW4gJiYgIW9yaWdpbnMuaGFzKHJlcS5oZWFkZXJzLm9yaWdpbikpIHJldHVybiByZXBseShyZXMsIDQwMywgJ+qwmeydgCDso7zshozsnZgg67Ck7Y647KeA7JeQ7IScIOyXsOqysO2VtOyjvOyEuOyalC4nKTsKICAgIGlmIChyZXEuaGVhZGVyc1snc2VjLWZldGNoLXNpdGUnXSA9PT0gJ2Nyb3NzLXNpdGUnKSByZXR1cm4gcmVwbHkocmVzLCA0MDMsICfri6Trpbgg7IKs7J207Yq47JeQ7ISc64qUIOyXsOqysO2VoCDsiJgg7JeG7Ja07JqULicpOwogICAgY29uc3QgcGF0aCA9IG5ldyBVUkwocmVxLnVybCwgJ2h0dHA6Ly8xMjcuMC4wLjE6JyArIHBvcnQpLnBhdGhuYW1lOwogICAgaWYgKHJlcS5tZXRob2QgPT09ICdHRVQnICYmIChwYXRoID09PSAnLycgfHwgcGF0aCA9PT0gJy9jaGFyYWN0ZXItY2hhdC1hZ3kuaHRtbCcpKSB7CiAgICAgIHRyeSB7CiAgICAgICAgY29uc3QgaHRtbCA9IGF3YWl0IHJlYWRGaWxlKGh0bWxQYXRoKTsKICAgICAgICByZXMud3JpdGVIZWFkKDIwMCwgeyAnQ29udGVudC1UeXBlJzogJ3RleHQvaHRtbDsgY2hhcnNldD11dGYtOCcsICdDYWNoZS1Db250cm9sJzogJ25vLXN0b3JlJywgJ1gtQ29udGVudC1UeXBlLU9wdGlvbnMnOiAnbm9zbmlmZicgfSk7CiAgICAgICAgcmV0dXJuIHJlcy5lbmQoaHRtbCk7CiAgICAgIH0gY2F0Y2ggeyByZXR1cm4gcmVwbHkocmVzLCA0MDQsICdIVE1MIO2MjOydvOydhCDrj4TsmrDrr7jsmYAg6rCZ7J2AIO2PtOuNlOyXkCDrkZDshLjsmpQuIO2MjOydvCDsnbTrpoTsnYAgY2hhcmFjdGVyLWNoYXQtYWd5Lmh0bWzsnoXri4jri6QuJyk7IH0KICAgIH0KICAgIGlmIChyZXEubWV0aG9kID09PSAnR0VUJyAmJiBwYXRoID09PSAnL19fYWd5L2hlYWx0aCcpIHJldHVybiByZXBseShyZXMsIDIwMCwgJ+uwpO2OuOyngCBBR1kg64+E7Jqw66+4Jyk7CiAgICBpZiAocmVxLm1ldGhvZCAhPT0gJ1BPU1QnIHx8IHJlcS5oZWFkZXJzWyd4LWJhbXAtYWd5J10gIT09ICcxJykgcmV0dXJuIHJlcGx5KHJlcywgNDA0LCAn7Jew6rKwIOqyveuhnOqwgCDsl4bslrTsmpQuJyk7CiAgICBjb25zdCBhYm9ydGVyID0gbmV3IEFib3J0Q29udHJvbGxlcigpOwogICAgY29uc3QgdGltZW91dCA9IHNldFRpbWVvdXQoKCkgPT4gYWJvcnRlci5hYm9ydCgpLCAxODAwMDApOwogICAgcmVzLm9uKCdjbG9zZScsICgpID0+IHsgaWYgKCFyZXMud3JpdGFibGVFbmRlZCkgYWJvcnRlci5hYm9ydCgpOyB9KTsKICAgIHRyeSB7CiAgICAgIGxldCB0YXJnZXQsIGhlYWRlcnMsIGJvZHk7CiAgICAgIGNvbnN0IHJhdyA9IGF3YWl0IHJlcXVlc3RCb2R5KHJlcSk7CiAgICAgIGlmIChwYXRoID09PSAnL19fYWd5L3Rva2VuJykgewogICAgICAgIGNvbnN0IGlucHV0ID0gbmV3IFVSTFNlYXJjaFBhcmFtcyhyYXcpOwogICAgICAgIGlmIChpbnB1dC5nZXQoJ2dyYW50X3R5cGUnKSAhPT0gJ3JlZnJlc2hfdG9rZW4nIHx8ICFpbnB1dC5nZXQoJ3JlZnJlc2hfdG9rZW4nKSkgcmV0dXJuIHJlcGx5KHJlcywgNDAwLCAnUmVmcmVzaCBUb2tlbuydtCDtlYTsmpTtlbTsmpQuJyk7CiAgICAgICAgYm9keSA9IG5ldyBVUkxTZWFyY2hQYXJhbXMoKTsKICAgICAgICBmb3IgKGNvbnN0IGtleSBvZiBbJ2dyYW50X3R5cGUnLCAncmVmcmVzaF90b2tlbicsICdjbGllbnRfaWQnLCAnY2xpZW50X3NlY3JldCddKSBpZiAoaW5wdXQuaGFzKGtleSkpIGJvZHkuc2V0KGtleSwgaW5wdXQuZ2V0KGtleSkpOwogICAgICAgIHRhcmdldCA9ICdodHRwczovL29hdXRoMi5nb29nbGVhcGlzLmNvbS90b2tlbic7CiAgICAgICAgaGVhZGVycyA9IHsgJ0NvbnRlbnQtVHlwZSc6ICdhcHBsaWNhdGlvbi94LXd3dy1mb3JtLXVybGVuY29kZWQnIH07CiAgICAgIH0gZWxzZSB7CiAgICAgICAgY29uc3QgWywgLCBlbmRwb2ludCwgYWN0aW9uXSA9IHBhdGguc3BsaXQoJy8nKTsKICAgICAgICBpZiAoIWVuZHBvaW50c1tlbmRwb2ludF0gfHwgIWFjdGlvbnMuaGFzKGFjdGlvbikpIHJldHVybiByZXBseShyZXMsIDQwNCwgJ+2XiOyaqeuQmOyngCDslYrsnYAgQUdZIOyalOyyreydtOyXkOyalC4nKTsKICAgICAgICBpZiAoIS9eQmVhcmVyIFteXHJcbl0rJC8udGVzdChyZXEuaGVhZGVycy5hdXRob3JpemF0aW9uIHx8ICcnKSkgcmV0dXJuIHJlcGx5KHJlcywgNDAxLCAn7KCR7IaNIO2GoO2BsOydtCDtlYTsmpTtlbTsmpQuJyk7CiAgICAgICAgbGV0IHBhcnNlZDsKICAgICAgICB0cnkgeyBwYXJzZWQgPSBKU09OLnBhcnNlKHJhdyk7IH0gY2F0Y2ggeyByZXR1cm4gcmVwbHkocmVzLCA0MDAsICfsmpTssq0g7ZiV7Iud7J20IOyYrOuwlOultOyngCDslYrslYTsmpQuJyk7IH0KICAgICAgICBjb25zdCBpc0FyZ29uID0gL15nZW1pbmktNC1hcmdvbig/Oi0oPzpsb3d8bWVkaXVtfGhpZ2gpKT8kLy50ZXN0KHBhcnNlZC5tb2RlbCB8fCAnJyk7CiAgICAgICAgY29uc3QgYWdlbnQgPSBpc0FyZ29uID8gJ2FudGlncmF2aXR5L2NsaS8xLjMuNiAoYWlkZXZfY2xpZW50OyBvc190eXBlPXdpbmRvd3M7IGFyY2g9YW1kNjQ7IGF1dGhfbWV0aG9kPWNvbnN1bWVyKScgOiAnYW50aWdyYXZpdHkvaWRlLzIuNS41IChhaWRldl9jbGllbnQ7IG9zX3R5cGU9d2luZG93czsgYXJjaD1hbWQ2NCknOwogICAgICAgIHRhcmdldCA9IGVuZHBvaW50c1tlbmRwb2ludF0gKyAnL3YxaW50ZXJuYWw6JyArIGFjdGlvbiArIChhY3Rpb24gPT09ICdzdHJlYW1HZW5lcmF0ZUNvbnRlbnQnID8gJz9hbHQ9c3NlJyA6ICcnKTsKICAgICAgICBib2R5ID0gSlNPTi5zdHJpbmdpZnkocGFyc2VkKTsKICAgICAgICBoZWFkZXJzID0geyAnQ29udGVudC1UeXBlJzogJ2FwcGxpY2F0aW9uL2pzb24nLCBBdXRob3JpemF0aW9uOiByZXEuaGVhZGVycy5hdXRob3JpemF0aW9uLCAnVXNlci1BZ2VudCc6IGFnZW50IH07CiAgICAgICAgaWYgKGFjdGlvbiA9PT0gJ3N0cmVhbUdlbmVyYXRlQ29udGVudCcpIGhlYWRlcnMuQWNjZXB0ID0gJ3RleHQvZXZlbnQtc3RyZWFtJzsKICAgICAgfQogICAgICBjb25zdCB1cHN0cmVhbSA9IGF3YWl0IHVwc3RyZWFtRmV0Y2godGFyZ2V0LCB7IG1ldGhvZDogJ1BPU1QnLCBoZWFkZXJzLCBib2R5LCBzaWduYWw6IGFib3J0ZXIuc2lnbmFsLCByZWRpcmVjdDogJ2Vycm9yJyB9KTsKICAgICAgcmVzLndyaXRlSGVhZCh1cHN0cmVhbS5zdGF0dXMsIHsgJ0NvbnRlbnQtVHlwZSc6IHVwc3RyZWFtLmhlYWRlcnMuZ2V0KCdjb250ZW50LXR5cGUnKSB8fCAnYXBwbGljYXRpb24vanNvbicsICdDYWNoZS1Db250cm9sJzogJ25vLXN0b3JlJywgJ1gtQ29udGVudC1UeXBlLU9wdGlvbnMnOiAnbm9zbmlmZicgfSk7CiAgICAgIGlmICh1cHN0cmVhbS5ib2R5KSBhd2FpdCBwaXBlbGluZShSZWFkYWJsZS5mcm9tV2ViKHVwc3RyZWFtLmJvZHkpLCByZXMpOyBlbHNlIHJlcy5lbmQoKTsKICAgIH0gY2F0Y2ggKGUpIHsKICAgICAgaWYgKCFyZXMuaGVhZGVyc1NlbnQgJiYgIXJlcy5kZXN0cm95ZWQpIHJlcGx5KHJlcywgZS5zdGF0dXMgfHwgNTAyLCBlLnN0YXR1cyA9PT0gNDEzID8gZS5tZXNzYWdlIDogJ0FHWSDshJzrsoTsl5Ag7Jew6rKw7ZWY7KeAIOuqu+2WiOyWtOyalC4g7J247YSw64S3IOyXsOqysCDrmJDripQg7ISc67KEIOyDge2DnOulvCDtmZXsnbjtlbTso7zshLjsmpQuJyk7CiAgICAgIGVsc2UgcmVzLmRlc3Ryb3koKTsKICAgIH0gZmluYWxseSB7IGNsZWFyVGltZW91dCh0aW1lb3V0KTsgfQogIH0pOwp9CmlmIChwcm9jZXNzLmFyZ3ZbMV0gJiYgcmVzb2x2ZShwcm9jZXNzLmFyZ3ZbMV0pID09PSBmaWxlVVJMVG9QYXRoKGltcG9ydC5tZXRhLnVybCkpIHsKICBjb25zdCBzZXJ2ZXIgPSBjcmVhdGVCcmlkZ2UoKTsKICBzZXJ2ZXIub24oJ2Vycm9yJywgZSA9PiB7IGNvbnNvbGUuZXJyb3IoZS5jb2RlID09PSAnRUFERFJJTlVTRScgPyAn7J2066+4IOuPhOyasOuvuOqwgCDsi6Ttlokg7KSR7J206rGw64KYIDE3ODc5IO2PrO2KuOqwgCDsgqzsmqkg7KSR7J207JeQ7JqULicgOiAn64+E7Jqw66+466W8IOyLnOyeke2VmOyngCDrqrvtlojslrTsmpQuJyk7IHByb2Nlc3MuZXhpdENvZGUgPSAxOyB9KTsKICBzZXJ2ZXIubGlzdGVuKHBvcnQsICcxMjcuMC4wLjEnLCAoKSA9PiBjb25zb2xlLmxvZygn67Ck7Y647KeAIOyXtOq4sDogaHR0cDovLzEyNy4wLjAuMTonICsgcG9ydCArICdcbuydtCDssL3snYQg7Je07Ja065GUIOyxhCDsgqzsmqntlZjshLjsmpQuIOyiheujjDogQ3RybCtDXG7thqDtgbDqs7wg64yA7ZmU64qUIOyEnOuyhCDtjIzsnbzsl5Ag7KCA7J6l7ZWY7KeAIOyViuyKteuLiOuLpC4nKSk7Cn0K';
+// Independent AGY adapter for 밤편지. Protocol reference:
+// https://github.com/kangjoseph90/Risu-Antigravity (MIT, auth/antigravity request format).
+// No Risu plugin code is executed. User credentials are never embedded in this file.
+const AGY_STORE_KEY = 'bamp_agy_accounts_v1';
+const AGY_DEFAULT_CLIENT = '1071006060591-tmhssin2h21lcre235vtolojh4g403ep.apps.googleusercontent.com';
+const AGY_DEFAULT_SECRET = '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'; // Public installed-app OAuth identifier from the protocol reference, not a user credential.
+const AGY_ENDPOINTS = { daily: 'https://daily-cloudcode-pa.googleapis.com', production: 'https://cloudcode-pa.googleapis.com' };
+const agyCache = new Map();
+let agyState = { active: '', accounts: [], remember: false };
+try {
+  const stored = sessionStorage.getItem(AGY_STORE_KEY) || localStorage.getItem(AGY_STORE_KEY);
+  if (stored) {
+    const p = JSON.parse(stored);
+    if (Array.isArray(p.accounts)) agyState = { active: p.active || '', accounts: p.accounts.filter(a => a && typeof a.id === 'string' && typeof a.token === 'string'), remember: !!p.remember };
+  }
+} catch (_) {}
+function agyPersist() {
+  const chosen = agyState.remember ? localStorage : sessionStorage;
+  const other = agyState.remember ? sessionStorage : localStorage;
+  chosen.setItem(AGY_STORE_KEY, JSON.stringify(agyState));
+  other.removeItem(AGY_STORE_KEY);
+}
+function agyLocal() { return ['127.0.0.1', 'localhost'].includes(location.hostname) && location.port === '17879' && location.protocol === 'http:'; }
+function agyDraft() {
+  return { id: $('#agyAccount').value || '', name: $('#agyName').value.trim() || '기본 계정', token: $('#agyToken').value.trim(), model: $('#agyModel').value.trim(), project: $('#agyProject').value.trim(), endpoint: $('#agyEndpoint').value, models: [...$('#agyModelOptions').options].map(o => ({id:o.value, name:o.label})), clientId: $('#agyClient').value.trim(), clientSecret: $('#agySecret').value.trim() };
+}
+function agyValidate(a) {
+  if (!a.token) throw new Error('AGY 토큰을 입력해주세요.');
+  if (!/^(1\/\/|ya29\.)\S+$/.test(a.token)) throw new Error('Refresh Token(1//…) 또는 Access Token(ya29.…)을 입력해주세요. API 키와는 달라요.');
+}
+function agyFill(a = {}) {
+  $('#agyName').value = a.name || '';
+  $('#agyToken').value = a.token || '';
+  $('#agyToken').type = 'password'; $('#agyShowToken').textContent = '보기';
+  $('#agyModel').value = a.model || '';
+  $('#agyProject').value = a.project || '';
+  $('#agyEndpoint').value = a.endpoint || 'daily';
+  $('#agyClient').value = a.clientId || AGY_DEFAULT_CLIENT;
+  $('#agySecret').value = a.clientSecret == null ? AGY_DEFAULT_SECRET : a.clientSecret;
+  $('#agyStatus').textContent = '';
+  $('#agyModelOptions').replaceChildren(...(a.models || []).map(m => new Option(m.name, m.id)));
+}
+function agyRenderAccounts() {
+  const select = $('#agyAccount'); select.replaceChildren(new Option('새 계정', ''));
+  for (const a of agyState.accounts) select.add(new Option(a.name || '계정', a.id));
+  select.value = agyState.active;
+  $('#agyRemember').checked = agyState.remember;
+}
+function agyOpen() {
+  if (ai.agyId && agyState.accounts.some(a => a.id === ai.agyId)) agyState.active = ai.agyId;
+  agyRenderAccounts();
+  const account = agyState.accounts.find(a => a.id === agyState.active);
+  agyFill(account);
+  if (ai.prov === 'agy' && ai.model && account) $('#agyModel').value = ai.model;
+  $('#agyTransport').value = agyLocal() ? 'local' : 'direct';
+}
+function agySaveProfile() {
+  const a = agyDraft(); agyValidate(a);
+  if (!a.id) a.id = crypto.randomUUID ? crypto.randomUUID() : 'agy-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+  const next = structuredClone(agyState);
+  const index = agyState.accounts.findIndex(x => x.id === a.id);
+  if (index >= 0) agyState.accounts[index] = a; else agyState.accounts.push(a);
+  agyState.active = a.id; agyState.remember = $('#agyRemember').checked;
+  try { agyPersist(); } catch (_) { agyState = next; throw new Error('이 브라우저에서 계정을 저장하지 못했어요. 저장 공간과 사이트 설정을 확인해주세요.'); }
+  agyCache.clear(); agyRenderAccounts();
+  $('#agyStatus').textContent = '계정을 저장했어요. 아래 설정 저장을 누르면 대화에 적용돼요.';
+  return a;
+}
+function agyTransport(cfg) {
+  const mode = cfg.agyTransport || (agyLocal() ? 'local' : 'direct');
+  if (mode === 'local' && !agyLocal()) throw new Error('PC에서 연결 도우미를 실행한 뒤 http://127.0.0.1:17879 에서 앱을 열어주세요.');
+  return mode;
+}
+function agyContext(cfg) {
+  const a = cfg.agyAccount || agyState.accounts.find(a => a.id === cfg.agyId) || (!cfg.agyId && agyState.accounts.find(a => a.id === agyState.active));
+  if (!a) throw new Error('설정 → AGY 연결에서 계정을 저장해주세요.');
+  agyValidate(a);
+  const account = { ...a }, transport = agyTransport(cfg);
+  const key = JSON.stringify([account.id, account.token, account.clientId, account.clientSecret, account.endpoint, account.project, transport]);
+  if (!agyCache.has(key)) agyCache.set(key, {});
+  return { account, transport, cache: agyCache.get(key) };
+}
+function agySafeMessage(message) {
+  return String(message || '').replace(/(?:1\/\/|ya29\.)[^\s"'<>&]+/g, '[토큰 숨김]').slice(0, 220);
+}
+async function agyFetch(url, init, ctx) {
+  const headers = { ...init.headers };
+  if (ctx.transport === 'local') headers['X-Bamp-Agy'] = '1';
+  try { return await fetch(url, { ...init, headers, credentials: 'omit', redirect: 'error' }); }
+  catch (e) {
+    if (e.name === 'AbortError' || e.name === 'TimeoutError') throw e;
+    throw new Error(ctx.transport === 'direct' ? '직접 연결에 실패했어요. 인터넷 연결을 확인하고, 브라우저 연결 제한(CORS)이라면 아래 PC 연결 도우미를 사용해주세요.' : '연결 도우미에 연결하지 못했어요. 실행 창을 열어두었는지 확인해주세요.');
+  }
+}
+async function agyError(res, stage) {
+  let detail = '';
+  try { const j = await res.json(); detail = j.error?.message || j.error_description || (typeof j.error === 'string' ? j.error : ''); } catch (_) {}
+  const hint = { 400: '토큰 발급 앱·모델·요청 설정을 확인해주세요.', 401: '토큰이 만료되었거나 유효하지 않아요.', 403: '이 계정에는 접근 권한이 없거나 추가 인증이 필요해요.', 404: '이 서버에서 모델을 찾지 못했어요. 모델 목록을 새로 불러오세요.', 429: '사용량 제한에 도달했어요. 잠시 후 다시 시도해주세요.', 503: '서버가 혼잡해요. 잠시 후 다시 시도해주세요.' }[res.status];
+  return new Error(stage + ' (' + res.status + ') ' + (hint || '서버 요청에 실패했어요.') + (detail ? ' ' + agySafeMessage(detail) : ''));
+}
+async function agyAccess(ctx, signal, force = false) {
+  const { account: a, cache } = ctx;
+  if (a.token.startsWith('ya29.')) return a.token;
+  if (!force && cache.access && cache.expires > Date.now() + 60000) return cache.access;
+  const params = new URLSearchParams({ grant_type: 'refresh_token', refresh_token: a.token, client_id: a.clientId || AGY_DEFAULT_CLIENT, client_secret: a.clientSecret == null ? AGY_DEFAULT_SECRET : a.clientSecret });
+  const res = await agyFetch(ctx.transport === 'local' ? '/__agy/token' : 'https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString(), signal }, ctx);
+  if (!res.ok) throw await agyError(res, '토큰 갱신 실패');
+  const data = await res.json();
+  if (typeof data.access_token !== 'string' || !data.access_token) throw new Error('서버가 접속 토큰을 보내지 않았어요.');
+  cache.access = data.access_token; cache.expires = Date.now() + (Number(data.expires_in) || 300) * 1000;
+  return cache.access;
+}
+async function agyRequest(ctx, action, body, signal) {
+  const endpoint = Object.hasOwn(AGY_ENDPOINTS, ctx.account.endpoint) ? ctx.account.endpoint : 'daily';
+  const url = ctx.transport === 'local' ? '/__agy/' + endpoint + '/' + action : AGY_ENDPOINTS[endpoint] + '/v1internal:' + action + (action === 'streamGenerateContent' ? '?alt=sse' : '');
+  let token = await agyAccess(ctx, signal);
+  const send = () => agyFetch(url, { method: 'POST', signal, headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(body) }, ctx);
+  let res = await send();
+  if (res.status === 401 && ctx.account.token.startsWith('1//')) {
+    await res.body?.cancel(); token = await agyAccess(ctx, signal, true); res = await send();
+  }
+  if (!res.ok) throw await agyError(res, 'AGY 연결 실패');
+  return res;
+}
+async function agyProject(ctx, signal) {
+  if (ctx.account.project) return ctx.account.project;
+  if (ctx.cache.project) return ctx.cache.project;
+  const res = await agyRequest(ctx, 'loadCodeAssist', { metadata: { ide_type: 'ANTIGRAVITY', ide_version: '2.5.5', ide_name: 'antigravity' } }, signal);
+  const data = await res.json(), p = data.cloudaicompanionProject;
+  const id = typeof p === 'string' ? p : p?.id;
+  if (!id) throw new Error('계정의 프로젝트를 찾지 못했어요. Antigravity에서 계정의 초기 설정을 완료하거나 고급 설정에 프로젝트 ID를 입력해주세요.');
+  ctx.cache.project = id; return id;
+}
+function agyMessages(messages) {
+  const contents = [], system = [];
+  for (const m of messages) {
+    const input = Array.isArray(m.content) ? m.content : [{ type: 'text', text: String(m.content || '') }];
+    const parts = input.map(p => {
+      if (p.type === 'text') return { text: String(p.text || '') };
+      if (p.type === 'image_url') {
+        const match = /^data:(image\/[\w.+-]+);base64,([A-Za-z0-9+/=\s]+)$/.exec(p.image_url?.url || '');
+        if (!match) throw new Error('AGY 그림 대화는 앱에 첨부된 이미지로 보내주세요. 외부 이미지 주소는 지원하지 않아요.');
+        return { inlineData: { mimeType: match[1], data: match[2].replace(/\s/g, '') } };
+      }
+      throw new Error('이 메시지 첨부 형식은 AGY 연결에서 지원하지 않아요.');
+    }).filter(p => p.inlineData || p.text);
+    if (!parts.length) continue;
+    if (m.role === 'system' || m.role === 'developer') { system.push(...parts); continue; }
+    const role = m.role === 'assistant' ? 'model' : 'user';
+    if (contents.at(-1)?.role === role) contents.at(-1).parts.push(...parts);
+    else contents.push({ role, parts });
+  }
+  const request = { contents };
+  if (system.length) request.systemInstruction = { parts: system };
+  return request;
+}
+async function agyReadReply(res, onText, signal) {
+  let text = '';
+  const consume = value => {
+    const j = value.response || value;
+    if (j.error || value.error) throw new Error('AGY 응답 오류: ' + agySafeMessage((j.error || value.error).message || '생성 실패'));
+    const candidate = j.candidates?.[0];
+    const finish = candidate?.finishReason || j.promptFeedback?.blockReason;
+    if (finish) callApi.last.finish = String(finish);
+    for (const part of candidate?.content?.parts || []) if (typeof part.text === 'string' && !part.thought) text += part.text;
+    if (text && onText) onText(text);
+  };
+  if (/application\/json/i.test(res.headers.get('content-type') || '')) {
+    const data = await res.json(); (Array.isArray(data) ? data : [data]).forEach(consume);
+  } else {
+    if (!res.body) throw new Error('서버가 응답 본문을 보내지 않았어요.');
+    const reader = res.body.getReader(), decoder = new TextDecoder(); let buffer = '', lines = [], ended = false;
+    const event = () => {
+      if (!lines.length) return;
+      const raw = lines.join('\n'); lines = [];
+      if (raw.trim() === '[DONE]') { ended = true; return; }
+      let data;
+      try { data = JSON.parse(raw); } catch (_) { throw new Error('AGY 응답 형식을 읽지 못했어요.'); }
+      consume(data);
+    };
+    const line = value => { const l = value.replace(/\r$/, ''); if (!l) event(); else if (l.startsWith('data:')) lines.push(l.slice(5).replace(/^ /, '')); };
+    try {
+      while (!ended) {
+        signal?.throwIfAborted();
+        const { value, done } = await reader.read();
+        buffer += decoder.decode(value, { stream: !done });
+        let i;
+        while (!ended && (i = buffer.indexOf('\n')) >= 0) { line(buffer.slice(0, i)); buffer = buffer.slice(i + 1); }
+        if (done) { if (buffer) line(buffer); event(); break; }
+      }
+    } finally { try { await reader.cancel(); } catch (_) {} reader.releaseLock(); }
+  }
+  if (!text) throw new Error('AI가 답변을 보내지 않았어요.' + (callApi.last.finish ? ' 종료 사유: ' + callApi.last.finish : ''));
+  return text;
+}
+async function callAgy(cfg, messages, onText, signal, maxOverride) {
+  callApi.last = { finish: '', err: '' };
+  try {
+    const ctx = agyContext(cfg);
+    if (!cfg.model) throw new Error('AGY 모델을 선택하거나 모델 ID를 입력해주세요.');
+    const project = await agyProject(ctx, signal), request = agyMessages(messages);
+    const generationConfig = {};
+    if (Number.isFinite(cfg.temp)) generationConfig.temperature = cfg.temp;
+    const max = maxOverride && cfg.max ? Math.max(cfg.max, maxOverride) : cfg.max;
+    if (max > 0) generationConfig.maxOutputTokens = max;
+    if (Number.isFinite(cfg.extra?.top_p)) generationConfig.topP = cfg.extra.top_p;
+    request.generationConfig = generationConfig;
+    const uuid = crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2);
+    const body = { project, model: cfg.model, request, requestType: 'agent', userAgent: 'antigravity', requestId: 'agent-' + uuid };
+    const res = await agyRequest(ctx, 'streamGenerateContent', body, signal);
+    return await agyReadReply(res, onText, signal);
+  } catch (e) { callApi.last.err = agySafeMessage(e.message); throw e; }
+}
+async function agyModels(cfg, signal) {
+  const ctx = agyContext(cfg), project = await agyProject(ctx, signal);
+  const res = await agyRequest(ctx, 'fetchAvailableModels', { project }, signal), data = await res.json();
+  const raw = data.models;
+  const entries = Array.isArray(raw) ? raw.map(m => [m.id || m.name, m]) : Object.entries(raw || {});
+  return entries.filter(([id]) => id && typeof id === 'string').map(([id, m]) => ({ id, name: m.displayName || id, quota: m.quotaInfo })).sort((a, b) => a.name.localeCompare(b.name));
+}
+async function agyQuotaPanel(box) {
+  try {
+    const items = await agyModels(ai, AbortSignal.timeout(30000));
+    box.innerHTML = '<h4>AGY 모델 잔량</h4>' + (items.length ? items.map(m => {
+      const f = m.quota?.remainingFraction, percent = typeof f === 'number' ? Math.round(Math.max(0, Math.min(1, f)) * 100) + '%' : '정보 없음';
+      return '<div class="r"><span>' + esc(m.name) + '</span><small>' + percent + '</small></div>';
+    }).join('') : '<div class="msg0">모델 잔량 정보가 없어요.</div>');
+  } catch (e) { box.textContent = e.message; }
+}
+$('#agyAccount').onchange = () => {
+  agyState.active = $('#agyAccount').value;
+  agyFill(agyState.accounts.find(a => a.id === agyState.active));
+};
+$('#agyNew').onclick = () => { $('#agyAccount').value = ''; agyState.active = ''; agyFill(); $('#agyName').focus(); };
+$('#agySave').onclick = () => { try { agySaveProfile(); } catch (e) { $('#agyStatus').textContent = e.message; } };
+$('#agyDelete').onclick = () => {
+  const id = $('#agyAccount').value;
+  if (!id) return;
+  const previous = structuredClone(agyState);
+  agyState.accounts = agyState.accounts.filter(a => a.id !== id); agyState.active = agyState.accounts[0]?.id || '';
+  try { agyPersist(); } catch (_) { agyState = previous; $('#agyStatus').textContent = '계정을 삭제하지 못했어요.'; return; }
+  agyCache.clear(); agyRenderAccounts(); agyFill(agyState.accounts.find(a => a.id === agyState.active));
+  $('#agyStatus').textContent = '계정을 삭제했어요.';
+};
+$('#agyShowToken').onclick = () => { const p = $('#agyToken'); p.type = p.type === 'password' ? 'text' : 'password'; $('#agyShowToken').textContent = p.type === 'password' ? '보기' : '숨기기'; };
+$('#agyRemember').onchange = () => {
+  const old = agyState.remember; agyState.remember = $('#agyRemember').checked;
+  try { agyPersist(); } catch (_) { agyState.remember = old; $('#agyRemember').checked = old; $('#agyStatus').textContent = '저장 방식을 바꾸지 못했어요.'; }
+};
+$('#agyLoadModels').onclick = async () => {
+  const button = $('#agyLoadModels'), out = $('#agyStatus'), draft = agyDraft();
+  button.disabled = true; out.textContent = '계정의 모델을 확인하는 중…';
+  try {
+    const items = await agyModels({ agyAccount: draft, agyTransport: $('#agyTransport').value }, AbortSignal.timeout(30000));
+    if (JSON.stringify(agyDraft()) !== JSON.stringify(draft)) return;
+    $('#agyModelOptions').replaceChildren(...items.map(m => new Option(m.name, m.id)));
+    if (!$('#agyModel').value && items[0]) $('#agyModel').value = items[0].id;
+    out.textContent = items.length ? items.length + '개 모델을 불러왔어요. 모델 입력칸에서 선택해주세요.' : '모델 목록이 비어 있어요. 사용 가능한 모델 ID를 직접 입력해주세요.';
+  } catch (e) { out.textContent = e.name === 'TimeoutError' ? '모델 목록 요청 시간이 초과됐어요.' : e.message; }
+  finally { button.disabled = false; }
+};
+$('#agyDownloadBridge').onclick = () => {
+  const bytes = Uint8Array.from(atob(AGY_BRIDGE_BASE64), c => c.charCodeAt(0));
+  const url = URL.createObjectURL(new Blob([bytes], { type: 'text/javascript;charset=utf-8' }));
+  const a = document.createElement('a'); a.href = url; a.download = 'agy-bridge.mjs'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 10000);
+};
+
 function syncProvUI() {
   const v = segGet($("#sProv"));
   $("#sApi").hidden = v === "builtin";
   $("#sUrlWrap").hidden = v !== "custom";
-  $("#sProvHint").textContent = v === "builtin"
+  $("#agyPane").hidden = v !== "agy";
+  $("#sKeyWrap").hidden = v === "agy";
+  $("#sApiModelWrap").hidden = v === "agy";
+  $("#sProvHint").textContent = v === "agy" ? "AGY 계정으로 대화해요. 토큰과 모델을 설정한 뒤 연결 테스트를 눌러주세요." : v === "builtin"
     ? "claude.ai 안에서만 돼요. 본인 Claude 사용량으로 답하고, 캐릭터마다 빠름/기본/고급을 고를 수 있어요."
     : (inClaude ? "claude.ai 안에서는 외부 API 연결이 막혀 있어요. 이 파일을 깃허브 페이지 등에 올려서 열어야 작동해요." : "입력한 API로 직접 연결해요. 사용료는 해당 서비스에서 나가요.");
 }
@@ -2068,11 +2376,12 @@ $("#sFontSel").onchange = () => { ai.font = $("#sFontSel").value; applyLook(); s
 $("#sCfs").oninput = () => { ai.cfs = parseFloat($("#sCfs").value); $("#sCfsLabel").textContent = "카드 글자 크기 · " + ai.cfs + "px"; applyLook(); saveAi(); };
 $("#sFs").oninput = () => { ai.fs = parseFloat($("#sFs").value); $("#sFsLabel").textContent = "글자 크기 · " + ai.fs + "px"; applyLook(); saveAi(); };
 function readSettings() {
-  return { models: $("#sModels").value, home: ai.home, prov: segGet($("#sProv")), url: $("#sUrl").value.trim().replace(/\/+$/, ""), key: $("#sKey").value.trim(),
-    model: $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 0, merge: $("#sMerge").checked, uav: $("#sUav").checked, trans: $("#sTrans").checked, pron: $("#sPron").checked, font: $("#sFontSel").value, fs: parseFloat($("#sFs").value) || 15, cfs: parseFloat($("#sCfs").value) || 14, theme: $("#sTheme").value, ttsKey: $("#sTtsKey").value.trim(), ttsModel: $("#sTtsModel").value.trim(), ttsAuto: $("#sTtsAuto").checked, ttsOn: $("#sTtsOn").checked, ttsVia: ["google", "other"].includes(segGet($("#sTtsVia"))) ? segGet($("#sTtsVia")) : "same", ttsUrl: $("#sTtsUrl").value.trim(), ttsOKey: $("#sTtsOKey").value.trim() };
+  return { agyId: agyState.active, agyTransport: $("#agyTransport").value, regularModel: $("#sModel").value.trim(), models: $("#sModels").value, home: ai.home, prov: segGet($("#sProv")), url: $("#sUrl").value.trim().replace(/\/+$/, ""), key: $("#sKey").value.trim(),
+    model: segGet($("#sProv")) === "agy" ? $("#agyModel").value.trim() : $("#sModel").value.trim(), temp: parseFloat($("#sTemp").value), max: parseInt($("#sMax").value, 10) || 0, merge: $("#sMerge").checked, uav: $("#sUav").checked, trans: $("#sTrans").checked, pron: $("#sPron").checked, font: $("#sFontSel").value, fs: parseFloat($("#sFs").value) || 15, cfs: parseFloat($("#sCfs").value) || 14, theme: $("#sTheme").value, ttsKey: $("#sTtsKey").value.trim(), ttsModel: $("#sTtsModel").value.trim(), ttsAuto: $("#sTtsAuto").checked, ttsOn: $("#sTtsOn").checked, ttsVia: ["google", "other"].includes(segGet($("#sTtsVia"))) ? segGet($("#sTtsVia")) : "same", ttsUrl: $("#sTtsUrl").value.trim(), ttsOKey: $("#sTtsOKey").value.trim() };
 }
 $("#setBtn").onclick = () => {
-  segSet($("#sProv"), ai.prov); $("#sUrl").value = ai.url; $("#sKey").value = ai.key; $("#sModel").value = ai.model; $("#sModels").value = ai.models || "";
+  agyOpen();
+  segSet($("#sProv"), ai.prov); $("#sUrl").value = ai.url; $("#sKey").value = ai.key; $("#sModel").value = ai.prov === "agy" ? (ai.regularModel || "") : ai.model; $("#sModels").value = ai.models || "";
   $("#sTemp").value = ai.temp; $("#sTempV").textContent = ai.temp; $("#sMax").value = ai.max || ""; $("#sMerge").checked = ai.merge !== false; $("#sUav").checked = ai.uav !== false; $("#sTrans").checked = ai.trans !== false; $("#sPron").checked = !!ai.pron;
   $("#sTheme").value = ai.theme || "light";
   $("#sTtsKey").value = ai.ttsKey || ""; $("#sTtsModel").value = ai.ttsModel || TTS_DEFAULT_MODEL; $("#sTtsAuto").checked = !!ai.ttsAuto; $("#sTtsOn").checked = !!ai.ttsOn;
@@ -2085,8 +2394,12 @@ $("#setBtn").onclick = () => {
   syncProvUI(); psRefreshSelects(); show("settings");
 };
 $("#sSave").onclick = () => {
+  if (segGet($("#sProv")) === "agy") {
+    try { if (!$("#agyModel").value.trim()) throw new Error("AGY 모델을 입력해주세요."); agySaveProfile(); }
+    catch (e) { $("#agyStatus").textContent = e.message; $("#agyPane").scrollIntoView({block:"start"}); return; }
+  }
   ai = readSettings();
-  ai.home = { prov: ai.prov, url: ai.url, key: ai.key, model: ai.model };
+  ai.home = { prov: ai.prov, url: ai.url, key: ai.key, model: ai.model, agyId: ai.agyId };
   applyLook(); updModelBtn();
   if (cur) renderLog();
   try { localStorage.setItem(SKEY, JSON.stringify(ai)); } catch(e) {}
@@ -2094,9 +2407,10 @@ $("#sSave").onclick = () => {
 };
 $("#sTest").onclick = async () => {
   const cfg = readSettings(), out = $("#sTestOut");
+  if (cfg.prov === "agy") cfg.agyAccount = agyDraft();
   out.textContent = "연결 중...";
   try {
-    const t = await callApi(cfg, [{ role: "user", content: "한 단어로만 대답해: 안녕" }], null, null);
+    const t = await callApi(cfg, [{ role: "user", content: "한 단어로만 대답해: 안녕" }], null, AbortSignal.timeout(45000));
     out.textContent = "연결됨: " + t.slice(0, 30);
   } catch (e) { out.textContent = e.message || "연결 실패"; }
 };
@@ -2117,6 +2431,7 @@ async function agQuotaOpen() {
   w.onclick = e => { if (e.target === w || e.target.closest("[data-x]")) w.remove(); };
   document.body.appendChild(w);
   const box = w.querySelector(".agq");
+  if (ai.prov === "agy") { await agyQuotaPanel(box); return; }
   if (ai.prov === "builtin" || !agRoot()) { box.innerHTML = `<h4>잔량</h4><div class="msg0">AG Bridge 주소로 연결했을 때만 볼 수 있어요.</div>`; return; }
   let q = null, d = null, err = "";
   try { [q, d] = await Promise.all([agGet("/dashboard/api/quota").catch(e => { err = e.message; return null; }), agGet("/dashboard/api/data").catch(e => { err = err || e.message; return null; })]); } catch (e) { err = e.message; }
@@ -2146,7 +2461,7 @@ async function agQuotaOpen() {
   box.innerHTML = h;
   const b = $("#qQuota"); if (b) b.textContent = low != null ? "잔량 · " + low + "%" : "잔량";
 }
-function apiBase(cfg) { return cfg.prov === "openai" ? "https://api.openai.com/v1" : cfg.url; }
+function apiBase(cfg) { if (cfg.prov === "agy") return ""; return cfg.prov === "openai" ? "https://api.openai.com/v1" : cfg.url; }
 /* 제미나이 안전 필터 완화 (v43 방식). 중계 서버가 그대로 넘겨줘야 먹힌다 */
 const GEMINI_SAFE_CATS = ["HARM_CATEGORY_HARASSMENT", "HARM_CATEGORY_HATE_SPEECH", "HARM_CATEGORY_SEXUALLY_EXPLICIT", "HARM_CATEGORY_DANGEROUS_CONTENT", "HARM_CATEGORY_CIVIC_INTEGRITY"];
 function applyGeminiSafety(body) {
@@ -2157,6 +2472,7 @@ function applyGeminiSafety(body) {
   return body;
 }
 async function callApi(cfg, messages, onText, signal, maxOverride) {
+  if (cfg.prov === "agy") return callAgy(cfg, messages, onText, signal, maxOverride);
   if (!cfg.key && cfg.prov === "openai") throw new Error("API 키를 입력해주세요.");
   if (cfg.prov === "custom" && !cfg.url) throw new Error("API 주소를 입력해주세요.");
   if (!cfg.model) throw new Error("모델 이름을 입력해주세요.");
@@ -4387,7 +4703,7 @@ window.BamPhone = {
       .filter(t => t.text.length >= 2);
   },
   api: () => {
-    if (!ai || ai.prov === "builtin" || !ai.key) return {};
+    if (!ai || ai.prov === "builtin" || ai.prov === "agy" || !ai.key) return {};
     if (ai.prov === "openai") return { provider: "openai", apiUrl: "https://api.openai.com/v1", apiKey: ai.key, model: ai.model || "" };
     return { provider: "custom", apiUrl: ai.url || "", apiKey: ai.key, model: ai.model || "" };
   }
@@ -7125,6 +7441,7 @@ ${convo}`;
 };
 /* 모델 목록 · 도구줄에서 바로 바꾸기 (v43 방식) */
 function modelList() {
+  if (ai.prov === "agy") return (agyState.accounts.find(a => a.id === ai.agyId)?.models || []).map(m => ({label:m.name,model:m.id}));
   return String(ai.models || "").split("\n").map(L => {
     const v = L.split("|").map(x => x.trim());
     if (!v[0]) return null;
@@ -7140,7 +7457,7 @@ function updModelBtn() { const b = $("#qModel"); if (b) b.textContent = "모델 
 function saveAi() { try { localStorage.setItem(SKEY, JSON.stringify(ai)); } catch (e) {} }
 $("#qModel").onclick = () => {
   if (busy) return;
-  if (!ai.home) ai.home = { prov: ai.prov, url: ai.url, key: ai.key, model: ai.model };
+  if (!ai.home) ai.home = { prov: ai.prov, url: ai.url, key: ai.key, model: ai.model, agyId: ai.agyId };
   const h = ai.home, list = modelList();
   const same = (m, u) => ai.prov !== "builtin" && m === ai.model && (!u || u === ai.url);
   const acts = [[(h.model === ai.model && h.prov === ai.prov && h.url === ai.url ? "✓ " : "") + "기본 · " + (h.prov === "builtin" ? "내장" : h.model), () => { Object.assign(ai, h); saveAi(); updModelBtn(); updateBanner(); }]];
@@ -8098,7 +8415,7 @@ function ttsLine(text, fmt) {
 function ttsReady() {
   if (ai.ttsVia === "google") return !!ai.ttsKey;
   if (ai.ttsVia === "other") return !!(ai.ttsOn && ai.ttsUrl);
-  return !!(ai.ttsOn && ai.prov !== "builtin" && (ai.prov === "openai" || ai.url));
+  return !!(ai.ttsOn && ai.prov !== "agy" && ai.prov !== "builtin" && (ai.prov === "openai" || ai.url));
 }
 function b64buf(b64) { const bin = atob(b64), ab = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) ab[i] = bin.charCodeAt(i); return ab; }
 function pcmBuf(bytes, rate) {
