@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.84","items":[]}
+  {"v":"3.86","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -559,7 +559,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root[data-skin="pk"] .log.fmt-novel .msg.char p:has(> .say:only-child) .say{color:#49343E}
 :root[data-skin="pk"] body[data-novelbg] .log.fmt-novel .msg.char p:has(> .say:only-child){background:rgba(255,240,247,.94);color:#49343E !important;text-shadow:none !important}
 :root[data-skin="pk"] body[data-novelbg] .log.fmt-novel .msg.char p:has(> .say:only-child) .say{color:#49343E !important}
-:root[data-skin="pk"] .sms{background:#FBEAF1;border:1px solid #D7A9BB;border-radius:3px}
+:root[data-skin="pk"] .sms{background:#FFFFFF;border:1px solid #C8C8C8;border-radius:3px}
 
 /* ===== 핑크 (딸기토끼 · v43에서 가져옴) ===== */
 :root[data-skin="berry"]{--bg:#fff8fa;--panel:#fffdfe;--field:#fff0f6;--line:#ffcfe0;--ink:#5c3346;--soft:#c78aa2;--faint:#c78aa2;--user-bg:#ffe3ee;--char-bg:#fff6f9;--narr:#7E7986;--accent:#ff5c7f;--accent-ink:#fff}
@@ -579,10 +579,10 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root[data-skin="berry"] body:not([data-novelbg]) #chat .composer .quick button{background:rgba(255,255,255,.7);border-color:#ffd6e4;color:#c06a8a}
 :root[data-skin="berry"] body:not([data-novelbg]) #chat #input{border-radius:22px;border:1px solid #ffd6e4;background:#fffdfe}
 :root[data-skin="berry"] body:not([data-novelbg]) #chat #send{background:linear-gradient(135deg,#ff9ab8,#ff5c7f);color:#fff;border:0;box-shadow:0 4px 10px rgba(255,92,127,.38)}
-:root[data-skin="berry"] .sms{background:rgba(255,92,127,.10)}
+:root[data-skin="berry"] .sms{background:#fffbfd;box-shadow:0 2px 8px rgba(255,140,180,.15)}
 
 :root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) header.bar{margin:0}
-:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .sms{background:var(--char-bg);border:1px solid var(--ms-bubble-line)}
+:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .sms{background:var(--char-bg);border:1px solid var(--ms-bubble-line);color:var(--ink)}
 /* ===== 메신저 창 테마 (XP 블루 · 핑크 버디 · 실버 아쿠아) — themes 파일에서 그대로 ===== */
 :root[data-skin="xpblue"]{--bg:#e0eeff;--panel:#f8fbff;--ink:#213855;--soft:#607590;--line:#b1c6e1;--accent:#1764d8;--accent-ink:#fff;--char-bg:#f9fbff;--user-bg:#fff1cd;--narr:#516782;--faint:#6b7c92;--danger:#b04050;--ms-frame:#2870d6;--ms-title:linear-gradient(#78b3ff 0%,#176ff2 16%,#0062dc 80%,#004cc7);--ms-chrome:linear-gradient(#fafaf7,#e5e4df);--ms-title-ink:#fff;--ms-field:#fff;--ms-user-line:#ddcb97;--ms-bubble-line:#a1c1ea;--ms-send:linear-gradient(#94c8ff,#2685fc 48%,#0660df 51%,#317dec);--ms-cat:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20fill%3D%22%23153aa4%22%20d%3D%22M4%203h6v3h3v3h6V6h3V3h6v12h3v12h-3v3H4v-3H1V15h3z%22%2F%3E%3Cpath%20fill%3D%22%23fffdf9%22%20d%3D%22M7%206h3v6h12V6h3v12h3v6h-3v3H7v-3H4v-6h3z%22%2F%3E%3Cpath%20fill%3D%22%23f7b1c5%22%20d%3D%22M7%208h3v4H7zm15%200h3v4h-3zM5%2020h5v4H5zm17%200h5v4h-5z%22%2F%3E%3Cpath%20fill%3D%22%23183c9e%22%20d%3D%22M10%2016h3v3h-3zm10%200h3v3h-3zm-5%205h3v2h-3z%22%2F%3E%3C%2Fsvg%3E")}
 :root[data-skin="pinkbuddy"]{--bg:#fff8fc;--panel:#fffafd;--ink:#4b354b;--soft:#886d84;--line:#e7b4ce;--accent:#bc4f89;--accent-ink:#fff;--char-bg:#fff9fc;--user-bg:#eae2f7;--narr:#80667b;--faint:#8e7489;--danger:#b43f5f;--ms-frame:#cc719e;--ms-title:linear-gradient(#ffdbed,#f5a4cc 18%,#df76a8 80%,#e79cbd);--ms-chrome:linear-gradient(#fff0f7,#f6cfe2);--ms-title-ink:#fff;--ms-field:#fffdff;--ms-user-line:#cbb5e3;--ms-bubble-line:#dfb3cc;--ms-send:linear-gradient(#ffe0f0,#f4a0ca 48%,#dc71a4 51%,#e98ab8);--ms-cat:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20shape-rendering%3D%22crispEdges%22%3E%3Cpath%20fill%3D%22%23153aa4%22%20d%3D%22M4%203h6v3h3v3h6V6h3V3h6v12h3v12h-3v3H4v-3H1V15h3z%22%2F%3E%3Cpath%20fill%3D%22%23fffdf9%22%20d%3D%22M7%206h3v6h12V6h3v12h3v6h-3v3H7v-3H4v-6h3z%22%2F%3E%3Cpath%20fill%3D%22%23f7b1c5%22%20d%3D%22M7%208h3v4H7zm15%200h3v4h-3zM5%2020h5v4H5zm17%200h5v4h-5z%22%2F%3E%3Cpath%20fill%3D%22%23183c9e%22%20d%3D%22M10%2016h3v3h-3zm10%200h3v3h-3zm-5%205h3v2h-3z%22%2F%3E%3C%2Fsvg%3E")}
@@ -641,6 +641,11 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .seg button.on{background:var(--accent);color:var(--accent-ink)}
 :root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .row{border-bottom:1px solid var(--line);background:var(--panel)}
 @media(max-height:600px){:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) #chat header.bar{min-height:50px;padding-block:5px}:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) #chat header.bar::before{height:32px;width:32px;background-size:24px}:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .ms-tabs,:root:is([data-skin="xpblue"],[data-skin="pinkbuddy"],[data-skin="silveraqua"]) .ms-bottom{display:none}}
+
+/* 문자 말풍선은 테마와 상관없이 보통 휴대폰 문자 색 (받은 건 회색, 보낸 건 파랑) */
+:root .log .sms{background:#E9E9EB !important;color:#000 !important;border:0 !important;box-shadow:none !important}
+:root[data-theme="night"] .log .sms{background:#3A3A3C !important;color:#fff !important}
+:root .log .msg.user .sms{background:#0A84FF !important;color:#fff !important}
 </style>
 <style id="tsukiyo-theme">
 @import url("https://fonts.googleapis.com/css2?family=DotGothic16&family=Shippori+Mincho:wght@500&display=swap");
