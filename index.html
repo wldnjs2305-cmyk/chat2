@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.80","items":[]}
+  {"v":"3.84","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -283,9 +283,15 @@ body[data-novelbg] .unov .nn{color:rgba(232,232,240,.80);text-shadow:0 1px 2px r
 .fmt-novel .narr,.fmt-script .narr,body[data-novelbg] .log .narr{font-style:normal}
 .say{color:var(--ink)}
 .sms{display:inline-block;color:var(--ink);font-weight:500;font-style:normal;background:rgba(128,128,128,.16);border-radius:16px 16px 16px 4px;padding:7px 12px;line-height:1.5;max-width:85%;text-align:left}
-.smsl{margin:.45em 0}
+.smsl{margin:.45em 0;display:flex;flex-direction:column;align-items:flex-start}
+.msg.user .smsl{align-items:flex-end}
+.msg.user:not(.unov) .sms{max-width:100%}
+.msg.user.unov .smsl{margin-left:15%}
 .msg.user .sms{border-radius:16px 16px 4px 16px}
-.smst{color:var(--faint);font-size:.78em;margin-left:6px;font-style:normal;white-space:nowrap}
+.smsl.cont .sms{border-radius:16px !important}
+.log p.smsl.cont{margin-bottom:0 !important}
+.log p.smsl.cont + p.smsl{margin-top:3px !important}
+.smst{color:var(--faint);font-size:.74em;margin:3px 6px 0;font-style:normal;white-space:nowrap;line-height:1.2}
 body[data-novelbg] .log .sms{color:var(--saycol,#F4F4F8)}
 .tools{display:none}
 .acts{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0}
@@ -2290,10 +2296,10 @@ function userNovelHTML(raw) {
   if (/^\s*[\/#]/.test(src)) return `<p class="np"><span class="ncmd">${esc(src.trim())}</span></p>`;
   const starMode = /\*/.test(src), quoteMode = !starMode && /["“「『]/.test(src);
   let out = "";
-  src.split(/\n+/).forEach(line => {
-    line = line.trim(); if (!line) return;
+  const ulines = src.split(/\n+/).map(x => x.trim()).filter(Boolean);
+  ulines.forEach((line, li) => {
     const sm = smsMatch(line);
-    if (sm) { out += `<p class="np smsl"><span class="sms">${esc(sm[1].trim())}</span>${sm[2] ? `<span class="smst">${esc(sm[2].replace(/\s+/g, " "))}</span>` : ""}</p>`; return; }
+    if (sm) { const sk = sm[2] ? sm[2].replace(/\s+/g, " ") : "", nx = smsMatch(ulines[li + 1] || ""), same = sk && nx && nx[2] && nx[2].replace(/\s+/g, " ") === sk; out += `<p class="np smsl${same ? " cont" : ""}"><span class="sms">${esc(sm[1].trim())}</span>${sk && !same ? `<span class="smst">${esc(sk)}</span>` : ""}</p>`; return; }
     let segs = [];
     if (starMode) segs = starSegs(line);
     else if (!quoteMode) segs = [{ nar: false, t: line }];
@@ -3096,13 +3102,20 @@ function renderBlocks(text, fmt) {
   flush();
   return html || `<div class="body"></div>`;
 }
+// 문자 줄이면 시각(띄어쓰기 정리)을, 시각이 없으면 "", 문자 줄이 아니면 null
+function smsKey(l) {
+  l = String(l || "").trim();
+  const sm = l.match(SMS_RE);
+  if (!sm || /^\[\[/.test(l) || /^\//.test(sm[1].trim()) || OC_KINDS.includes(sm[1].trim())) return null;
+  return sm[2] ? sm[2].replace(/\s+/g, " ") : "";
+}
 function renderText(text, fmt) {
   fmt = fmt || "bubble";
   const narrDefault = fmt !== "bubble";
   const lines = text.replace(/\r/g, "").split(/\n/).map(l => l.trim()).filter(Boolean);
-  return lines.map(l => {
-    const sm = l.match(SMS_RE);
-    if (sm && !/^\[\[/.test(l) && !/^\//.test(sm[1].trim()) && !OC_KINDS.includes(sm[1].trim())) return `<p class="smsl"><span class="sms">${esc(sm[1].trim())}</span>${sm[2] ? `<span class="smst">${esc(sm[2].replace(/\s+/g, " "))}</span>` : ""}</p>`;
+  return lines.map((l, li) => {
+    const sm = l.match(SMS_RE), sk = smsKey(l);
+    if (sk !== null) { const same = sk && smsKey(lines[li + 1]) === sk; return `<p class="smsl${same ? " cont" : ""}"><span class="sms">${esc(sm[1].trim())}</span>${sk && !same ? `<span class="smst">${esc(sk)}</span>` : ""}</p>`; }
     const name = l.match(/^([^\s:|*"“(]{1,14})\s*[:|]\s*(.*)$/);
     let prefix = "";
     if (fmt === "script" && name) { prefix = `<span class="spk">${esc(name[1])}</span><span class="bar">|</span>`; l = name[2]; }
