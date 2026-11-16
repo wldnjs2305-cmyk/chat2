@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.90","items":[]}
+  {"v":"3.91","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -653,6 +653,12 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 .memob{background:#FFF6C2;color:#3a3526;border:1px solid rgba(0,0,0,.06);border-radius:3px;padding:12px 14px;max-width:80%;line-height:1.7;white-space:pre-wrap;box-shadow:0 3px 8px rgba(0,0,0,.10);transform:rotate(-1deg);font-style:normal;text-align:left}
 .memol.me .memob{transform:rotate(1deg)}
 :root[data-theme="night"] .memob{background:#4A4428;color:#F1EAD0;border-color:rgba(255,255,255,.08)}
+
+/* 선택지 버튼 · 사건 주사위 */
+.choices{display:flex;flex-direction:column;align-items:flex-end;gap:7px;margin:12px 0 4px}
+.choices button{border:1.5px solid var(--accent);background:transparent;color:var(--accent);border-radius:18px;padding:8px 15px;font-size:.92em;text-align:right;max-width:85%;line-height:1.4}
+.choices button:active{background:var(--accent);color:var(--accent-ink)}
+.ooc.dice{font-weight:600;letter-spacing:.02em}
 </style>
 <style id="tsukiyo-theme">
 @import url("https://fonts.googleapis.com/css2?family=DotGothic16&family=Shippori+Mincho:wght@500&display=swap");
@@ -1686,6 +1692,8 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
         <div class="seg" id="fDeco"><button data-v="off">끔</button><button data-v="some">가끔</button><button data-v="many">자주</button></div>
         <label>말풍선 쪼개기 (답을 짧은 말풍선 여러 개로, 말풍선 모드만)</label>
         <div class="seg" id="fSplit"><button data-v="off">끔</button><button data-v="on">켬</button></div>
+        <label>선택지 (답 끝에 고를 수 있는 다음 행동 버튼)</label>
+        <div class="seg" id="fChoice"><button data-v="off">끔</button><button data-v="on">켬</button></div>
         <label for="fHand">편지·일기 필체</label>
         <select id="fHand"></select>
         <label for="fVoice">목소리</label>
@@ -1788,6 +1796,7 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
       <div class="quick">
         <button id="qRegen">다시 생성</button>
         <button id="qDelLast">마지막 지우기</button>
+        <button id="qDice">🎲 사건</button>
         <button id="qLen">응답</button>
         <button id="qModel">모델</button>
         <button id="qQuota">잔량</button>
@@ -3099,6 +3108,15 @@ function decoFill(root, blocks) {
     box.appendChild(f);
   });
 }
+// 선택지(▸ 줄)를 떼어 내요
+function choicePull(t) { const ch = []; const text = String(t || "").split("\n").filter(l => { const m = l.match(/^\s*[▸▶►]\s*(.+)$/); if (m) { ch.push(m[1].trim()); return false; } return true; }).join("\n").replace(/\n{3,}/g, "\n\n").trim(); return { text, ch }; }
+const DICE = ["예상 못한 사람이 찾아온다", "전화나 문자가 온다", "숨기던 비밀이 들킬 위기에 처한다", "갑작스러운 사고나 위험이 닥친다", "날씨나 정전 같은 환경이 갑자기 바뀐다", "작은 오해가 생긴다", "질투가 날 만한 상황이 벌어진다", "과거의 인물이 나타난다", "돈이나 물건 문제가 터진다", "누군가 몰래 엿보거나 엿듣고 있다", "급한 부탁이나 호출이 들어온다", "뜻밖의 선물이나 물건을 발견한다", "둘만 어딘가에 갇히거나 고립된다", "누군가 다치거나 아프게 된다"];
+function rollDice() {
+  if (busy || !cur) return;
+  const ev = DICE[Math.floor(Math.random() * DICE.length)];
+  msgs().push({ id: newId(), role: "user", dice: ev, text: "(사건 주사위: " + ev + ". 지금 장면에 이런 성격의 사건을 하나 일으켜 이야기를 흔든다. 세계관과 지금까지의 흐름에 맞게 구체적으로 만들고, 인물이 그 사건에 반응하게 한다. 유저의 말과 행동은 쓰지 않는다.)" });
+  save(); generate();
+}
 function renderPlainChunk(t) { return t && t.trim() ? renderBlocks(t, "bubble") : ""; }
 // >> 가 줄 중간에 붙어 나와도 새 줄로 떼어 내요
 function narrFix(t) { return String(t || "").replace(/([^\n>])[ \t]*(?:>>|》)[ \t]*/g, "$1\n>> "); }
@@ -3751,7 +3769,7 @@ function renderSub() {
 }
 function segSet(el, v) { el.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === v)); }
 function segGet(el) { return el.querySelector("button.on")?.dataset.v; }
-["#fLen", "#fTense", "#fFormat", "#fLang", "#fPLang", "#fNarr", "#fDeco", "#fSplit"].forEach(s => $(s).onclick = e => { if (e.target.dataset.v) segSet($(s), e.target.dataset.v); });
+["#fLen", "#fTense", "#fFormat", "#fLang", "#fPLang", "#fNarr", "#fDeco", "#fSplit", "#fChoice"].forEach(s => $(s).onclick = e => { if (e.target.dataset.v) segSet($(s), e.target.dataset.v); });
 
 function openEditor(id) {
   editing = id ? store.chars.find(c => c.id === id) : null;
@@ -3770,7 +3788,7 @@ function openEditor(id) {
   $("#fChar").value = c.prompt || "";
   $("#fWorld").value = c.world || "";
   $("#fUName").value = c.uname || ""; $("#fUser").value = c.upersona || "";
-  segSet($("#fLen"), c.len || "mid"); segSet($("#fTense"), c.tense || "present"); segSet($("#fFormat"), c.format || "bubble"); segSet($("#fLang"), c.lang || "ko"); segSet($("#fPLang"), c.plang || "same"); segSet($("#fNarr"), c.narr || "off"); segSet($("#fDeco"), c.deco || "some"); segSet($("#fSplit"), c.split ? "on" : "off");
+  segSet($("#fLen"), c.len || "mid"); segSet($("#fTense"), c.tense || "present"); segSet($("#fFormat"), c.format || "bubble"); segSet($("#fLang"), c.lang || "ko"); segSet($("#fPLang"), c.plang || "same"); segSet($("#fNarr"), c.narr || "off"); segSet($("#fDeco"), c.deco || "some"); segSet($("#fSplit"), c.split ? "on" : "off"); segSet($("#fChoice"), c.choice ? "on" : "off");
   if (!$("#fHand").options.length) $("#fHand").innerHTML = Object.keys(HANDS).map(n => `<option>${n}</option>`).join("");
   $("#fHand").value = HANDS[c.hand] ? c.hand : "단정";
   if (!$("#fVoice").options.length) $("#fVoice").innerHTML = TTS_VOICES.map(v => `<option value="${v[0]}">${v[0]} · ${v[1]}</option>`).join("");
@@ -3787,7 +3805,7 @@ let draftTimer = 0, draftOff = false;
 function draftKey() { return DRAFT_PRE + (editing ? editing.id : "new"); }
 function readDraftForm() {
   return { at: Date.now(), name: $("#fName").value, prompt: $("#fChar").value, world: $("#fWorld").value, uname: $("#fUName").value, upersona: $("#fUser").value,
-    samples: editSamples, greetings: editGreets, cast: editCast, len: segGet($("#fLen")), tense: segGet($("#fTense")), format: segGet($("#fFormat")), lang: segGet($("#fLang")), plang: segGet($("#fPLang")), narr: segGet($("#fNarr")), deco: segGet($("#fDeco")), split: segGet($("#fSplit")) === "on", hand: $("#fHand").value };
+    samples: editSamples, greetings: editGreets, cast: editCast, len: segGet($("#fLen")), tense: segGet($("#fTense")), format: segGet($("#fFormat")), lang: segGet($("#fLang")), plang: segGet($("#fPLang")), narr: segGet($("#fNarr")), deco: segGet($("#fDeco")), split: segGet($("#fSplit")) === "on", choice: segGet($("#fChoice")) === "on", hand: $("#fHand").value };
 }
 function writeDraft() { if (draftOff) return false; try { localStorage.setItem(draftKey(), JSON.stringify(readDraftForm())); return true; } catch (e) { return false; } }
 function draftSoon() { clearTimeout(draftTimer); draftTimer = setTimeout(writeDraft, 600); }
@@ -3799,7 +3817,7 @@ function applyDraft(d) {
   if (Array.isArray(d.greetings)) editGreets = d.greetings.length ? d.greetings : [""];
   if (Array.isArray(d.cast)) { editCast = d.cast; renderCastList(); }
   if (d.len) segSet($("#fLen"), d.len); if (d.tense) segSet($("#fTense"), d.tense); if (d.format) segSet($("#fFormat"), d.format);
-  if (d.lang) segSet($("#fLang"), d.lang); if (d.plang) segSet($("#fPLang"), d.plang); if (d.narr) segSet($("#fNarr"), d.narr); if (d.deco) segSet($("#fDeco"), d.deco); if (d.split != null) segSet($("#fSplit"), d.split ? "on" : "off"); if (d.hand && HANDS[d.hand]) $("#fHand").value = d.hand;
+  if (d.lang) segSet($("#fLang"), d.lang); if (d.plang) segSet($("#fPLang"), d.plang); if (d.narr) segSet($("#fNarr"), d.narr); if (d.deco) segSet($("#fDeco"), d.deco); if (d.split != null) segSet($("#fSplit"), d.split ? "on" : "off"); if (d.choice != null) segSet($("#fChoice"), d.choice ? "on" : "off"); if (d.hand && HANDS[d.hand]) $("#fHand").value = d.hand;
   renderStyleList(); renderIntroList(); setAvPreview();
 }
 function offerDraft() {
@@ -3839,7 +3857,7 @@ function editorData() {
     samples: editSamples.filter(sm => (sm.lines || []).some(l => l.t.trim())), greetings: editGreets.filter(t => t.trim()), styles: [], intros: [],
     cast: editCast.filter(x => (x.name || "").trim()).map(x => Object.assign({}, x, { name: x.name.trim(), samples: (x.samples || []).filter(sm => (sm.lines || []).some(l => l.t.trim())) })),
     uname: $("#fUName").value.trim(), upersona: $("#fUser").value,
-    len: segGet($("#fLen")), tense: segGet($("#fTense")), format: segGet($("#fFormat")), lang: segGet($("#fLang")), plang: segGet($("#fPLang")), narr: segGet($("#fNarr")), deco: segGet($("#fDeco")), split: segGet($("#fSplit")) === "on", hand: $("#fHand").value,
+    len: segGet($("#fLen")), tense: segGet($("#fTense")), format: segGet($("#fFormat")), lang: segGet($("#fLang")), plang: segGet($("#fPLang")), narr: segGet($("#fNarr")), deco: segGet($("#fDeco")), split: segGet($("#fSplit")) === "on", choice: segGet($("#fChoice")) === "on", hand: $("#fHand").value,
     voice: $("#fVoice").value, voiceStyle: $("#fVoiceStyle").value.trim(), voiceId: $("#fVoiceId").value.trim(),
     preset: $("#fPreset").dataset.v || ""
   };
@@ -3898,15 +3916,16 @@ function renderLog(errText) {
     const d = document.createElement("div");
     d.className = "msg " + (m.role === "user" ? "user" : "char");
     let content, bare = false, multi = null;
-    const dp = m.role === "assistant" && !m.ooc && !m.inner && !m.novel ? decoPull(m.text) : { text: m.text, blocks: [] }, mt = dp.text;
+    const cp = m.role === "assistant" && !m.ooc && !m.inner && !m.novel ? choicePull(m.text) : { text: m.text, ch: [] };
+    const dp = m.role === "assistant" && !m.ooc && !m.inner && !m.novel ? decoPull(cp.text) : { text: m.text, blocks: [] }, mt = dp.text;
     const isKiss = !!(m.role === "user" && m.kiss);
     const isDraw = !!(m.role === "user" && m.draw);
-    const isOocU = m.role === "user" && m.cmd === "/ooc";
+    const isOocU = m.role === "user" && (m.cmd === "/ooc" || !!m.dice);
     const isMemoU = m.role === "user" && !isOocU && /^\s*\[메모\]/.test(m.text || "");
     const unov = m.role === "user" && fmt !== "bubble" && !isOocU && !isMemoU && !isKiss && !isDraw;
     if (isDraw) content = drawCardHTML(m.draw, c);
     else if (isKiss) content = kissCardHTML(m.kiss);
-    else if (isOocU) content = `<div class="ooc">${esc(m.text)}</div>`;
+    else if (isOocU) content = m.dice ? `<div class="ooc dice">🎲 ${esc(m.dice)}</div>` : `<div class="ooc">${esc(m.text)}</div>`;
     else if (unov) content = `<div class="unovb">${userNovelHTML(m.text)}</div>`;
     else if (m.role === "user") content = `<div class="body">${renderText(m.text, fmt, true)}</div>`;
     else if (m.ooc) { content = `<div class="ooc">${esc(m.text)}</div>`; bare = true; }
@@ -3945,6 +3964,11 @@ function renderLog(errText) {
     else d.innerHTML = bare ? inner : `<div class="mrow">${avHTML(c, "mav")}<div class="mcol">${inner}</div></div>`;
     if (m.role !== "user" && !bare && !multi && d.querySelector(".who")) d.querySelector(".who").textContent = c.name;
     if (dp.blocks.length) decoFill(d, dp.blocks);
+    if (cp.ch.length && i === list.length - 1 && !busy) {
+      const box = document.createElement("div"); box.className = "choices";
+      cp.ch.forEach(t => { const b = document.createElement("button"); b.type = "button"; b.textContent = t; b.onclick = e => { e.stopPropagation(); if (busy) return; $("#input").value = t; send(); }; box.appendChild(b); });
+      d.appendChild(box);
+    }
     const whoEl = d.querySelector(".who");
     if (whoEl && m.role === "user") { if (ai.uav === false) whoEl.remove(); else whoEl.textContent = c.uname || "나"; }
     if (ttsReady() && m.role === "assistant" && !m.ooc && !m.inner && ttsLine(m.text, fmt)) {
@@ -4166,6 +4190,8 @@ function buildRules(c, cmd) {
 - 빈도: ${c.narr === "many" ? "응답마다 한 번 정도" : "서너 번에 한 번 정도, 필요할 때만"}.` : "";
   const splitRule = c.split && fmt === "bubble" ? `
 - 메신저로 문자하듯, 한 답을 짧은 말풍선 여러 개로 나눠 보낸다. 끊어서 보낼 자리마다 빈 줄(줄 두 번 바꿈)을 넣는다. 빈 줄 하나가 말풍선 하나다. 한 호흡에 할 말은 붙여 쓰고, 말이 넘어가거나 뜸을 들이는 곳에서 끊는다. 너무 잘게 쪼개지 않는다.` : "";
+  const choiceRule = c.choice && !cmd ? `
+- 답의 맨 끝에, ${c.uname || "유저"}가 다음에 할 만한 말이나 행동 선택지를 2~3개 붙인다. 한 줄에 하나씩 ▸ 로 시작해 짧게(20자 안팎) 쓴다. 서로 결이 다르게(다정, 도발, 엉뚱함 등) 만든다. 선택지는 본문에 섞지 않고 맨 끝에만 둔다.` : "";
   const dv = c.deco || "some";
   const decoRule = dv !== "off" && !cmd ? `
 - 이야기 속에 글로 된 물건(뉴스 기사, 편지, 전단지, 공지문, 쪽지, 영수증, 초대장, 문자·메신저·무전 같은 통신 화면 등)이 나와 그 내용을 보여줄 때는, 그 물건을 HTML로 꾸며 <꾸밈>과 </꾸밈> 사이에 넣는다. 두 표시는 각각 독립된 줄에 쓰고, 그 앞뒤로 평소처럼 글을 이어 쓴다.
@@ -4223,7 +4249,7 @@ ${sub(c.upersona, c) || "(설정 없음)"}
 [작성 규칙]
 - 한국어로 쓴다.
 ${tense}${povRule}
-${fmtRules}${langRule}${narrRule}${splitRule}${decoRule}
+${fmtRules}${langRule}${narrRule}${splitRule}${decoRule}${choiceRule}
 ${psReplace ? "" : `- 대사나 질문으로 끝내야 하는 건 아니다. 지문으로 끝나도 되고 대사로 끝나도 된다. 장면 흐름에 맞게 정한다.
 - 이전 응답의 형식을 그대로 따라 하지 않는다. 문단 수, 지문과 대사의 순서·비율·길이는 매번 새로 정한다. 지문으로 시작해도 되고 대사로 시작해도 된다. 어떤 응답은 지문이 많고 어떤 응답은 대사가 많아도 된다. 앞의 답과 모양이 비슷해지는 것을 경계한다.`}
 - ${u}의 새 대사·행동·동의를 대신 정하지 않는다.
@@ -4288,7 +4314,7 @@ function liveEl(c) {
   d.className = "msg char live";
   if (live.minH) d.style.minHeight = live.minH + "px";
   const typ = `${live.cmd && live.cmd !== "/ooc" ? "" : esc(iga(c.name)) + " "}입력 중<span class="dots"></span>`;
-  const lt = live.text ? decoLive(live.text) : "";
+  const lt = live.text ? decoLive(choicePull(live.text).text) : "";
   const inner = lt ? `<div class="body">${renderText(lt.replace(/^\s*>>\s*/gm, ""), fmt)}</div>`
     : bubble ? `<div class="body typbub"><span class="typing">${typ}</span></div>` : `<div class="typing">${typ}</div>`;
   if (bubble) { d.innerHTML = `<div class="mrow">${avHTML(c, "mav")}<div class="mcol"><div class="who"></div>${inner}</div></div>`; d.querySelector(".who").textContent = c.name; }
@@ -4351,8 +4377,10 @@ async function generate(extraUser, noCmd) {
   finalText = tidyModel(finalText).trim();
   if (finalText && !cmd) { finalText = smsTakeTimes(finalText, lastU).trim(); }
   if (finalText && ai.merge !== false && fmtOf(c) === "bubble" && !cmd) {
+    const cq = choicePull(finalText); finalText = cq.text;
     const dp = decoPull(finalText);
     finalText = mergeDialogue(dp.text).replace(/>> @@DECO(\d+)@@/g, (a, k) => "\n<꾸밈>\n" + dp.blocks[+k].trim() + "\n</꾸밈>\n").replace(/\n{3,}/g, "\n\n").trim();
+    if (cq.ch.length) finalText += "\n\n" + cq.ch.map(x => "▸ " + x).join("\n");
   }
   if (finalText && cmd && commerceKind(cmd)) { try { finalText = commerceResponse(finalText, c, cmd); } catch (e) { errMsg = e.message; finalText = ""; } }
   if (finalText && cmd) finalText = ocFinish(finalText, c, cmd);
@@ -4414,6 +4442,7 @@ function regen() {
 $("#send").onclick = send;
 $("#qQuota").onclick = () => agQuotaOpen();
 $("#qRegen").onclick = regen;
+$("#qDice").onclick = rollDice;
 const LEN_NAMES = { auto: "자동", short: "짧게", mid: "보통", long: "길게" };
 // ---------- 핸드폰 (phone.js, 깃허브 버전) ----------
 const phoneKV = {};
