@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.88","items":[]}
+  {"v":"3.89","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -646,6 +646,13 @@ body[data-kb="1"] .composer{padding-top:6px;padding-bottom:6px}
 :root .log .sms{background:#E9E9EB !important;color:#000 !important;border:0 !important;box-shadow:none !important}
 :root[data-theme="night"] .log .sms{background:#3A3A3C !important;color:#fff !important}
 :root .log .msg.user .sms{background:#0A84FF !important;color:#fff !important}
+
+/* 메모·쪽지 ({내용}) */
+.memol{display:flex;margin:.7em 0}
+.memol.me{justify-content:flex-end}
+.memob{background:#FFF6C2;color:#3a3526;border:1px solid rgba(0,0,0,.06);border-radius:3px;padding:12px 14px;max-width:80%;line-height:1.7;white-space:pre-wrap;box-shadow:0 3px 8px rgba(0,0,0,.10);transform:rotate(-1deg);font-style:normal;text-align:left}
+.memol.me .memob{transform:rotate(1deg)}
+:root[data-theme="night"] .memob{background:#4A4428;color:#F1EAD0;border-color:rgba(255,255,255,.08)}
 </style>
 <style id="tsukiyo-theme">
 @import url("https://fonts.googleapis.com/css2?family=DotGothic16&family=Shippori+Mincho:wght@500&display=swap");
@@ -2299,13 +2306,17 @@ function starSegs(line) {
   return segs;
 }
 function userNovelHTML(raw) {
-  const src = String(raw || "").replace(/\r/g, "");
+  const src = splitInline(String(raw || "").replace(/\r/g, ""));
   if (/^\s*[\/#]/.test(src)) return `<p class="np"><span class="ncmd">${esc(src.trim())}</span></p>`;
   const starMode = /\*/.test(src), quoteMode = !starMode && /["“「『]/.test(src);
   let out = "";
   const ulines = src.split(/\n+/).map(x => x.trim()).filter(Boolean);
+  const cue = MEMO_CUE.test(src);
   ulines.forEach((line, li) => {
+    const mm = memoMatch(line);
+    if (mm) { out += memoHTML(mm, true); return; }
     const sm = smsMatch(line);
+    if (sm && cue && !sm[2]) { out += memoHTML(sm[1].trim(), true); return; }
     if (sm) { const sk = sm[2] ? sm[2].replace(/\s+/g, " ") : "", nx = smsMatch(ulines[li + 1] || ""), same = sk && nx && nx[2] && nx[2].replace(/\s+/g, " ") === sk; out += `<p class="np smsl${same ? " cont" : ""}"><span class="sms">${esc(sm[1].trim())}</span>${sk && !same ? `<span class="smst">${esc(sk)}</span>` : ""}</p>`; return; }
     let segs = [];
     if (starMode) segs = starSegs(line);
@@ -2985,10 +2996,22 @@ function castSplit(text, c) {
 }
 const SMS_RE = /^\*?\s*\[([^\[\]]+)\]\s*\*?(?:\s*\*?\s*((?:오전|오후)\s*\d{1,2}:\d{2}|\d{1,2}:\d{2})\s*\*?)?$/;
 function smsMatch(l) {
-  const m = String(l || "").match(SMS_RE);
+  l = String(l || "").trim();
+  const m = l.match(SMS_RE);
   if (!m || /^\[\[/.test(l) || /^\//.test(m[1].trim()) || OC_KINDS.includes(m[1].trim())) return null;
+  // 문자: *[내용]* 처럼 별표로 감쌌거나, [내용] 오후 9:32 처럼 시각이 붙은 것만. 맨 [대괄호]는 간판·글씨로 봐요
+  const starred = /^\*\s*\[/.test(l) || /\]\s*\*/.test(l);
+  if (!starred && !m[2]) return null;
   return m;
 }
+// 메모·쪽지: {내용} 또는 *{내용}*
+const MEMO_RE = /^\*?\s*\{([^{}\n]+)\}\s*\*?$/;
+function memoMatch(l) { const m = String(l || "").trim().match(MEMO_RE); return m ? m[1].trim() : null; }
+// 내 메시지에 쪽지·메모를 남긴다는 말이 있으면 *[ ]* 도 메모로 그려요
+const MEMO_CUE = /쪽지|메모|포스트잇|종이|적어|적었|적는|써\s?놓|써\s?둔|써\s?두/;
+// 한 줄 안에 *지문* *[문자]* 처럼 붙여 써도 문자·메모를 따로 떼어 봐요
+function splitInline(t) { return String(t || "").replace(/[ \t]*(\*\s*[\[{][^\[\]{}\n]+[\]}]\s*\*)[ \t]*/g, "\n$1\n").replace(/\n{2,}/g, "\n").trim(); }
+function memoHTML(t, me) { return `<div class="memol${me ? " me" : ""}"><div class="memob">${esc(t)}</div></div>`; }
 function smsMin(t) {
   const m = String(t || "").match(/(오전|오후)?\s*(\d{1,2}):(\d{2})/);
   if (!m) return null;
@@ -3098,7 +3121,7 @@ function renderBlocks(text, fmt) {
   text = narrFix(text);
   const lines = text.replace(/\r/g, "").split(/\n/).map(l => l.trim()).filter(Boolean);
   let html = "", buf = [];
-  const isMsgLine = l => { const m = l.match(SMS_RE); return !!m && !/^\//.test(m[1].trim()) && !OC_KINDS.includes(m[1].trim()); };
+  const isMsgLine = l => !!smsMatch(l) || !!memoMatch(l);
   const joinBuf = () => fmt !== "bubble" ? buf.join("\n") : buf.reduce((acc, l, i) => i === 0 ? l : acc + ((isMsgLine(l) || isMsgLine(buf[i - 1])) ? "\n" : " ") + l, "");
   const flush = () => { if (buf.length) { html += `<div class="body">${renderText(joinBuf(), fmt)}</div>`; buf = []; } };
   lines.forEach(l => {
@@ -3113,17 +3136,21 @@ function renderBlocks(text, fmt) {
 }
 // 문자 줄이면 시각(띄어쓰기 정리)을, 시각이 없으면 "", 문자 줄이 아니면 null
 function smsKey(l) {
-  l = String(l || "").trim();
-  const sm = l.match(SMS_RE);
-  if (!sm || /^\[\[/.test(l) || /^\//.test(sm[1].trim()) || OC_KINDS.includes(sm[1].trim())) return null;
+  const sm = smsMatch(l);
+  if (!sm) return null;
   return sm[2] ? sm[2].replace(/\s+/g, " ") : "";
 }
-function renderText(text, fmt) {
+function renderText(text, fmt, mine) {
   fmt = fmt || "bubble";
   const narrDefault = fmt !== "bubble";
+  if (mine) text = splitInline(text);
   const lines = text.replace(/\r/g, "").split(/\n/).map(l => l.trim()).filter(Boolean);
+  const cue = mine && MEMO_CUE.test(text);
   return lines.map((l, li) => {
+    const mm = memoMatch(l);
+    if (mm) return memoHTML(mm, mine);
     const sm = l.match(SMS_RE), sk = smsKey(l);
+    if (sk !== null && cue && !sk) return memoHTML(sm[1].trim(), true);
     if (sk !== null) { const same = sk && smsKey(lines[li + 1]) === sk; return `<p class="smsl${same ? " cont" : ""}"><span class="sms">${esc(sm[1].trim())}</span>${sk && !same ? `<span class="smst">${esc(sk)}</span>` : ""}</p>`; }
     const name = l.match(/^([^\s:|*"“(]{1,14})\s*[:|]\s*(.*)$/);
     let prefix = "";
@@ -3881,7 +3908,7 @@ function renderLog(errText) {
     else if (isKiss) content = kissCardHTML(m.kiss);
     else if (isOocU) content = `<div class="ooc">${esc(m.text)}</div>`;
     else if (unov) content = `<div class="unovb">${userNovelHTML(m.text)}</div>`;
-    else if (m.role === "user") content = `<div class="body">${renderText(m.text, fmt)}</div>`;
+    else if (m.role === "user") content = `<div class="body">${renderText(m.text, fmt, true)}</div>`;
     else if (m.ooc) { content = `<div class="ooc">${esc(m.text)}</div>`; bare = true; }
     else if (m.inner) { content = `<div class="body inner">${esc(m.text)}</div>`; bare = fmt !== "bubble"; }
     else if (m.novel) { content = `<div class="novb">${renderText(m.text, "novel")}</div>`; bare = true; }
@@ -3997,7 +4024,7 @@ function mobRule(c) {
   return "주변 인물: 새로운 주변 인물을 등장시키지 않는다. 이미 장면에 있는 주변 인물은 흐름에 맞게 자연스럽게 퇴장시킨다. 설정에 있는 인물과 유저가 직접 등장시킨 인물은 예외다.\n";
 }
 function smsRule() {
-  return "휴대폰 문자나 메신저 메시지를 보여줄 때는 메시지 하나를 한 줄에 [메시지 내용] 오후 9:32 처럼 쓴다. 대괄호 안에는 메시지 내용만 넣고, 뒤에 보낸 시각을 오전/오후 시:분으로 붙인다. 시각은 장면의 시간 흐름에 맞게 정한다. 유저나 대화에 이미 나온 시각이 있으면 그 시각을 기준으로 이어 가고 그보다 앞선 시각을 쓰지 않는다. 연달아 보낸 메시지는 같은 분이거나 조금씩 늘어난다. 꾸민 박스로 보여줄 때는 이 표기 대신 박스 안에서 꾸민다. 답장은 바로 올 수도 있고, 바쁘거나 망설이거나 일부러 미루면 한참 뒤에 올 수도 있다. 상황과 성격에 맞게 정한다.\n";
+  return "휴대폰 문자나 메신저 메시지를 보여줄 때는 메시지 하나를 한 줄에 [메시지 내용] 오후 9:32 처럼 쓴다. 대괄호 안에는 메시지 내용만 넣고, 뒤에 보낸 시각을 오전/오후 시:분으로 붙인다. 시각은 장면의 시간 흐름에 맞게 정한다. 유저나 대화에 이미 나온 시각이 있으면 그 시각을 기준으로 이어 가고 그보다 앞선 시각을 쓰지 않는다. 연달아 보낸 메시지는 같은 분이거나 조금씩 늘어난다. 꾸민 박스로 보여줄 때는 이 표기 대신 박스 안에서 꾸민다. 답장은 바로 올 수도 있고, 바쁘거나 망설이거나 일부러 미루면 한참 뒤에 올 수도 있다. 상황과 성격에 맞게 정한다. 대괄호 [ ]는 휴대폰 문자·메신저에만 쓴다. 간판·팻말·표지판·물건에 적힌 글씨는 대괄호 없이 문장 속에 쓴다. 손으로 쓴 메모나 쪽지를 보여줄 때는 그 내용을 한 줄에 {메모 내용} 처럼 중괄호로 감싸 쓴다.\n";
 }
 function myRule() { const t = MY_RULE.trim(); return t && t !== "여기에 쓰세요" ? t + "\n" : ""; }
 // ---------- 프리셋 ----------
@@ -4367,7 +4394,7 @@ function send() {
   if (!pc && /^\/[^\s\/]+$/.test(v)) { alert("없는 명령어예요: " + v); return; }
   if (pc && pc.key === "/손끝") { $("#input").value = ""; autoGrow(); thumbKiss(); return; }
   if (pc && pc.key === "/그림") { $("#input").value = ""; autoGrow(); drawTogether(); return; }
-  const um = { id: newId(), role: "user", text: v };
+  const um = { id: newId(), role: "user", text: pc ? v : (/\*\s*[\[{]/.test(v) ? splitInline(v) : v) };
   if (!pc && smsBlank(v)) um.smsAsk = 1;
   if (pc) um.cmd = pc.key;
   msgs().push(um); save();
@@ -8106,7 +8133,7 @@ document.addEventListener("pointerdown", () => { if (ttsReady()) ttsUnlock(); },
 function ttsLine(text, fmt) {
   let t = String(text || "").replace(DECO_RE, "").replace(/\r/g, "");
   if (new RegExp("^\\s*\\[(" + OC_KINDS.join("|") + ")\\]").test(t)) return "";
-  t = t.split("\n").filter(l => !/^\s*(>>|》)/.test(l) && !(SMS_RE.test(l.trim()) && !/^\[\[/.test(l.trim()))).join("\n");
+  t = t.split("\n").filter(l => !/^\s*(>>|》)/.test(l) && !smsMatch(l) && !memoMatch(l)).join("\n");
   t = t.replace(/\[\[[^\]]*\]\]/g, "").replace(/\[\/?[^\]\n]{1,20}\]/g, " ");
   if (fmt && fmt !== "bubble") {
     const q = t.match(/"[^"]+"|“[^”]+”|「[^」]+」|『[^』]+』/g);
