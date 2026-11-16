@@ -6,7 +6,7 @@
 <title>밤편지 — 캐릭터 채팅</title>
 <script type="application/json" id="changelog">
 [
-  {"v":"3.89","items":[]}
+  {"v":"3.90","items":[]}
 ]
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3010,7 +3010,7 @@ function memoMatch(l) { const m = String(l || "").trim().match(MEMO_RE); return 
 // 내 메시지에 쪽지·메모를 남긴다는 말이 있으면 *[ ]* 도 메모로 그려요
 const MEMO_CUE = /쪽지|메모|포스트잇|종이|적어|적었|적는|써\s?놓|써\s?둔|써\s?두/;
 // 한 줄 안에 *지문* *[문자]* 처럼 붙여 써도 문자·메모를 따로 떼어 봐요
-function splitInline(t) { return String(t || "").replace(/[ \t]*(\*\s*[\[{][^\[\]{}\n]+[\]}]\s*\*)[ \t]*/g, "\n$1\n").replace(/\n{2,}/g, "\n").trim(); }
+function splitInline(t) { return String(t || "").replace(/[ \t]*(\*\s*[\[{][^\[\]{}\n]+[\]}]\s*\*(?:[ \t]*\*?[ \t]*(?:(?:오전|오후)[ \t]*)?\d{1,2}:\d{2}[ \t]*\*?)?)[ \t]*/g, "\n$1\n").replace(/\n{2,}/g, "\n").trim(); }
 function memoHTML(t, me) { return `<div class="memol${me ? " me" : ""}"><div class="memob">${esc(t)}</div></div>`; }
 function smsMin(t) {
   const m = String(t || "").match(/(오전|오후)?\s*(\d{1,2}):(\d{2})/);
